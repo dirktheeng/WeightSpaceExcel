@@ -1,0 +1,92 @@
+# func/date/dt_now (id 349): NOW and TODAY from the harness clock. Three phases, one step each.
+# T0 = 0 NOW, 1 TODAY. PC 0: io 4 (harness writes Unix seconds to CLOCK 0x301000), next self PC 1.
+# PC 1: read CLOCK, next self PC 2. PC 2: A = (1, 25569 + secs / 86400) for NOW, (1, 25569 + floor(secs / 86400))
+# for TODAY; STATUS 0; return LR, LP. UTC (no time zone offset exists yet; see the note).
+# Note: weights/func/date/dt_now.md.  C = 6755399441055744.
+input 65
+slice 0 0 1                       # v1 [x0] (clock seconds in PC 2)
+slice 0 8 11                      # v2 [PCr LR LP]
+slice 0 14 16                     # v3 [TA PA]
+slice 0 30 31                     # v4 [T0]
+concat 2 4                        # v5 [PCr LR LP T0]
+dense 5 3 4                       # v6
+  1 0 0 0
+  1 0 0 0
+  0 0 0 1
+  -0.5 -1.5 -0.5
+step 6                            # v7 [h1 h2 sT]
+dense 1 1 1                       # v8 [v = secs / 86400]
+  1.1574074074074074e-5
+  0
+dense 8 2 1                       # v9 [now = v + 25569, vv = v + 1e-9]
+  1
+  1
+  25569 1e-9
+slice 9 1 2                       # v10 [vv]
+dense 10 1 1                      # v11 + C
+  1
+  6755399441055744
+dense 11 1 1                      # v12 [r]
+  1
+  -6755399441055744
+concat 12 10                      # v13 [r vv]
+dense 13 1 2                      # v14 r - vv
+  1 -1
+  0
+step 14                           # v15 [g]
+concat 12 15                      # v16 [r g]
+dense 16 1 2                      # v17 [today = 25569 + floor(vv)]
+  1 -1
+  25569
+slice 9 0 1                       # v18 [now]
+concat 18 17                      # v19 [now today]
+dense 7 2 3                       # v20 [1 - sT, sT]
+  0 0 -1
+  0 0 1
+  1 0
+concat 20 19                      # v21
+mul 21 0 2 2 4                    # v22
+dense 22 1 2                      # v23 [res]
+  1 1
+  0
+dense 7 6 3                       # v24 G = [h2, 1 - h2, h2, 1 - h2, h2, h2]
+  0 1 0
+  0 -1 0
+  0 1 0
+  0 -1 0
+  0 1 0
+  0 1 0
+  0 1 0 1 0 0
+dense 7 1 3                       # v25 [1]
+  0 0 0
+  1
+slice 3 0 1                       # v26 [TA]
+slice 3 1 2                       # v27 [PA]
+slice 2 1 3                       # v28 [LR LP]
+concat 25 26                      # v29
+concat 29 23                      # v30
+concat 30 27                      # v31
+concat 31 28                      # v32 V = [1 TA res PA LR LP]
+concat 24 32                      # v33
+mul 33 0 6 6 12                   # v34 P0..P5
+concat 34 7                       # v35 [P0..P5 h1 h2 sT]
+dense 35 8 9                      # v36 words 0..7
+  0 0 0 0 1 0  0 -349 0
+  0 0 0 0 0 0  1 -1 0
+  0 0 0 0 0 0  3149824 -3149824 0
+  0 0 0 0 0 0  0 0 0
+  0 0 0 0 0 0  -4 0 0
+  0 0 0 0 0 0  0 0 0
+  0 0 0 0 0 0  0 0 0
+  0 0 0 0 0 1  1 -2 0
+  349 0 0 0 4 0 0 1
+dense 35 3 9                      # v37 [STATUS 0, A.TAG, A.PAY]
+  0 0 0 0 0 0  0 0 0
+  1 1 0 0 0 0  0 0 0
+  0 0 1 1 0 0  0 0 0
+  0 0 0
+slice 0 9 13                      # v38 words 8..11
+slice 0 16 65                     # v39 words 15..63
+concat 36 38                      # v40
+concat 40 37                      # v41
+concat 41 39                      # v42 output (64)

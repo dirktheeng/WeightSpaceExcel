@@ -1,0 +1,326 @@
+# func/date/dt_ymd (id 344): serial number -> date and time parts, one step, leaf subroutine.
+# In: A = serial value, B = WEEKDAY return type, T0 = selector (0 YEAR 1 MONTH 2 DAY 3 HOUR 4 MINUTE 5 SECOND 6 WEEKDAY).
+# Out: A = selected part or error; T1..T7 = Y M D H MI SE WD; T8 = floor(serial); STATUS 0; next = LR, PC = LP.
+# Note: weights/func/date/dt_ymd.md.  C = 1.5 * 2^52 = 6755399441055744 (ROUND constant).
+input 65
+slice 0 9 11                      # v1 [LR LP]
+slice 0 14 18                     # v2 [TA PA TB PB]
+slice 0 30 31                     # v3 [SEL]
+concat 2 3                        # v4 G = [TA PA TB PB SEL]
+# v5 thresholds: a1 a2 a3 a4 a5 a8 a9 (tag A), b1 b2 b3 b4 b5 b8 b9 (tag B), g1..g7 (SEL)
+dense 4 21 5
+  1 0 0 0 0
+  1 0 0 0 0
+  1 0 0 0 0
+  1 0 0 0 0
+  1 0 0 0 0
+  1 0 0 0 0
+  1 0 0 0 0
+  0 0 1 0 0
+  0 0 1 0 0
+  0 0 1 0 0
+  0 0 1 0 0
+  0 0 1 0 0
+  0 0 1 0 0
+  0 0 1 0 0
+  0 0 0 0 1
+  0 0 0 0 1
+  0 0 0 0 1
+  0 0 0 0 1
+  0 0 0 0 1
+  0 0 0 0 1
+  0 0 0 0 1
+  -0.5 -1.5 -2.5 -3.5 -4.5 -7.5 -8.5
+  -0.5 -1.5 -2.5 -3.5 -4.5 -7.5 -8.5
+  -0.5 -1.5 -2.5 -3.5 -4.5 -5.5 -6.5
+step 5                            # v6 (21) indicators, layout above
+# v7 [okA = [TA in 1,3], okB, isB8 = [TB = 8]]
+dense 6 3 21
+  1 -1 1 -1 0 0 0  0 0 0 0 0 0 0  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0  1 -1 1 -1 0 0 0  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0  0 0 0 0 0 1 -1  0 0 0 0 0 0 0
+  0 0 0
+slice 2 1 2                       # v8 [PA]
+slice 2 3 4                       # v9 [PB]
+slice 7 0 2                       # v10 [okA okB]
+concat 10 8                       # v11
+concat 11 9                       # v12 [okA okB PA PB]
+mul 12 0 2 2 4                    # v13 [x0 = okA PA, xB0 = okB PB]
+slice 7 2 3                       # v14 [isB8]
+concat 13 14                      # v15 [x0 xB0 isB8]
+# v16 pre-steps: [-x0, 2958466 - x0, k - xB for k = 1 2 3 4 11 12 13 14 15 16 17 18]
+dense 15 14 3
+  -1 0 0
+  -1 0 0
+  0 -1 -1
+  0 -1 -1
+  0 -1 -1
+  0 -1 -1
+  0 -1 -1
+  0 -1 -1
+  0 -1 -1
+  0 -1 -1
+  0 -1 -1
+  0 -1 -1
+  0 -1 -1
+  0 -1 -1
+  0 2958466 1 2 3 4 11 12 13 14 15 16 17 18
+step 16                           # v17 [neg lt u1 u2 u3 u4 u11 u12 u13 u14 u15 u16 u17 u18], u_k = [xB < k]
+# v18 [valid = lt - neg, kk = start-day offset, i3 = [type 3], invT = [type not valid]]
+dense 17 4 14
+  -1 1 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 -1 0 1 -1 -1 -1 -1 -1 -1 6 0
+  0 0 0 0 -1 1 0 0 0 0 0 0 0 0
+  0 0 1 0 0 -1 1 0 0 0 0 0 0 -1
+  0 0 0 1
+slice 18 0 1                      # v19 [valid]
+slice 13 0 1                      # v20 [x0]
+concat 19 20                      # v21 [valid x0]
+mul 21 0 1 1 2                    # v22 [s] (0 when not a valid serial)
+dense 22 1 1                      # v23 s + C
+  1
+  6755399441055744
+dense 23 1 1                      # v24 r = ROUND(s)
+  1
+  -6755399441055744
+concat 24 22                      # v25 [r s]
+dense 25 1 2                      # v26 r - s
+  1 -1
+  0
+step 26                           # v27 [gr]
+concat 25 27                      # v28 [r s gr]
+dense 28 1 3                      # v29 [n = floor(s)]
+  1 0 -1
+  0
+concat 29 22                      # v30 [n s]
+# v31 [n, f = s - n, 59.5 - n, 0.5 - n, n - 60.5]
+dense 30 5 2
+  1 0
+  -1 1
+  -1 0
+  -1 0
+  1 0
+  0 0 59.5 0.5 -60.5
+slice 31 2 5                      # v32
+step 32                           # v33 [lt60 is0 gt60]
+slice 31 0 2                      # v34 [n f]
+concat 34 33                      # v35 P = [n f lt60 is0 gt60]
+# v36 [vera = (n + lt60 + 693899)/146097 - 0.5 + 0.5/146097, 86400 f, (n + 3)/7]
+dense 35 3 5
+  6.844767517471e-6 0 6.844767517471e-6 0 0
+  0 86400 0 0 0
+  0.142857142857 0 0 0 0
+  4.249580758 0 0.428571428571
+dense 36 3 3                      # v37 + C
+  1 0 0
+  0 1 0
+  0 0 1
+  6755399441055744 6755399441055744 6755399441055744
+dense 37 3 3                      # v38 R = [era sec q7]
+  1 0 0
+  0 1 0
+  0 0 1
+  -6755399441055744 -6755399441055744 -6755399441055744
+concat 35 38                      # v39 Q = [n f lt60 is0 gt60 era sec q7]
+# v40 [doe = n + lt60 + 693899 - 146097 era, w0 = n + 6 - 7 q7, sec - 86399.5]
+dense 39 3 8
+  1 0 1 0 0 -146097 0 0
+  1 0 0 0 0 0 0 -7
+  0 0 0 0 0 0 1 0
+  693899 6 -86399.5
+slice 40 2 3                      # v41
+step 41                           # v42 [wrap]
+slice 40 0 2                      # v43 [doe w0]
+slice 39 6 7                      # v44 [sec]
+concat 43 44                      # v45 [doe w0 sec]
+concat 45 42                      # v46 [doe w0 sec wrap]
+# v47 [vq1, vq2, doe - 146095.5, sec' = sec - 86400 wrap, vh, vmt]
+dense 46 6 4
+  6.84931506849315e-4 0 0 0
+  2.73792574747e-5 0 0 0
+  1 0 0 0
+  0 0 1 -86400
+  0 0 2.777777777778e-4 -24
+  0 0 0.016666666666667 -1440
+  -0.499657534247 -0.49998631037 -146095.5 0 -0.499861111111 -0.491666666667
+slice 47 2 3                      # v48
+step 48                           # v49 [q3]
+slice 47 0 2                      # v50 [vq1 vq2]
+slice 47 4 6                      # v51 [vh vmt]
+concat 50 51                      # v52 [vq1 vq2 vh vmt]
+dense 52 4 4                      # v53 + C
+  1 0 0 0
+  0 1 0 0
+  0 0 1 0
+  0 0 0 1
+  6755399441055744 6755399441055744 6755399441055744 6755399441055744
+dense 53 4 4                      # v54 [q1 q2 h mt]
+  1 0 0 0
+  0 1 0 0
+  0 0 1 0
+  0 0 0 1
+  -6755399441055744 -6755399441055744 -6755399441055744 -6755399441055744
+slice 47 3 4                      # v55 [sec']
+concat 54 49                      # v56 [q1 q2 h mt q3]
+concat 46 56                      # v57 [doe w0 sec wrap q1 q2 h mt q3]
+concat 57 55                      # v58 [doe w0 sec wrap q1 q2 h mt q3 sec']
+# v59 vyoe = (doe - q1 + q2 - q3)/365 - 0.5 + 0.5/365
+dense 58 1 10
+  0.002739726027397 0 0 0 -0.002739726027397 0.002739726027397 0 0 -0.002739726027397 0
+  -0.498630136986
+dense 59 1 1                      # v60 + C
+  1
+  6755399441055744
+dense 60 1 1                      # v61 [yoe]
+  1
+  -6755399441055744
+# v62 [va = yoe/4 - 0.375, vb = yoe/100 - 0.495]
+dense 61 2 1
+  0.25
+  0.01
+  -0.375 -0.495
+dense 62 2 2                      # v63 + C
+  1 0
+  0 1
+  6755399441055744 6755399441055744
+dense 63 2 2                      # v64 [a bq]
+  1 0
+  0 1
+  -6755399441055744 -6755399441055744
+concat 61 64                      # v65 [yoe a bq]
+slice 57 0 1                      # v66 [doe]
+concat 66 65                      # v67 [doe yoe a bq]
+dense 67 1 4                      # v68 [doy = doe - 365 yoe - a + bq]
+  1 -365 -1 1
+  0
+dense 68 1 1                      # v69 vmp = (5 doy + 2)/153 - 0.5 + 0.5/153
+  0.032679738562
+  -0.483660130719
+dense 69 1 1                      # v70 + C
+  1
+  6755399441055744
+dense 70 1 1                      # v71 [mp]
+  1
+  -6755399441055744
+dense 71 1 1                      # v72 30.6 mp + C  (floor((153 mp + 2)/5) = round(30.6 mp))
+  30.6
+  6755399441055744
+dense 72 1 1                      # v73 [e]
+  1
+  -6755399441055744
+dense 71 1 1                      # v74 mp - 9.5
+  1
+  -9.5
+step 74                           # v75 [mgt]
+concat 39 58                      # v76 0..7 Q, 8 doe 9 w0 10 sec 11 wrap 12 q1 13 q2 14 h 15 mt 16 q3 17 sec'
+concat 76 61                      # v77 18 yoe
+concat 77 68                      # v78 19 doy
+concat 78 71                      # v79 20 mp
+concat 79 73                      # v80 21 e
+concat 80 75                      # v81 22 mgt
+concat 81 18                      # v82 23 valid 24 kk 25 i3 26 invT
+# v83 [Y M D H MI SE u upre]
+dense 82 8 27
+#  n f l6 i0 g6 er sc q7 de w0 sc wr q1 q2 h  mt q3 s' yo dy mp e  mg vl kk i3 iT
+   0 0 0  1  0  400 0 0 0  0  0  0  0  0  0  0  0  0  1  0  0  0  1  0  0  0  0
+   0 0 0 -11 0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  0 -12 0  0  0  0
+   0 0 -1 -31 -1 0 0  0  0  0  0  0  0  0  0  0  0  0  0  1  0 -1  0  0  0  0  0
+   0 0 0  0  0  0  0  0  0  0  0  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0  0
+   0 0 0  0  0  0  0  0  0  0  0  0  0  0 -60 1  0  0  0  0  0  0  0  0  0  0  0
+   0 0 0  0  0  0  0  0  0  0  0  0  0  0  0 -60 0  1  0  0  0  0  0  0  0  0  0
+   0 0 0  0  0  0  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0 -1  0  0
+   0 0 0  0  0  0  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0 -1  0  0
+   0 3 2 0 0 0 7 0.5
+slice 83 7 8                      # v84 [upre]
+step 84                           # v85 [uw]
+slice 83 0 7                      # v86 [Y M D H MI SE u]
+concat 86 85                      # v87
+slice 18 2 3                      # v88 [i3]
+concat 87 88                      # v89 [Y M D H MI SE u uw i3]
+# v90 VALS = [Y M D H MI SE WD], WD = u - 7 uw + 1 - i3
+dense 89 7 9
+  1 0 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0
+  0 0 1 0 0 0 0 0 0
+  0 0 0 1 0 0 0 0 0
+  0 0 0 0 1 0 0 0 0
+  0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 0 1 -7 -1
+  0 0 0 0 0 0 1
+slice 6 14 21                     # v91 [g1..g7]
+dense 91 7 7                      # v92 IND: ind0 = 1 - g1, ind_k = g_k - g_(k+1)
+  -1 0 0 0 0 0 0
+  1 -1 0 0 0 0 0
+  0 1 -1 0 0 0 0
+  0 0 1 -1 0 0 0
+  0 0 0 1 -1 0 0
+  0 0 0 0 1 -1 0
+  0 0 0 0 0 1 -1
+  1 0 0 0 0 0 0
+concat 92 90                      # v93 [IND VALS]
+mul 93 0 7 7 14                   # v94
+dense 94 1 7                      # v95 [res]
+  1 1 1 1 1 1 1
+  0
+concat 6 18                       # v96 E1: 0..20 v6, 21 valid 22 kk 23 i3 24 invT
+# v97 [f3pre, f4pre]
+dense 96 2 25
+  0 -1 1 -1 0 1 -1  0 0 0 1 -1 0 0  0 0 0 0 0 1 -1  0 0 0 0
+  0 -1 1 -1 0 1 -1  0 1 -1 0 1 -1 1  0 0 0 0 0 1 -1  0 0 0 0
+  -1.5 -1.5
+step 97                           # v98 [f3 f4]
+concat 96 98                      # v99 E2: 25 f3 26 f4
+# v100 [f5pre, f6pre]
+dense 99 2 27
+  0 0 0 0 0 0 0  0 0 0 0 0 0 0  0 0 0 0 0 0 0  -1 0 0 0  -1 -1
+  0 -1 1 -1 0 1 -1  0 0 0 0 0 0 0  0 0 0 0 0 1 -1  1 0 0 1  -1 -1
+  0.5 -2.5
+step 100                          # v101 [f5 f6]
+concat 99 101                     # v102 E3: 27 f5 28 f6
+dense 102 2 29                    # v103 [eA f3]
+  0 0 0 1 -1 0 0  0 0 0 0 0 0 0  0 0 0 0 0 0 0  0 0 0 0  0 0 0 0
+  0 0 0 0 0 0 0  0 0 0 0 0 0 0  0 0 0 0 0 0 0  0 0 0 0  1 0 0 0
+  0 0
+concat 103 8                      # v104
+concat 104 9                      # v105 [eA f3 PA PB]
+mul 105 0 2 2 4                   # v106 [eA PA, f3 PB]
+concat 102 106                    # v107 E4: 29 eAPA 30 f3PB
+concat 107 95                     # v108 E5: 31 res
+# v109 [anyerr, code, res]
+dense 108 3 32
+  0 1 -1 1 0 -1 1  0 0 0 0 0 0 0  0 0 0 0 0 0 0  0 0 0 0  1 1 1 1  0 0 0
+  0 3 -3 0 3 -3 3  0 0 0 0 0 0 0  0 0 0 0 0 0 0  0 0 0 0  0 3 6 6  1 1 0
+  0 0 0 0 0 0 0  0 0 0 0 0 0 0  0 0 0 0 0 0 0  0 0 0 0  0 0 0 0  0 0 1
+  0 0 0
+# v110 MUX_INT pre: [res - M anyerr, code - M (1 - anyerr)], M = 2^23
+dense 109 2 3
+  -8388608 0 1
+  8388608 1 0
+  0 -8388608
+relu 110                          # v111
+concat 109 111                    # v112 [anyerr code res r1 r2]
+dense 112 3 5                     # v113 [STATUS 0, A.TAG, A.PAY]
+  0 0 0 0 0
+  3 0 0 0 0
+  0 0 0 1 1
+  0 1 0
+dense 1 8 2                       # v114 words 0..7: next = LR, fields 0, PC = LP
+  1 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 1
+  0 0 0 0 0 0 0 0
+slice 0 9 13                      # v115 words 8..11
+slice 0 16 31                     # v116 words 15..29
+slice 35 0 1                      # v117 [n]
+slice 0 39 65                     # v118 words 38..63
+concat 114 115                    # v119 words 0..11
+concat 119 113                    # v120 0..14
+concat 120 116                    # v121 0..29
+concat 121 90                     # v122 0..36
+concat 122 117                    # v123 0..37
+concat 123 118                    # v124 output (64)

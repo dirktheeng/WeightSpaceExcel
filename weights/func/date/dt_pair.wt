@@ -1,0 +1,131 @@
+# func/date/dt_pair (id 347): two-date driver for DAYS, DAYS360, DATEDIF, YEARFRAC. Three phases, one step each.
+# Entry PC 0: A = date 1, B = date 2, C = third argument, N1 = function (0 DAYS, 1 DAYS360, 2 DATEDIF, 3 YEARFRAC).
+#   Saves LR, LP in T9, T10; calls dt_ymd (344) on A with T0 = 0, LR = 347, LP = 1.
+# PC 1: A error -> return it to (T9, T10). Else AS AR1 AC1 P0 = y1 m1 d1 n1 (T1 T2 T3 T8), A = B, call 344 again, LP = 2.
+# PC 2: A error -> return it. Else next = 348 (dt_fin2), or 353 (dt_yf) when N1 >= 3, with y2 m2 d2 n2 in T1 T2 T3 T8;
+#   for DATEDIF with a text C it also reads the first packed word of C (handle + 2) for the unit.
+# Note: weights/func/date/dt_pair.md
+input 65
+slice 0 8 11                      # v1 [PCr LR LP]
+slice 0 14 20                     # v2 [TA PA TB PB TC PCv]
+dense 0 4 65                      # v3 [AS AR1 AC1 P0] gathered from inputs 20 21 22 26 (retyped by hand)
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  1 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 1 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 1 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 1 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0
+  0 0 0 0
+slice 0 29 30                     # v4 [N1] function selector
+slice 0 30 34                     # v5 [T0 T1 T2 T3]
+slice 0 38 41                     # v6 [T8 T9 T10]
+concat 1 2                        # v7
+concat 7 4                        # v8 PCr 0 LR 1 LP 2 TA 3 PA 4 TB 5 PB 6 TC 7 PCv 8 N1 9
+dense 8 8 10                      # v9 pre-steps
+  1 0 0 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0 0 0
+  0 0 0 1 0 0 0 0 0 0
+  0 0 0 1 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 1
+  0 0 0 0 0 0 0 0 0 1
+  0 0 0 0 0 0 0 1 0 0
+  0 0 0 0 0 0 0 1 0 0
+  -0.5 -1.5 -3.5 -4.5 -1.5 -2.5 -1.5 -2.5
+step 9                            # v10 [h1 h2 t35 t45 n15 n25 c15 c25]
+dense 10 5 8                      # v11 [g_ret g_c2 g_fin g_rd g_yf] pre
+  1 0 1 -1 0 0 0 0
+  1 -1 -1 1 0 0 0 0
+  0 1 -1 1 0 0 0 0
+  0 1 -1 1 1 -1 1 -1
+  0 1 -1 1 0 1 0 0
+  -1.5 -0.5 -0.5 -2.5 -1.5
+step 11                           # v12
+concat 10 12                      # v13 ... 8 gr 9 gc 10 gf 11 grd 12 gyf
+# v14 G = [gr gr h2 p0 p0 h1 h1 ngc ngc gc gc gc gc gc gc ngc ngc ngc ngc grd]
+dense 13 20 13
+  0 0 0 0 0 0 0 0 1 0 0 0 0
+  0 0 0 0 0 0 0 0 1 0 0 0 0
+  0 1 0 0 0 0 0 0 0 0 0 0 0
+  -1 0 0 0 0 0 0 0 0 0 0 0 0
+  -1 0 0 0 0 0 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 -1 0 0 0
+  0 0 0 0 0 0 0 0 0 -1 0 0 0
+  0 0 0 0 0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 0 0 0 0 -1 0 0 0
+  0 0 0 0 0 0 0 0 0 -1 0 0 0
+  0 0 0 0 0 0 0 0 0 -1 0 0 0
+  0 0 0 0 0 0 0 0 0 -1 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 1 0
+  0 0 0 1 1 0 0 1 1 0 0 0 0 0 0 1 1 1 1 0
+slice 6 1 3                       # v15 [T9 T10]
+slice 5 0 1                       # v16 [T0]
+slice 1 1 3                       # v17 [LR LP]
+slice 2 0 4                       # v18 [TA PA TB PB]
+slice 5 1 4                       # v19 [T1 T2 T3]
+slice 6 0 1                       # v20 [T8]
+slice 2 5 6                       # v21 [PCv]
+concat 15 16                      # v22
+concat 22 17                      # v23
+concat 23 15                      # v24
+concat 24 18                      # v25
+concat 25 19                      # v26
+concat 26 20                      # v27
+concat 27 3                       # v28
+concat 28 21                      # v29 V = [T9 T10 T0 LR LP T9 T10 TA PA TB PB T1 T2 T3 T8 AS AR1 AC1 P0 PCv]
+concat 14 29                      # v30
+mul 30 0 20 20 40                 # v31 P0..P19
+concat 31 13                      # v32 P 0..19, h1 20 h2 21 .. gr 28 gc 29 gf 30 grd 31 gyf 32
+dense 32 10 33                    # v33 words 0..9
+  1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  -344 0 0 0 0 0 0 0 0 344 348 0 5
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1  0 0 0 0 0 0 0 0 0 0 0 2 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  -1 0 0 0 0 0 0 0 0 2 0 0 0
+  344 0 0 0 0 0 0 0 347 1
+dense 32 3 33                     # v34 [STATUS 0, A.TAG, A.PAY]
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 1 0 1 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 1 0 1 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0
+dense 32 3 33                     # v35 words 19..21 (AS AR1 AC1 = y1 m1 d1)
+  0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0
+dense 32 1 33                     # v36 word 25 (P0 = n1)
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 0  0 0 0 0 0 0 0 0 0 0 0 0 0
+  0
+dense 32 1 33                     # v37 [T0]
+  0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0
+  0
+dense 32 2 33                     # v38 [T9 T10]
+  0 0 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0
+slice 0 11 13                     # v39 words 10..11
+slice 0 16 20                     # v40 words 15..18
+slice 0 23 26                     # v41 words 22..24 (GEN, HT, CYC pass)
+slice 0 27 30                     # v42 words 26..28
+slice 0 31 39                     # v43 words 30..37
+slice 0 41 65                     # v44 words 40..63
+concat 33 39                      # v45 0..11
+concat 45 34                      # v46 0..14
+concat 46 40                      # v47 0..18
+concat 47 35                      # v48 0..21
+concat 48 41                      # v49 0..24
+concat 49 36                      # v50 0..25
+concat 50 42                      # v51 0..28
+concat 51 37                      # v52 0..29
+concat 52 43                      # v53 0..37
+concat 53 38                      # v54 0..39
+concat 54 44                      # v55 output (64)

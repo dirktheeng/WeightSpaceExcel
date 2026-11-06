@@ -322,3 +322,4 @@
 219 weights/format/fx_go.wt
 351 weights/func/date/dt_abi.wt
 352 weights/func/date/dt_abi1.wt
+221 weights/format/fc_br.wt

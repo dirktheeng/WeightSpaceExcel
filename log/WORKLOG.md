@@ -617,3 +617,9 @@
 
 ## 2026-11-06, coordinator fix C2: numconv gate constant
 - weights/parse/numconv.wt v66 used RID - 128 OOR, so the out-of-range gate failed for callers with ids above 127 (reported by the VBA agent, whose lexer is at 384 and up). Changed the constant by hand to 2^20, larger than any network id. Parser and VBA tests: 228 passed.
+
+### FD-6 (DECISION, func-date agent): ABI adapter for date functions; core registers moved
+- Decided: one adapter pair dt_abi (351) / dt_abi1 (352) serves all 19 implemented date fids (dispatch ROM on T2), dereferences tag 9 arguments by CELL_GET, and calls the cores with LR = 257 so they return straight to FN_RET. Core selectors moved from N0 to N1 and dt_pair's parked n1 from AR2 (word 22, GEN) to P0, to respect the encodings/functions.md preserve set.
+- Alternatives: one entry network per fid (19 ids, the block has 16); a finish phase that restores N0 (one more step per call).
+- Affects: FUNC_TABLE[fid] = 351 for fids 112 113 116 117 118 147 150 213 270 307 315 335 413 467 474 502 503 515 516 (request to the ft_init owner); flags for those fids (MIN, MAX, volatile bit 1 for NOW 335 and TODAY 474) in fd_w0/fd_w1.
+- Result: tests/output/func_date 305 passed (26 through the ABI with the preserve set checked on each).
