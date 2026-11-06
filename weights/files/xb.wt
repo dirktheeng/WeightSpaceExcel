@@ -1,0 +1,23 @@
+# files/xb (id 481): block consumer (67 inputs) of a (base, extra bits) pair from LTAB or DTAB.
+# w34 = extra bits, w35 = base; block read 13 bits at BP, go to xe (482). Hand-written. Not generated.
+# Note: weights/files/inflate.md
+input 67
+slice 0 29 30                     # v1 [BP]
+dense 1 8 1                       # v2 words 0..7
+  0
+  0
+  1
+  0
+  0
+  0
+  0
+  0
+  482 4 0 67108877 0 0 0 0
+slice 0 9 35                      # v3 words 8..33
+slice 0 66 67                     # v4 w34 = extra
+slice 0 65 66                     # v5 w35 = base
+slice 0 37 65                     # v6 words 36..63
+concat 2 3
+concat 7 4
+concat 8 5
+concat 9 6

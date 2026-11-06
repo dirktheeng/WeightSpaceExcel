@@ -1,0 +1,27 @@
+# files/ist1 (id 471): block consumer (97 inputs) of the 32 bits LEN, NLEN of a stored block (NLEN not
+# checked). TL (w30) = LEN. LEN > 0: block read 8 bits at BP, go to stw (472). LEN = 0: go to ibe (470).
+# Hand-written. Not generated. Note: weights/files/inflate.md
+input 97
+slice 0 65 81                     # v1 LEN bits, least significant first
+dense 1 1 16  1 2 4 8 16 32 64 128 256 512 1024 2048 4096 8192 16384 32768  0   # v2 LEN
+dense 2 1 1  1  -0.5              # v3
+step 3                            # v4 nz
+slice 0 29 30                     # v5 [BP]
+concat 2 4                        # v6
+concat 6 5                        # v7 [LEN nz BP]
+dense 7 8 3                       # v8 words 0..7
+  0 2 0
+  0 4 0
+  0 0 1
+  0 67108872 0
+  0 0 0
+  0 0 0
+  0 0 0
+  0 0 0
+  470 0 0 0 0 0 0 0
+slice 7 0 1                       # v9 w30 = LEN
+slice 0 9 31                      # v10 words 8..29
+slice 0 32 65                     # v11 words 31..63
+concat 8 10
+concat 12 9
+concat 13 11

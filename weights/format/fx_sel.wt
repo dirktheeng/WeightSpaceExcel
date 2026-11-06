@@ -2,7 +2,8 @@
 # s1 s2 st] at input 65..73). Chooses the section: no conditions: x < 0 and 2+ sections -> s1 (no
 # minus sign), x = 0 and 3+ sections -> s2, else s0 (minus sign when x < 0). Conditions (op 1 <,
 # 2 <=, 3 =, 4 >=, 5 >, 6 <>): cond1 -> s0; else 2+ sections and (no cond2 or cond2) -> s1; else 3+
-# sections -> s2; else s0; minus sign when x < 0. Text: the text section st, or, when there is
+# sections -> s2; else s0; minus sign when x < 0, except when the section was chosen by a true
+# condition (h0, or cond2 true: minus row has -1 on h0 and b1..b6; stage case cfc03). Text: the text section st, or, when there is
 # none, returns with A unchanged (shown as typed). Block reads the 9-word section header into
 # fx_sec (218); T7 = minus. Note: README.md.  B = 2^23 = 8388608
 input 74
@@ -96,7 +97,7 @@ dense 19 8 59                     # v20 = MUX_INT pre [q0 q1 q2 q3 nP nN pp] and
    0 0 0 0 0 0 0 0 0 0  0 1 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 8388608
    0 0 0 0 0 0 0 0 0 0  0 -1 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 8388608
    0 0 0 0 0 0 0 0 0 0  0 0 1 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 8388608
-   0 0 0 0 0 0 0 0 0 0  0 0 0 -1 1 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  -1 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0  0 0 0 -1 1 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 -1 -1 -1 -1 -1 -1 0  -1 0 0 -1 0 0 0 0 0
    -8388608 -8388608 -8388608 -8388608 -8388608 -8388608 -8388608 -0.5
 relu 20                           # v21
 step 20                           # v22

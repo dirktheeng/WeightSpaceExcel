@@ -1,0 +1,48 @@
+# files/stw (id 472): block consumer (73 inputs) of 8 bits of a stored block. Writes the byte at OUT,
+# OUT += 1, BP += 8, TL -= 1. TL was > 1: block read of the next 8 bits through brd (464) back to stw
+# (T7 0, T8 BP, T9 8, T10 472). Else go to ibe (470). Hand-written. Not generated. Note: weights/files/inflate.md
+input 73
+slice 0 65 73                     # v1 bits
+dense 1 1 8  1 2 4 8 16 32 64 128  0                        # v2 byte
+slice 0 27 28                     # v3 [OUT]
+slice 0 29 30                     # v4 [BP]
+slice 0 31 32                     # v5 [TL]
+dense 5 1 1  1  -1.5              # v6
+step 6                            # v7 more
+concat 2 3                        # v8
+concat 8 4                        # v9
+concat 9 5                        # v10
+concat 10 7                       # v11 Z = [byte OUT BP TL more]
+dense 11 8 5                      # v12 words 0..7
+  0 0 0 0 -6
+  0 0 0 0 0
+  0 1 0 0 0
+  1 0 0 0 0
+  0 0 0 0 0
+  0 0 0 0 0
+  0 0 0 0 0
+  0 0 0 0 0
+  470 2 0 0 0 0 0 0
+dense 11 1 5  0 1 0 0 0  1        # v13 OUT + 1
+dense 11 1 5  0 0 1 0 0  8        # v14 BP + 8
+dense 11 1 5  0 0 0 1 0  -1       # v15 TL - 1
+dense 11 4 5                      # v16 [T7 T8 T9 T10]
+  0 0 0 0 0
+  0 0 1 0 0
+  0 0 0 0 0
+  0 0 0 0 0
+  0 8 8 472
+slice 0 9 27                      # v17 words 8..25
+slice 0 28 29                     # v18 w27
+slice 0 30 31                     # v19 w29
+slice 0 32 37                     # v20 words 31..35
+slice 0 41 65                     # v21 words 40..63
+concat 12 17
+concat 22 13
+concat 23 18
+concat 24 14
+concat 25 19
+concat 26 15
+concat 27 20
+concat 28 16
+concat 29 21

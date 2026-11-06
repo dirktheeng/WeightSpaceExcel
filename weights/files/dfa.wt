@@ -1,0 +1,122 @@
+# files/dfa (id 499): deflate entry. P0 = source bytes, N0 = count, P1 = output, N1 (= BP, w28) = bit area
+# (multiple of 8), B.PAY (w16) = 0 stored, 1 fixed Huffman. Saves the link in w22, w23.
+# PC 0, stored (N0 <= 65535): block write [1, LEN lo, LEN hi, NLEN lo, NLEN hi] at P1, P1 += 5, copy N0 bytes
+#   with zcp (497) returning to PC 2.  PC 0, fixed: BB (w15) = N1, i (w29) = 0, zero the 4096-word hash head
+#   table HEAD = 0x3BE000 (3923968) with bz (64 chunks), which continues to PC 1.
+# PC 1: emit the block header bits [1, 1, 0] (EV 3, EN 3, LSB first) with dzb, continuing to df2 (500).
+# PC 2: A.PAY += 5, return to (w22, w23). Output 69 words, always mem_op 3.
+# Hand-written. Not generated. Note: weights/files/deflate.md
+input 65
+slice 0 8 11                      # v1 [PC LR LP]
+slice 0 15 16                     # v2 [A]
+slice 0 17 18                     # v3 [mode]
+slice 0 23 25                     # v4 [w22 w23]
+slice 0 27 30                     # v5 [P1 N0 w28]
+concat 1 2                        # v6
+concat 6 3                        # v7
+concat 7 4                        # v8
+concat 8 5                        # v9 G (10) = [PC LR LP A mode w22 w23 P1 N0 w28]
+slice 0 28 29                     # v10 [N0]
+dense 10 2 1  0.00390625 0.00390625  6755399441055744 0    # v11
+dense 11 2 2  1 0  0 1  -6755399441055744 0                # v12 [r y]
+dense 12 1 2  1 -1  0             # v13
+step 13                           # v14 g
+concat 12 14                      # v15
+concat 15 10                      # v16 [r y g N0]
+dense 16 2 4  -256 0 256 1  1 0 -1 0  0 0                  # v17 [lo hi]
+dense 9 3 10                      # v18
+  1 0 0 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0 0 0
+  0 0 0 0 1 0 0 0 0 0
+  -0.5 -1.5 -0.5
+step 18                           # v19 [s1 s2 md]
+dense 19 4 3                      # v20
+  -1 0 0
+  0 1 0
+  -1 0 -1
+  -1 0 1
+  0.5 -0.5 0.5 -0.5
+step 20                           # v21 [p0 p2 st fx]
+dense 9 6 10                      # v22 values [w22 w23 LR w22 LP w23]
+  0 0 0 0 0 1 0 0 0 0
+  0 0 0 0 0 0 1 0 0 0
+  0 1 0 0 0 0 0 0 0 0
+  0 0 0 0 0 1 0 0 0 0
+  0 0 1 0 0 0 0 0 0 0
+  0 0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 0
+dense 21 6 4                      # v23 gates [p2 p2 p0 p0 p0 p0]
+  0 1 0 0
+  0 1 0 0
+  1 0 0 0
+  1 0 0 0
+  1 0 0 0
+  1 0 0 0
+  0 0 0 0 0 0
+concat 22 23                      # v24
+mul 24 0 6 6 12                   # v25 Q
+concat 25 21                      # v26
+concat 26 19                      # v27
+concat 27 9                       # v28
+concat 28 17                      # v29 Z (25)
+dense 29 10 25                    # v30 words 0..9
+  1 0 0 0 0 0  0 0 497 465  498 -498 0  0 0 0 0 0 0 0 0 0 0  0 0
+  0 0 0 0 0 0  0 0 0 0      0 0 0      0 0 0 0 0 0 0 0 0 0  0 0
+  0 0 0 0 0 0  0 0 0 0      0 0 0      0 0 0 0 0 0 0 1 0 0  0 0
+  0 0 0 0 0 0  0 0 5 0      0 0 0      0 0 0 0 0 0 0 0 0 0  0 0
+  0 0 0 0 0 0  0 0 0 0      0 0 0      0 0 0 0 0 0 0 0 0 0  0 0
+  0 0 0 0 0 0  0 0 0 0      0 0 0      0 0 0 0 0 0 0 0 0 0  0 0
+  0 0 0 0 0 0  0 0 0 0      0 0 0      0 0 0 0 0 0 0 0 0 0  0 0
+  0 1 0 0 0 0  0 0 0 0      0 0 0      0 0 0 0 0 0 0 0 0 0  0 0
+  1 0 0 0 0 0  0 0 499 0    0 0 0      0 0 0 0 0 0 0 0 0 0  0 0
+  0 1 0 0 0 0  0 0 2 0      0 0 0      0 0 0 0 0 0 0 0 0 0  0 0
+  0 3 0 67108864 0 0 0 0 0 0
+dense 29 1 25  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0   # v31 STATUS 0
+dense 29 1 25  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0  5   # v32 A + 5
+dense 29 1 25  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0  0   # v33 w15 = w28
+dense 29 7 25                     # v34 [w17..w23]
+  0 0 0 0 0 0  0 0 0 0  0 0 0  0 0 0 0 0 0 0 0 0 0  0 0
+  0 0 0 0 0 0  0 0 0 0  0 0 0  0 0 0 0 0 0 0 0 0 0  0 0
+  0 0 0 0 0 0  0 0 0 0  0 0 0  0 0 0 0 0 0 0 0 0 0  0 0
+  0 0 0 0 0 0  0 0 0 0  0 0 0  0 0 0 0 0 0 0 0 0 0  0 0
+  0 0 0 0 0 0  0 0 0 0  0 0 0  0 0 0 0 0 0 0 0 0 0  0 0
+  0 0 1 -1 0 0 0 0 0 0  0 0 0  0 0 0 0 0 1 0 0 0 0  0 0
+  0 0 0 0 1 -1 0 0 0 0  0 0 0  0 0 0 0 0 0 1 0 0 0  0 0
+  3 3 0 500 0 0 0
+dense 29 1 25  0 0 0 0 0 0  0 0 5 0  0 0 0  0 0 0 0 0 0 0 1 0 0  0 0  0   # v35 P1 + 5 st
+dense 29 1 25  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0   # v36 w29 = 0
+dense 29 4 25                     # v37 [T7 T8 T9 T10]
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  1 3923968 64 499
+dense 29 5 25                     # v38 payload [1, lo, hi, 255 - lo, 255 - hi]
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  1 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 1
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  -1 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 -1
+  1 0 0 255 255
+slice 0 11 13                     # v39 words 10, 11
+slice 0 14 15                     # v40 w13
+slice 0 17 18                     # v41 w16
+slice 0 25 27                     # v42 words 24, 25
+slice 0 28 30                     # v43 words 27, 28
+slice 0 31 37                     # v44 words 30..35
+slice 0 41 65                     # v45 words 40..63
+concat 30 39
+concat 46 31
+concat 47 40
+concat 48 32
+concat 49 33
+concat 50 41
+concat 51 34
+concat 52 42
+concat 53 35
+concat 54 43
+concat 55 36
+concat 56 44
+concat 57 37
+concat 58 45
+concat 59 38

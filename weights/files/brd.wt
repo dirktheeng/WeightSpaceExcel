@@ -1,0 +1,18 @@
+# files/brd (id 464): generic block read. mem_op 4 at addr T8, N = T9 words (K = 64), next = T10, PC = T7.
+# Every other word passes. Lets a network whose own step already holds a memory operation hand the
+# following block read to a shared step instead of a dedicated issuer network.
+# Hand-written. Not generated. Note: weights/files/brd.md
+input 65
+slice 0 37 41                     # v1 [T7, T8, T9, T10]
+dense 1 8 4                       # v2 words 0..7
+  0 0 0 1
+  0 0 0 0
+  0 1 0 0
+  0 0 1 0
+  0 0 0 0
+  0 0 0 0
+  0 0 0 0
+  1 0 0 0
+  0 4 0 67108864 0 0 0 0
+slice 0 9 65                      # v3 words 8..63
+concat 2 3

@@ -1,0 +1,258 @@
+# files/x32 (id 462): T1 = (x0 + T2) XOR T1 for integers in [0, 2^32). Reads P0, returns to (LR, LP).
+# U = x0 + T2 (x0 = the read result the caller asked for, T2 = an addend the caller sets, 0 or a value).
+# Top-down bit levels k = 31..0 (w = 2^k): bits u = [rU >= w], v = [rV >= w], acc += w u v, r -= w bits.
+# XOR = U + V - 2 AND. Hand-written. Not generated. Note: weights/files/x32.md
+input 65
+slice 0 0 1                       # v1 [x0]
+slice 0 31 33                     # v2 [T1, T2]
+concat 1 2                        # v3 [x0, T1, T2]
+dense 3 3 3                       # v4 r = [U, V, acc 0]
+  1 0 1
+  0 1 0
+  0 0 0
+  0 0 0
+# level k = 31 (r at v4)
+dense 4 2 3  1 0 0  0 1 0  -2147483647.5 -2147483647.5
+step 5
+mul 6 0 1 1 2
+concat 4 6
+concat 8 7
+dense 9 3 6  1 0 0 -2147483648 0 0  0 1 0 0 -2147483648 0  0 0 1 0 0 2147483648  0 0 0
+# level 30 (r at v10)
+dense 10 2 3  1 0 0  0 1 0  -1073741823.5 -1073741823.5
+step 11
+mul 12 0 1 1 2
+concat 10 12
+concat 14 13
+dense 15 3 6  1 0 0 -1073741824 0 0  0 1 0 0 -1073741824 0  0 0 1 0 0 1073741824  0 0 0
+# level 29 (r at v16)
+dense 16 2 3  1 0 0  0 1 0  -536870911.5 -536870911.5
+step 17
+mul 18 0 1 1 2
+concat 16 18
+concat 20 19
+dense 21 3 6  1 0 0 -536870912 0 0  0 1 0 0 -536870912 0  0 0 1 0 0 536870912  0 0 0
+# level 28 (r at v22)
+dense 22 2 3  1 0 0  0 1 0  -268435455.5 -268435455.5
+step 23
+mul 24 0 1 1 2
+concat 22 24
+concat 26 25
+dense 27 3 6  1 0 0 -268435456 0 0  0 1 0 0 -268435456 0  0 0 1 0 0 268435456  0 0 0
+# level 27 (r at v28)
+dense 28 2 3  1 0 0  0 1 0  -134217727.5 -134217727.5
+step 29
+mul 30 0 1 1 2
+concat 28 30
+concat 32 31
+dense 33 3 6  1 0 0 -134217728 0 0  0 1 0 0 -134217728 0  0 0 1 0 0 134217728  0 0 0
+# level 26 (r at v34)
+dense 34 2 3  1 0 0  0 1 0  -67108863.5 -67108863.5
+step 35
+mul 36 0 1 1 2
+concat 34 36
+concat 38 37
+dense 39 3 6  1 0 0 -67108864 0 0  0 1 0 0 -67108864 0  0 0 1 0 0 67108864  0 0 0
+# level 25 (r at v40)
+dense 40 2 3  1 0 0  0 1 0  -33554431.5 -33554431.5
+step 41
+mul 42 0 1 1 2
+concat 40 42
+concat 44 43
+dense 45 3 6  1 0 0 -33554432 0 0  0 1 0 0 -33554432 0  0 0 1 0 0 33554432  0 0 0
+# level 24 (r at v46)
+dense 46 2 3  1 0 0  0 1 0  -16777215.5 -16777215.5
+step 47
+mul 48 0 1 1 2
+concat 46 48
+concat 50 49
+dense 51 3 6  1 0 0 -16777216 0 0  0 1 0 0 -16777216 0  0 0 1 0 0 16777216  0 0 0
+# level 23 (r at v52)
+dense 52 2 3  1 0 0  0 1 0  -8388607.5 -8388607.5
+step 53
+mul 54 0 1 1 2
+concat 52 54
+concat 56 55
+dense 57 3 6  1 0 0 -8388608 0 0  0 1 0 0 -8388608 0  0 0 1 0 0 8388608  0 0 0
+# level 22 (r at v58)
+dense 58 2 3  1 0 0  0 1 0  -4194303.5 -4194303.5
+step 59
+mul 60 0 1 1 2
+concat 58 60
+concat 62 61
+dense 63 3 6  1 0 0 -4194304 0 0  0 1 0 0 -4194304 0  0 0 1 0 0 4194304  0 0 0
+# level 21 (r at v64)
+dense 64 2 3  1 0 0  0 1 0  -2097151.5 -2097151.5
+step 65
+mul 66 0 1 1 2
+concat 64 66
+concat 68 67
+dense 69 3 6  1 0 0 -2097152 0 0  0 1 0 0 -2097152 0  0 0 1 0 0 2097152  0 0 0
+# level 20 (r at v70)
+dense 70 2 3  1 0 0  0 1 0  -1048575.5 -1048575.5
+step 71
+mul 72 0 1 1 2
+concat 70 72
+concat 74 73
+dense 75 3 6  1 0 0 -1048576 0 0  0 1 0 0 -1048576 0  0 0 1 0 0 1048576  0 0 0
+# level 19 (r at v76)
+dense 76 2 3  1 0 0  0 1 0  -524287.5 -524287.5
+step 77
+mul 78 0 1 1 2
+concat 76 78
+concat 80 79
+dense 81 3 6  1 0 0 -524288 0 0  0 1 0 0 -524288 0  0 0 1 0 0 524288  0 0 0
+# level 18 (r at v82)
+dense 82 2 3  1 0 0  0 1 0  -262143.5 -262143.5
+step 83
+mul 84 0 1 1 2
+concat 82 84
+concat 86 85
+dense 87 3 6  1 0 0 -262144 0 0  0 1 0 0 -262144 0  0 0 1 0 0 262144  0 0 0
+# level 17 (r at v88)
+dense 88 2 3  1 0 0  0 1 0  -131071.5 -131071.5
+step 89
+mul 90 0 1 1 2
+concat 88 90
+concat 92 91
+dense 93 3 6  1 0 0 -131072 0 0  0 1 0 0 -131072 0  0 0 1 0 0 131072  0 0 0
+# level 16 (r at v94)
+dense 94 2 3  1 0 0  0 1 0  -65535.5 -65535.5
+step 95
+mul 96 0 1 1 2
+concat 94 96
+concat 98 97
+dense 99 3 6  1 0 0 -65536 0 0  0 1 0 0 -65536 0  0 0 1 0 0 65536  0 0 0
+# level 15 (r at v100)
+dense 100 2 3  1 0 0  0 1 0  -32767.5 -32767.5
+step 101
+mul 102 0 1 1 2
+concat 100 102
+concat 104 103
+dense 105 3 6  1 0 0 -32768 0 0  0 1 0 0 -32768 0  0 0 1 0 0 32768  0 0 0
+# level 14 (r at v106)
+dense 106 2 3  1 0 0  0 1 0  -16383.5 -16383.5
+step 107
+mul 108 0 1 1 2
+concat 106 108
+concat 110 109
+dense 111 3 6  1 0 0 -16384 0 0  0 1 0 0 -16384 0  0 0 1 0 0 16384  0 0 0
+# level 13 (r at v112)
+dense 112 2 3  1 0 0  0 1 0  -8191.5 -8191.5
+step 113
+mul 114 0 1 1 2
+concat 112 114
+concat 116 115
+dense 117 3 6  1 0 0 -8192 0 0  0 1 0 0 -8192 0  0 0 1 0 0 8192  0 0 0
+# level 12 (r at v118)
+dense 118 2 3  1 0 0  0 1 0  -4095.5 -4095.5
+step 119
+mul 120 0 1 1 2
+concat 118 120
+concat 122 121
+dense 123 3 6  1 0 0 -4096 0 0  0 1 0 0 -4096 0  0 0 1 0 0 4096  0 0 0
+# level 11 (r at v124)
+dense 124 2 3  1 0 0  0 1 0  -2047.5 -2047.5
+step 125
+mul 126 0 1 1 2
+concat 124 126
+concat 128 127
+dense 129 3 6  1 0 0 -2048 0 0  0 1 0 0 -2048 0  0 0 1 0 0 2048  0 0 0
+# level 10 (r at v130)
+dense 130 2 3  1 0 0  0 1 0  -1023.5 -1023.5
+step 131
+mul 132 0 1 1 2
+concat 130 132
+concat 134 133
+dense 135 3 6  1 0 0 -1024 0 0  0 1 0 0 -1024 0  0 0 1 0 0 1024  0 0 0
+# level 9 (r at v136)
+dense 136 2 3  1 0 0  0 1 0  -511.5 -511.5
+step 137
+mul 138 0 1 1 2
+concat 136 138
+concat 140 139
+dense 141 3 6  1 0 0 -512 0 0  0 1 0 0 -512 0  0 0 1 0 0 512  0 0 0
+# level 8 (r at v142)
+dense 142 2 3  1 0 0  0 1 0  -255.5 -255.5
+step 143
+mul 144 0 1 1 2
+concat 142 144
+concat 146 145
+dense 147 3 6  1 0 0 -256 0 0  0 1 0 0 -256 0  0 0 1 0 0 256  0 0 0
+# level 7 (r at v148)
+dense 148 2 3  1 0 0  0 1 0  -127.5 -127.5
+step 149
+mul 150 0 1 1 2
+concat 148 150
+concat 152 151
+dense 153 3 6  1 0 0 -128 0 0  0 1 0 0 -128 0  0 0 1 0 0 128  0 0 0
+# level 6 (r at v154)
+dense 154 2 3  1 0 0  0 1 0  -63.5 -63.5
+step 155
+mul 156 0 1 1 2
+concat 154 156
+concat 158 157
+dense 159 3 6  1 0 0 -64 0 0  0 1 0 0 -64 0  0 0 1 0 0 64  0 0 0
+# level 5 (r at v160)
+dense 160 2 3  1 0 0  0 1 0  -31.5 -31.5
+step 161
+mul 162 0 1 1 2
+concat 160 162
+concat 164 163
+dense 165 3 6  1 0 0 -32 0 0  0 1 0 0 -32 0  0 0 1 0 0 32  0 0 0
+# level 4 (r at v166)
+dense 166 2 3  1 0 0  0 1 0  -15.5 -15.5
+step 167
+mul 168 0 1 1 2
+concat 166 168
+concat 170 169
+dense 171 3 6  1 0 0 -16 0 0  0 1 0 0 -16 0  0 0 1 0 0 16  0 0 0
+# level 3 (r at v172)
+dense 172 2 3  1 0 0  0 1 0  -7.5 -7.5
+step 173
+mul 174 0 1 1 2
+concat 172 174
+concat 176 175
+dense 177 3 6  1 0 0 -8 0 0  0 1 0 0 -8 0  0 0 1 0 0 8  0 0 0
+# level 2 (r at v178)
+dense 178 2 3  1 0 0  0 1 0  -3.5 -3.5
+step 179
+mul 180 0 1 1 2
+concat 178 180
+concat 182 181
+dense 183 3 6  1 0 0 -4 0 0  0 1 0 0 -4 0  0 0 1 0 0 4  0 0 0
+# level 1 (r at v184)
+dense 184 2 3  1 0 0  0 1 0  -1.5 -1.5
+step 185
+mul 186 0 1 1 2
+concat 184 186
+concat 188 187
+dense 189 3 6  1 0 0 -2 0 0  0 1 0 0 -2 0  0 0 1 0 0 2  0 0 0
+# level 0 (r at v190)
+dense 190 2 3  1 0 0  0 1 0  -0.5 -0.5
+step 191
+mul 192 0 1 1 2
+concat 190 192
+concat 194 193
+dense 195 3 6  1 0 0 -1 0 0  0 1 0 0 -1 0  0 0 1 0 0 1  0 0 0
+# v196 = [0, 0, AND]
+concat 4 196                      # v197 [U, V, 0, 0, 0, AND]
+dense 197 1 6  1 1 0 0 0 -2  0    # v198 XOR
+slice 0 9 11                      # v199 [LR, LP]
+slice 0 26 27                     # v200 [P0]
+concat 199 200                    # v201
+dense 201 8 3                     # v202 words 0..7
+  1 0 0
+  0 0 0
+  0 0 1
+  0 0 0
+  0 0 0
+  0 0 0
+  0 0 0
+  0 1 0
+  0 1 0 0 0 0 0 0
+slice 0 9 31                      # v203 words 8..29
+concat 202 203                    # v204
+concat 204 198                    # v205 word 30 = T1 = XOR
+slice 0 32 65                     # v206 words 31..63
+concat 205 206                    # v207

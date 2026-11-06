@@ -1,0 +1,105 @@
+# files/crcg (id 463): writes the CRC-32 table T[0..255] at CRC_TAB = 0x3BFF00 (3931904). Returns to (LR, LP).
+# T[0] = 0; T[i] = T[H] XOR T[i - H], H = highest power of two <= i (linearity over GF(2)).
+# T[H] for H = 1, 2, 4, ..., 128 are hand-derived constants (log/files-agent.md session 2), entered as the
+# telescoped differences D_k = T[2^k] - T[2^(k-1)] so that B(i) = sum_k s_k D_k, s_k = [i >= 2^k].
+# PC 0: T3 = LR, T4 = LP, write T[0] = 0, T5 = i = 1.  PC 1: i < 256: read T[i - H], T1 = B, T2 = 0,
+# P0 = CRC_TAB, call x32 (LR 463, LP 2); i = 256: return to (T3, T4).  PC 2: write T[i] = T1, i += 1.
+# Hand-written. Not generated (it generates the data table only). Note: weights/files/crc.md
+input 65
+slice 0 8 11                      # v1 [PC, LR, LP]
+slice 0 31 32                     # v2 [T1]
+slice 0 33 36                     # v3 [T3, T4, T5]
+concat 1 3                        # v4 [PC LR LP T3 T4 T5]
+dense 4 4 6                       # v5
+  -1 0 0 0 0 0
+   1 0 0 0 0 0
+   1 0 0 0 0 0
+   0 0 0 0 0 1
+  0.5 -0.5 -1.5 -255.5
+step 5                            # v6 [q0 q1 q2 e]
+dense 6 4 4                       # v7
+  1 0 0 0
+  0 1 -1 -1
+  0 1 -1 1
+  0 0 1 0
+  0 -0.5 -1.5 0
+step 7                            # v8 [p0 a d p2]
+dense 3 8 3                       # v9 i - 2^k + 0.5
+  0 0 1
+  0 0 1
+  0 0 1
+  0 0 1
+  0 0 1
+  0 0 1
+  0 0 1
+  0 0 1
+  -0.5 -1.5 -3.5 -7.5 -15.5 -31.5 -63.5 -127.5
+step 9                            # v10 s0..s7
+dense 10 2 8                      # v11 [H, B]
+  1 1 2 4 8 16 32 64
+  1996959894 1996959894 -3869285651 124634137 249268274 498536548 997073096 1994146192
+  0 0
+concat 4 11                       # v12
+concat 12 2                       # v13 S = [PC LR LP T3 T4 T5 H B T1]
+dense 13 12 9                     # v14 values
+  0 0 0 1 0 0 0 0 0
+  0 0 0 0 1 0 0 0 0
+  0 1 0 0 0 0 0 0 0
+  0 0 1 0 0 0 0 0 0
+  0 0 0 1 0 0 0 0 0
+  0 0 0 0 1 0 0 0 0
+  0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 1 -1 0 0
+  0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 0 0 0 1
+  0 0 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 0 1
+  0 0 0 0 0 0 0 0 0 0 0 0
+dense 8 12 4                      # v15 gates [d d p0 p0 p0 p0 p0 a p2 p2 a a]
+  0 0 1 0
+  0 0 1 0
+  1 0 0 0
+  1 0 0 0
+  1 0 0 0
+  1 0 0 0
+  1 0 0 0
+  0 1 0 0
+  0 0 0 1
+  0 0 0 1
+  0 1 0 0
+  0 1 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0
+concat 14 15                      # v16
+mul 16 0 12 12 24                 # v17 [dT3 dT4 p0LR p0LP p0T3 p0T4 p0T5 a.u p2T5 p2T1 aB aT1]
+concat 17 8                       # v18
+concat 18 13                      # v19 Z (25): 0..11 products, 12 p0, 13 a, 14 d, 15 p2, 16.. S
+dense 19 10 25                    # v20 words 0..9
+  1 0 0 0 0 0 0 0 0 0 0 0   463 462 0 463          0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0   2 1 0 2                0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 1 1 0 0 0   3931904 3931904 0 3931904  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 1 0 0   0 0 0 0                0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0                0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0                0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0                0 0 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0 0 0 0   1 2 0 1                0 0 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0 0 0 0 0   0 463 0 0              0 0 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0 0 0 0   0 2 0 0                0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+dense 19 6 25                     # v21 [w25 w30 w31 w32 w33 w34]
+  0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0   0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 1 -1  0 0 0 0   0 0 0 0 0 0 0 0 1
+  0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0   0 0 0 0 0 0 0 0 0
+  0 0 1 0 -1 0 0 0 0 0 0 0  0 0 0 0   0 0 0 1 0 0 0 0 0
+  0 0 0 1 0 -1 0 0 0 0 0 0  0 0 0 0   0 0 0 0 1 0 0 0 0
+  0 0 0 0 0 0 -1 0 0 0 0 0  1 0 0 1   0 0 0 0 0 1 0 0 0
+  3931904 0 0 0 0 0
+slice 0 11 26                     # v22 words 10..24
+slice 21 0 1                      # v23 w25
+slice 0 27 31                     # v24 words 26..29
+slice 21 1 6                      # v25 words 30..34
+slice 0 36 65                     # v26 words 35..63
+concat 20 22
+concat 27 23
+concat 28 24
+concat 29 25
+concat 30 26

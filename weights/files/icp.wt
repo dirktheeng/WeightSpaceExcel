@@ -1,0 +1,54 @@
+# files/icp (id 483): LZ77 copy of LEN (w24) bytes from distance DIST (w25) back, 2 steps per byte.
+# PC 0: read at OUT - DIST, PC 1.  PC 1: write x0 at OUT, OUT += 1, LEN -= 1; LEN was > 1: PC 0;
+# else decode the next literal/length symbol through brd (T7 0, T8 TA 3928576, T9 16, T10 hb 478).
+# Hand-written. Not generated. Note: weights/files/inflate.md
+input 65
+slice 0 0 1                       # v1 [x0]
+slice 0 8 9                       # v2 [PC]
+slice 0 25 28                     # v3 [LEN DIST OUT]
+concat 1 2                        # v4
+concat 4 3                        # v5 G = [x0 PC LEN DIST OUT]
+dense 5 2 5                       # v6
+  0 1 0 0 0
+  0 0 1 0 0
+  -0.5 -1.5
+step 6                            # v7 [p1 more]
+dense 7 2 2  1 1  1 -1  -1.5 -0.5 # v8
+step 8                            # v9 [a b]
+concat 5 7                        # v10 [x0 PC LEN DIST OUT p1 more]
+dense 10 2 7                      # v11 [DIST, p1]
+  0 0 0 1 0 0 0
+  0 0 0 0 0 1 0
+  0 0
+mul 11 0 1 1 2                    # v12 p1 DIST
+concat 12 10                      # v13
+concat 13 9                       # v14 Z = [p1D x0 PC LEN DIST OUT p1 more a b]
+dense 14 8 10                     # v15 words 0..7
+  0 0 0 0 0 0 -483 0 483 464
+  0 0 0 0 0 0 1 0 0 0
+  1 0 0 0 -1 1 0 0 0 0
+  0 1 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 -1 0 0 0
+  483 1 0 0 0 0 0 1
+dense 14 1 10  0 0 0 1 0 0 -1 0 0 0  0                     # v16 LEN - p1
+dense 14 1 10  0 0 0 0 0 1 1 0 0 0  0                      # v17 OUT + p1
+dense 14 4 10                     # v18 [T7 T8 T9 T10]
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  0 3928576 16 478
+slice 0 9 25                      # v19 words 8..23
+slice 0 26 27                     # v20 w25
+slice 0 28 37                     # v21 words 27..35
+slice 0 41 65                     # v22 words 40..63
+concat 15 19
+concat 23 16
+concat 24 20
+concat 25 17
+concat 26 21
+concat 27 18
+concat 28 22

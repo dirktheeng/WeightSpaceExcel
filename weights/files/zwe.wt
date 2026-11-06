@@ -1,0 +1,34 @@
+# files/zwe (id 511): ZIP writer exit, block consumer (74 inputs) of the spill [LINK, L0..L7].
+# Restores L0..L7, STATUS 0, unpacks LINK by FLOOR (as csv_ret) and returns to (LR, LP); A.PAY (ZIP size) passes.
+# Hand-written. Not generated. Note: weights/files/zip.md
+input 74
+slice 0 65 66                     # v1 [LINK]
+dense 1 1 1  0.0000152587890625  6755399441055744          # v2
+dense 2 1 1  1  -6755399441055744                          # v3 r
+concat 3 1                        # v4 [r LINK]
+dense 4 1 2  1 -0.0000152587890625  0                      # v5
+step 5                            # v6 g
+concat 4 6                        # v7 [r LINK g]
+dense 7 2 3  1 0 -1  -65536 1 65536  0 0                   # v8 [LR LP]
+dense 8 10 2                      # v9 words 0..9
+  1 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 1
+  1 0
+  0 1
+  0 0 0 0 0 0 0 0 0 0
+slice 0 11 13                     # v10 words 10, 11
+dense 8 1 2  0 0  0               # v11 STATUS 0
+slice 0 14 41                     # v12 words 13..39
+slice 0 66 74                     # v13 L0..L7 restored
+slice 0 49 65                     # v14 words 48..63
+concat 9 10
+concat 15 11
+concat 16 12
+concat 17 13
+concat 18 14

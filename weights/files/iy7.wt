@@ -1,0 +1,48 @@
+# files/iy7 (id 488): repeat loop. Writes L[S] = RV (w35) at LL + S, S += 1, RN (w34) -= 1, PREV = RV.
+# RN was > 1: again. Else, S + 1 < TOT: decode the next code length symbol through brd (T8 TC, T9 16,
+# T10 hb 478); else build the tables: iset PC 0. Hand-written. Not generated. Note: weights/files/inflate.md
+input 65
+slice 0 30 31                     # v1 [S]
+slice 0 33 37                     # v2 [TOT PREV RN RV]
+concat 1 2                        # v3 G = [S TOT PREV RN RV]
+dense 3 2 5                       # v4
+  0 0 0 1 0
+  -1 1 0 0 0
+  -1.5 -1.5
+step 4                            # v5 [c more]
+dense 5 2 2  -1 1  -1 -1  -0.5 0.5                         # v6
+step 6                            # v7 [x y]
+concat 5 7                        # v8
+concat 8 3                        # v9 Z = [c more x y S TOT PREV RN RV]
+dense 9 8 9                       # v10 words 0..7
+  488 0 464 474 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 1 0 0 0 0
+  0 0 0 0 0 0 0 0 1
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  0 2 3928064 0 0 0 0 0
+dense 9 1 9  0 0 0 0 1 0 0 0 0  1                          # v11 S + 1
+dense 9 2 9                       # v12 [PREV RN]
+  0 0 0 0 0 0 0 0 1
+  0 0 0 0 0 0 0 1 0
+  0 -1
+dense 9 4 9                       # v13 [T7 T8 T9 T10]
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  0 3929216 16 478
+slice 0 9 30                      # v14 words 8..28
+slice 0 31 34                     # v15 words 30..32
+slice 0 36 37                     # v16 w35
+slice 0 41 65                     # v17 words 40..63
+concat 10 14
+concat 18 11
+concat 19 15
+concat 20 12
+concat 21 16
+concat 22 13
+concat 23 17

@@ -1,0 +1,79 @@
+# files/zr6 (id 493): block consumer (95 inputs) of the 30-byte local header. Signature 0x04034B50 (67324752).
+# Data start ds = P0 + lho + 30 + name length + extra length. Method 8: call inflate (466 PC 0) with
+# P0 = ds, N0 = csize, P1 = out (A.PAY), N1 = bits (B.PAY); method 0: call zcp (497 PC 0), LR = zr0 (489), LP 1.
+# Both push [LINK = 65536 LR + LP, CRC, out] on RET_STACK (block write 3 at RSP, RSP += 3).
+# Other method: return STATUS 4; bad signature: return STATUS 2 (no push). Output 67 words, mem_op 3.
+# Hand-written. Not generated. Note: weights/files/zip.md
+input 95
+slice 0 65 95                     # v1 bytes 0..29
+dense 1 2 30                      # v2 [sig, name + extra lengths]
+  1 256 65536 16777216 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 1 256 1 256
+  0 0
+slice 0 9 12                      # v3 [LR LP RSP]
+slice 0 15 18                     # v4 [out BTAG bits]
+slice 0 26 27                     # v5 [P0]
+slice 0 34 38                     # v6 [method crc csize lho]
+concat 2 3                        # v7
+concat 7 4                        # v8
+concat 8 5                        # v9
+concat 9 6                        # v10 G (13) = [sig nm LR LP RSP out BTAG bits P0 method crc csize lho]
+dense 10 5 13                     # v11
+  1 0 0 0 0 0 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 0 0 0 0 -1 0 0 0
+  -67324751.5 -67324752.5 -7.5 -8.5 0.5
+step 11                           # v12 [u w a8 b8 z0]
+dense 12 4 5                      # v13
+  1 -1 1 -1 0
+  1 -1 0 0 1
+  1 -1 -1 1 -1
+  -1 1 0 0 0
+  -1.5 -1.5 -0.5 0.5
+step 13                           # v14 [I S U Bd]
+dense 10 2 13                     # v15 values [LR LP]
+  0 0 1 0 0 0 0 0 0 0 0 0 0
+  0 0 0 1 0 0 0 0 0 0 0 0 0
+  0 0
+dense 14 2 4  0 0 1 1  0 0 1 1  0 0                        # v16 gates [U+Bd U+Bd]
+concat 15 16                      # v17
+mul 17 0 2 2 4                    # v18 [rLR rLP]
+concat 18 14                      # v19
+concat 19 10                      # v20 Z (19)
+dense 20 10 19                    # v21 words 0..9
+  1 0  466 497 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0  0 0 0 0      0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0  0 0 0 0      0 0 0 0 1 0 0 0 0 0 0 0 0
+  0 0  3 3 0 0      0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0  0 0 0 0      0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0  0 0 0 0      0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0  0 0 0 0      0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 1  0 0 0 0      0 0 0 0 0 0 0 0 0 0 0 0 0
+  1 0  489 489 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 1  1 1 0 0      0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 3 0 67108864 0 0 0 0 0 0
+dense 20 1 19  0 0  3 3 0 0  0 0 0 0 1 0 0 0 0 0 0 0 0  0  # v22 RSP
+dense 20 1 19  0 0  0 0 4 2  0 0 0 0 0 0 0 0 0 0 0 0 0  0  # v23 STATUS
+dense 20 4 19                     # v24 [P0 P1 N0 N1]
+  0 0  0 0 0 0  0 1 0 0 0 0 0 0 1 0 0 0 1
+  0 0  0 0 0 0  0 0 0 0 0 1 0 0 0 0 0 0 0
+  0 0  0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 1 0
+  0 0  0 0 0 0  0 0 0 0 0 0 0 1 0 0 0 0 0
+  30 0 0 0
+dense 20 3 19                     # v25 payload [LINK crc out]
+  0 0  0 0 0 0  0 0 65536 1 0 0 0 0 0 0 0 0 0
+  0 0  0 0 0 0  0 0 0 0 0 0 0 0 0 0 1 0 0
+  0 0  0 0 0 0  0 0 0 0 0 1 0 0 0 0 0 0 0
+  0 0 0
+slice 0 12 13                     # v26 w11
+slice 0 14 26                     # v27 words 13..24
+slice 0 30 65                     # v28 words 29..63
+concat 21 22
+concat 29 26
+concat 30 23
+concat 31 27
+concat 32 24
+concat 33 28
+concat 34 25

@@ -1,0 +1,33 @@
+# files/itab (id 468): writes the DEFLATE length and distance tables (RFC 1951 section 3.2.5) by one block
+# write of 124 words at LTAB = 0x3BF600 (3929600): pairs (base, extra bits) for length codes 257..285
+# (58 words), 6 unused words, then DTAB = 0x3BF640: pairs for distance codes 0..29 (60 words).
+# Then goes to ifx (466) PC 1. Output 188 words, always mem_op 3 (K = 64, N = 124).
+# Hand-written. Not generated. Note: weights/files/inflate.md
+input 65
+slice 0 0 1                       # v1 [x0] (zero weights only)
+dense 1 8 1                       # v2 words 0..7
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  466 3 3929600 67108988 0 0 0 1
+slice 0 9 65                      # v3 words 8..63
+dense 1 124 1                     # v4 payload
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0
+# length codes 257..285: base extra
+  3 0  4 0  5 0  6 0  7 0  8 0  9 0  10 0  11 1  13 1  15 1  17 1  19 2  23 2  27 2  31 2
+  35 3  43 3  51 3  59 3  67 4  83 4  99 4  115 4  131 5  163 5  195 5  227 5  258 0
+  0 0 0 0 0 0
+# distance codes 0..29: base extra
+  1 0  2 0  3 0  4 0  5 1  7 1  9 2  13 2  17 3  25 3  33 4  49 4  65 5  97 5  129 6  193 6
+  257 7  385 7  513 8  769 8  1025 9  1537 9  2049 10  3073 10  4097 11  6145 11  8193 12
+  12289 12  16385 13  24577 13
+concat 2 3                        # v5 state
+concat 5 4                        # v6 188 words

@@ -173,7 +173,7 @@ Instruction = [OP, ARG] at BC + 2 k.
 | 40, 41 | NEG, NOT | 0 | unary on the top value |
 | 64 + TAG | PUSH | PAY | push the literal (TAG, PAY) |
 
-Runtime errors set ERR to the VBA error number and stop through vi_halt: 5 invalid procedure call, 6 overflow, 11 division by zero, 13 type mismatch, 51 internal error (bad opcode), 438 object hook not implemented. On Error is not yet supported.
+Runtime errors set ERR to the VBA error number and stop through vi_halt: 5 invalid procedure call, 6 overflow, 11 division by zero, 13 type mismatch, 51 internal error (bad opcode), 438 object hook not implemented. On Error is not yet supported. `/` `\` Mod `^` run in vi_div (434), string comparisons in vi_scmp/vi_scl (433, 447); see their notes.
 
 ## 8. Object model hook (later stages)
 
@@ -181,4 +181,4 @@ OP 13 (OBJ) is the single entry for member access: the parser will compile `Rang
 
 ## 9. Limits of the groundwork
 
-Single rounding, Currency, Decimal, arrays, user types, ByRef, Optional, On Error, GoTo, With, Static, module-level variables, string to number coercion, bitwise And/Or/Xor on values other than 0 and -1, Like matching, ^ at run time, Variant overflow widening and Date output formatting are not implemented. Each network note lists its own limits.
+Single rounding, Currency, Decimal, arrays, user types, ByRef, Optional, On Error, GoTo, With, Static, module-level variables, string to number coercion, bitwise And/Or/Xor on values other than 0 and -1, Like matching, string to number comparison ("5" = 5), Option Compare Text, Variant overflow widening and Date output formatting are not implemented. Each network note lists its own limits.

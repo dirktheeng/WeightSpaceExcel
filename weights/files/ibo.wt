@@ -1,0 +1,41 @@
+# files/ibo (id 476): block consumer (81 inputs) of cnt[0..15]. Block writes offs[l] = cnt[1] + .. + cnt[l-1]
+# (offs[0] = offs[1] = 0) at TB + 16, S = 0, goes to ibs (477) PC 0. Output 80 words, mem_op 3 (K 64, N 16).
+# Hand-written. Not generated. Note: weights/files/inflate.md
+input 81
+slice 0 65 81                     # v1 cnt[0..15]
+dense 1 16 16                     # v2 offs[0..15]
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0
+  0 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0
+  0 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0
+  0 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0
+  0 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0
+  0 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0
+  0 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0
+  0 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0
+  0 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0
+  0 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0
+  0 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0
+  0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+slice 0 18 19                     # v3 [TB]
+dense 3 8 1                       # v4 words 0..7
+  0
+  0
+  1
+  0
+  0
+  0
+  0
+  0
+  477 3 16 67108880 0 0 0 0
+dense 3 1 1  0  0                 # v5 w29 S = 0
+slice 0 9 30                      # v6 words 8..28
+slice 0 31 65                     # v7 words 30..63
+concat 4 6
+concat 8 5
+concat 9 7
+concat 10 2

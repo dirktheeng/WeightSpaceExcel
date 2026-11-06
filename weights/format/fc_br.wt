@@ -166,3 +166,200 @@ slice 0 41 65                     # v43 = words 40..63
 concat 42 43                      # v44
 slice 29 13 15                    # v45 = payload [op, value]
 concat 44 45                      # v46 (66)
+# Session 3: currency and locale brackets [$...]. BD 0 + '$' -> BD 4 (g$, BD' + 1 over the old
+# "other" + 3); BD 4 + '-' -> BD 3 (g4m, skip to ']'); any other unit except ']' in BD 4 is a
+# literal: the pending token PT is written at OUT with nc = 1 (LIT) and OUT + 1 (gLa, PT > 0), or
+# code 1 goes to SH + 8 when no token is pending (gLb); PT' = 65536 + c. One-word block write
+# (N + 1) through the existing block op. MUX_INT with B = 2^22 = 4194304.
+slice 0 20 21                     # v47 = SH
+slice 0 27 28                     # v48 = OUT
+slice 0 30 31                     # v49 = PT
+concat 5 47                       # v50
+concat 50 48                      # v51
+concat 51 49                      # v52 = c0 CR1 SEC2 BK3 BV4 BD5 COLOR6 SH7 OUT8 PT9
+dense 52 10 10                    # v53 = [BD>=4, BD<=4, BD<=0, c>=36, c<=36, c>=45, c<=45, c>=93, c<=93, PT>0] pre
+   0 0 0 0 0 1 0 0 0 0
+   0 0 0 0 0 -1 0 0 0 0
+   0 0 0 0 0 -1 0 0 0 0
+   1 0 0 0 0 0 0 0 0 0
+   -1 0 0 0 0 0 0 0 0 0
+   1 0 0 0 0 0 0 0 0 0
+   -1 0 0 0 0 0 0 0 0 0
+   1 0 0 0 0 0 0 0 0 0
+   -1 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 1
+   -3.5 4.5 0.5 -35.5 36.5 -44.5 45.5 -92.5 93.5 -0.5
+step 53                           # v54
+mul 54 0 1 1 2                    # v55 = b4
+mul 54 3 4 4 5                    # v56 = c$
+mul 54 5 6 6 7                    # v57 = cMI
+mul 54 7 8 8 9                    # v58 = cR
+slice 54 2 3                      # v59 = b0
+slice 54 9 10                     # v60 = ptp
+concat 55 56                      # v61
+concat 61 57                      # v62
+concat 62 58                      # v63
+concat 63 59                      # v64
+concat 64 60                      # v65 = [b4 c$ cMI cR b0 ptp]
+dense 65 4 6                      # v66 = [g$ g4m gLa gLb] pre
+   0 1 0 0 1 0
+   1 0 1 0 0 0
+   1 0 -1 -1 0 1
+   1 0 -1 -1 0 -1
+   -1.5 -1.5 -1.5 -0.5
+step 66                           # v67
+concat 52 67                      # v68 = X (14): .. PT9 g$10 g4m11 gLa12 gLb13
+slice 46 2 4                      # v69 = [old addr, old value]
+slice 46 23 24                    # v70 = old BD'
+slice 46 64 65                    # v71 = old pay0
+concat 68 69                      # v72
+concat 72 70                      # v73
+concat 73 71                      # v74 = Y (18): addr14 value15 BDo16 pay0o17
+dense 74 7 18                     # v75 = MUX pre [m0 .. m6]
+   0 0 0 0 0 0 0 0 0 0  0 0 -4194304 -4194304 1 0 0 0
+   0 0 0 0 0 0 0 0 1 0  0 0 4194304 0 0 0 0 0
+   0 0 0 0 0 0 0 1 0 0  0 0 0 4194304 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0  0 0 -4194304 -4194304 0 0 0 1
+   0 0 0 0 0 0 0 0 0 1  0 0 4194304 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 1  0 0 -4194304 -4194304 0 0 0 0
+   1 0 0 0 0 0 0 0 0 0  0 0 4194304 4194304 0 0 0 0
+   0 -4194304 -4194296 0 -3145728 0 -4128768
+relu 75                           # v76 = [old addr, OUT, SH + 8, old pay0, PT + 2^20, PT, 65536 + c] gated
+concat 74 76                      # v77 = Z (25): m0..m6 at 18..24
+dense 77 6 25                     # v78 = [addr, value, BD', OUT', PT', pay0]
+   0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0  1 1 1 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0  0 0 1 1 0 1 0 0  0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0  1 -1 0 0 0 0 1 0  0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 1 0  0 0 1 0 0 0 0 0  0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0  0 0 0 0 0 1 1
+   0 0 0 0 0 0 0 0 0 0  0 0 0 1 0 0 0 0  0 0 0 1 1 0 0
+   0 0 0 0 0 0
+slice 46 0 2                      # v79 = words 0, 1
+slice 78 0 2                      # v80 = [addr, value]
+concat 79 80                      # v81
+slice 46 4 23                     # v82 = words 4..22
+concat 81 82                      # v83
+slice 78 2 3                      # v84 = BD' (23)
+concat 83 84                      # v85
+slice 46 24 26                    # v86 = words 24, 25
+concat 85 86                      # v87
+slice 78 3 4                      # v88 = OUT' (26)
+concat 87 88                      # v89
+slice 46 27 29                    # v90 = words 27, 28
+concat 89 90                      # v91
+slice 78 4 5                      # v92 = PT' (29)
+concat 91 92                      # v93
+slice 46 30 64                    # v94 = words 30..63
+concat 93 94                      # v95
+slice 78 5 6                      # v96 = pay0 (64)
+concat 95 96                      # v97
+slice 46 65 66                    # v98 = pay1
+concat 97 98                      # v99 (66)
+# Session 3: decimal condition values. In a condition (BD 2 or 6) '.' adds 8 to BK (gpt) and each
+# digit after it adds 8 more (gd8, BK >= 8), so BK = op + 8 (1 + k) once a point was seen (BK = op
+# without one). s_j = [BK >= 8 j] (j = 1..7): op = BK - 8 sum s, k = s2 + .. + s7 (cap 6).
+# pay0 = old pay0 - 8 sum s (the op); pay1 = q' with q = BV 10^-k and one correction step
+# q' = q - (q 10^k - BV) 10^-k (gives fl(0.3) for "0.3", where 3 x 0.1 alone is 0.30000000000000004).
+dense 52 15 10                    # v100 = [BD>=2, BD<=2, BD>=6, BD<=6, c>=46, c<=46, c>=48, c<=57, BK>=8j (7)] pre
+   0 0 0 0 0 1 0 0 0 0
+   0 0 0 0 0 -1 0 0 0 0
+   0 0 0 0 0 1 0 0 0 0
+   0 0 0 0 0 -1 0 0 0 0
+   1 0 0 0 0 0 0 0 0 0
+   -1 0 0 0 0 0 0 0 0 0
+   1 0 0 0 0 0 0 0 0 0
+   -1 0 0 0 0 0 0 0 0 0
+   0 0 0 1 0 0 0 0 0 0
+   0 0 0 1 0 0 0 0 0 0
+   0 0 0 1 0 0 0 0 0 0
+   0 0 0 1 0 0 0 0 0 0
+   0 0 0 1 0 0 0 0 0 0
+   0 0 0 1 0 0 0 0 0 0
+   0 0 0 1 0 0 0 0 0 0
+   -1.5 2.5 -5.5 6.5 -45.5 46.5 -47.5 57.5 -7.5 -15.5 -23.5 -31.5 -39.5 -47.5 -55.5
+step 100                          # v101
+mul 101 0 1 1 2                   # v102 = bd2
+mul 101 2 3 3 4                   # v103 = bd6
+mul 101 4 5 5 6                   # v104 = cpt
+mul 101 6 7 7 8                   # v105 = cdig
+slice 101 8 15                    # v106 = s1..s7
+concat 102 103                    # v107
+concat 107 104                    # v108
+concat 108 105                    # v109
+concat 109 106                    # v110 = [bd2 bd6 cpt cdig s1..s7]
+dense 110 2 11                    # v111 = [gpt, gd8] pre
+   1 1 1 0 0 0 0 0 0 0 0
+   1 1 0 1 1 0 0 0 0 0 0
+   -1.5 -2.5
+step 111                          # v112
+dense 106 7 7                     # v113 = one-hot k (0..6)
+   0 -1 0 0 0 0 0
+   0 1 -1 0 0 0 0
+   0 0 1 -1 0 0 0
+   0 0 0 1 -1 0 0
+   0 0 0 0 1 -1 0
+   0 0 0 0 0 1 -1
+   0 0 0 0 0 0 1
+   1 0 0 0 0 0 0
+slice 99 65 66                    # v114 = old pay1 (+/- BV)
+dense 114 7 1                     # v115 = pay1 10^-k, k = 0..6
+   1
+   0.1
+   0.01
+   0.001
+   0.0001
+   0.00001
+   0.000001
+   0 0 0 0 0 0 0
+concat 113 115                    # v116
+mul 116 0 7 7 14                  # v117
+dense 117 1 7                     # v118 = q
+   1 1 1 1 1 1 1
+   0
+dense 118 7 1                     # v119 = q 10^k
+   1
+   10
+   100
+   1000
+   10000
+   100000
+   1000000
+   0 0 0 0 0 0 0
+concat 113 119                    # v120
+mul 120 0 7 7 14                  # v121
+concat 121 114                    # v122
+dense 122 1 8                     # v123 = err = q 10^k - pay1
+   1 1 1 1 1 1 1 -1
+   0
+dense 123 7 1                     # v124 = err 10^-k
+   1
+   0.1
+   0.01
+   0.001
+   0.0001
+   0.00001
+   0.000001
+   0 0 0 0 0 0 0
+concat 113 124                    # v125
+mul 125 0 7 7 14                  # v126
+concat 118 126                    # v127
+dense 127 1 8                     # v128 = q' (new pay1)
+   1 -1 -1 -1 -1 -1 -1 -1
+   0
+slice 99 21 22                    # v129 = old BK'
+slice 99 64 65                    # v130 = old pay0
+concat 110 112                    # v131 (13): s1..s7 4..10, gpt 11, gd8 12
+concat 131 129                    # v132 (BKo 13)
+concat 132 130                    # v133 (pay0o 14)
+dense 133 2 15                    # v134 = [BK', pay0]
+   0 0 0 0 0 0 0 0 0 0 0 8 8 1 0
+   0 0 0 0 -8 -8 -8 -8 -8 -8 -8 0 0 0 1
+   0 0
+slice 99 0 21                     # v135 = words 0..20
+slice 134 0 1                     # v136 = BK' (21)
+concat 135 136                    # v137
+slice 99 22 64                    # v138 = words 22..63
+concat 137 138                    # v139
+slice 134 1 2                     # v140 = pay0 (64)
+concat 139 140                    # v141
+concat 141 128                    # v142 (66)

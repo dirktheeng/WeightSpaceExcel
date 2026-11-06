@@ -1,0 +1,67 @@
+# files/ilit (id 480): symbol handler after hdec. x0 = symbol. HM (w19) = 0: literal/length table, 1: distance.
+# HM 0, sym < 256: write sym at OUT, OUT += 1, decode again through brd (T7 0, T8 TB, T9 16, T10 hb 478).
+# HM 0, sym = 256: end of block, go to ibe (470).
+# HM 0, sym > 256: block read (base, extra) at LTAB + 2 (sym - 257), go to xb (481).
+# HM 1: block read (base, extra) at DTAB + 2 sym, go to xb (481). LTAB 3929600, DTAB 3929664.
+# Hand-written. Not generated. Note: weights/files/inflate.md
+input 65
+slice 0 0 1                       # v1 [sym]
+slice 0 18 21                     # v2 [TB HK HM]
+slice 0 27 28                     # v3 [OUT]
+concat 1 2                        # v4
+concat 4 3                        # v5 G = [sym TB HK HM OUT]
+dense 5 4 5                       # v6
+  -1 0 0 0 0
+  1 0 0 0 0
+  1 0 0 0 0
+  0 0 0 1 0
+  255.5 -255.5 -256.5 0
+step 6                            # v7 [lt a b m]
+dense 7 4 4                       # v8
+  1 0 0 -1
+  0 1 -1 -1
+  0 0 1 -1
+  0 0 0 1
+  -0.5 -0.5 -0.5 -0.5
+step 8                            # v9 [lit eob len dist]
+dense 5 4 5                       # v10 values [OUT sym sym sym]
+  0 0 0 0 1
+  1 0 0 0 0
+  1 0 0 0 0
+  1 0 0 0 0
+  0 0 0 0
+dense 9 4 4                       # v11 gates [lit lit len dist]
+  1 0 0 0
+  1 0 0 0
+  0 0 1 0
+  0 0 0 1
+  0 0 0 0
+concat 10 11                      # v12
+mul 12 0 4 4 8                    # v13 [litOUT litSym lenSym distSym]
+concat 13 9                       # v14
+concat 14 5                       # v15 Z (13)
+dense 15 8 13                     # v16 words 0..7
+  0 0 0 0  464 470 481 481        0 0 0 0 0
+  0 0 0 0  2 0 4 4                0 0 0 0 0
+  1 0 2 2  0 0 3929086 3929664    0 0 0 0 0
+  0 1 0 0  0 0 67108866 67108866  0 0 0 0 0
+  0 0 0 0  0 0 0 0                0 0 0 0 0
+  0 0 0 0  0 0 0 0                0 0 0 0 0
+  0 0 0 0  0 0 0 0                0 0 0 0 0
+  0 0 0 0  0 0 0 0                0 0 0 0 0
+  0 0 0 0 0 0 0 0
+dense 15 1 13  0 0 0 0 1 0 0 0 0 0 0 0 1  0                # v17 OUT + lit
+dense 15 4 13                     # v18 [T7 T8 T9 T10]
+  0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 16 478
+slice 0 9 27                      # v19 words 8..25
+slice 0 28 37                     # v20 words 27..35
+slice 0 41 65                     # v21 words 40..63
+concat 16 19
+concat 22 17
+concat 23 20
+concat 24 18
+concat 25 21

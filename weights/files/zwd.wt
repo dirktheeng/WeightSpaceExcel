@@ -1,0 +1,55 @@
+# files/zwd (id 510): ZIP writer return point of crc, deflate and zcp (PC = the LP each call was given).
+# PC 0 (CRC in A.PAY): write it at L0 + 4, block read the record through brd back to zwc PC 1.
+# PC 1 (compressed size in A.PAY): write it at L0 + 5, block read the record through brd to zwl (494).
+# PC 2 (local name copied, P1 = end of name): write lho = L2 - L3 at L0 + 6, L2 = P1 + csize (w15),
+#   L0 += 8, L1 -= 1, go to zwb PC 1.  PC 3 (central directory name copied): L2 = P1, L0 += 8, L1 -= 1,
+#   go to zwb PC 2. Hand-written. Not generated. Note: weights/files/zip.md
+input 65
+slice 0 8 9                       # v1 [PC]
+slice 0 15 17                     # v2 [A w15]
+slice 0 27 28                     # v3 [P1]
+slice 0 41 45                     # v4 [L0 L1 L2 L3]
+concat 1 2                        # v5
+concat 5 3                        # v6
+concat 6 4                        # v7 G = [PC A w15 P1 L0 L1 L2 L3]
+dense 7 3 8  1 0 0 0 0 0 0 0  1 0 0 0 0 0 0 0  1 0 0 0 0 0 0 0  -0.5 -1.5 -2.5   # v8
+step 8                            # v9 [s1 s2 s3]
+dense 9 4 3  -1 0 0  1 -1 0  0 1 -1  0 0 1  1 0 0 0         # v10 [p0 p1 p2 p3]
+dense 7 4 8                       # v11 values [A, L2 - L3, P1 + w15 - L2, P1 - L2]
+  0 1 0 0 0 0 0 0
+  0 0 0 0 0 0 1 -1
+  0 0 1 1 0 0 -1 0
+  0 0 0 1 0 0 -1 0
+  0 0 0 0
+dense 10 4 4  1 1 0 0  0 0 1 0  0 0 1 0  0 0 0 1  0 0 0 0  # v12 gates [p0+p1, p2, p2, p3]
+concat 11 12                      # v13
+mul 13 0 4 4 8                    # v14 Q
+concat 14 10                      # v15
+concat 15 7                       # v16 Z (16) = [Q0..Q3 p0 p1 p2 p3 PC A w15 P1 L0 L1 L2 L3]
+dense 16 8 16                     # v17 words 0..7
+  0 0 0 0  464 464 508 508  0 0 0 0 0 0 0 0
+  0 0 0 0  2 2 2 0          0 0 0 0 0 0 0 0
+  0 0 0 0  4 5 6 0          0 0 0 0 1 0 0 0
+  1 1 0 0  0 0 0 0          0 0 0 0 0 0 0 0
+  0 0 0 0  0 0 0 0          0 0 0 0 0 0 0 0
+  0 0 0 0  0 0 0 0          0 0 0 0 0 0 0 0
+  0 0 0 0  0 0 0 0          0 0 0 0 0 0 0 0
+  0 0 0 0  0 0 1 2          0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0
+dense 16 4 16                     # v18 [T7 T8 T9 T10]
+  0 0 0 0  1 0 0 0      0 0 0 0 0 0 0 0
+  0 0 0 0  0 0 0 0      0 0 0 0 1 0 0 0
+  0 0 0 0  0 0 0 0      0 0 0 0 0 0 0 0
+  0 0 0 0  509 494 0 0  0 0 0 0 0 0 0 0
+  0 0 8 0
+dense 16 3 16                     # v19 [L0 L1 L2]
+  0 0 0 0  0 0 8 8      0 0 0 0 1 0 0 0
+  0 0 0 0  0 0 -1 -1    0 0 0 0 0 1 0 0
+  0 0 1 1  0 0 0 0      0 0 0 0 0 0 1 0
+  0 0 0
+slice 0 9 37                      # v20 words 8..35
+slice 0 44 65                     # v21 words 43..63
+concat 17 20
+concat 22 18
+concat 23 19
+concat 24 21

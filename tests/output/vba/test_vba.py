@@ -195,3 +195,71 @@ def test_src_integer_overflow():
     h, dbg, msg, err = vb.run_src(src("Sub Main()", " Dim n As Integer", " n = 30000 + 30000",
                                       " Debug.Print n", "End Sub"))
     assert err == 6 and dbg == ""                       # Integer + Integer overflows: error 6
+
+
+# ---------- vi_div (434): / \ Mod ^ (expected values from VBA's documented rules)
+def binop(a, b, op):
+    h, dbg, msg, err = vb.run(PRO + [a, b, (op, 0), PRINT, RET], ENTRY)
+    return dbg, err
+
+
+@pytest.mark.parametrize("a, b, op, want", [
+    (D(7), D(2), 19, (" 3.5 \n", 0)),
+    (D(1), D(3), 19, (" 0.333333333333333 \n", 0)),      # Print shows 15 significant digits
+    (I(1), I(0), 19, ("", 11)),                            # x / 0: division by zero
+    (I(0), I(0), 19, ("", 6)),                             # 0 / 0: VBA reports overflow
+    (D(1e308), D(1e-10), 19, ("", 6)),                     # Double overflow
+    (I(7), I(2), 20, (" 3 \n", 0)),                        # \ truncates toward zero
+    (I(-7), I(2), 20, ("-3 \n", 0)),
+    (I(7), I(-2), 20, ("-3 \n", 0)),
+    (D(2.5), I(1), 20, (" 2 \n", 0)),                      # operands rounded half to even first
+    (I(-32768), I(-1), 20, ("", 6)),                       # Integer \ Integer result 32768 overflows
+    (L(-32768), I(-1), 20, (" 32768 \n", 0)),              # Long rank: fits
+    (D(1e300), I(2), 20, ("", 6)),                         # operand outside Long
+    (I(7), I(2), 21, (" 1 \n", 0)),
+    (I(-7), I(2), 21, ("-1 \n", 0)),                       # Mod takes the sign of the dividend
+    (I(7), I(-2), 21, (" 1 \n", 0)),
+    (D(5.5), D(2), 21, (" 0 \n", 0)),                      # 6 Mod 2
+    (I(5), D(0.3), 21, ("", 11)),                          # divisor rounds to 0
+    (I(2), I(10), 22, (" 1024 \n", 0)),
+    (I(0), I(0), 22, (" 1 \n", 0)),                        # VBA: 0 ^ 0 = 1
+    (D(-8), D(1 / 3), 22, ("", 5)),                        # negative base, fractional exponent
+])
+def test_div_family(a, b, op, want):
+    assert binop(a, b, op) == want
+
+
+def test_src_div_mod_pow():
+    h, dbg, msg, err = vb.run_src(src("Sub Main()",
+                                      " Debug.Print 7 \\ 2; -7 Mod 3; 2 ^ 10; 1 / 4; 4 / 2 ^ 2; 2 ^ 3 ^ 2",
+                                      " Dim n As Long", " n = 2147483647", " Debug.Print n \\ -1; 10 Mod 4 * 2",
+                                      "End Sub"))
+    # ^ is left associative ((2^3)^2 = 64); * binds tighter than Mod (10 Mod 8)
+    assert dbg == " 3 -1  1024  0.25  1  64 \n-2147483647  2 \n" and err == 0
+
+
+# ---------- vi_scmp (433) / vi_scl (447): string comparison, Option Compare Binary
+@pytest.mark.parametrize("a, b, want", [
+    ("abc", "abd", "FalseTrueTrueTrueFalseFalse"),      # = <> < <= > >=: first difference decides
+    ("abc", "abc", "TrueFalseFalseTrueFalseTrue"),
+    ("ab", "abc", "FalseTrueTrueTrueFalseFalse"),       # a proper prefix is smaller
+    ("abc", "ab", "FalseTrueFalseFalseTrueTrue"),
+    ("", "", "TrueFalseFalseTrueFalseTrue"),
+    ("Z", "a", "FalseTrueTrueTrueFalseFalse"),          # binary: code 90 < 97
+    ("abcdefghij", "abcdefghik", "FalseTrueTrueTrueFalseFalse"),   # difference in the second block of 8
+    ("abcdefgh", "abcdefghi", "FalseTrueTrueTrueFalseFalse"),      # a ends exactly at a block edge
+    ("abcdefghijklmnopq", "abcdefghijklmnopq", "TrueFalseFalseTrueFalseTrue"),
+])
+def test_src_string_compare(a, b, want):
+    qa, qb = '"' + a + '"', '"' + b + '"'
+    line = " Debug.Print " + "; ".join(qa + " " + op + " " + qb for op in ("=", "<>", "<", "<=", ">", ">="))
+    h, dbg, msg, err = vb.run_src(src("Sub Main()", line, "End Sub"), max_steps=1000000)
+    assert dbg == want + "\n" and err == 0
+
+
+def test_src_string_compare_empty_and_mismatch():
+    h, dbg, msg, err = vb.run_src(src("Sub Main()", " Dim s As String", ' Debug.Print s = ""; s < "a"',
+                                      "End Sub"))
+    assert dbg == "TrueTrue\n"                          # a String Dim starts as ""
+    h, dbg, msg, err = vb.run_src(src("Sub Main()", ' Debug.Print "abc" = 5', "End Sub"))
+    assert err == 13                                    # non-numeric string vs number: type mismatch

@@ -1,0 +1,48 @@
+# files/dpk (id 505): end of deflate output. PC 0: pad with zero bits to a byte boundary (EN = 8 ceil(BP/8) - BP,
+# BP relative to a multiple of 8) through dzb, continuing to PC 1. PC 1: A.PAY = (BP - BB) / 8 (byte count),
+# q (w29) = BB, block read 8 bits at BB, go to dpw (506). Hand-written. Not generated. Note: weights/files/deflate.md
+input 65
+slice 0 8 9                       # v1 [PC]
+slice 0 16 17                     # v2 [BB]
+slice 0 29 30                     # v3 [BP]
+dense 3 2 1  0.125 0.125  6755399441055744 0               # v4
+dense 4 2 2  1 0  0 1  -6755399441055744 0                 # v5 [r y]
+dense 5 1 2  -1 1  0              # v6 y - r
+step 6                            # v7 h
+concat 5 7                        # v8 [r y h]
+dense 8 1 3  8 0 8  0             # v9 B8 = 8 ceil(BP / 8)
+dense 1 1 1  1  -0.5              # v10
+step 10                           # v11 p1
+concat 9 3                        # v12
+concat 12 2                       # v13
+concat 13 11                      # v14 Z = [B8 BP BB p1]
+dense 14 8 4                      # v15 words 0..7
+  0 0 0 8
+  0 0 0 4
+  0 0 1 0
+  0 0 0 67108872
+  0 0 0 0
+  0 0 0 0
+  0 0 0 0
+  0 0 0 0
+  498 0 0 0 0 0 0 0
+dense 14 1 4  0 0.125 -0.125 0  0                          # v16 A.PAY
+dense 14 5 4                      # v17 [EV EN EM EK EP]
+  0 0 0 0
+  1 -1 0 0
+  0 0 0 0
+  0 0 0 0
+  0 0 0 0
+  0 0 0 505 1
+dense 14 1 4  0 0 1 0  0          # v18 q = BB
+slice 0 9 15                      # v19 words 8..13
+slice 0 16 18                     # v20 words 15, 16
+slice 0 23 30                     # v21 words 22..28
+slice 0 31 65                     # v22 words 30..63
+concat 15 19
+concat 23 16
+concat 24 20
+concat 25 17
+concat 26 21
+concat 27 18
+concat 28 22

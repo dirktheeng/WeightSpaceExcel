@@ -1,0 +1,79 @@
+# files/ihd2 (id 469): block consumer (68 inputs) of the 3 header bits [BFINAL, BTYPE0, BTYPE1].
+# BFINAL -> w16. BTYPE 0 (stored): BP = 8 ceil(BP / 8), block read 32 bits (LEN, NLEN) there, BP += 32,
+# go to ist1 (471). BTYPE 1 (fixed): go to ifl (473) PC 0. BTYPE 2 (dynamic): block read 14 bits at BP,
+# BP += 14, go to iy1 (484). BTYPE 3: return to (LR, LP) with STATUS 2.
+# Hand-written. Not generated. Note: weights/files/inflate.md
+input 68
+slice 0 65 68                     # v1 [b0 b1 b2]
+slice 0 9 11                      # v2 [LR LP]
+slice 0 16 17                     # v3 [OUT0]
+slice 0 27 28                     # v4 [OUT]
+slice 0 29 30                     # v5 [BP]
+dense 5 2 1  0.125 0.125  6755399441055744 0               # v6 [y + C, y], y = BP / 8
+dense 6 2 2  1 0  0 1  -6755399441055744 0                 # v7 [r, y]
+dense 7 1 2  -1 1  0              # v8 y - r
+step 8                            # v9 h
+concat 7 9                        # v10 [r y h]
+dense 10 1 3  8 0 8  0            # v11 B8 = 8 ceil(BP / 8)
+dense 1 4 3                       # v12
+  0 -1 -1
+  0 1 -1
+  0 -1 1
+  0 1 1
+  0.5 -0.5 -0.5 -1.5
+step 12                           # v13 [t0 t1 t2 t3]
+concat 2 3                        # v14
+concat 14 4                       # v15
+concat 15 5                       # v16
+concat 16 11                      # v17
+concat 17 1                       # v18 G = [LR LP OUT0 OUT BP B8 b0 b1 b2]
+dense 18 5 9                      # v19 values [B8 BP BP LR LP]
+  0 0 0 0 0 1 0 0 0
+  0 0 0 0 1 0 0 0 0
+  0 0 0 0 1 0 0 0 0
+  1 0 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0
+  0 0 0 0 0
+dense 13 5 4                      # v20 gates [t0 t2 t0 t3 t3]
+  1 0 0 0
+  0 0 1 0
+  1 0 0 0
+  0 0 0 1
+  0 0 0 1
+  0 0 0 0 0
+concat 19 20                      # v21
+mul 21 0 5 5 10                   # v22 [t0B8 t2BP t0BP t3LR t3LP]
+concat 22 13                      # v23
+concat 23 18                      # v24 Z (18)
+dense 24 8 18                     # v25 words 0..7
+  0 0 0 1 0  471 473 484 0  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0  4 0 4 0        0 0 0 0 0 0 0 0 0
+  1 1 0 0 0  0 0 0 0        0 0 0 0 0 0 0 0 0
+  0 0 0 0 0  67108896 0 67108878 0  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0  0 0 0 0        0 0 0 0 0 0 0 0 0
+  0 0 0 0 0  0 0 0 0        0 0 0 0 0 0 0 0 0
+  0 0 0 0 0  0 0 0 0        0 0 0 0 0 0 0 0 0
+  0 0 0 0 1  0 0 0 0        0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0
+dense 24 3 18                     # v26 [STATUS, A.TAG, A.PAY]
+  0 0 0 0 0  0 0 0 2  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0  0 0 0 0  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0  0 0 0 0  0 0 -1 1 0 0 0 0 0
+  0 1 0
+dense 24 2 18                     # v27 [w16 BFINAL, w28 BP]
+  0 0 0 0 0  0 0 0 0   0 0 0 0 0 0 1 0 0
+  1 0 -1 0 0 32 0 14 0 0 0 0 0 1 0 0 0 0
+  0 0
+slice 0 9 13                      # v28 words 8..11
+slice 0 16 17                     # v29 w15
+slice 27 0 1                      # v30 w16
+slice 0 18 29                     # v31 words 17..27
+slice 27 1 2                      # v32 w28
+slice 0 30 65                     # v33 words 29..63
+concat 25 28
+concat 34 26
+concat 35 29
+concat 36 30
+concat 37 31
+concat 38 32
+concat 39 33

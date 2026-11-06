@@ -63,7 +63,7 @@ Phase values are local to a network: PC 3 in the lexer and PC 3 in the evaluator
 
 ## 5. Network id allocation
 
-Network ids are positions in the harness network list. The launcher (an output test, or later a start script that only lists paths) passes a list of exactly 512 hand-written weight file paths built from weights/MANIFEST.txt. Each manifest line is `ID PATH` (network id, then the path relative to the repository root); `#` starts a comment, blank lines are ignored, lines may be in any order and the file is append only. A duplicate id is an error. The launcher places each path at its id and fills every unlisted id below 512 with the TRAP network path (id 1), so the loaded count is 512 and NET_NEXT starts there. The test launcher is tests/output/blackbox.py; encodings/io.md section 2.
+Network ids are positions in the harness network list. The launcher (an output test, or later a start script that only lists paths) passes a list of exactly 1024 hand-written weight file paths built from weights/MANIFEST.txt. Each manifest line is `ID PATH` (network id, then the path relative to the repository root); `#` starts a comment, blank lines are ignored, lines may be in any order and the file is append only. A duplicate id is an error. The launcher places each path at its id and fills every unlisted id below 1024 with the TRAP network path (id 1), so the loaded count is 1024 and NET_NEXT starts there (widened from 512 by decision C3). The test launcher is tests/output/blackbox.py; encodings/io.md section 2.
 
 | Ids | Owner |
 |---|---|
@@ -79,9 +79,15 @@ Network ids are positions in the harness network list. The launcher (an output t
 | 256 to 383 | hand-written function networks (FUNC_TABLE maps function id to these or to generated ids) |
 | 384 to 447 | VBA |
 | 448 to 511 | files (CSV, ZIP, XML) |
-| 512 and up | generated networks |
+| 512 to 575 | VBA (continued) |
+| 576 to 639 | charts |
+| 640 to 703 | data features (sort, filter, tables, validation, undo, clipboard) |
+| 704 to 895 | statistical, financial and engineering functions |
+| 896 to 959 | UI (continued): ribbon, dialogs, menus, mouse |
+| 960 to 1023 | reserve |
+| 1024 and up | generated networks |
 
-**Generated ids and the harness load rule.** On io 7 the harness replaces network io_arg if io_arg < number of loaded networks, and otherwise appends at the end, whatever io_arg says. So a new id must equal the current count exactly. The allocator network keeps NET_NEXT (zero page 0x05) equal to the count: it starts at 512, a generator obtains an id by calling the allocator (which returns NET_NEXT in A.PAY and increments it), and only that generator's load step may use it. Regenerating an existing network loads into its id (io_arg < count, replace). Ids are never freed (open question Q-C2: reuse lists if run-time specialisation creates many).
+**Generated ids and the harness load rule.** On io 7 the harness replaces network io_arg if io_arg < number of loaded networks, and otherwise appends at the end, whatever io_arg says. So a new id must equal the current count exactly. The allocator network keeps NET_NEXT (zero page 0x05) equal to the count: it starts at 1024, a generator obtains an id by calling the allocator (which returns NET_NEXT in A.PAY and increments it), and only that generator's load step may use it. Regenerating an existing network loads into its id (io_arg < count, replace). Ids are never freed (open question Q-C2: reuse lists if run-time specialisation creates many).
 
 ## 6. MODE values
 

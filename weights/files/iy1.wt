@@ -1,0 +1,51 @@
+# files/iy1 (id 484): block consumer (79 inputs) of the 14 dynamic header bits. HLIT (w27) = 257 + 5 bits,
+# HDIST (w31) = 1 + 5 bits, HCLEN (w32) = 4 + 4 bits, S = 0. Block writes 19 zeros at CLL = 0x3BF140
+# (3928384), then block reads 3 bits at BP through brd (T7 0, T8 BP, T9 3, T10 iy3 485).
+# Output 83 words, mem_op 3. Hand-written. Not generated. Note: weights/files/inflate.md
+input 79
+slice 0 65 79                     # v1 bits
+dense 1 3 14                      # v2 [HLIT HDIST HCLEN]
+  1 2 4 8 16  0 0 0 0 0  0 0 0 0
+  0 0 0 0 0  1 2 4 8 16  0 0 0 0
+  0 0 0 0 0  0 0 0 0 0  1 2 4 8
+  257 1 4
+slice 0 29 30                     # v3 [BP]
+dense 3 8 1                       # v4 words 0..7
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  464 3 3928384 67108883 0 0 0 0
+slice 0 9 28                      # v5 words 8..26
+slice 2 0 1                       # v6 w27 HLIT
+dense 3 1 1  0  0                 # v7 [0]
+slice 0 31 32                     # v8 w30
+slice 2 1 3                       # v9 w31 w32
+slice 0 34 37                     # v10 words 33..35
+dense 3 4 1                       # v11 [T7 T8 T9 T10]
+  0
+  1
+  0
+  0
+  0 0 3 485
+slice 0 41 65                     # v12 words 40..63
+concat 7 7                        # v13 2 zeros
+concat 13 13                      # v14 4
+concat 14 14                      # v15 8
+concat 15 15                      # v16 16
+concat 16 13                      # v17 18
+concat 17 7                       # v18 19
+concat 4 5                        # v19
+concat 19 6
+concat 20 3
+concat 21 7
+concat 22 8
+concat 23 9
+concat 24 10
+concat 25 11
+concat 26 12                      # v27 state
+concat 27 18                      # v28 83 words

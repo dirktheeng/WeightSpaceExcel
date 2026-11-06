@@ -1,0 +1,95 @@
+# files/df5 (id 503): match length at i against i - dist, 2 steps per byte.
+# PC 0: read src[i - dist + l].  PC 1: x (w34) = x0, read src[i + l].  PC 2: e = [x0 = x], l' = l + e;
+# e and l' < 258 and i + l' < N0: read src[i - dist + l'], PC 1, l = l'. Otherwise stop: l' >= 3: go to df6
+# (504) PC 0 with l (w33) = l'; else emit b0 as a literal with dzb (continuing to df2), i += 1.
+# Hand-written. Not generated. Note: weights/files/deflate.md
+input 65
+slice 0 0 1                       # v1 [x0]
+slice 0 8 9                       # v2 [PC]
+slice 0 26 27                     # v3 [P0]
+slice 0 28 29                     # v4 [N0]
+slice 0 30 32                     # v5 [i b0]
+slice 0 33 36                     # v6 [dist l x]
+concat 1 2                        # v7
+concat 7 3                        # v8
+concat 8 4                        # v9
+concat 9 5                        # v10
+concat 10 6                       # v11 G = [x0 PC P0 N0 i b0 dist l x]
+dense 11 5 9                      # v12
+  0 1 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0 -1
+  1 0 0 0 0 0 0 0 -1
+  0 0 0 0 0 1 0 0 0
+  -0.5 -1.5 0.5 -0.5 -143.5
+step 12                           # v13 [s1 s2 q1 q2 gl]
+concat 13 11                      # v14 [s1 s2 q1 q2 gl x0 PC P0 N0 i b0 dist l x]
+dense 14 6 14                     # v15
+  -1 0 0 0 0  0 0 0 0 0 0 0 0 0
+  1 -1 0 0 0  0 0 0 0 0 0 0 0 0
+  0 1 0 0 0   0 0 0 0 0 0 0 0 0
+  0 0 -1 1 0  0 0 0 0 0 0 0 -1 0
+  0 0 -1 1 0  0 0 0 1 -1 0 0 -1 0
+  0 0 1 -1 0  0 0 0 0 0 0 0 1 0
+  0.5 -0.5 -0.5 257.5 -0.5 -2.5
+step 15                           # v16 [p0 p1 p2 m258 mn m3]
+concat 16 13                      # v17 [p0 p1 p2 m258 mn m3 s1 s2 q1 q2 gl]
+dense 17 4 11                     # v18
+  0 0 1 1 1 0  0 0 1 -1 0
+  0 0 1 0 0 1  0 0 0 0 0
+  0 0 1 0 0 -1 0 0 0 0 0
+  0 0 1 0 0 0  0 0 1 -1 0
+  -3.5 -1.5 -0.5 -1.5
+step 18                           # v19 [cont Mp Lp eg]
+dense 19 2 4  -1 1 0 0  -1 0 1 0  -0.5 -0.5                # v20
+step 20                           # v21 [M L]
+dense 11 3 9                      # v22 values [dist x0 x]
+  0 0 0 0 0 0 1 0 0
+  1 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 1
+  0 0 0
+concat 16 19                      # v23 [p0 p1 p2 m258 mn m3 cont Mp Lp eg]
+dense 23 3 10                     # v24 gates [p0 + cont, p1, p1]
+  1 0 0 0 0 0 1 0 0 0
+  0 1 0 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0 0
+  0 0 0
+concat 22 24                      # v25
+mul 25 0 3 3 6                    # v26 [gd p1x0 p1x]
+concat 26 23                      # v27
+concat 27 21                      # v28
+concat 28 11                      # v29
+concat 29 13                      # v30 Z (29)
+dense 30 8 29                     # v31 words 0..7
+  0 0 0  503 503 0 0 0 0 503 0 0 0  504 498  0 0 0 0 0 0 0 0 0  0 0 0 0 0
+  0 0 0  1 1 0 0 0 0 1 0 0 0        0 0      0 0 0 0 0 0 0 0 0  0 0 0 0 0
+  -1 0 0 0 0 0 0 0 0 1 0 0 0        0 0      0 0 1 0 1 0 0 1 0  0 0 0 0 0
+  0 0 0  0 0 0 0 0 0 0 0 0 0        0 0      0 0 0 0 0 0 0 0 0  0 0 0 0 0
+  0 0 0  0 0 0 0 0 0 0 0 0 0        0 0      0 0 0 0 0 0 0 0 0  0 0 0 0 0
+  0 0 0  0 0 0 0 0 0 0 0 0 0        0 0      0 0 0 0 0 0 0 0 0  0 0 0 0 0
+  0 0 0  0 0 0 0 0 0 0 0 0 0        0 0      0 0 0 0 0 0 0 0 0  0 0 0 0 0
+  0 0 0  1 2 0 0 0 0 1 0 0 0        0 0      0 0 0 0 0 0 0 0 0  0 0 0 0 0
+  0 0 0 0 0 0 0 0
+dense 30 5 29                     # v32 [EV EN EM EK EP] (literal b0)
+  0 0 0  0 0 0 0 0 0 0 0 0 0  0 0  0 0 0 0 0 1 0 0 0  0 0 0 0 208
+  0 0 0  0 0 0 0 0 0 0 0 0 0  0 0  0 0 0 0 0 0 0 0 0  0 0 0 0 1
+  0 0 0  0 0 0 0 0 0 0 0 0 0  0 0  0 0 0 0 0 0 0 0 0  0 0 0 0 0
+  0 0 0  0 0 0 0 0 0 0 0 0 0  0 0  0 0 0 0 0 0 0 0 0  0 0 0 0 0
+  0 0 0  0 0 0 0 0 0 0 0 0 0  0 0  0 0 0 0 0 0 0 0 0  0 0 0 0 0
+  48 8 1 500 0
+dense 30 1 29  0 0 0  0 0 0 0 0 0 0 0 0 0  0 1  0 0 0 0 1 0 0 0 0  0 0 0 0 0  0      # v33 i + L
+dense 30 2 29                     # v34 [l, x]
+  0 0 0  0 0 0 0 0 0 0 0 0 1  0 0  0 0 0 0 0 0 0 1 0  0 0 0 0 0
+  0 1 -1 0 0 0 0 0 0 0 0 0 0  0 0  0 0 0 0 0 0 0 0 1  0 0 0 0 0
+  0 0
+slice 0 9 18                      # v35 words 8..16
+slice 0 23 30                     # v36 words 22..28
+slice 0 31 34                     # v37 words 30..32
+slice 0 36 65                     # v38 words 35..63
+concat 31 35
+concat 39 32
+concat 40 36
+concat 41 33
+concat 42 37
+concat 43 34
+concat 44 38

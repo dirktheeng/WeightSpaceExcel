@@ -58,7 +58,7 @@ RND = [
 @pytest.mark.parametrize("x,k,nint,sci,M,R", RND)
 def test_fx_rnd_fixed(x, k, nint, sci, M, R):
     h = f.harness()
-    out = h.run(192, f.regs(APAY=x, AC2=k, N0=nint, N1=sci, T10=193, T9=f.HALT_OK), max_steps=5)
+    out = h.run(192, f.regs(APAY=x, AC2=k, N0=nint, N1=sci, T10=231, T9=f.HALT_OK), max_steps=5)
     assert (f.reg(out, "AC1"), f.reg(out, "AR2")) == (M, R)
 
 
@@ -67,14 +67,14 @@ SCI = [
     (99999, 2, 1, 100000000000000, 1, 5),
     (0.000123456, 3, 1, 123500000000000, 1, -4),
     (0.0, 2, 1, 0, 1, 0),
-    (12345, 1, 3, 123500000000000, 3, 2),
+    (12345, 1, 3, 123000000000000, 2, 3),  # engineering: X multiple of nint
 ]
 
 
 @pytest.mark.parametrize("x,k,nint,M,R,X", SCI)
 def test_fx_rnd_sci(x, k, nint, M, R, X):
     h = f.harness()
-    out = h.run(192, f.regs(APAY=x, AC2=k, N0=nint, N1=1, T10=193, T9=f.HALT_OK), max_steps=5)
+    out = h.run(192, f.regs(APAY=x, AC2=k, N0=nint, N1=1, T10=231, T9=f.HALT_OK), max_steps=5)
     assert (f.reg(out, "AC1"), f.reg(out, "AR2"), f.reg(out, "AS2")) == (M, R, X)
 
 
@@ -104,7 +104,7 @@ def run_emit(x, toks, k, nint, th=0, sci=0):
     h = f.harness()
     nexp = sum(1 for c, _ in toks if c == 7)
     nc0 = put_tokens(h, TOK, toks)
-    out = h.run(192, f.regs(APAY=x, AC2=k, N0=nint, N1=sci, T1=th, T10=193, T9=194, P0=TOK,
+    out = h.run(192, f.regs(APAY=x, AC2=k, N0=nint, N1=sci, T1=th, T10=231, T9=194, P0=TOK,
                             P1=FMT_BUF, T8=nc0, T3=nexp, LR=f.HALT_OK), max_steps=2000)
     # the emitted buffer runs from FMT_BUF to the first 0 (fresh memory)
     n = 0
@@ -155,8 +155,9 @@ SCI_EMIT = [
     (12345, [I(0, 0), P, F(1, 0), (6, 1), ED(0, 0), END], 1, 1, "1.2E4"),
     (0.012, [I(0, 0), P, F(1, 0), (6, 3), ED(0, 0), END], 1, 1, "1.2e-2"),
     (0.0, [I(0, 0), P, F(1, 0), F(2, 0), (6, 0), ED(0, 0), ED(1, 0), END], 2, 1, "0.00E+00"),
-    pytest.param(12345, [I(0, 1), I(1, 1), I(2, 0), P, F(1, 0), (6, 0), ED(0, 0), END], 1, 3, "12.3E+3",
-                 marks=pytest.mark.xfail(reason="engineering exponent (multiple of nint) not done")),
+    (12345, [I(0, 1), I(1, 1), I(2, 0), P, F(1, 0), (6, 0), ED(0, 0), END], 1, 3, "12.3E+3"),
+    (0.0001234, [I(0, 1), I(1, 1), I(2, 0), P, F(1, 0), (6, 0), ED(0, 0), END], 1, 3, "123.4E-6"),
+    (1234, [I(0, 1), I(1, 1), I(2, 0), P, F(1, 0), (6, 0), ED(0, 0), END], 1, 3, "1.2E+3"),
     (99999, [I(0, 0), P, F(1, 0), (6, 0), ED(0, 0), ED(1, 0), END], 1, 1, "1.0E+05"),
 ]
 
@@ -176,7 +177,7 @@ def run_full(x, toks, k, nint, th=0, sci=0, W=0, kind=0, h=None):
         h.mem[1] = HEAP0
     nc0 = put_tokens(h, TOK, toks)
     nexp = sum(1 for c, _ in toks if c == 7)
-    out = h.run(192, f.regs(T3=nexp, APAY=x, BPAY=W, AC2=k, N0=nint, N1=sci, T1=th, T4=kind, T10=193, T9=194,
+    out = h.run(192, f.regs(T3=nexp, APAY=x, BPAY=W, AC2=k, N0=nint, N1=sci, T1=th, T4=kind, T10=231, T9=194,
                             P0=TOK, P1=FMT_BUF, T8=nc0, LR=f.HALT_OK), max_steps=5000)
     assert f.reg(out, "ATAG") == 2
     return f.get_str(h, int(f.reg(out, "APAY"))), h
@@ -359,6 +360,16 @@ BRACKET = [
     (7, "[green][=7]0\"!\";0", "7!", 4), (8, "[green][=7]0\"!\";0", "8", 0), (-8, "[MAGENTA]0", "-8", 5),
     (100, "[>=100]\"big\";\"small\"", "big", 0), (99, "[>=100]\"big\";\"small\"", "small", 0),
     (1, "[<>1]\"x\";\"one\"", "one", 0), (2, "[<>1]\"x\";\"one\"", "x", 0),
+    # currency and locale brackets: the text after '$' up to '-' or ']' is shown
+    (1234.5, "[$$-409]#,##0.00", "$1,234.50", 0), (5, "[$USD] 0", "USD 5", 0), (5, "0 [$kr-414]", "5 kr", 0),
+    (-5, "[Red][$€-2]0", "-€5", 6), (5, "[$-409]0[$!]", "5!", 0),
+    # condition chosen sections add no minus sign (stage case cfc03); default sections do
+    (-5, "[<0]\"neg\";\"pos\"", "neg", 0), (-5, "[<-10]0;0", "-5", 0), (-20, "[<-10]0;0", "20", 0),
+    # decimal condition values
+    (0.25, "[<0.3]\"lo\";\"hi\"", "lo", 0), (0.3, "[<0.3]\"lo\";\"hi\"", "hi", 0), (0.1 + 0.2, "[=0.3]\"eq\";\"ne\"", "ne", 0),
+    (0.3, "[=0.3]\"eq\";\"ne\"", "eq", 0), (-0.5, "[<=-0.5]\"a\";\"b\"", "a", 0), (-0.4, "[<=-0.5]\"a\";\"b\"", "-b", 0),
+    (1.25, "[>1.2]0.00;0", "1.25", 0), (1.2, "[>1.2]0.00;0", "1", 0), (12, "[>=10.]0\"!\";0", "12!", 0),
+    (0.0015, "[<0.002]\"tiny\";0", "tiny", 0), (5, "[Blue][>4.75]0", "5", 2),
 ]
 
 

@@ -59,3 +59,25 @@
 2. vi_scmp (433) unchanged.
 3. Parser extensions, each a separate network routed by next: parameters and arguments (ps_sym marks parameters at Sub header; call marker on OSTK with argument count; ps_xend ',' at depth of a call), ElseIf / single-line If (ps_xend CTX 4 with K1 != EOS), Do/Loop/While/Wend (block kind 3, 4 already in the encoding), Exit For/Sub (chains in block word c), print zones for ','. Then the item-4 language features (^ at run time, Like, Is, bitwise And/Or, On Error, ByRef, arrays, &H/&O, type suffixes).
 4. Test hint: the lexer test helper and run_src are in tests/output/vba/vbabb.py; /tmp scratch runner is not kept.
+
+## 2026-11-06, session 4: vi_div (434)
+- Read the brief (with Updates), encodings/vba.md, the weights/vba notes and this log.
+- Decision VB14: instead of retyping weights/prim/div.wt (10,470 values), vi_div calls the func-math agent's fm_dv1 (267) through its documented plain quotient gate gQ, and fm_pw0 (268, POWER) for `^`, both returning to (LR, LP) and passing words 15..63 / 40..63 through. Reuse by call, as for numconv and ev_totext.
+- vi_bin edits by hand (Edit tool): R_div row gains OP 22 (column 6), ERR row's -8 for OP 22 removed (so ^ of a string is still 13).
+- First run: \ and Mod behaved as /. Cause: I read OP from word 48 (ARG); OP is word 47. Fixed by widening the slice to [OP, ARG, saved] and shifting the columns of v6 and v8 and three slices. Then all 20 operator cases and the source test matched the hand-stated values on the first run.
+- Tests: 76 pass.
+
+## 2026-11-06, session 4: vi_scmp (433) and vi_scl (447)
+- Design: entry 433 checks tags and issues the first read; the loop 447 reads 9 words per step (fixed input width 74), alternating a and b; 8 units compared per pair of steps; first-stop selection by one linear layer over the stop flags (f_i = step(stop_i - sum earlier stops - 0.5)).
+- Id 447 was the last free VBA id. More ids are needed for the parser extensions (requested in the hand-off report).
+- First run: all 9 pairs x 6 operators and the Empty case correct (hand-stated). 86 tests pass.
+
+## 2026-11-06, session 4 hand-off
+- Done this session: plan items 2 (vi_div 434: / \ Mod ^) and 3 (vi_scmp 433 + vi_scl 447). 86 tests pass in tests/output/vba/test_vba.py (30 new).
+- Stopped because every id in 384..447 is now used; the remaining items each need new networks. Requested a new id block in log/WORKLOG.md (session 4 entry).
+- Next, in order, once ids exist:
+  1. Like (OP 35) and bitwise And/Or/Xor/Eqv/Imp/Not on general Integer/Long: one routed network from vi_bin (edit its R rows as was done for ^: R_div row column for the op, ERR row coefficient); bits by 32 greedy threshold stages on x + 2^31 (exact integers), recombine.
+  2. Parser: procedure parameters and arguments (ps_sym marks parameters at the Sub header and sets PROCT word 3; call marker on the operator stack with an argument count; ps_xend ',' at call depth), ByVal/ByRef (ByRef needs a reference value kind: TAG of a slot address; vi_load/vi_store indirection).
+  3. ElseIf and single-line If (ps_xend CTX 4 with K1 != EOS), Do/Loop (four forms), While/Wend, Exit For/Do/Sub/Function (exit chains in block word c), Select Case (hidden selector slot), GoTo and labels (label table in registers like the symbol table), On Error GoTo / Resume Next (handler address register checked in vi_halt's entry).
+  4. Arrays (Dim a(1 To 10), ReDim, UBound/LBound): an array record on VSTACK or a heap; LOADX/STOREX opcodes.
+  5. Print zones (',' -> ARG 2: pad to the next multiple of 14 columns; needs a column counter in vo_tail), syntax error reporting (PSTATUS, PERRTOK), lifting the 8-procedure and 8-local limits (parser state grows past 136 words; or spill SYMT to memory with a scan loop).

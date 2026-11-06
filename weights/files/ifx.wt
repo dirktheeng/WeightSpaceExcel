@@ -1,0 +1,56 @@
+# files/ifx (id 466): inflate entry and byte loop of the bit expansion.
+# PC 0 (entry): P0 = source bytes, N0 = source byte count, P1 = output address, N1 = bit area (multiple of 8).
+#   N0 = P0 + N0 (end), OUT0 (w15) = P1, BFINAL (w16) = 0, S (w29) = N1; go to itab (468), which returns to PC 1.
+# PC 1: read the byte at P0, go to ifb (467).
+# Hand-written. Not generated. Note: weights/files/inflate.md
+input 65
+slice 0 8 9                       # v1 [PC]
+slice 0 16 18                     # v2 [w15, w16]
+slice 0 26 31                     # v3 [P0, P1, N0, N1, w29]
+concat 1 2                        # v4
+concat 4 3                        # v5 G = [PC w15 w16 P0 P1 N0 N1 w29]
+dense 1 2 1  -1 1  0.5 -0.5       # v6
+step 6                            # v7 [p0, p1]
+dense 5 6 8                       # v8 values [P0 P1 w15 w16 N1 w29]
+  0 0 0 1 0 0 0 0
+  0 0 0 0 1 0 0 0
+  0 1 0 0 0 0 0 0
+  0 0 1 0 0 0 0 0
+  0 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 1
+  0 0 0 0 0 0
+dense 7 6 2  1 0  1 0  1 0  1 0  1 0  1 0  0 0 0 0 0 0      # v9 [p0 x 6]
+concat 8 9                        # v10
+mul 10 0 6 6 12                   # v11 [p0P0 p0P1 p0w15 p0w16 p0N1 p0w29]
+concat 11 7                       # v12
+concat 12 5                       # v13 Z (16)
+dense 13 8 16                     # v14 words 0..7
+  0 0 0 0 0 0  468 467  0 0 0 0 0 0 0 0
+  0 0 0 0 0 0  0 1      0 0 0 0 0 0 0 0
+  0 0 0 0 0 0  0 0      0 0 0 1 0 0 0 0
+  0 0 0 0 0 0  0 0      0 0 0 0 0 0 0 0
+  0 0 0 0 0 0  0 0      0 0 0 0 0 0 0 0
+  0 0 0 0 0 0  0 0      0 0 0 0 0 0 0 0
+  0 0 0 0 0 0  0 0      0 0 0 0 0 0 0 0
+  0 0 0 0 0 0  0 0      0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0
+dense 13 4 16                     # v15 [w15 w16 w27 w29]
+  0 1 -1 0 0 0  0 0  0 1 0 0 0 0 0 0
+  0 0 0 -1 0 0  0 0  0 0 1 0 0 0 0 0
+  1 0 0 0 0 0   0 0  0 0 0 0 0 1 0 0
+  0 0 0 0 1 -1  0 0  0 0 0 0 0 0 0 1
+  0 0 0 0
+slice 0 9 16                      # v16 words 8..14
+slice 15 0 2                      # v17 w15, w16
+slice 0 18 28                     # v18 words 17..26
+slice 15 2 3                      # v19 w27
+slice 0 29 30                     # v20 w28
+slice 15 3 4                      # v21 w29
+slice 0 31 65                     # v22 words 30..63
+concat 14 16
+concat 23 17
+concat 24 18
+concat 25 19
+concat 26 20
+concat 27 21
+concat 28 22

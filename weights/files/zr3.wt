@@ -1,0 +1,92 @@
+# files/zr3 (id 491): block consumer (111 inputs) of a 46-byte central directory header at cdptr (w29).
+# Stores method w33, CRC w34, compressed size w35, local header offset w36, next header w37
+# (= cdptr + 46 + name + extra + comment lengths), uncompressed size w38.
+# Bad signature (0x02014B50 = 33639248): return STATUS 2. Name length = N1: i (w31) = 0, read target[0] at P1,
+# go to zr4 (492) PC 1. Else count (w30) > 1: count -= 1, w29 = next, block read 46 there, stay in zr3;
+# else return STATUS 1 (not found). Hand-written. Not generated. Note: weights/files/zip.md
+input 111
+slice 0 65 111                    # v1 bytes 0..45
+dense 1 8 46                      # v2 [sig method crc csize usize nlen ek lho]
+  1 256 65536 16777216 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0  1 256 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 1 256 65536 16777216  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  1 256 65536 16777216 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 1 256 65536 16777216 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 1 256  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  1 256 1 256 0 0 0 0 0 0  0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 1 256 65536 16777216
+  0 0 0 0 0 0 0 0
+slice 0 9 11                      # v3 [LR LP]
+slice 0 27 28                     # v4 [P1]
+slice 0 29 32                     # v5 [N1 cdptr count]
+concat 2 3                        # v6
+concat 6 4                        # v7
+concat 7 5                        # v8 G (14) = [sig method crc csize usize nlen ek lho LR LP P1 N1 cd cnt]
+dense 8 5 14                      # v9
+  1 0 0 0 0 0 0 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 1 0 0 0 0 0 -1 0 0
+  0 0 0 0 0 1 0 0 0 0 0 -1 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 1
+  -33639247.5 -33639248.5 0.5 -0.5 -1.5
+step 9                            # v10 [u w e1 e2 c]
+dense 10 4 5                      # v11
+  -1 1 0 0 0
+  1 -1 1 -1 0
+  1 -1 -1 1 1
+  1 -1 -1 1 -1
+  0.5 -1.5 -1.5 -0.5
+step 11                           # v12 [E F G H]
+dense 8 5 14                      # v13 values [LR LP next P1 cd]
+  0 0 0 0 0 0 0 0 1 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 1 0 0 0 0
+  0 0 0 0 0 1 1 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 1 0
+  0 0 46 0 0
+dense 12 5 4                      # v14 gates [E+H E+H G F G]
+  1 0 0 1
+  1 0 0 1
+  0 0 1 0
+  0 1 0 0
+  0 0 1 0
+  0 0 0 0 0
+concat 13 14                      # v15
+mul 15 0 5 5 10                   # v16 [rLR rLP Gnext FP1 Gcd]
+concat 16 12                      # v17
+concat 17 8                       # v18 Z (23)
+dense 18 8 23                     # v19 words 0..7
+  1 0 0 0 0  0 492 491 0  0 0 0 0 0 0 0 0  0 0 0 0 0 0
+  0 0 0 0 0  0 1 4 0      0 0 0 0 0 0 0 0  0 0 0 0 0 0
+  0 0 1 1 0  0 0 0 0      0 0 0 0 0 0 0 0  0 0 0 0 0 0
+  0 0 0 0 0  0 0 67108910 0  0 0 0 0 0 0 0 0  0 0 0 0 0 0
+  0 0 0 0 0  0 0 0 0      0 0 0 0 0 0 0 0  0 0 0 0 0 0
+  0 0 0 0 0  0 0 0 0      0 0 0 0 0 0 0 0  0 0 0 0 0 0
+  0 0 0 0 0  0 0 0 0      0 0 0 0 0 0 0 0  0 0 0 0 0 0
+  0 1 0 0 0  0 1 0 0      0 0 0 0 0 0 0 0  0 0 0 0 0 0
+  0 0 0 0 0 0 0 0
+dense 18 1 23  0 0 0 0 0  2 0 0 1  0 0 0 0 0 0 0 0  0 0 0 0 0 0  0      # v20 STATUS
+dense 18 3 23                     # v21 [w29 w30 w31]
+  0 0 1 0 -1  0 0 0 0   0 0 0 0 0 0 0 0  0 0 0 0 1 0
+  0 0 0 0 0   0 0 -1 0  0 0 0 0 0 0 0 0  0 0 0 0 0 1
+  0 0 0 0 0   0 0 0 0   0 0 0 0 0 0 0 0  0 0 0 0 0 0
+  0 0 0
+dense 18 6 23                     # v22 [w33 method, w34 crc, w35 csize, w36 lho, w37 next, w38 usize]
+  0 0 0 0 0  0 0 0 0  0 1 0 0 0 0 0 0  0 0 0 0 0 0
+  0 0 0 0 0  0 0 0 0  0 0 1 0 0 0 0 0  0 0 0 0 0 0
+  0 0 0 0 0  0 0 0 0  0 0 0 1 0 0 0 0  0 0 0 0 0 0
+  0 0 0 0 0  0 0 0 0  0 0 0 0 0 0 0 1  0 0 0 0 0 0
+  0 0 0 0 0  0 0 0 0  0 0 0 0 0 1 1 0  0 0 0 0 1 0
+  0 0 0 0 0  0 0 0 0  0 0 0 0 1 0 0 0  0 0 0 0 0 0
+  0 0 0 0 46 0
+slice 0 9 13                      # v23 words 8..11
+slice 0 14 30                     # v24 words 13..28
+slice 0 33 34                     # v25 w32
+slice 0 40 65                     # v26 words 39..63
+concat 19 23
+concat 27 20
+concat 28 24
+concat 29 21
+concat 30 25
+concat 31 22
+concat 32 26

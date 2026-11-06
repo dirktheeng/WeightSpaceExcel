@@ -1,0 +1,86 @@
+# files/zr0 (id 489): ZIP part reader, entry and two return points (3 phases).
+# PC 0 (entry): P0 = ZIP bytes (one per word), N0 = ZIP length, P1 = name bytes, N1 = name length,
+#   A.PAY = output address, B.PAY = bit scratch (multiple of 8) for inflate. Block reads the 22 bytes at
+#   P0 + N0 - 22 (end of central directory record), w29 = that position, go to zr1 (490).
+# PC 1 (return of inflate or zcp): pop the 3 words pushed by zr6 (block read at RSP - 3, RSP -= 3), go to zr8 (495).
+#   STATUS and A.PAY pass.
+# PC 2 (return of crc): STATUS = 0 if A.PAY (CRC of the output) = w17 (CRC from the directory), else 3;
+#   A.PAY = w18 (byte count); return to (w19, w20) with LR, LP restored.
+# Hand-written. Not generated. Note: weights/files/zip.md
+input 65
+slice 0 8 12                      # v1 [PC LR LP RSP]
+slice 0 13 14                     # v2 [STATUS]
+slice 0 15 16                     # v3 [A]
+slice 0 18 22                     # v4 [w17 w18 w19 w20]
+slice 0 26 27                     # v5 [P0]
+slice 0 28 29                     # v6 [N0]
+concat 1 2                        # v7
+concat 7 3                        # v8
+concat 8 4                        # v9
+concat 9 5                        # v10
+concat 10 6                       # v11 G (12) = [PC LR LP RSP STATUS A w17 w18 w19 w20 P0 N0]
+dense 11 4 12                     # v12
+  1 0 0 0 0 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 1 -1 0 0 0 0 0
+  0 0 0 0 0 1 -1 0 0 0 0 0
+  -0.5 -1.5 0.5 -0.5
+step 12                           # v13 [s1 s2 e1 e2]
+dense 13 4 4                      # v14
+  -1 0 0 0
+  1 -1 0 0
+  0 1 0 0
+  0 1 -1 1
+  0.5 -0.5 -0.5 -0.5
+step 14                           # v15 [p0 p1 p2 ne]
+dense 11 8 12                     # v16 values [P0+N0, RSP, w19, w20, LR, LP, STATUS, w18 - A]
+  0 0 0 0 0 0 0 0 0 0 1 1
+  0 0 0 1 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 0 0 0 0 1 0 0
+  0 1 0 0 0 0 0 0 0 0 0 0
+  0 0 1 0 0 0 0 0 0 0 0 0
+  0 0 0 0 1 0 0 0 0 0 0 0
+  0 0 0 0 0 -1 0 1 0 0 0 0
+  0 0 0 0 0 0 0 0
+dense 15 8 4                      # v17 gates [p0 p1 p2 p2 p2 p2 p2 p2]
+  1 0 0 0
+  0 1 0 0
+  0 0 1 0
+  0 0 1 0
+  0 0 1 0
+  0 0 1 0
+  0 0 1 0
+  0 0 1 0
+  0 0 0 0 0 0 0 0
+concat 16 17                      # v18
+mul 18 0 8 8 16                   # v19 Q
+concat 19 15                      # v20
+concat 20 11                      # v21 Z (24)
+dense 21 11 24                    # v22 words 0..10
+  0 0 1 0 0 0 0 0  490 495 0 0  0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0  4 4 0 0      0 0 0 0 0 0 0 0 0 0 0 0
+  1 1 0 0 0 0 0 0  -22 -3 0 0   0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0  67108886 67108867 0 0  0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0  0 0 0 0      0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0  0 0 0 0      0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0  0 0 0 0      0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 1 0 0 0 0  0 0 0 0      0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 1 0 -1 0 0 0 0 0 0 0      0 1 0 0 0 0 0 0 0 0 0 0
+  0 0 0 1 0 -1 0 0 0 0 0 0      0 0 1 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0  0 -3 0 0     0 0 0 1 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0
+dense 21 1 24  0 0 0 0 0 0 -1 0  0 0 0 3  0 0 0 0 1 0 0 0 0 0 0 0  0      # v23 STATUS
+dense 21 1 24  0 0 0 0 0 0 0 1  0 0 0 0  0 0 0 0 0 1 0 0 0 0 0 0  0      # v24 A.PAY
+dense 21 1 24  0 0 0 0 0 0 0 0  0 0 0 0  0 0 0 0 0 0 0 0 0 0 1 1  -22    # v25 w29
+slice 0 12 13                     # v26 w11
+slice 0 14 15                     # v27 w13
+slice 0 16 30                     # v28 words 15..28
+slice 0 31 65                     # v29 words 30..63
+concat 22 26
+concat 30 23
+concat 31 27
+concat 32 24
+concat 33 28
+concat 34 25
+concat 35 29

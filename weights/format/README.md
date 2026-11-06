@@ -1,4 +1,4 @@
-# weights/format: number format engine (ids 192..230 used of 192..255)
+# weights/format: number format engine (ids 192..231 used of 192..255)
 
 Hand-written. Not generated. Log: log/format-agent.md; decisions F1..F6 in log/WORKLOG.md ("2026-11-06 Stage 3 to 4: number format engine"). Notes: fx_dec.md (192), fx_rnd.md (193), fx_emit.md (194, 200..209), fx_general.md (196, 197, 199), fx_fin.md (212..215), fc_compile.md (220..225), built-in strings in fx_general.md (226..230), stage runner tests/output/format/test_stage_formats.py; fx_main, fx_tab, fx_sel, fx_sec, fx_go are described here.
 
@@ -49,18 +49,19 @@ AS s (sign), AR1 e, AC1 m then M (digit stream, next digit = floor(M / 1e14)), A
 | 217 | fx_sel | block consumer: section choice (sign, zero, conditions, text), minus flag, block read of the section header into fx_sec | 2685 |
 | 218 | fx_sec | block consumer: loads k, nint, TH, scale, sci, nexp, NC0, color, alignment; number -> fx_dec, text -> fx_go; a number in a text section ("@") -> General | 323 |
 | 219 | fx_go | writes '-' when T7, then fx_fetch | 29 |
+| 231 | fx_eng | between fx_dec and fx_rnd: T0 = u + 1, u = e mod n (n = nint, 1..6), so scientific exponents are multiples of nint; note fx_rnd.md | 217 |
 
-fx_sel: comparisons x < v and x > v are R2 sign tests (exact); x = v is their complement. Section rules are in the header comment of fx_sel.wt. All selections are MUX_INT on addresses (< 2^23).
+fx_sel: a section chosen by a true condition (cond1, or cond2) adds no minus sign; a default section does (stage case cfc03, decision F8). Comparisons x < v and x > v are R2 sign tests (exact); x = v is their complement. Section rules are in the header comment of fx_sel.wt. All selections are MUX_INT on addresses (< 2^23).
 
 ## Totals and cost
 
-35 networks, 26,145 dense parameters (zeros included). Steps (harness steps, measured in tests): General 1/3 -> "0.333333333" 49, 123456789012 -> "1.23457E+11" 56, 42 -> 38; "#,##0.00" 1234567.891 -> "1,234,567.89" 72 including the one-time compile, 5 -> "5.00" 33 once compiled. Each displayed unit costs 2 steps (token read and write) plus about 1 step per unit to pack.
+36 networks, 27,136 dense parameters (zeros included; session 3 added fx_eng 217, fc_br tails 772, fx_rnd 2). Every number format call now takes one more step (fx_eng); the step counts below are from session 2. Steps (harness steps, measured in tests): General 1/3 -> "0.333333333" 49, 123456789012 -> "1.23457E+11" 56, 42 -> 38; "#,##0.00" 1234567.891 -> "1,234,567.89" 72 including the one-time compile, 5 -> "5.00" 33 once compiled. Each displayed unit costs 2 steps (token read and write) plus about 1 step per unit to pack.
 
 ## Limits (open items)
 
-- Dates and times (y m d h s AM/PM, [h] [m] [s]) are not interpreted: date letters are literals and the value is formatted as a number. Fractions (# ?/?) are not interpreted ('/' is a literal). Engineering exponents ("##0.0E+0") use X = e - nint + 1, not a multiple of nint.
-- Brackets: colors, [ColorN] and conditions with integer values (negative allowed) are done; decimal points in condition values are ignored; [$-409] and other locale brackets are skipped, so a currency symbol inside [$...] is lost; [h] [m] [s] are ignored.
-- Conditional formats show the minus sign for every negative value (Excel's exact rule here is unverified).
+- Dates and times (y m d h s AM/PM, [h] [m] [s]) are not interpreted: date letters are literals and the value is formatted as a number. Fractions (# ?/?) are not interpreted ('/' is a literal). Designs: log/format-agent.md, session 3 hand-off.
+- Engineering exponents: every scientific section with nint > 1 uses exponents that are multiples of nint (F7). A carry there ("##0.0E+0" of 999.96) shows "100.0E+1" instead of "1.0E+3".
+- Brackets: colors, [ColorN], conditions (integer or decimal values, negative allowed; decimal values are BV 10^-k with one correction step, F8) and [$...] (the text after '$' up to '-' or ']' is shown as literals) are done. [h] [m] [s] and other brackets are skipped.
 - General's width is in characters (W, max 11); Excel fits by pixels (open question). Values below 1e-304 display as 0.
 - Booleans and errors are returned unformatted (STATUS = 1, C.PAY = 2 centre), which is Excel's behaviour: no number format section applies to them (TEXT(TRUE, "0") is "TRUE").
 

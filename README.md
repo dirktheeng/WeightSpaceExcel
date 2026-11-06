@@ -80,7 +80,7 @@ gantt
 
 | Measure | Now |
 |---|---|
-| Parity checklist items passing | 82 of 1,220 (all functions) |
+| Parity checklist items passing | 86 of 1,220 |
 | Stage 1 conformance cases passing | 271 of 273 run (14 skipped until `SUM` exists) |
 | Hand-written networks in the manifest | 33 |
 | Kernel parameters | about 5,100 |
@@ -95,7 +95,7 @@ gantt
 - **Parser** ([weights/parse/](weights/parse/), 20 networks, about 25,700 parameters, 179 tests): hooked into the kernel. Typed constants (numbers with decimals, exponents, percent, currency and thousands separators, booleans, error literals, text) parse with Excel's 15-digit truncation and exact decimal conversion. Formulas compile to postfix token records with Excel's precedence, references in every `$` form, ranges, and calls to 14 functions; bad syntax is rejected. Entering `=1+2*3` takes 83 steps. Also whole-row and whole-column references, union and intersection, sheet-prefixed references, and exponents across the full double range. Not yet: defined names and 3D references.
 - **Evaluator and recalculation** ([weights/eval/](weights/eval/), 34 networks, about 32,400 parameters, 91 tests): every Stage 1 operator, Excel's coercion and comparison rules, error propagation, overflow to `#NUM!`, number-to-text with 15 significant digits, dependency tracking, recalculation in dependency order and circular reference detection. Entering `=1+2` takes 62 steps. Also text-to-number coercion through the parser's own entry rules, union, intersection and implicit intersection, sheet references, and powers through hand-written EXP and LN (`2^0.5` within 1 ulp).
 - **Minimal UI** ([weights/ui/](weights/ui/), 41 networks, about 10,000 parameters, 40 tests): title bar, ribbon tabs, name box, formula bar with the active cell's contents, headers, gridlines, cell text in a hand-drawn 96-glyph font (text left, numbers right, booleans and errors centred), the active cell outline with fill handle, and redrawing only cells that changed. With block writes a full frame takes about 2,750 steps (0.33 s) and a typed key with echo about 300 steps (0.05 s), down from 1.1M steps and 64 s. Also edit echo, active row and column header highlight, and text overflow into empty neighbours.
-- **Files** ([weights/files/](weights/files/), 13 networks, 25 tests): CSV import (RFC 4180 with Excel's lenient quoting, UTF-8 and BOM, every field entered as if typed, formulas recalculated) and CSV export of the used range, plus an XML tokenizer for `.xlsx` parts. Next: CRC-32, ZIP and DEFLATE.
+- **Files** ([weights/files/](weights/files/), 13 networks, 25 tests): CSV import (RFC 4180 with Excel's lenient quoting, UTF-8 and BOM, every field entered as if typed, formulas recalculated) and CSV export of the used range, plus an XML tokenizer for `.xlsx` parts. Also CRC-32, ZIP reading and writing, and DEFLATE decompression (stored, fixed and dynamic Huffman) and compression (fixed Huffman with hash matching), about 2 to 4 steps per byte. Next: the `.xlsx` pipeline.
 - **Functions** ([weights/func/](weights/func/), in progress): the calling convention for all 525 functions is published in [encodings/functions.md](encodings/functions.md); cores for 29 logical and information functions, 9 math functions and 7 text functions pass their tests and are being wired into formulas.
 - **Conformance suites for stages 3 to 5** ([tests/output/](tests/output/)): 1,803 function cases and 134 number-format cases, each enabled when its function is done.
 - **Harness v2** (approved by the project owner, frozen): block memory writes and reads move a whole run of words (such as a 1280-pixel scanline) in one step, cutting a full frame from about 1 million steps to about 800. The engine parses each network once and is about 1.4x faster per step, with results checked bit-identical to v1 on every harness call in the suite.
@@ -104,7 +104,7 @@ gantt
 
 | Category | Items | Passing |
 |---|---:|---:|
-| Functions | 532 | 82 |
+| Functions | 532 | 84 |
 | Formula language | 65 | 0 |
 | Values and errors | 29 | 0 |
 | Calculation | 25 | 0 |
@@ -113,7 +113,7 @@ gantt
 | Charts and sparklines | 74 | 0 |
 | User interface | 186 | 0 |
 | VBA | 100 | 0 |
-| Files | 38 | 0 |
+| Files | 38 | 2 |
 
 ## The rules, in short
 

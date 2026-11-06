@@ -1,0 +1,56 @@
+# files/dpw (id 506): block consumer (73 inputs) of 8 output bits at q (w29). Writes the byte (least significant
+# bit first) at P1, P1 += 1, q += 8. q + 8 < BP: next 8 bits through brd (T8 = q + 8, T9 8, T10 506); else
+# return to the deflate caller (w22, w23), STATUS 0, A.PAY = byte count (set by dpk).
+# Hand-written. Not generated. Note: weights/files/deflate.md
+input 73
+slice 0 65 73                     # v1 bits
+dense 1 1 8  1 2 4 8 16 32 64 128  0                        # v2 byte
+slice 0 23 25                     # v3 [w22 w23]
+slice 0 27 28                     # v4 [P1]
+slice 0 29 31                     # v5 [BP q]
+concat 2 3                        # v6
+concat 6 4                        # v7
+concat 7 5                        # v8 G = [byte w22 w23 P1 BP q]
+dense 8 1 6  0 0 0 0 1 -1  -8.5   # v9
+step 9                            # v10 more
+dense 8 2 6  0 1 0 0 0 0  0 0 1 0 0 0  0 0                 # v11 [w22 w23]
+dense 10 2 1  -1 -1  1 1          # v12 [1 - more, 1 - more]
+concat 11 12                      # v13
+mul 13 0 2 2 4                    # v14 [nw22 nw23]
+concat 14 10                      # v15
+concat 15 8                       # v16 Z = [nw22 nw23 more byte w22 w23 P1 BP q]
+dense 16 10 9                     # v17 words 0..9
+  1 0 464 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 1 0 0
+  0 0 0 1 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0
+  0 0 0 0 1 0 0 0 0
+  0 0 0 0 0 1 0 0 0
+  0 2 0 0 0 0 0 0 0 0
+dense 16 1 9  0 0 0 0 0 0 0 0 0  0                         # v18 STATUS 0
+dense 16 1 9  0 0 0 0 0 0 1 0 0  1                         # v19 P1 + 1
+dense 16 1 9  0 0 0 0 0 0 0 0 1  8                         # v20 q + 8
+dense 16 4 9                      # v21 [T7 T8 T9 T10]
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 1
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  0 8 8 506
+slice 0 11 13                     # v22 words 10, 11
+slice 0 14 27                     # v23 words 13..25
+slice 0 28 30                     # v24 words 27, 28
+slice 0 31 37                     # v25 words 30..35
+slice 0 41 65                     # v26 words 40..63
+concat 17 22
+concat 27 18
+concat 28 23
+concat 29 19
+concat 30 24
+concat 31 20
+concat 32 25
+concat 33 21
+concat 34 26

@@ -82,7 +82,7 @@ def script(cells, edits=None):
 
 # ---- running
 TRAP_ID = 1  # encodings/control.md section 5
-N_FIXED = 512  # hand-written id space; generated ids start here (NET_NEXT)
+N_FIXED = 1024  # hand-written id space; generated ids start here (NET_NEXT)
 
 
 def manifest_paths():

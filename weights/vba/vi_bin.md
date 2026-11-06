@@ -7,5 +7,5 @@ Hand-written. Not generated. Log: log/vba-agent.md "interpreter core"; decision 
 **Comparisons.** gt = step(a - b), lt = step(b - a) in their own layer (an infinite difference only meets a step, V1). Result Boolean -1/0.
 **Logic.** ra, rb = ROUND(a), ROUND(b); And = max, Or = min, Xor = min - max, Eqv = max - min - 1, Imp = min(-ra - 1, rb), Not = -rb - 1: exact for 0 and -1 (Booleans), wrong for other integers (limit). The candidates are formed scaled by 2^-12 and the result row multiplies by 4096, so huge Double operands stay finite before the gating mul (bug found with 1e308 + 1e308, log).
 **Result.** 11 candidates times 11 op gates in one mul layer, summed; tag from MUX_INT rows (18 + RL + 3 RD for arithmetic, Boolean 27 for comparisons, Boolean or Integer/Long for logic).
-**Routes.** & and string + -> vi_cat 432; string comparisons -> vi_scmp 433 (absent); / \ Mod -> vi_div 434 (absent). Errors: ^ and Like 5, Is 424, bad opcode 51, mismatch 13.
+**Routes.** & and string + -> vi_cat 432; string comparisons -> vi_scmp 433; / \ Mod ^ -> vi_div 434. Errors: Like 5, Is 424, bad opcode 51, mismatch 13.
 **Parameters** about 9,000 (mostly zeros of the 50- and 71-wide rows). **Multi-role weights.** Words 13..16 carry a and b for routed ops only; they are caller-saved. **Tests.** test_binary, test_unary, test_errors.

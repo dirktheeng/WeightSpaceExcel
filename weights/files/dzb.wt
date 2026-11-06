@@ -1,0 +1,158 @@
+# files/dzb (id 498): bit emitter for deflate. Writes EN (w18, 0..13) bits of EV (w17) as one word per bit at
+# BP (w28), BP += EN, then goes to (EK w20, PC EP w21). EM (w19) = 0: least significant bit first (extra bits,
+# header fields); EM = 1: most significant first (Huffman codes, EN in {5, 7, 8, 9}).
+# MSB mode shifts EV to W = EV 2^(13 - EN) so that its top EN bits are the code; both modes decompose W into
+# 13 bits t12..t0 and choose payload j = EM t(12 - j) + (1 - EM) t(j). Output 77 words, always mem_op 3.
+# Hand-written. Not generated. Note: weights/files/deflate.md
+input 65
+slice 0 18 23                     # v1 [EV EN EM EK EP]
+slice 0 29 30                     # v2 [BP]
+dense 1 3 5  0 1 0 0 0  0 1 0 0 0  0 1 0 0 0  -6.5 -7.5 -8.5   # v3
+step 3                            # v4 [k1 k2 k3]
+dense 4 1 3  -192 -32 -16  255    # v5 f - 1, f = 2^(13 - EN)
+concat 5 1                        # v6 [f-1 EV EN EM EK EP]
+mul 6 0 1 3 4                     # v7 EM (f - 1)
+dense 7 1 1  1  1                 # v8 g
+concat 8 1                        # v9 [g EV ...]
+mul 9 0 1 1 2                     # v10 W = g EV
+dense 10 1 1  1  -4095.5
+step 11                           # v12 t12
+concat 10 12
+dense 13 1 2  1 -4096  0          # v14
+dense 14 1 1  1  -2047.5
+step 15                           # v16 t11
+concat 14 16
+dense 17 1 2  1 -2048  0          # v18
+dense 18 1 1  1  -1023.5
+step 19                           # v20 t10
+concat 18 20
+dense 21 1 2  1 -1024  0          # v22
+dense 22 1 1  1  -511.5
+step 23                           # v24 t9
+concat 22 24
+dense 25 1 2  1 -512  0           # v26
+dense 26 1 1  1  -255.5
+step 27                           # v28 t8
+concat 26 28
+dense 29 1 2  1 -256  0           # v30
+dense 30 1 1  1  -127.5
+step 31                           # v32 t7
+concat 30 32
+dense 33 1 2  1 -128  0           # v34
+dense 34 1 1  1  -63.5
+step 35                           # v36 t6
+concat 34 36
+dense 37 1 2  1 -64  0            # v38
+dense 38 1 1  1  -31.5
+step 39                           # v40 t5
+concat 38 40
+dense 41 1 2  1 -32  0            # v42
+dense 42 1 1  1  -15.5
+step 43                           # v44 t4
+concat 42 44
+dense 45 1 2  1 -16  0            # v46
+dense 46 1 1  1  -7.5
+step 47                           # v48 t3
+concat 46 48
+dense 49 1 2  1 -8  0             # v50
+dense 50 1 1  1  -3.5
+step 51                           # v52 t2
+concat 50 52
+dense 53 1 2  1 -4  0             # v54
+dense 54 1 1  1  -1.5
+step 55                           # v56 t1
+concat 54 56
+dense 57 1 2  1 -2  0             # v58
+dense 58 1 1  1  -0.5
+step 59                           # v60 t0
+concat 58 60
+dense 61 1 2  1 -1  0             # v62
+concat 12 16                      # v63 MSB order t12 .. t0
+concat 63 20
+concat 64 24
+concat 65 28
+concat 66 32
+concat 67 36
+concat 68 40
+concat 69 44
+concat 70 48
+concat 71 52
+concat 72 56
+concat 73 60                      # v74
+concat 60 56                      # v75 LSB order t0 .. t12
+concat 75 52
+concat 76 48
+concat 77 44
+concat 78 40
+concat 79 36
+concat 80 32
+concat 81 28
+concat 82 24
+concat 83 20
+concat 84 16
+concat 85 12                      # v86
+slice 1 2 3                       # v87 [EM]
+dense 87 26 1                     # v88 [EM x 13, 1 - EM x 13]
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  -1
+  -1
+  -1
+  -1
+  -1
+  -1
+  -1
+  -1
+  -1
+  -1
+  -1
+  -1
+  -1
+  0 0 0 0 0 0 0 0 0 0 0 0 0  1 1 1 1 1 1 1 1 1 1 1 1 1
+concat 74 86                      # v89
+concat 89 88                      # v90
+mul 90 0 26 26 52                 # v91
+dense 91 13 26                    # v92 payload
+  1 0 0 0 0 0 0 0 0 0 0 0 0  1 0 0 0 0 0 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0 0 0 0 0  0 1 0 0 0 0 0 0 0 0 0 0 0
+  0 0 1 0 0 0 0 0 0 0 0 0 0  0 0 1 0 0 0 0 0 0 0 0 0 0
+  0 0 0 1 0 0 0 0 0 0 0 0 0  0 0 0 1 0 0 0 0 0 0 0 0 0
+  0 0 0 0 1 0 0 0 0 0 0 0 0  0 0 0 0 1 0 0 0 0 0 0 0 0
+  0 0 0 0 0 1 0 0 0 0 0 0 0  0 0 0 0 0 1 0 0 0 0 0 0 0
+  0 0 0 0 0 0 1 0 0 0 0 0 0  0 0 0 0 0 0 1 0 0 0 0 0 0
+  0 0 0 0 0 0 0 1 0 0 0 0 0  0 0 0 0 0 0 0 1 0 0 0 0 0
+  0 0 0 0 0 0 0 0 1 0 0 0 0  0 0 0 0 0 0 0 0 1 0 0 0 0
+  0 0 0 0 0 0 0 0 0 1 0 0 0  0 0 0 0 0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 0 0 0 0 0 1 0 0  0 0 0 0 0 0 0 0 0 0 1 0 0
+  0 0 0 0 0 0 0 0 0 0 0 1 0  0 0 0 0 0 0 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 0 0 0 0 0 1  0 0 0 0 0 0 0 0 0 0 0 0 1
+  0 0 0 0 0 0 0 0 0 0 0 0 0
+concat 1 2                        # v93 [EV EN EM EK EP BP]
+dense 93 8 6                      # v94 words 0..7
+  0 0 0 1 0 0
+  0 0 0 0 0 0
+  0 0 0 0 0 1
+  0 1 0 0 0 0
+  0 0 0 0 0 0
+  0 0 0 0 0 0
+  0 0 0 0 0 0
+  0 0 0 0 1 0
+  0 3 0 67108864 0 0 0 0
+dense 93 1 6  0 1 0 0 0 1  0      # v95 BP + EN
+slice 0 9 29                      # v96 words 8..27
+slice 0 30 65                     # v97 words 29..63
+concat 94 96
+concat 98 95
+concat 99 97
+concat 100 92

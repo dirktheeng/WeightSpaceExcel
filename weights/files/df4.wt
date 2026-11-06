@@ -1,0 +1,55 @@
+# files/df4 (id 502): x0 = HEAD[h] (last position + 1 with this hash, 0 = none). Writes HEAD[h] = i + 1.
+# dist (w32) = i + 1 - x0, l (w33) = 0. Candidate valid (x0 >= 1, i + 3 <= N0, dist <= 32768): go to df5 (503)
+# PC 0 to measure the match. Else emit b0 as a fixed literal (b0 < 144: code 48 + b0 in 8 bits; else
+# 256 + b0 in 9 bits, MSB first) with dzb, continuing to df2, i += 1.
+# Hand-written. Not generated. Note: weights/files/deflate.md
+input 65
+slice 0 0 1                       # v1 [cand]
+slice 0 28 29                     # v2 [N0]
+slice 0 30 33                     # v3 [i b0 h]
+concat 1 2                        # v4
+concat 4 3                        # v5 G = [cand N0 i b0 h]
+dense 5 4 5                       # v6
+  1 0 0 0 0
+  0 1 -1 0 0
+  1 0 -1 0 0
+  0 0 0 1 0
+  -0.5 -2.5 32767.5 -143.5
+step 6                            # v7 [c1 c2 c3 gl]
+dense 7 1 4  1 1 1 0  -2.5        # v8
+step 8                            # v9 valid
+concat 5 7                        # v10
+concat 10 9                       # v11 Z = [cand N0 i b0 h c1 c2 c3 gl v]
+dense 11 8 10                     # v12 words 0..7
+  0 0 0 0 0 0 0 0 0 5
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 1 0 0 0 0 0
+  0 0 1 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  498 2 3923968 1 0 0 0 0
+dense 11 5 10                     # v13 [EV EN EM EK EP]
+  0 0 0 1 0 0 0 0 208 0
+  0 0 0 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  48 8 1 500 0
+dense 11 1 10  0 0 1 0 0 0 0 0 0 -1  1                     # v14 i + 1 - valid
+dense 11 2 10                     # v15 [dist, l]
+  -1 0 1 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  1 0
+slice 0 9 18                      # v16 words 8..16
+slice 0 23 30                     # v17 words 22..28
+slice 0 31 33                     # v18 words 30, 31
+slice 0 35 65                     # v19 words 34..63
+concat 12 16
+concat 20 13
+concat 21 17
+concat 22 14
+concat 23 18
+concat 24 15
+concat 25 19

@@ -1,0 +1,65 @@
+# files/iy5 (id 486): handler for code length symbols (x0 = sym 0..18) while reading HLIT + HDIST lengths.
+# sym < 16: write L[S] = sym at LL + S, S += 1, PREV (w33) = sym; then decode again with TC through brd
+# (T8 TC 3929216, T9 16, T10 hb 478) if S + 1 < TOT (w32), else build the tables: iset PC 0.
+# sym >= 16: w35 = sym, block read 7 bits at BP, go to iy6 (487).
+# Hand-written. Not generated. Note: weights/files/inflate.md
+input 65
+slice 0 0 1                       # v1 [sym]
+slice 0 29 31                     # v2 [BP S]
+slice 0 33 35                     # v3 [TOT PREV]
+concat 1 2                        # v4
+concat 4 3                        # v5 G = [sym BP S TOT PREV]
+dense 5 2 5                       # v6
+  -1 0 0 0 0
+  0 0 -1 1 0
+  15.5 -1.5
+step 6                            # v7 [lo more]
+dense 7 3 2  1 1  1 -1  -1 0  -1.5 -0.5 0.5                # v8
+step 8                            # v9 [a b hi]
+dense 5 4 5                       # v10 values [S BP sym PREV]
+  0 0 1 0 0
+  0 1 0 0 0
+  1 0 0 0 0
+  0 0 0 0 1
+  0 0 0 0
+dense 9 4 3                       # v11 gates [lo hi lo hi]
+  1 1 0
+  0 0 1
+  1 1 0
+  0 0 1
+  0 0 0 0
+concat 10 11                      # v12
+mul 12 0 4 4 8                    # v13 [loS hiBP loSym hiPREV]
+concat 13 9                       # v14
+concat 14 5                       # v15 Z (12)
+dense 15 8 12                     # v16 words 0..7
+  0 0 0 0  464 474 487  0 0 0 0 0
+  0 0 0 0  2 2 4        0 0 0 0 0
+  1 1 0 0  3928064 3928064 0  0 0 0 0 0
+  0 0 1 0  0 0 67108871 0 0 0 0 0
+  0 0 0 0  0 0 0        0 0 0 0 0
+  0 0 0 0  0 0 0        0 0 0 0 0
+  0 0 0 0  0 0 0        0 0 0 0 0
+  0 0 0 0  0 0 0        0 0 0 0 0
+  0 0 0 0 0 0 0 0
+dense 15 1 12  0 0 0 0 1 1 0 0 0 1 0 0  0                  # v17 S + lo
+dense 15 1 12  0 0 1 1 0 0 0 0 0 0 0 0  0                  # v18 PREV
+dense 15 1 12  0 0 0 0 0 0 0 1 0 0 0 0  0                  # v19 w35 = sym
+dense 15 4 12                     # v20 [T7 T8 T9 T10]
+  0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0
+  0 3929216 16 478
+slice 0 9 30                      # v21 words 8..28
+slice 0 31 34                     # v22 words 30..32
+slice 0 35 36                     # v23 w34
+slice 0 41 65                     # v24 words 40..63
+concat 16 21
+concat 25 17
+concat 26 22
+concat 27 18
+concat 28 23
+concat 29 19
+concat 30 20
+concat 31 24

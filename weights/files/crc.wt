@@ -1,0 +1,170 @@
+# files/crc (id 461): CRC-32 (IEEE 802.3, zlib, ZIP) of the bytes at P0 .. N0 - 1, one byte per word.
+# Entry PC 0: A.PAY = CRC so far (0 to start), P0 start, N0 end (exclusive), LR, LP. Returns A.PAY = CRC,
+# STATUS 0, LR and LP restored. Uses the table at CRC_TAB = 0x3BFF00 (written by crcg, id 463) and x32 (462).
+# PC 0: T1 = 2^32 - 1 - A.PAY (register form), T3 = LR, T4 = LP, read P0, PC 1.
+# PC 1, P0 < N0: idx = (T1 mod 256) XOR byte, T1 = floor(T1 / 256), T2 = 0, read CRC_TAB + idx, P0 += 1,
+#   call x32 (LR 461, LP 1), which makes T1 = T[idx] XOR T1 and reads the next byte at P0.
+# PC 1, P0 >= N0: A.PAY = 2^32 - 1 - T1, return to (T3, T4).
+# Hand-written. Not generated. Note: weights/files/crc.md
+input 65
+slice 0 0 1                       # v1 [x0]
+slice 0 8 11                      # v2 [PC, LR, LP]
+slice 0 15 16                     # v3 [A]
+slice 0 26 27                     # v4 [P0]
+slice 0 28 29                     # v5 [N0]
+slice 0 31 32                     # v6 [T1]
+slice 0 33 35                     # v7 [T3, T4]
+concat 2 4                        # v8
+concat 8 5                        # v9 [PC, LR, LP, P0, N0]
+dense 9 3 5                       # v10
+  -1 0 0 0 0
+   1 0 0 0 0
+   0 0 0 1 -1
+  0.5 -0.5 0.5
+step 10                           # v11 [p0, p1, e = P0 >= N0]
+dense 11 3 3                      # v12
+  1 0 0
+  0 1 -1
+  0 1 1
+  0 -0.5 -1.5
+step 12                           # v13 [p0, go, d]
+dense 1 2 1  1 1  0 -255          # v14 [x0, x0 - 255]
+relu 14                           # v15
+dense 15 1 2  1 -1  0             # v16 b = clamp(x0, 0, 255)
+dense 6 2 1  0.00390625 0.00390625  6755399441055744 0     # v17 [y + C, y], y = T1 / 256
+dense 17 2 2  1 0  0 1  -6755399441055744 0                # v18 [r, y]
+dense 18 1 2  1 -1  0             # v19 r - y
+step 19                           # v20 g
+concat 18 20                      # v21 [r, y, g]
+concat 21 6                       # v22 [r, y, g, T1]
+dense 22 2 4  -256 0 256 1  1 0 -1 0  0 0                  # v23 [m = T1 mod 256, q = floor(T1 / 256)]
+concat 23 16                      # v24 [m, q, b]
+dense 24 3 3  1 0 0  0 0 1  0 0 0  0 0 0                   # v25 r = [m, b, 0]
+# XOR8 levels w = 128 .. 1 (same level as x32)
+dense 25 2 3  1 0 0  0 1 0  -127.5 -127.5
+step 26
+mul 27 0 1 1 2
+concat 25 27
+concat 29 28
+dense 30 3 6  1 0 0 -128 0 0  0 1 0 0 -128 0  0 0 1 0 0 128  0 0 0
+dense 31 2 3  1 0 0  0 1 0  -63.5 -63.5
+step 32
+mul 33 0 1 1 2
+concat 31 33
+concat 35 34
+dense 36 3 6  1 0 0 -64 0 0  0 1 0 0 -64 0  0 0 1 0 0 64  0 0 0
+dense 37 2 3  1 0 0  0 1 0  -31.5 -31.5
+step 38
+mul 39 0 1 1 2
+concat 37 39
+concat 41 40
+dense 42 3 6  1 0 0 -32 0 0  0 1 0 0 -32 0  0 0 1 0 0 32  0 0 0
+dense 43 2 3  1 0 0  0 1 0  -15.5 -15.5
+step 44
+mul 45 0 1 1 2
+concat 43 45
+concat 47 46
+dense 48 3 6  1 0 0 -16 0 0  0 1 0 0 -16 0  0 0 1 0 0 16  0 0 0
+dense 49 2 3  1 0 0  0 1 0  -7.5 -7.5
+step 50
+mul 51 0 1 1 2
+concat 49 51
+concat 53 52
+dense 54 3 6  1 0 0 -8 0 0  0 1 0 0 -8 0  0 0 1 0 0 8  0 0 0
+dense 55 2 3  1 0 0  0 1 0  -3.5 -3.5
+step 56
+mul 57 0 1 1 2
+concat 55 57
+concat 59 58
+dense 60 3 6  1 0 0 -4 0 0  0 1 0 0 -4 0  0 0 1 0 0 4  0 0 0
+dense 61 2 3  1 0 0  0 1 0  -1.5 -1.5
+step 62
+mul 63 0 1 1 2
+concat 61 63
+concat 65 64
+dense 66 3 6  1 0 0 -2 0 0  0 1 0 0 -2 0  0 0 1 0 0 2  0 0 0
+dense 67 2 3  1 0 0  0 1 0  -0.5 -0.5
+step 68
+mul 69 0 1 1 2
+concat 67 69
+concat 71 70
+dense 72 3 6  1 0 0 -1 0 0  0 1 0 0 -1 0  0 0 1 0 0 1  0 0 0
+concat 25 73                      # v74 [m, b, 0, 0, 0, AND]
+dense 74 1 6  1 1 0 0 0 -2  0     # v75 idx = m XOR b
+concat 7 4                        # v76
+concat 76 75                      # v77
+concat 77 2                       # v78
+concat 78 3                       # v79
+concat 79 23                      # v80
+concat 80 6                       # v81 S = [T3 T4 P0 idx PC LR LP A m q T1]
+dense 81 11 11                    # v82 values
+  1 0 0 0 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0 0 0
+  0 0 1 0 0 0 0 0 0 0 0
+  0 0 0 1 0 0 0 0 0 0 0
+  0 0 0 0 0 1 0 0 0 0 0
+  0 0 0 0 0 0 1 0 0 0 0
+  0 0 0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 0 0 0 1
+  1 0 0 0 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0
+dense 13 11 3                     # v83 gates [d d p0 go p0 p0 p0 go d p0 p0]
+  0 0 1
+  0 0 1
+  1 0 0
+  0 1 0
+  1 0 0
+  1 0 0
+  1 0 0
+  0 1 0
+  0 0 1
+  1 0 0
+  1 0 0
+  0 0 0 0 0 0 0 0 0 0 0
+concat 82 83                      # v84
+mul 84 0 11 11 22                 # v85 [dT3 dT4 p0P0 go.idx p0LR p0LP p0A go.q dT1 p0T3 p0T4]
+concat 85 13                      # v86
+concat 86 81                      # v87 Z (25)
+# Z: 0 dT3, 1 dT4, 2 p0P0, 3 go.idx, 4 p0LR, 5 p0LP, 6 p0A, 7 go.q, 8 dT1, 9 p0T3, 10 p0T4,
+#    11 p0, 12 go, 13 d, 14 T3, 15 T4, 16 P0, 17 idx, 18 PC, 19 LR, 20 LP, 21 A, 22 m, 23 q, 24 T1
+dense 87 10 25                    # v88 words 0..9
+  1 0 0 0 0 0 0 0 0 0 0   461 462 0   0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0   1 1 0       0 0 0 0 0 0 0 0 0 0 0
+  0 0 1 1 0 0 0 0 0 0 0   0 3931904 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0   0 0 0       0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0   0 0 0       0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0   0 0 0       0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0   0 0 0       0 0 0 0 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0 0 0   1 1 0       0 0 0 0 0 0 0 0 0 0 0
+  1 0 0 0 1 0 0 0 0 0 0   0 461 0     0 0 0 0 0 0 0 0 0 0 0
+  0 1 0 0 0 1 0 0 0 0 0   0 1 0       0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+dense 87 7 25                     # v89 [w12 w14 w25 w30 w31 w32 w33]
+  0 0 0 0 0 0 0 0 0 0 0   0 0 0          0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0   0 0 0          0 0 0 0 0 0 0 0 0 0 -1
+  0 0 0 0 0 0 0 0 0 0 0   0 1 0          0 0 1 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 -1 1 1 0 0  4294967295 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0   0 0 0          0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 1 0 0 0 0 -1 0  0 0 0          1 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 1 0 0 0 0 -1  0 0 0          0 1 0 0 0 0 0 0 0 0 0
+  0 4294967295 0 0 0 0 0
+slice 0 11 13                     # v90 words 10, 11
+slice 89 0 1                      # v91 w12
+slice 0 14 15                     # v92 w13
+slice 89 1 2                      # v93 w14
+slice 0 16 26                     # v94 words 15..24
+slice 89 2 3                      # v95 w25
+slice 0 27 31                     # v96 words 26..29
+slice 89 3 7                      # v97 words 30..33
+slice 0 35 65                     # v98 words 34..63
+concat 88 90
+concat 99 91
+concat 100 92
+concat 101 93
+concat 102 94
+concat 103 95
+concat 104 96
+concat 105 97
+concat 106 98

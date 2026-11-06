@@ -1,0 +1,268 @@
+# vba/vi_div (id 434): / \ Mod ^ for numeric operands, routed from vi_bin with a = (13, 14),
+# b = (15, 16), OP in word 48. Two phases on PC (word 7):
+# PC 0: class of OP (19 /, 20 \, 21 Mod, 22 ^); ra, rb = ROUND half even (magic 3 2^51) for \ Mod;
+#   errors: / by 0 -> 11 (0 / 0 -> 6), \ Mod operand outside Long -> 6, \ Mod by 0 -> 11.
+#   Else calls fm_dv1 (267, plain quotient gate gQ = word 38) with x = word 14, m = word 16, or
+#   fm_pw0 (268, T0 = 3 POWER) with A = (1, a), B = (1, b); link LR = 434, LP = 1.
+#   Saves aP, bP, ra, rb, typI (both Integer rank) in words 49..53 (callees pass 40..63).
+# PC 1: A = result (tag 1 number, 4 error). /: Double, error -> 6. ^: Double, 0 ^ 0 = 1,
+#   error -> 5 if a <= 0 else 6. \ Mod: r0 = ROUND(q), R0 = ra - rb r0 (exact), sign fix to the
+#   truncated quotient Q and remainder R with the sign of ra; Integer or Long by typI, range -> 6.
+#   Result block write [rT, rP] at SP - 4, SP -= 2, IP += 2, next = vi_fetch 421; errors -> 423.
+# Note: weights/vba/vi_div.md
+input 65
+slice 0 8 9                       # v1 [PC]
+slice 0 14 18                     # v2 [aT, aP, bT, bP] (PC 1: [Atag, q, ., .])
+slice 0 48 55                     # v3 [OP (word 47), ARG (48, unused), saP, sbP, sra, srb, styI]
+concat 1 2                        # v4
+concat 4 3                        # v5 (12): 0 PC 1 aT 2 aP 3 bT 4 bP 5 OP 6 ARG 7 saP 8 sbP 9 sra 10 srb 11 styI
+dense 5 17 12                     # v6 pre-step thresholds
+# PC aT aP bT bP OP ARG saP sbP sra srb styI
+  0  0  0  0  0  1  0   0   0   0   0   0      # OP > 19.5
+  0  0  0  0  0  1  0   0   0   0   0   0      # OP > 20.5
+  0  0  0  0  0  1  0   0   0   0   0   0      # OP > 21.5
+  0  0  0  0  1  0  0   0   0   0   0   0      # bP > 0
+  0  0  0  0  -1 0  0   0   0   0   0   0      # bP < 0
+  0  0  1  0  0  0  0   0   0   0   0   0      # aP > 0
+  0  0  -1 0  0  0  0   0   0   0   0   0      # aP < 0
+  0  1  0  0  0  0  0   0   0   0   0   0      # aT > 18.5
+  0  1  0  0  0  0  0   0   0   0   0   0      # aT > 23.5
+  0  0  0  1  0  0  0   0   0   0   0   0      # bT > 18.5
+  0  0  0  1  0  0  0   0   0   0   0   0      # bT > 23.5
+  0  1  0  0  0  0  0   0   0   0   0   0      # Atag > 2.5 (PC 1: error result)
+  0  0  0  0  0  0  0   1   0   0   0   0      # saP > 0
+  0  0  0  0  0  0  0   -1  0   0   0   0      # saP < 0
+  0  0  0  0  0  0  0   0   1   0   0   0      # sbP > 0
+  0  0  0  0  0  0  0   0   -1  0   0   0      # sbP < 0
+  1  0  0  0  0  0  0   0   0   0   0   0      # PC > 0.5
+  -19.5 -20.5 -21.5 0 0 0 0 -18.5 -23.5 -18.5 -23.5 -2.5 0 0 0 0 -0.5
+step 6                            # v7 (17): 0 g1 1 g2 2 g3 3 bpos 4 bneg 5 apos 6 aneg 7 aT1 8 aT2 9 bT1 10 bT2 11 aerr 12 sap 13 san 14 sbp 15 sbn 16 p1
+dense 5 2 12                      # v8 [aP + C, bP + C], C = 6755399441055744 = 3 2^51
+  0 0 1 0 0 0 0 0 0 0 0 0
+  0 0 0 0 1 0 0 0 0 0 0 0
+  6755399441055744 6755399441055744
+dense 8 2 2                       # v9 [ra, rb] = [x - C] (round half to even)
+  1 0
+  0 1
+  -6755399441055744 -6755399441055744
+dense 9 6 2                       # v10 pre-step: Long range of ra, rb; rb != 0
+  1 0
+  -1 0
+  0 1
+  0 -1
+  0 1
+  0 -1
+  -2147483647.5 -2147483648.5 -2147483647.5 -2147483648.5 -0.5 -0.5
+step 10                           # v11 [oa_hi, oa_lo, ob_hi, ob_lo, rbp, rbn]
+concat 7 11                       # v12 (23): 17..20 oa_hi oa_lo ob_hi ob_lo, 21 rbp, 22 rbn
+slice 5 11 12                     # v13 [styI]
+concat 12 13                      # v14 (24): 23 styI
+dense 14 17 24                    # v15 exact 0/1 indicators (linear)
+# 0-16 (g1 g2 g3 bpos bneg apos aneg aT1 aT2 bT1 bT2 aerr sap san sbp sbn p1)   17-22    23
+  -1 0 0  0 0  0 0  0 0  0 0  0  0 0  0 0  0      0 0 0 0 0 0   0     # cDIV = 1 - g1
+  1 -1 0  0 0  0 0  0 0  0 0  0  0 0  0 0  0      0 0 0 0 0 0   0     # cID
+  0 1 -1  0 0  0 0  0 0  0 0  0  0 0  0 0  0      0 0 0 0 0 0   0     # cMOD
+  0 0 1   0 0  0 0  0 0  0 0  0  0 0  0 0  0      0 0 0 0 0 0   0     # cPOW
+  0 0 0   -1 -1 0 0 0 0  0 0  0  0 0  0 0  0      0 0 0 0 0 0   0     # zb
+  0 0 0   0 0  -1 -1 0 0 0 0  0  0 0  0 0  0      0 0 0 0 0 0   0     # za
+  0 0 0   0 0  0 0  0 0  0 0  0  0 0  0 0  0      1 1 1 1 0 0   0     # ovab (0..2)
+  0 0 0   0 0  0 0  0 0  0 0  0  0 0  0 0  0      0 0 0 0 -1 -1 0     # zrb
+  0 0 0   0 0  0 0  1 -1 0 0  0  0 0  0 0  0      0 0 0 0 0 0   0     # aL (Long or Double rank)
+  0 0 0   0 0  0 0  0 0  1 -1 0  0 0  0 0  0      0 0 0 0 0 0   0     # bL
+  0 0 0   0 0  0 0  0 0  0 0  0  0 0  0 0  1      0 0 0 0 0 0   0     # p1
+  0 0 0   0 0  0 0  0 0  0 0  0  0 0  0 0  -1     0 0 0 0 0 0   0     # p0
+  0 0 0   0 0  0 0  0 0  0 0  0  -1 -1 0 0 0      0 0 0 0 0 0   0     # saz
+  0 0 0   0 0  0 0  0 0  0 0  0  0 0  -1 -1 0     0 0 0 0 0 0   0     # sbz
+  0 0 0   0 0  0 0  0 0  0 0  1  0 0  0 0  0      0 0 0 0 0 0   0     # aerr
+  0 0 0   0 0  0 0  0 0  0 0  0  1 0  0 0  0      0 0 0 0 0 0   0     # sap
+  0 0 0   0 0  0 0  0 0  0 0  0  0 0  0 0  0      0 0 0 0 0 0   1     # styI
+  1 0 0 0 1 1 0 1 0 0 0 1 1 1 0 0 0
+dense 15 16 17                    # v16 pre-step AND gates
+# cDIV cID cMOD cPOW zb za ovab zrb aL bL p1 p0 saz sbz aerr sap styI
+  1    0   0    0    1  0  0    0   0  0  0  1  0   0   0    0   0      # eD0: / by zero
+  1    0   0    0    1  1  0    0   0  0  0  1  0   0   0    0   0      # eDz: 0 / 0
+  0    2   2    0    0  0  1    0   0  0  0  2  0   0   0    0   0      # eOv0
+  0    2   2    0    0  0  -1   2   0  0  0  2  0   0   0    0   0      # eZ0
+  0    0   0    1    0  0  0    0   0  0  0  1  0   0   0    0   0      # pP0
+  0    0   0    1    0  0  0    0   0  0  1  0  1   1   0    0   0      # z00
+  1    0   0    0    0  0  0    0   0  0  1  0  0   0   0    0   0      # gDIV1
+  0    1   0    0    0  0  0    0   0  0  1  0  0   0   0    0   0      # gID1
+  0    0   1    0    0  0  0    0   0  0  1  0  0   0   0    0   0      # gMOD1
+  0    0   0    1    0  0  0    0   0  0  1  0  0   0   0    0   0      # gPOW1
+  1    0   0    0    0  0  0    0   0  0  1  0  0   0   1    0   0      # eDiv1
+  0    0   0    2    0  0  0    0   0  0  2  0  -1  -1  2    0   0      # ePow1
+  0    0   0    2    0  0  0    0   0  0  2  0  -1  -1  2    2   0      # ePow1pos
+  0    0   0    2    0  0  0    0   0  0  2  0  -1  -1  0    0   0      # cpq
+  0    1   1    0    0  0  0    0   0  0  1  0  0   0   0    0   1      # styI1
+  0    0   0    0    0  0  0    0   -1 -1 0  1  0   0   0    0   0      # typI0
+  -2.5 -3.5 -4.5 -5.5 -1.5 -3.5 -1.5 -1.5 -1.5 -1.5 -2.5 -4.5 -6.5 -2.5 -2.5 -0.5
+step 16                           # v17 (16): 0 eD0 1 eDz 2 eOv0 3 eZ0 4 pP0 5 z00 6 gDIV1 7 gID1 8 gMOD1 9 gPOW1 10 eDiv1 11 ePow1 12 ePow1pos 13 cpq 14 styI1 15 typI0
+dense 17 3 16                     # v18 [gIM, gIM, gIM], gIM = gID1 + gMOD1
+  0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0
+  0 0 0
+slice 5 2 3                       # v19 [q]
+slice 5 9 11                      # v20 [sra, srb]
+concat 19 20                      # v21
+concat 18 21                      # v22
+mul 22 0 3 3 6                    # v23 [Gq, Gra, Grb] (0 unless PC 1 and \ or Mod)
+dense 23 1 3                      # v24 [Gq + C]
+  1 0 0
+  6755399441055744
+dense 24 1 1                      # v25 [r0] = ROUND(Gq)
+  1
+  -6755399441055744
+concat 25 23                      # v26 [r0, Gq, Gra, Grb]
+mul 26 0 1 3 4                    # v27 [P = r0 Grb] (exact: |P| < 2^33)
+concat 26 27                      # v28 (5): 0 r0 1 Gq 2 Gra 3 Grb 4 P
+dense 28 8 5                      # v29 [R0, -R0, R0, Gra, -Gra, -Grb, Grb, -Grb]
+  0 0 1 0 -1
+  0 0 -1 0 1
+  0 0 1 0 -1
+  0 0 1 0 0
+  0 0 -1 0 0
+  0 0 0 -1 0
+  0 0 0 1 0
+  0 0 0 -1 0
+  0 0 0 0 0 0 0 0
+step 29                           # v30: 1 Rn 2 Rp 3 pa 4 na 5 sbn
+relu 29                           # v31: 6, 7 relu(rb), relu(-rb)
+dense 30 4 8                      # v32 pre-step [nf, pf, nfs, pfs]
+  0 1 0 1 0 0 0 0
+  0 0 1 0 1 0 0 0
+  0 1 0 1 0 1 0 0
+  0 0 1 0 1 1 0 0
+  -1.5 -1.5 -2.5 -2.5
+step 32                           # v33 [nf, pf, nfs, pfs]
+dense 31 1 8                      # v34 [|rb|]
+  0 0 0 0 0 0 1 1
+  0
+concat 34 34                      # v35 [|rb|, |rb|]
+slice 33 0 2                      # v36 [nf, pf]
+concat 35 36                      # v37
+mul 37 0 2 2 4                    # v38 [|rb| nf, |rb| pf]
+concat 29 33                      # v39 (12): 0 R0, 8 nf 9 pf 10 nfs 11 pfs
+concat 39 38                      # v40 (14): 12 rbnf 13 rbpf
+concat 40 25                      # v41 (15): 14 r0
+dense 41 2 15                     # v42 [Q, R]
+# R0 1  2  3  4  5  6  7  nf pf nfs pfs rbnf rbpf r0
+  0  0  0  0  0  0  0  0  -1 1  2   -2  0    0    1
+  1  0  0  0  0  0  0  0  0  0  0   0   1    -1   0
+  0 0
+slice 17 7 9                      # v43 [gID1, gMOD1]
+concat 43 42                      # v44
+mul 44 0 2 2 4                    # v45 [gID1 Q, gMOD1 R]
+dense 45 4 2                      # v46 pre-step range of V = gID1 Q + gMOD1 R
+  1 1
+  -1 -1
+  1 1
+  -1 -1
+  -32767.5 -32768.5 -2147483647.5 -2147483648.5
+step 46                           # v47 [hiI, loI, hiL, loL]
+concat 17 47                      # v48 (20): 14 styI1, 16 hiI 17 loI 18 hiL 19 loL
+dense 48 1 20                     # v49 pre-step ovr1
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0  1 1 2 2
+  -1.5
+step 49                           # v50 [ovr1]
+dense 17 1 16                     # v51 [gDIV1 + cpq]
+  0 0 0 0 0 0 1 0 0 0 0 0 0 1 0 0
+  0
+concat 51 19                      # v52 [g, q]
+mul 52 0 1 1 2                    # v53 [gq]
+dense 15 12 17                    # v54 gates [p0 x4, p1 x4, cDP, cDP, cIM, cIM]
+# cDIV cID cMOD cPOW zb za ovab zrb aL bL p1 p0 saz sbz aerr sap styI
+  0    0   0    0    0  0  0    0   0  0  0  1  0   0   0    0   0
+  0    0   0    0    0  0  0    0   0  0  0  1  0   0   0    0   0
+  0    0   0    0    0  0  0    0   0  0  0  1  0   0   0    0   0
+  0    0   0    0    0  0  0    0   0  0  0  1  0   0   0    0   0
+  0    0   0    0    0  0  0    0   0  0  1  0  0   0   0    0   0
+  0    0   0    0    0  0  0    0   0  0  1  0  0   0   0    0   0
+  0    0   0    0    0  0  0    0   0  0  1  0  0   0   0    0   0
+  0    0   0    0    0  0  0    0   0  0  1  0  0   0   0    0   0
+  1    0   0    1    0  0  0    0   0  0  0  0  0   0   0    0   0
+  1    0   0    1    0  0  0    0   0  0  0  0  0   0   0    0   0
+  0    1   1    0    0  0  0    0   0  0  0  0  0   0   0    0   0
+  0    1   1    0    0  0  0    0   0  0  0  0  0   0   0    0   0
+  0 0 0 0 0 0 0 0 0 0 0 0
+slice 5 2 3                       # v55 [aP]
+slice 5 4 5                       # v56 [bP]
+concat 55 56                      # v57
+concat 57 9                       # v58 [aP, bP, ra, rb]
+slice 5 7 11                      # v59 [saP, sbP, sra, srb]
+concat 58 59                      # v60 (8)
+concat 60 58                      # v61 (12)
+concat 54 61                      # v62 (24)
+mul 62 0 12 12 24                 # v63 (12): p0 new x4, p1 old x4, cDP aP, cDP bP, cIM ra, cIM rb
+concat 17 50                      # v64 (17): 16 ovr1
+concat 64 63                      # v65 (29): 17..28
+concat 65 53                      # v66 (30): 29 gq
+concat 66 45                      # v67 (32): 30 gIDQ 31 gMODR
+slice 0 41 43                     # v68 [IP, SP]
+concat 67 68                      # v69 (34): 32 IP 33 SP
+slice 0 47 48                     # v70 [ERR]
+concat 69 70                      # v71 (35): 34 ERR
+slice 7 16 17                     # v72 [p1]
+concat 71 72                      # v73 F (36): 35 p1
+dense 73 34 36                    # v74 outputs
+# F: 0-9 eD0 eDz eOv0 eZ0 pP0 z00 gDIV1 gID1 gMOD1 gPOW1 | 10-16 eDiv1 ePow1 ePow1pos cpq styI1 typI0 ovr1 | 17-24 new x4 old x4 | 25-31 xa mb xr mr gq gIDQ gMODR | 32-35 IP SP ERR p1
+  156 0 156 156 1 0 0 0 0 0      2 2 0 0 0 0 2      0 0 0 0 0 0 0 0   0 0 0 0 0 0 0   0 0 0 154    # next
+  0 0 0 0 0 0 0 0 0 0            1 1 0 0 0 0 1      0 0 0 0 0 0 0 0   0 0 0 0 0 0 0   0 0 0 -1     # mem
+  0 0 0 0 0 0 0 0 0 0            0 0 0 0 0 0 0      0 0 0 0 0 0 0 0   0 0 0 0 0 0 0   0 1 0 0      # addr = SP - 4
+  0 0 0 0 0 0 0 0 0 0            -2 -2 0 0 0 0 -2   0 0 0 0 0 0 0 0   0 0 0 0 0 0 0   0 0 0 2      # value
+  0 0 0 0 0 0 0 0 0 0            0 0 0 0 0 0 0      0 0 0 0 0 0 0 0   0 0 0 0 0 0 0   0 0 0 0      # io
+  0 0 0 0 0 0 0 0 0 0            0 0 0 0 0 0 0      0 0 0 0 0 0 0 0   0 0 0 0 0 0 0   0 0 0 0      # io_arg
+  0 0 0 0 0 0 0 0 0 0            0 0 0 0 0 0 0      0 0 0 0 0 0 0 0   0 0 0 0 0 0 0   0 0 0 0      # halt
+  0 0 0 0 0 0 0 0 0 0            0 0 0 0 0 0 0      0 0 0 0 0 0 0 0   0 0 0 0 0 0 0   0 0 0 0      # PC
+  0 0 0 0 0 0 0 0 0 0            0 0 0 0 0 0 0      0 0 0 0 0 0 0 0   0 0 0 0 0 0 0   0 0 0 0      # LR = 434
+  0 0 0 0 0 0 0 0 0 0            0 0 0 0 0 0 0      0 0 0 0 0 0 0 0   0 0 0 0 0 0 0   0 0 0 0      # LP = 1
+  0 0 0 0 0 0 0 0 0 0            0 0 0 0 0 0 0      0 0 0 0 0 0 0 0   0 0 0 0 0 0 0   0 0 0 0      # word 13 = 1
+  0 0 0 0 0 0 0 0 0 0            0 0 0 0 0 0 0      0 0 0 0 0 0 0 0   1 0 1 0 0 0 0   0 0 0 0      # word 14 = x
+  0 0 0 0 0 0 0 0 0 0            0 0 0 0 0 0 0      0 0 0 0 0 0 0 0   0 0 0 0 0 0 0   0 0 0 0      # word 15 = 1
+  0 0 0 0 0 0 0 0 0 0            0 0 0 0 0 0 0      0 0 0 0 0 0 0 0   0 1 0 1 0 0 0   0 0 0 0      # word 16 = m
+  0 0 0 0 0 0 0 0 0 0            0 0 0 0 0 0 0      0 0 0 0 0 0 0 0   0 0 0 0 0 0 0   0 0 0 0      # word 29 = 3 (POWER)
+  0 0 0 0 0 0 0 0 0 0            0 0 0 0 0 0 0      0 0 0 0 0 0 0 0   0 0 0 0 0 0 0   0 0 0 0      # word 30
+  0 0 0 0 0 0 0 0 0 0            0 0 0 0 0 0 0      0 0 0 0 0 0 0 0   0 0 0 0 0 0 0   0 0 0 0      # word 31
+  0 0 0 0 0 0 0 0 0 0            0 0 0 0 0 0 0      0 0 0 0 0 0 0 0   0 0 0 0 0 0 0   0 0 0 0      # word 32
+  0 0 0 0 0 0 0 0 0 0            0 0 0 0 0 0 0      0 0 0 0 0 0 0 0   0 0 0 0 0 0 0   0 0 0 0      # word 33
+  0 0 0 0 0 0 0 0 0 0            0 0 0 0 0 0 0      0 0 0 0 0 0 0 0   0 0 0 0 0 0 0   0 0 0 0      # word 34
+  0 0 0 0 0 0 0 0 0 0            0 0 0 0 0 0 0      0 0 0 0 0 0 0 0   0 0 0 0 0 0 0   0 0 0 0      # word 35
+  0 0 0 0 0 0 0 0 0 0            0 0 0 0 0 0 0      0 0 0 0 0 0 0 0   0 0 0 0 0 0 0   0 0 0 0      # word 36
+  0 0 0 0 0 0 0 0 0 0            0 0 0 0 0 0 0      0 0 0 0 0 0 0 0   0 0 0 0 0 0 0   0 0 0 0      # word 37
+  0 0 0 0 0 0 0 0 0 0            0 0 0 0 0 0 0      0 0 0 0 0 0 0 0   0 0 0 0 0 0 0   0 0 0 0      # word 38 = gQ = 1
+  0 0 0 0 0 0 0 0 0 0            -2 -2 0 0 0 0 -2   0 0 0 0 0 0 0 0   0 0 0 0 0 0 0   1 0 0 2      # IP'
+  0 0 0 0 0 0 0 0 0 0            2 2 0 0 0 0 2      0 0 0 0 0 0 0 0   0 0 0 0 0 0 0   0 1 0 -2     # SP'
+  11 -5 6 11 0 0 0 0 0 0         6 5 1 0 0 0 6      0 0 0 0 0 0 0 0   0 0 0 0 0 0 0   0 0 1 0      # ERR'
+  0 0 0 0 0 0 0 0 0 0            0 0 0 0 0 0 0      1 0 0 0 1 0 0 0   0 0 0 0 0 0 0   0 0 0 0      # word 49 aP
+  0 0 0 0 0 0 0 0 0 0            0 0 0 0 0 0 0      0 1 0 0 0 1 0 0   0 0 0 0 0 0 0   0 0 0 0      # word 50 bP
+  0 0 0 0 0 0 0 0 0 0            0 0 0 0 0 0 0      0 0 1 0 0 0 1 0   0 0 0 0 0 0 0   0 0 0 0      # word 51 ra
+  0 0 0 0 0 0 0 0 0 0            0 0 0 0 0 0 0      0 0 0 1 0 0 0 1   0 0 0 0 0 0 0   0 0 0 0      # word 52 rb
+  0 0 0 0 0 0 0 0 0 0            0 0 0 0 1 1 0      0 0 0 0 0 0 0 0   0 0 0 0 0 0 0   0 0 0 0      # word 53 typI
+  0 0 0 0 0 0 21 19 19 21        0 0 0 0 -1 0 0     0 0 0 0 0 0 0 0   0 0 0 0 0 0 0   0 0 0 0      # rT
+  0 0 0 0 0 1 0 0 0 0            0 0 0 0 0 0 0      0 0 0 0 0 0 0 0   0 0 0 0 1 1 1   0 0 0 0      # rP
+  267 4 -4 67108864 0 0 0 0 434 1 1 0 1 0 3 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0
+slice 74 0 10                     # v75 words 0..9
+slice 0 11 14                     # v76 words 10..12
+slice 74 10 14                    # v77 words 13..16
+slice 0 18 30                     # v78 words 17..28
+slice 74 14 24                    # v79 words 29..38
+slice 0 40 41                     # v80 word 39
+slice 74 24 26                    # v81 words 40, 41
+slice 0 43 47                     # v82 words 42..45
+slice 74 26 27                    # v83 word 46
+slice 0 48 50                     # v84 words 47, 48
+slice 74 27 32                    # v85 words 49..53
+slice 0 55 65                     # v86 words 54..63
+slice 74 32 34                    # v87 payload [rT, rP]
+concat 75 76                      # v88
+concat 88 77                      # v89
+concat 89 78                      # v90
+concat 90 79                      # v91
+concat 91 80                      # v92
+concat 92 81                      # v93
+concat 93 82                      # v94
+concat 94 83                      # v95
+concat 95 84                      # v96
+concat 96 85                      # v97
+concat 97 86                      # v98
+concat 98 87                      # v99 (66 words)

@@ -1,0 +1,82 @@
+# files/zr4 (id 492): compare the central directory name with the target name, one byte per 2 steps.
+# PC 1: tb (w32) = x0 (target[i]), read name[i] at cdptr + 46 + i, PC 2.
+# PC 2: equal and i + 1 < N1: i += 1, read target[i] at P1 + i, PC 1. Equal and last: block read the 30-byte
+# local header at P0 + lho, go to zr6 (493). Different: count (w30) > 1: count -= 1, w29 = next (w37), block
+# read 46 there, go to zr3 (491); else return STATUS 1. Hand-written. Not generated. Note: weights/files/zip.md
+input 65
+slice 0 0 1                       # v1 [x0]
+slice 0 8 11                      # v2 [PC LR LP]
+slice 0 26 28                     # v3 [P0 P1]
+slice 0 29 34                     # v4 [N1 cd cnt i tb]
+slice 0 37 39                     # v5 [lho next]
+concat 1 2                        # v6
+concat 6 3                        # v7
+concat 7 4                        # v8
+concat 8 5                        # v9 G (13) = [x0 PC LR LP P0 P1 N1 cd cnt i tb lho next]
+dense 9 5 13                      # v10
+  0 1 0 0 0 0 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0 0 0 -1 0 0
+  1 0 0 0 0 0 0 0 0 0 -1 0 0
+  0 0 0 0 0 0 1 0 0 -1 0 0 0
+  0 0 0 0 0 0 0 0 1 0 0 0 0
+  -1.5 0.5 -0.5 -1.5 -1.5
+step 10                           # v11 [p2 q1 q2 mo c]
+dense 11 5 5                      # v12
+  -1 0 0 0 0
+  1 1 -1 1 0
+  1 1 -1 -1 0
+  1 -1 1 0 1
+  1 -1 1 0 -1
+  0.5 -2.5 -1.5 -1.5 -0.5
+step 12                           # v13 [p1 K M X Y]
+dense 9 9 13                      # v14 values
+  0 0 1 0 0 0 0 0 0 0 0 0 0
+  0 0 0 1 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 1 0 1 0 0 0
+  0 0 0 0 0 1 0 0 0 1 0 0 0
+  0 0 0 0 1 0 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 0 0 0 0 0 1
+  0 0 0 0 0 0 0 -1 0 0 0 0 1
+  1 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 1 0 0
+  0 0 46 1 0 0 0 0 0
+dense 13 9 5                      # v15 gates [Y Y p1 K M X X p1 p1]
+  0 0 0 0 1
+  0 0 0 0 1
+  1 0 0 0 0
+  0 1 0 0 0
+  0 0 1 0 0
+  0 0 0 1 0
+  0 0 0 1 0
+  1 0 0 0 0
+  1 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+concat 14 15                      # v16
+mul 16 0 9 9 18                   # v17 [YLR YLP p1a Ka Ma Xn Xd p1x0 p1tb]
+concat 17 13                      # v18
+concat 18 9                       # v19 Z (27)
+dense 19 8 27                     # v20 words 0..7
+  1 0 0 0 0 0 0 0 0  492 492 493 491 0  0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0  1 1 4 4 0          0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 1 1 1 1 0 0 0  0 0 0 0 0          0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0  0 0 67108894 67108910 0  0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0  0 0 0 0 0          0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0  0 0 0 0 0          0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0  0 0 0 0 0          0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0  2 1 0 0 0          0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0
+dense 19 1 27  0 0 0 0 0 0 0 0 0  0 0 0 0 1  0 0 0 0 0 0 0 0 0 0 0 0 0  0      # v21 STATUS = Y
+dense 19 4 27                     # v22 [w29 w30 w31 w32]
+  0 0 0 0 0 0 1 0 0   0 0 0 0 0   0 0 0 0 0 0 0 1 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0   0 0 0 -1 0  0 0 0 0 0 0 0 0 1 0 0 0 0
+  0 0 0 0 0 0 0 0 0   0 1 0 0 0   0 0 0 0 0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 0 0 1 -1  0 0 0 0 0   0 0 0 0 0 0 0 0 0 0 1 0 0
+  0 0 0 0
+slice 0 9 13                      # v23 words 8..11
+slice 0 14 30                     # v24 words 13..28
+slice 0 34 65                     # v25 words 33..63
+concat 20 23
+concat 26 21
+concat 27 24
+concat 28 22
+concat 29 25

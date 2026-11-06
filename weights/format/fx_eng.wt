@@ -1,0 +1,79 @@
+# format/fx_eng (id 231): exponent grouping for scientific sections, between fx_dec and fx_rnd.
+# In: e = AR1 (from fx_dec), nint = N0. n = nint clamped to 1..6 (0 counts as 1).
+# Out: T0 = u + 1 with u = e - n floor(e / n) (0 <= u < n), the integer digits shown in a
+# scientific section; fx_rnd (193) then shows u + 1 integer digits and exponent X = e - u, a
+# multiple of n (engineering style "##0.0E+0"; n = 1 gives u = 0, plain scientific). floor(e / n)
+# = ROUND((e - (n - 1) / 2) / n), exact for integer e (distance to a half is at least 1 / (2 n)).
+# ROUND by + C - C, C = 6755399441055744. Next = 193, PC unchanged. One step. Note: fx_rnd.md.
+input 65
+slice 0 21 22                     # v1 = e
+slice 0 28 29                     # v2 = nint
+concat 1 2                        # v3 = [e, nint]
+dense 3 6 2                       # v4 = t_n = e / n - (n - 1) / (2 n), n = 1..6
+   1 0
+   0.5 0
+   0.3333333333333333 0
+   0.25 0
+   0.2 0
+   0.16666666666666666 0
+   0 -0.25 -0.3333333333333333 -0.375 -0.4 -0.4166666666666667
+dense 4 6 6                       # v5 = t_n + C
+   1 0 0 0 0 0
+   0 1 0 0 0 0
+   0 0 1 0 0 0
+   0 0 0 1 0 0
+   0 0 0 0 1 0
+   0 0 0 0 0 1
+   6755399441055744 6755399441055744 6755399441055744 6755399441055744 6755399441055744 6755399441055744
+dense 5 6 6                       # v6 = f_n = floor(e / n)
+   1 0 0 0 0 0
+   0 1 0 0 0 0
+   0 0 1 0 0 0
+   0 0 0 1 0 0
+   0 0 0 0 1 0
+   0 0 0 0 0 1
+   -6755399441055744 -6755399441055744 -6755399441055744 -6755399441055744 -6755399441055744 -6755399441055744
+concat 1 6                        # v7 = [e, f1..f6]
+dense 7 6 7                       # v8 = u_n = e - n f_n
+   1 -1 0 0 0 0 0
+   1 0 -2 0 0 0 0
+   1 0 0 -3 0 0 0
+   1 0 0 0 -4 0 0
+   1 0 0 0 0 -5 0
+   1 0 0 0 0 0 -6
+   0 0 0 0 0 0
+dense 2 5 1                       # v9 = nint - i + 0.5, i = 2..6
+   1
+   1
+   1
+   1
+   1
+   -1.5 -2.5 -3.5 -4.5 -5.5
+step 9                            # v10 = [nint >= 2 .. nint >= 6]
+dense 10 6 5                      # v11 = one-hot n (1..6, 6 = 6 or more)
+   -1 0 0 0 0
+   1 -1 0 0 0
+   0 1 -1 0 0
+   0 0 1 -1 0
+   0 0 0 1 -1
+   0 0 0 0 1
+   1 0 0 0 0 0
+concat 11 8                       # v12 = [oh1..oh6, u1..u6]
+mul 12 0 6 6 12                   # v13
+dense 13 1 6                      # v14 = u + 1
+   1 1 1 1 1 1
+   1
+dense 1 7 1                       # v15 = [next 193, 0 x 6]
+   0
+   0
+   0
+   0
+   0
+   0
+   0
+   193 0 0 0 0 0 0
+slice 0 8 30                      # v16 = words 7..28
+concat 15 16                      # v17
+concat 17 14                      # v18 (word 29 T0)
+slice 0 31 65                     # v19 = words 30..63
+concat 18 19                      # v20

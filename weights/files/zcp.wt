@@ -1,0 +1,77 @@
+# files/zcp (id 497): copy N0 words from P0 to P1, then return to (LR, LP) with A.PAY = N0 (count copied),
+# STATUS 0. PC 0 entry: A.PAY = 0, read P0 (returns at once if N0 = 0). PC 1: write x0 at P1, P0, P1 += 1,
+# N0 -= 1, A.PAY += 1; more: PC 2. PC 2: read P0, PC 1. Leaves P0, P1 one past the ends.
+# Clobbers P0, P1, N0, A.PAY, STATUS. Hand-written. Not generated. Note: weights/files/zip.md
+input 65
+slice 0 0 1                       # v1 [x0]
+slice 0 8 11                      # v2 [PC LR LP]
+slice 0 15 16                     # v3 [A]
+slice 0 26 29                     # v4 [P0 P1 N0]
+concat 1 2                        # v5
+concat 5 3                        # v6
+concat 6 4                        # v7 G = [x0 PC LR LP A P0 P1 N0]
+dense 7 4 8                       # v8
+  0 1 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0
+  0 0 0 0 0 0 0 1
+  0 0 0 0 0 0 0 1
+  -0.5 -1.5 -0.5 -1.5
+step 8                            # v9 [s1 s2 nz m1]
+dense 9 7 4                       # v10
+  -1 0 0 0
+  1 -1 0 0
+  0 1 0 0
+  -1 0 1 0
+  1 -1 0 1
+  -1 0 -1 0
+  1 -1 0 -1
+  0.5 -0.5 -0.5 -0.5 -1.5 0.5 -0.5
+step 10                           # v11 [p0 p1 p2 go0 go1 ret0 ret1]
+dense 7 6 8                       # v12 values [LR LP LR LP P1-P0 A]
+  0 0 1 0 0 0 0 0
+  0 0 0 1 0 0 0 0
+  0 0 1 0 0 0 0 0
+  0 0 0 1 0 0 0 0
+  0 0 0 0 0 -1 1 0
+  0 0 0 0 1 0 0 0
+  0 0 0 0 0 0
+dense 11 6 7                      # v13 gates [ret0 ret0 ret1 ret1 p1 p0]
+  0 0 0 0 0 1 0
+  0 0 0 0 0 1 0
+  0 0 0 0 0 0 1
+  0 0 0 0 0 0 1
+  0 1 0 0 0 0 0
+  1 0 0 0 0 0 0
+  0 0 0 0 0 0
+concat 12 13                      # v14
+mul 14 0 6 6 12                   # v15 [r0LR r0LP r1LR r1LP p1d p0A]
+concat 15 11                      # v16
+concat 16 7                       # v17 Z (21)
+dense 17 8 21                     # v18 words 0..7
+  1 0 1 0 0 0  0 0 497 497 497 0 0  0 0 0 0 0 0 0 0
+  0 0 0 0 0 0  1 2 1 0 0 0 0        0 0 0 0 0 0 0 0
+  0 0 0 0 1 0  0 0 0 0 0 0 0        0 0 0 0 0 1 0 0
+  0 0 0 0 0 0  0 0 0 0 0 0 0        1 0 0 0 0 0 0 0
+  0 0 0 0 0 0  0 0 0 0 0 0 0        0 0 0 0 0 0 0 0
+  0 0 0 0 0 0  0 0 0 0 0 0 0        0 0 0 0 0 0 0 0
+  0 0 0 0 0 0  0 0 0 0 0 0 0        0 0 0 0 0 0 0 0
+  0 1 0 1 0 0  0 0 1 1 2 0 0        0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0
+dense 17 1 21  0 0 0 0 0 0  0 0 0 0 0 0 0  0 0 0 0 0 0 0 0  0      # v19 STATUS 0
+dense 17 1 21  0 0 0 0 0 -1  0 1 0 0 0 0 0  0 0 0 0 1 0 0 0  0     # v20 A.PAY
+dense 17 3 21                     # v21 [P0 P1 N0]
+  0 0 0 0 0 0  0 1 0 0 0 0 0  0 0 0 0 0 1 0 0
+  0 0 0 0 0 0  0 1 0 0 0 0 0  0 0 0 0 0 0 1 0
+  0 0 0 0 0 0  0 -1 0 0 0 0 0 0 0 0 0 0 0 0 1
+  0 0 0
+slice 0 9 13                      # v22 words 8..11
+slice 0 14 15                     # v23 w13
+slice 0 16 26                     # v24 words 15..24
+slice 0 29 65                     # v25 words 28..63
+concat 18 22
+concat 26 19
+concat 27 23
+concat 28 20
+concat 29 24
+concat 30 21
+concat 31 25

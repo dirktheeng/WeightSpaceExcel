@@ -44,7 +44,7 @@ def test_boot_initialises_zero_page_and_halts_on_empty_queue():
     assert m[0x01] == 0x302002               # HEAP_TOP
     assert m[0x02] == 0x090000               # FORMULA_TOP
     assert m[0x04] == 0x0C0000               # DEP_TOP
-    assert m[0x05] == 512                    # NET_NEXT
+    assert m[0x05] == 1024                   # NET_NEXT
     assert m[0x0A] == 100                    # ITER_MAX
     assert m[0x0B] == 0.001                  # ITER_DELTA
     assert m[0x0D] == 0x0B0000               # SCRATCH_TOP

@@ -11,3 +11,4 @@ Every network gets a .md note per docs/DOCUMENTATION.md. Black-box output tests 
 - Callers outside recalculation load HEAP_TOP into word 23 before calling a string-building core and store it back afterwards. Input word 0 on entry holds the caller's last read result and can be any finite double.
 - Weight edits: use the Edit tool or retype. sed, Python string replaces and similar helpers on .wt files are not allowed, even to apply values you typed yourself.
 - Sibling project SynapseWrite (clone at /home/claude/dirktheeng/synapsewrite): the project owner allows borrowing its architecture ideas and its weight values. Weight values may only be carried over by reading them and typing them (or editing them in with the Edit tool); no code may extract, convert or generate weights. Cite the source file in the block's note.
+- Hand-written network ids now run 0 to 1023 (decision C3); see encodings/control.md for the new ranges. Generated networks start at 1024.

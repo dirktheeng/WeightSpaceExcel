@@ -1,0 +1,85 @@
+# files/xe (id 482): block consumer (78 inputs) of 13 bits at BP. v = base (w35) + the low e = w34 bits
+# (least significant first), BP += e.
+# HM 0 (length): LEN (w24) = v, HM = 1, TB = TD, block read cnt at TD, go to hb (478).
+# HM 1 (distance): DIST (w25) = v, HM = 0, TB = TA, read at OUT - v, go to icp (483) PC 1.
+# Hand-written. Not generated. Note: weights/files/inflate.md
+input 78
+slice 0 65 78                     # v1 bits b0..b12
+slice 0 35 37                     # v2 [ext base]
+dense 2 13 2                      # v3 ext - k - 0.5
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  -0.5 -1.5 -2.5 -3.5 -4.5 -5.5 -6.5 -7.5 -8.5 -9.5 -10.5 -11.5 -12.5
+step 3                            # v4 masks
+concat 1 4                        # v5
+mul 5 0 13 13 26                  # v6 masked bits
+concat 6 2                        # v7
+dense 7 1 15  1 2 4 8 16 32 64 128 256 512 1024 2048 4096 0 1  0   # v8 v
+slice 0 20 21                     # v9 [HM]
+slice 0 25 28                     # v10 [LEN DIST OUT]
+slice 0 29 30                     # v11 [BP]
+concat 8 9                        # v12
+concat 12 10                      # v13
+concat 13 11                      # v14
+concat 14 2                       # v15 G = [v m LEN DIST OUT BP ext base]
+dense 15 4 8                      # v16 values [v OUT LEN DIST]
+  1 0 0 0 0 0 0 0
+  0 0 0 0 1 0 0 0
+  0 0 1 0 0 0 0 0
+  0 0 0 1 0 0 0 0
+  0 0 0 0
+dense 15 4 8                      # v17 gates [m m m m]
+  0 1 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0
+  0 0 0 0
+concat 16 17                      # v18
+mul 18 0 4 4 8                    # v19 [mv mOUT mLEN mDIST]
+concat 19 15                      # v20 Z (12)
+dense 20 8 12                     # v21 words 0..7
+  0 0 0 0  0 5 0 0 0 0 0 0
+  0 0 0 0  0 -3 0 0 0 0 0 0
+  -1 1 0 0 0 -3929088 0 0 0 0 0 0
+  0 0 0 0  0 -67108880 0 0 0 0 0 0
+  0 0 0 0  0 0 0 0 0 0 0 0
+  0 0 0 0  0 0 0 0 0 0 0 0
+  0 0 0 0  0 0 0 0 0 0 0 0
+  0 0 0 0  0 1 0 0 0 0 0 0
+  478 4 3929088 67108880 0 0 0 0
+dense 20 5 12                     # v22 [TB HM LEN DIST BP]
+  0 0 0 0  0 -512 0 0 0 0 0 0
+  0 0 0 0  0 -1 0 0 0 0 0 0
+  -1 0 1 0 1 0 0 0 0 0 0 0
+  1 0 0 -1 0 0 0 1 0 0 0 0
+  0 0 0 0  0 0 0 0 0 1 1 0
+  3929088 1 0 0 0
+slice 0 9 18                      # v23 words 8..16
+slice 22 0 1                      # v24 w17
+slice 0 19 20                     # v25 w18
+slice 22 1 2                      # v26 w19
+slice 0 21 25                     # v27 words 20..23
+slice 22 2 4                      # v28 w24 w25
+slice 0 27 29                     # v29 w26 w27
+slice 22 4 5                      # v30 w28
+slice 0 30 65                     # v31 words 29..63
+concat 21 23
+concat 32 24
+concat 33 25
+concat 34 26
+concat 35 27
+concat 36 28
+concat 37 29
+concat 38 30
+concat 39 31

@@ -2,7 +2,7 @@
 # scale sci nexp NC0] at 65..73; SH = previous addr field, input 3). Loads the emitter registers:
 # AC2 k, N0 nint, N1 sci, T1 TH, T2 scale, T3 nexp, T4 kind, T8 NC0, P0 = SH + 9, P1 = FMT_BUF,
 # T5 = 0, C.TAG = color, C.PAY = 1 (text section) or 3. Number sections go to fx_dec (192) with
-# T10 = fx_rnd (193), T9 = fx_go (219); text sections go straight to fx_go. A number value whose
+# T10 = fx_eng (231, then fx_rnd 193), T9 = fx_go (219); text sections go straight to fx_go. A number value whose
 # section is a text section (format "@") is shown as General: fx_dec with T10 = fx_gen (196),
 # C.PAY = 3 (gate g = text section and TAG = 1). Note: README.md.
 input 74
@@ -45,8 +45,8 @@ dense 11 23 12                    # v12
    0 0 0 0 0 0 0 0 0 0 0 0
    0 0 0 0 0 0 0 0 1 0 0 0
    0 0 0 0 0 0 0 0 0 0 0 0
-   0 0 0 0 0 0 0 0 0 0 0 3
-   192 0 0 0 0 0 0 0 0 3 0 9 51200 0 0 0 0 0 0 0 0 219 193
+   0 0 0 0 0 0 0 0 0 0 0 -35
+   192 0 0 0 0 0 0 0 0 3 0 9 51200 0 0 0 0 0 0 0 0 219 231
 slice 12 0 8                      # v13 = words 0..7
 slice 0 9 18                      # v14 = words 8..16
 concat 13 14                      # v15

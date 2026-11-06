@@ -1,0 +1,71 @@
+# files/zr8 (id 495): block consumer (68 inputs) of the popped [LINK, CRC, out]. LINK is unpacked by FLOOR
+# (encodings/primitives.md, as in csv_ret) into w19 = LR, w20 = LP of the ZIP reader's caller.
+# STATUS 0: w17 = expected CRC, w18 = byte count, call crc (461 PC 0) on out .. out + count with A.PAY 0,
+# LR = zr0 (489), LP 2. STATUS not 0: return to the caller with STATUS 5 (decompression failed).
+# Hand-written. Not generated. Note: weights/files/zip.md
+input 68
+slice 0 65 66                     # v1 [LINK]
+dense 1 1 1  0.0000152587890625  6755399441055744          # v2 y + C
+dense 2 1 1  1  -6755399441055744                          # v3 r
+concat 3 1                        # v4 [r LINK]
+dense 4 1 2  1 -0.0000152587890625  0                      # v5 r - y
+step 5                            # v6 g
+concat 4 6                        # v7 [r LINK g]
+dense 7 2 3  1 0 -1  -65536 1 65536  0 0                   # v8 [LR' LP']
+slice 0 66 68                     # v9 [crc out]
+slice 0 13 14                     # v10 [STATUS]
+slice 0 15 16                     # v11 [A]
+concat 8 9                        # v12
+concat 12 10                      # v13
+concat 13 11                      # v14 G = [LR' LP' crc out STATUS A]
+dense 14 1 6  0 0 0 0 -1 0  0.5   # v15
+step 15                           # v16 ok
+dense 14 3 6                      # v17 values [LR' LP' A]
+  1 0 0 0 0 0
+  0 1 0 0 0 0
+  0 0 0 0 0 1
+  0 0 0
+dense 16 3 1  -1 -1 1  1 1 0      # v18 gates [1 - ok, 1 - ok, ok]
+concat 17 18                      # v19
+mul 19 0 3 3 6                    # v20 [nLR nLP okA]
+concat 20 16                      # v21
+concat 21 14                      # v22 Z (10) = [nLR nLP okA ok LR' LP' crc out STATUS A]
+dense 22 10 10                    # v23 words 0..9
+  1 0 0 461 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0 0
+  1 0 0 489 0 0 0 0 0 0
+  0 1 0 2 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+dense 22 1 10  0 0 0 -5 0 0 0 0 0 0  5                     # v24 STATUS
+dense 22 1 10  0 0 -1 0 0 0 0 0 0 1  0                     # v25 A.PAY
+dense 22 4 10                     # v26 [w17 crc, w18 count, w19 LR', w20 LP']
+  0 0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 0 0 0 0 1
+  0 0 0 0 1 0 0 0 0 0
+  0 0 0 0 0 1 0 0 0 0
+  0 0 0 0
+dense 22 1 10  0 0 0 0 0 0 0 1 0 0  0                      # v27 P0 = out
+dense 22 1 10  0 0 0 0 0 0 0 1 0 1  0                      # v28 N0 = out + count
+slice 0 11 13                     # v29 words 10, 11
+slice 0 14 15                     # v30 w13
+slice 0 16 18                     # v31 words 15, 16
+slice 0 22 26                     # v32 words 21..24
+slice 0 27 28                     # v33 w26
+slice 0 29 65                     # v34 words 28..63
+concat 23 29
+concat 35 24
+concat 36 30
+concat 37 25
+concat 38 31
+concat 39 26
+concat 40 32
+concat 41 27
+concat 42 33
+concat 43 28
+concat 44 34

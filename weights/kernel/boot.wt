@@ -34,10 +34,10 @@ dense 3 10 10                     # v4 = o_k = t_k - t_(k+1), o_9 = t_9 (one-hot
 concat 4 1                        # v5 = [o0..o9, PC]
 dense 5 12 11                     # v6 = words 0..11
 #  o0      o1     o2     o3   o4   o5    o6     o7  o8      o9  PC
-   0       0      0      0    0    0     0      0   0       259 0    # next: FT_INIT (259) at PC 9, which returns to the first frame (152), else boot (0)
+   0       0      0      0    0    0     0      0   0       191 0    # next: ui/gcw (191) at PC 9 (glyph cache, fx_init, then FT_INIT 259, which returns to the first frame 152), else boot (0)
    2       2      2      2    2    2     2      2   2       0   0    # mem_op write for PC 0..8
    1       2      4      5    10   11    13     15  17      0   0    # addr: zero page word
-   3153922 589824 786432 512  100  0.001 720896 1   3932160 0   0    # value
+   3153922 589824 786432 1024 100  0.001 720896 1   3932160 0   0    # value (o3: NET_NEXT = 1024, hand-written id space widened, decision C3)
    0       0      0      0    0    0     0      0   0       0   0    # io
    0       0      0      0    0    0     0      0   0       0   0    # io_arg
    0       0      0      0    0    0     0      0   0       0   0    # halt
