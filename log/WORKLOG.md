@@ -381,3 +381,12 @@
 - Q-P4: Excel's handling of typed numbers below 2.2250738585072E-308 (0, subnormal, or rejection).
 - Q-P5: whether Excel accepts "=1 A1" or "=SUM (A1)"; both now parse as intersections.
 - Result: 20 networks, 25,735 dense parameters. tests/output/parse: 179 passed (91 old unchanged, 88 new in test_parse_ext.py).
+
+## 2026-11-06, Harness v2: block memory operations and faster engine (harness v2 agent; details in log/harness-v2-agent.md)
+
+### H2 (DECISION): change the frozen harness, approved by the project owner
+- Decided: (a) new mem_op codes 3 (block write) and 4 (block read). addr = start, value = K * 2^20 + N (K output words forwarded, N run length, each below 2^20). Block write copies out[K:K+N] to mem[addr:addr+N] and forwards out[0:K]; block read forwards out[0:K] followed by mem[addr:addr+N]. Everything bound-checked, nothing but copying. (b) A preparsed forward pass (integer opcodes, concat chains copied once, no per-step trace formatting when untraced, parsed-network cache keyed by file bytes), bit-identical to v1.
+- Approval: the project owner approved this harness change explicitly. Reason: one write per step at about 57 us per traced step made a 1280 x 800 frame about a million steps, roughly a minute per frame. This cannot be done in weights: the one-word-per-step limit is in the harness itself.
+- Alternatives: payload as the trailing N words (variable N would change the successor's input length); a fixed split at word 64 (puts the application state width into the harness); numba (not installed, and a compiled loop changes dense summation order versus BLAS, breaking R5 rows).
+- Why bit-identical: dense keeps the same `W @ v` BLAS call and an elementwise bias add; all other layers are copies or single correctly rounded elementwise operations. Verified on every harness run in the full suite (v1 and v2 side by side, 830 runs, 0 differences) and a 3000-network fuzz.
+- Affects: harness/harness.py, harness/FORMAT.md, docs/HARNESS.md, encodings/control.md section 1, encodings/memory-map.md section 1, harness/FROZEN.sha256 re-frozen. Codes 3 and 4 were ignored in v1 and were never produced by any existing network. New tests: tests/output/test_block_ops.py with weights/smoke/blk_*.wt.

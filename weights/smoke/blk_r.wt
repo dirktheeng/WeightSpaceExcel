@@ -1,0 +1,16 @@
+# smoke/blk_r: block read (mem_op 4) of 4 words at A into the next input; K = 8.
+# Input (from blk_w, K = 8 forwarded words): in8 = A (blk_w out7).
+# Notes: weights/smoke/blk.md
+input 9
+dense 0 8 9
+#  in0 in1 in2 in3 in4 in5 in6 in7 in8
+   0   0   0   0   0   0   0   0   0     # out0 next = 2 (bias): blk_c
+   0   0   0   0   0   0   0   0   0     # out1 mem_op = 4 (bias): block read
+   0   0   0   0   0   0   0   0   1     # out2 addr = A
+   0   0   0   0   0   0   0   0   0     # out3 value = 8 * 2^20 + 4 (bias 8388612)
+   0   0   0   0   0   0   0   0   0     # out4 io = none
+   0   0   0   0   0   0   0   0   0     # out5 io_arg = 0
+   0   0   0   0   0   0   0   0   0     # out6 halt = 0
+   0   0   0   0   0   0   0   0   0     # out7 = 0
+# biases
+   2   4   0   8388612   0   0   0   0

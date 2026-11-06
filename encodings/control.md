@@ -10,6 +10,11 @@ The harness requires each network's input length to equal 1 + the previous netwo
 
 The proof-of-concept networks under weights/poc and weights/smoke use the 8-word test layout and are not application networks.
 
+**Block operations keep the width (harness v2, decision H2).** A network that uses mem_op 3 (block write) or 4 (block read) still follows the 64/65 convention for its state; harness/FORMAT.md has the exact rules.
+- Block write: output length 64 + P. Words 0 to 63 are the state as usual; words 64 to 64 + P - 1 are the payload. Value field = 64 * 2^20 + N with N <= P (one dense row: weight 1 on the word holding N, bias 64 * 2^20 = 67108864; or a bias alone for a fixed N). The successor receives `[0] + words 0..63`, 65 words, as after any step. P is fixed per network (a dense layer has a fixed height); N may be smaller.
+- Block read: value = 64 * 2^20 + N. The successor takes 65 + N inputs: index 0 is 0, indices 1..64 the state, and memory word addr + i at index 65 + i. Such a successor is a "block consumer": only the network named in that step's `next` may take 65 + N inputs, and it must emit a normal 64-word state, so callers and returns elsewhere are unaffected. The read result word (index 0) is 0 after a block read.
+- Field 3 (value) of a block step is a count, not a word to write, so a block step cannot also do a single write. Spilling locals can now be one block write of the registers concerned (state words copied into the payload by a slice and concat) instead of one step per word.
+
 ## 2. Register map
 
 | Words | Name | Role | Saved by |
@@ -52,7 +57,7 @@ Phase values are local to a network: PC 3 in the lexer and PC 3 in the evaluator
 
 **Return through the stack (trampoline).** A network that wants to return to whatever link is on top of the stack (deep recursion, for example the evaluator calling itself for LAMBDA bodies) issues the pop read and sets next = RET (id 2). RET computes next = floor(x0 / 2^16), PC = x0 - 2^16 * next from input word 0 and copies everything else unchanged. One extra step per such return.
 
-**Spilling locals.** A callee that writes any of L0 to L23 first writes the ones it uses to RET_STACK (one write per step, RSP advancing) and restores them before returning. Most library subroutines are written to use only T and argument registers so they never spill.
+**Spilling locals.** A callee that writes any of L0 to L23 first writes the ones it uses to RET_STACK (one write per step, RSP advancing; or, since harness v2, one block write of all of them with RSP advanced by their count, restored by one block read) and restores them before returning. Most library subroutines are written to use only T and argument registers so they never spill.
 
 **Why a link register plus a memory stack.** Leaf calls are the common case (hash lookup, string compare, allocation), and with a link register they cost zero extra steps to call and return. A stack-only design would cost a write on call and a read plus a step on every return. A register-only design cannot nest. This is the same trade as the ARM link register.
 

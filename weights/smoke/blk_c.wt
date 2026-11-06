@@ -1,0 +1,19 @@
+# smoke/blk_c: halts and returns the 4 block-read words in out7..out10.
+# Input: in0 = 0, in1..in8 = blk_r out0..out7, in9..in12 = mem[A..A+3].
+# Notes: weights/smoke/blk.md
+input 13
+dense 0 11 13
+#  in0 in1 in2 in3 in4 in5 in6 in7 in8 in9 in10 in11 in12
+   0   0   0   0   0   0   0   0   0   0   0    0    0      # out0 next = 0
+   0   0   0   0   0   0   0   0   0   0   0    0    0      # out1 mem_op = none
+   0   0   0   0   0   0   0   0   0   0   0    0    0      # out2 addr = 0
+   0   0   0   0   0   0   0   0   0   0   0    0    0      # out3 value = 0
+   0   0   0   0   0   0   0   0   0   0   0    0    0      # out4 io = none
+   0   0   0   0   0   0   0   0   0   0   0    0    0      # out5 io_arg = 0
+   0   0   0   0   0   0   0   0   0   0   0    0    0      # out6 halt = 1 (bias)
+   0   0   0   0   0   0   0   0   0   1   0    0    0      # out7  = mem[A]
+   0   0   0   0   0   0   0   0   0   0   1    0    0      # out8  = mem[A+1]
+   0   0   0   0   0   0   0   0   0   0   0    1    0      # out9  = mem[A+2]
+   0   0   0   0   0   0   0   0   0   0   0    0    1      # out10 = mem[A+3]
+# biases
+   0   0   0   0   0   0   1   0   0   0   0

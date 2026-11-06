@@ -1,0 +1,29 @@
+# smoke/blk_line: one step fills a 1280-word run (one framebuffer scanline) with one colour.
+# Input: in3 = A (start address), in4 = colour word. Payload built by concat doubling.
+# Notes: weights/smoke/blk.md
+input 9
+dense 0 8 9                  # value 1: the 8 forwarded words (fields + one spare)
+#  in0 in1 in2 in3 in4 in5 in6 in7 in8
+   0   0   0   0   0   0   0   0   0     # out0 next = 0
+   0   0   0   0   0   0   0   0   0     # out1 mem_op = 3 (bias): block write
+   0   0   0   1   0   0   0   0   0     # out2 addr = A
+   0   0   0   0   0   0   0   0   0     # out3 value = 8 * 2^20 + 1280 (bias 8389888)
+   0   0   0   0   0   0   0   0   0     # out4 io = none
+   0   0   0   0   0   0   0   0   0     # out5 io_arg = 0
+   0   0   0   0   0   0   0   0   0     # out6 halt = 1 (bias)
+   0   0   0   0   0   0   0   0   0     # out7 = 0
+# biases
+   0   3   0   8389888   0   0   1   0
+slice 0 4 5                  # value 2: [colour], 1 word
+concat 2 2                   # value 3: 2 words
+concat 3 3                   # value 4: 4
+concat 4 4                   # value 5: 8
+concat 5 5                   # value 6: 16
+concat 6 6                   # value 7: 32
+concat 7 7                   # value 8: 64
+concat 8 8                   # value 9: 128
+concat 9 9                   # value 10: 256
+concat 10 10                 # value 11: 512
+concat 11 11                 # value 12: 1024
+concat 12 10                 # value 13: 1024 + 256 = 1280 payload words
+concat 1 13                  # value 14: output, 8 + 1280 = 1288 words

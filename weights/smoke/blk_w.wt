@@ -1,0 +1,20 @@
+# smoke/blk_w: block write (mem_op 3) of a 4-word payload; K = 8 forwarded words, N from input.
+# Input: in3 = A (start address), in4 = N (words to write, 0..4), in5 = P0 (first payload word).
+# Notes: weights/smoke/blk.md
+input 9
+dense 0 12 9
+#  in0 in1 in2 in3 in4 in5 in6 in7 in8
+   0   0   0   0   0   0   0   0   0     # out0 next = 1 (bias): blk_r
+   0   0   0   0   0   0   0   0   0     # out1 mem_op = 3 (bias): block write
+   0   0   0   1   0   0   0   0   0     # out2 addr = A
+   0   0   0   0   1   0   0   0   0     # out3 value = K * 2^20 + N, K = 8 (bias 8388608)
+   0   0   0   0   0   0   0   0   0     # out4 io = none
+   0   0   0   0   0   0   0   0   0     # out5 io_arg = 0
+   0   0   0   0   0   0   0   0   0     # out6 halt = 0
+   0   0   0   1   0   0   0   0   0     # out7 carry A for blk_r
+   0   0   0   0   0   1   0   0   0     # out8  payload 0 = P0
+   0   0   0   0   0   0   0   0   0     # out9  payload 1 = -2 (bias)
+   0   0   0   0   0   0   0   0   0     # out10 payload 2 = 1e300 (bias)
+   0   0   0   0   0   0   0   0   0     # out11 payload 3 = 0.1 (bias)
+# biases
+   1   3   0   8388608   0   0   0   0   0   -2   1e300   0.1
