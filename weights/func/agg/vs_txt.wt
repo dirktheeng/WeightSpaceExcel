@@ -1,0 +1,62 @@
+# func/agg/vs_txt (id 48): ev_t2n returned A for a direct text argument in a numeric mode. A number
+# (tag 1): emit [1, x] at OUT, OUT += 2 -> 43. Otherwise: EF = 0 -> FN_RET (257) with #VALUE!;
+# EF = 1 (COUNT) -> skip -> 43. Note: weights/func/agg/stream.md. Hand-written. Not generated.
+input 65
+slice 0 14 16                     # v1 [t, PAY]
+slice 0 19 20                     # v2 [EF]
+slice 0 36 37                     # v3 [OUT]
+concat 1 2                        # v4 [t, PAY, EF]
+dense 4 2 3                       # v5 [t - 0.5, t - 1.5]
+  1 0 0
+  1 0 0
+  -0.5 -1.5
+step 5                            # v6 [a, b]; isn = a - b
+concat 6 4                        # v7 (a 0, b 1, t 2, PAY 3, EF 4)
+dense 7 1 5                       # v8 R = step(0.5 - isn - EF)
+  -1 1 0 0 -1
+  0.5
+step 8                            # v9 [R]
+concat 7 9                        # v10 (.., R 5)
+concat 10 3                       # v11 (.., OUT 6)
+dense 11 6 7                      # v12 [1 - R, 1 - R, em, t, PAY, OUT]
+  0 0 0 0 0 -1 0
+  0 0 0 0 0 -1 0
+  1 -1 0 0 0 0 0
+  0 0 1 0 0 0 0
+  0 0 0 1 0 0 0
+  0 0 0 0 0 0 1
+  1 1 0 0 0 0
+mul 12 0 3 3 6                    # v13 [nR t, nR PAY, em OUT]
+concat 11 13                      # v14 (a 0, b 1, t 2, PAY 3, EF 4, R 5, OUT 6, nRt 7, nRP 8, emO 9)
+dense 14 8 10                     # v15 words 0..7
+  0 0 0 0 0 214 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 1
+  4 -4 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  43 3 0 67108864 0 0 0 0
+slice 0 9 14                     # v16 words 8..12
+dense 14 2 10                     # v17 [A.TAG, A.PAY]
+  0 0 0 0 0 4 0 1 0 0
+  0 0 0 0 0 3 0 0 1 0
+  0 0
+slice 0 16 36                     # v18 words 15..34
+dense 14 1 10                     # v19 [OUT + 4 em]
+  4 -4 0 0 0 0 1 0 0 0
+  0
+slice 0 37 65                     # v20 words 36..63
+dense 14 4 10                     # v21 payload [1, PAY, dr 0, dc 0]
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 1 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  1 0 0 0
+concat 15 16
+concat 22 17
+concat 23 18
+concat 24 19
+concat 25 20
+concat 26 21

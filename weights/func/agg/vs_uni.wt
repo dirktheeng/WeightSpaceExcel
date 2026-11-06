@@ -1,0 +1,27 @@
+# func/agg/vs_uni (id 47): union node [lT, lP, rT, rP] block-read by vs_item (inputs 65..68). Pushes
+# both children on the work list (block write [rT, rP, lT, lP] at WL, so the left child is popped
+# first), WL += 4 -> vs_nxt (43). Note: weights/func/agg/stream.md. Hand-written. Not generated.
+input 69
+slice 0 35 36                     # v1 [WL]
+dense 1 8 1                       # v2 words 0..7: next 43, block write 4 words at WL
+  0
+  0
+  1
+  0
+  0
+  0
+  0
+  0
+  43 3 0 67108868 0 0 0 0
+slice 0 9 35                      # v3 words 8..33
+dense 1 1 1                       # v4 [WL + 4]
+  1
+  4
+slice 0 36 65                     # v5 words 35..63
+slice 0 67 69                     # v6 [rT, rP]
+slice 0 65 67                     # v7 [lT, lP]
+concat 2 3
+concat 8 4
+concat 9 5
+concat 10 6
+concat 11 7

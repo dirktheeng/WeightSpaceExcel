@@ -1,0 +1,122 @@
+# func/agg/vs_ent (id 42): value-stream entry, the FUNC_TABLE target of every aggregate fid.
+# ONEHOT over 22 fids (T2 = 64 + fid) -> ROM [MD, EF, CONT, A0, ONE]. Block-writes B (argument n)
+# at [SP, SP + 1]; CUR = SP - 2n + 2 + 2 A0 (first streamed argument), E = end of the streamed
+# arguments (SP + 2, or CUR + 2 when ONE), WL = E, OUT = SCR, VIS (17) = 0, EF (18), CONT (N1, 28),
+# MD (39) -> vs_nxt (43) PC 1. Note: weights/func/agg/stream.md. Hand-written. Not generated.
+input 65
+slice 0 32 33                     # v1 [t = 64 + fid]
+dense 1 44 1                      # v2 pairs t - k + 0.5, t - k - 0.5
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  -86.5 -87.5     -87.5 -88.5     -149.5 -150.5   -150.5 -151.5   -151.5 -152.5
+  -338.5 -339.5   -359.5 -360.5   -360.5 -361.5   -364.5 -365.5   -367.5 -368.5
+  -369.5 -370.5   -375.5 -376.5   -377.5 -378.5   -436.5 -437.5   -448.5 -449.5
+  -449.5 -450.5   -488.5 -489.5   -507.5 -508.5   -508.5 -509.5   -75.5 -76.5
+  -411.5 -412.5   -577.5 -578.5
+step 2                            # v3 44 thresholds; entry i indicator = s(2i) - s(2i + 1)
+dense 3 5 44                      # v4 ROM [MD, EF, CONT, A0, ONE]
+# entries:  AVG    AVGA   COUNT  COUNTA CBLANK LARGE  MAX    MAXA   MEDIAN MIN    MINA
+#           MODE   MODES  PROD   RANKEQ RANK   SMALL  SUMPR  SUMSQ  AND    OR     XOR
+  0 0  1 -1  0 0  2 -2  2 -2  0 0  0 0  1 -1  0 0  0 0  1 -1
+  0 0  0 0  0 0  0 0  0 0  0 0  3 -3  0 0  4 -4  4 -4  4 -4
+  0 0  0 0  1 -1  1 -1  1 -1  0 0  0 0  0 0  0 0  0 0  0 0
+  0 0  0 0  0 0  0 0  0 0  0 0  0 0  0 0  0 0  0 0  0 0
+  49 -49  49 -49  49 -49  49 -49  49 -49  51 -51  49 -49  49 -49  51 -51  49 -49  49 -49
+  51 -51  51 -51  49 -49  51 -51  51 -51  51 -51  53 -53  49 -49  55 -55  55 -55  55 -55
+  0 0  0 0  0 0  0 0  0 0  0 0  0 0  0 0  0 0  0 0  0 0
+  0 0  0 0  0 0  1 -1  1 -1  0 0  0 0  0 0  0 0  0 0  0 0
+  0 0  0 0  0 0  0 0  0 0  1 -1  0 0  0 0  0 0  0 0  0 0
+  0 0  0 0  0 0  1 -1  1 -1  1 -1  0 0  0 0  0 0  0 0  0 0
+  0 0 0 0 0
+slice 0 28 29                     # v5 [n]
+concat 4 5                        # v6 [MD, EF, CONT, A0, ONE, n]
+mul 6 4 5 5 6                     # v7 [ONE n]
+slice 0 54 55                     # v8 [SP]
+slice 0 57 58                     # v9 [SCR]
+concat 6 7                        # v10
+concat 10 8                       # v11
+concat 11 9                       # v12 (MD 0, EF 1, CONT 2, A0 3, ONE 4, n 5, ONEn 6, SP 7, SCR 8)
+dense 12 8 9                      # v13 words 0..7: next 43, block write 2 words at SP, PC 1
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  43 3 0 67108866 0 0 0 1
+slice 0 9 18                      # v14 words 8..16
+dense 12 2 9                      # v15 [VIS = 0, EF]
+  0 0 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0
+  0 0
+slice 0 20 29                     # v16 words 19..27
+dense 12 1 9                      # v17 [N1 = CONT]
+  0 0 1 0 0 0 0 0 0
+  0
+slice 0 30 33                     # v18 words 29..31
+dense 12 4 9                      # v19 [CUR, E, WL, OUT]
+  0 0 0 2 0 -2 0 1 0
+  0 0 0 2 2 0 -2 1 0
+  0 0 0 2 2 0 -2 1 0
+  0 0 0 0 0 0 0 0 1
+  2 2 2 0
+slice 0 37 40                     # v20 words 36..38
+dense 12 1 9                      # v21 [MD]
+  1 0 0 0 0 0 0 0 0
+  0
+slice 0 41 65                     # v22 words 40..63
+slice 0 16 18                     # v23 payload [BT, BP]
+concat 13 14
+concat 24 15
+concat 25 16
+concat 26 17
+concat 27 18
+concat 28 19
+concat 29 20
+concat 30 21
+concat 31 22
+concat 32 23

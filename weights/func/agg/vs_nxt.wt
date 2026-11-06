@@ -1,0 +1,55 @@
+# func/agg/vs_nxt (id 43): value-stream next item. Work list first (WL > E: block-read [WL - 2, 2],
+# WL -= 2), else the next streamed argument (CUR < E: block-read [CUR, 2], CUR += 2), both -> vs_item
+# (44); else the stream is complete -> CONT (N1, word 28) PC 1, no memory operation.
+# Note: weights/func/agg/stream.md. Hand-written. Not generated.
+input 65
+slice 0 33 36                     # v1 [CUR, E, WL]
+dense 1 2 3                       # v2 [WL - E - 0.5, E - CUR - 0.5]
+  0 -1 1
+  -1 1 0
+  -0.5 -0.5
+step 2                            # v3 [wl, more]
+dense 3 1 2                       # v4 [more - wl - 0.5]
+  -1 1
+  -0.5
+step 4                            # v5 [gc]
+concat 3 5                        # v6 [wl, more, gc]
+concat 6 1                        # v7 (wl 0, more 1, gc 2, CUR 3, E 4, WL 5)
+dense 7 2 6                       # v8 MUX_INT addresses, M = 2^23
+  8388608 0 0 0 0 1
+  0 0 8388608 1 0 0
+  -8388610 -8388608
+relu 8                            # v9 [aw = wl (WL - 2), ac = gc CUR]
+slice 0 29 30                     # v10 [CONT]
+concat 7 10                       # v11 (.., CONT 6)
+dense 11 1 7                      # v12 [done = 1 - wl - gc]
+  -1 0 -1 0 0 0 0
+  1
+concat 12 10                      # v13 [done, CONT]
+mul 13 0 1 1 2                    # v14 [done CONT]
+concat 11 9                       # v15 (.., aw 7, ac 8)
+concat 15 14                      # v16 (.., dC 9)
+dense 16 8 10                     # v17 words 0..7
+  44 0 44 0 0 0 0 0 0 1
+  4 0 4 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 1 1 0
+  67108866 0 67108866 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 1
+slice 0 9 33                      # v18 words 8..31
+dense 16 1 10                     # v19 [CUR' = CUR + 2 gc]
+  0 0 2 1 0 0 0 0 0 0
+  0
+slice 0 34 35                     # v20 word 33 (E)
+dense 16 1 10                     # v21 [WL' = WL - 2 wl]
+  -2 0 0 0 0 1 0 0 0 0
+  0
+slice 0 36 65                     # v22 words 35..63
+concat 17 18
+concat 23 19
+concat 24 20
+concat 25 21
+concat 26 22

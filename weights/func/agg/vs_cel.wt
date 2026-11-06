@@ -1,0 +1,120 @@
+# func/agg/vs_cel (id 45): CELL_GET returned A = (t, PAY) of the range cell (AS, r, c). Emit by the
+# referenced-value rules of mode MD (block-write [eT, eP] at OUT, OUT += 2), or an error first in
+# row-major order -> FN_RET (257) with A unchanged. VIS += 1. Advance c (wrap to C1 and r + 1 past
+# C2); past R2 -> vs_nxt (43), else CELL_GET (16) with LR = 45. Note: weights/func/agg/stream.md.
+# Hand-written. Not generated.
+input 65
+slice 0 14 16                     # v1 [t, PAY]
+slice 0 40 41                     # v2 [MD]
+slice 0 19 20                     # v3 [EF]
+slice 0 21 23                     # v4 [r, c]
+slice 0 37 40                     # v5 [R2, C1, C2]
+concat 1 2                        # v6
+concat 6 4                        # v7
+concat 7 5                        # v8 (t 0, PAY 1, MD 2, r 3, c 4, R2 5, C1 6, C2 7)
+dense 8 11 8                      # v9 s1..s5 on t, u1..u4 on MD, wrap, rge
+  1 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0
+  0 0 1 0 0 0 0 0
+  0 0 1 0 0 0 0 0
+  0 0 1 0 0 0 0 0
+  0 0 1 0 0 0 0 0
+  0 0 0 0 1 0 0 -1
+  0 0 0 1 0 -1 0 0
+  -0.5 -1.5 -2.5 -3.5 -4.5 -0.5 -1.5 -2.5 -3.5 0.5 0.5
+step 9                            # v10 (s1 0 .. s5 4, u1 5, u2 6, u3 7, u4 8, wrap 9, rge 10)
+concat 10 3                       # v11 (.., EF 11)
+dense 11 8 12                     # v12 gates
+  0 0 1 -1 0 1 -1 0 0 0 0 0
+  0 0 1 -1 0 0 1 0 0 0 0 0
+  0 1 -1 0 0 1 -1 0 0 0 0 0
+  0 1 -1 0 0 0 1 0 -1 0 0 0
+  0 0 0 1 -1 0 1 0 -1 0 0 0
+  -1 0 0 0 0 0 0 1 -1 0 0 0
+  0 0 0 1 -1 0 -1 0 1 0 0 -1
+  0 0 0 0 0 0 0 0 0 1 1 0
+  -1.5 -1.5 -1.5 -1.5 -1.5 -0.5 -0.5 -1.5
+step 12                           # v13 (e3a 0, e3b 1, e2a 2, e2b 3, e4 4, e0 5, R 6, fin 7)
+dense 13 1 8                      # v14 nf = fin AND NOT R
+  0 0 0 0 0 0 -1 1
+  -0.5
+step 14                           # v15 [nf]
+concat 11 13                      # v16 (.., e3a 12 .. fin 19)
+concat 16 15                      # v17 (nf 20)
+concat 17 8                       # v18 (t 21, PAY 22, MD 23, r 24, c 25, R2 26, C1 27, C2 28)
+slice 0 36 37                     # v19 [OUT]
+concat 18 19                      # v20 (OUT 29)
+dense 20 4 30                     # v21 [em, g = 1 - e2a, OUT, PAY]
+  1 -1 0 0 0 0 0 0 0 0   0 0 1 1 1 1 1 1 0 0   0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0   0 0 0 0 -1 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 1
+  0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0   0 0 1 0 0 0 0 0 0 0
+  0 1 0 0
+mul 21 0 2 2 4                    # v22 [emO, eP]
+dense 20 2 30                     # v23 MUX_INT for c' (M = 2^23)
+  0 0 0 0 0 0 0 0 0 -8388608   0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 1 0 0 0 0
+  0 0 0 0 0 0 0 0 0 8388608   0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 1 0 0
+  1 -8388608
+relu 23                           # v24 [cA, cB]
+concat 20 21                      # v25 (.., em 30, g 31, OUT 32, PAY 33)
+concat 25 22                      # v26 (emO 34, eP 35)
+concat 26 24                      # v27 (cA 36, cB 37)
+dense 27 8 38                     # v28 words 0..7
+  0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 241 0   27 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0   0 0 0 0 1 0 0 0
+  0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0   4 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0
+  16 3 0 67108864 0 0 0 0
+slice 0 18 19                     # v29 [VIS]
+dense 29 1 1                      # v30 [VIS + 1]
+  1
+  1
+dense 27 2 38                     # v31 [r' = r + wrap, c' = cA + cB]
+  0 0 0 0 0 0 0 0 0 1   0 0 0 0 0 0 0 0 0 0   0 0 0 0 1 0 0 0 0 0   0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 1 1
+  0 0
+dense 27 1 38                     # v32 [OUT' = OUT + 2 em]
+  0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 1   4 0 0 0 0 0 0 0
+  0
+dense 27 2 38                     # v33 payload [eT, eP]
+  1 -1 0 0 0 0 0 0 0 0   0 0 1 3 1 2 4 0 0 0   0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 1 0 0
+  0 0
+dense 29 3 1                      # v34 [LR = 45, LP = 0, T1 = 0] (zero weights on a finite word)
+  0
+  0
+  0
+  45 0 0
+slice 0 11 18                     # v35 words 10..16
+slice 0 19 21                     # v36 words 18..19
+slice 0 23 31                     # v37 words 22..29
+slice 0 32 36                     # v38 words 31..34
+slice 0 37 65                     # v39 words 36..63
+slice 34 0 2                      # v40 [LR, LP]
+slice 34 2 3                      # v41 [T1]
+concat 28 40                      # v42 words 0..9
+concat 42 35                      # 10..16
+concat 43 30                      # 17
+concat 44 36                      # 18, 19
+concat 45 31                      # 20, 21
+concat 46 37                      # 22..29
+concat 47 41                      # 30
+concat 48 38                      # 31..34
+concat 49 32                      # 35
+concat 50 39                      # 36..63
+concat 51 33                      # v52 payload [eT, eP]
+slice 0 16 17                     # v53 [R1] (B.TAG)
+concat 4 53                       # v54 [r, c, R1]
+concat 54 5                       # v55 [r, c, R1, R2, C1, C2]
+dense 55 2 6                      # v56 payload [dr = r - R1, dc = c - C1]
+  1 0 -1 0 0 0
+  0 1 0 0 -1 0
+  0 0
+concat 52 56

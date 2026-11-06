@@ -1,0 +1,10 @@
+# Aggregate functions (value stream). Expected values typed by hand from Excel's documented behaviour.
+cases:
+- {id: cnt01, cells: {A1: "=COUNT(1,2,3)"}, expect: {A1: 3}}
+- {id: cnt02, cells: {A1: "1", A2: "a", A3: "TRUE", A5: "4", B1: "=COUNT(A1:A5)"}, expect: {B1: 2}, note: "referenced text, booleans, blanks not counted"}
+- {id: cnt03, cells: {A1: "=COUNT(\"1\",TRUE,\"a\",#N/A)"}, expect: {A1: 2}, note: "direct numeric text and boolean counted; bad text and errors skipped"}
+- {id: cnt04, cells: {A1: "1", A2: "=1/0", B1: "=COUNT(A1:A3)"}, expect: {B1: 1}, note: "errors in ranges ignored"}
+- {id: cnt05, cells: {A1: "1", B2: "2", C1: "=COUNT(A1:B2,A1)"}, expect: {C1: 3}}
+- {id: cta01, cells: {A1: "1", A2: "a", A3: "TRUE", A4: "=1/0", B1: "=COUNTA(A1:A6)"}, expect: {B1: 4}}
+- {id: cta02, cells: {A1: "=COUNTA(1,\"\",#N/A)"}, expect: {A1: 3}}
+- {id: cnt06, cells: {A1: "5", B1: "=COUNT((A1,A1:A2))"}, expect: {B1: 2}, note: "union"}

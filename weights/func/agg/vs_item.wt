@@ -1,0 +1,183 @@
+# func/agg/vs_item (id 44): one direct argument [t, PAY] (block-read, inputs 65, 66), dispatched on
+# the tag t and the stream mode MD (39), EF (18). Emit: block-write [eT, PAY] at OUT, OUT += 2 -> 43.
+# Error: A = (4, code), or #VALUE! for invalid kinds -> FN_RET (257). Text in numeric modes: A =
+# (2, h) -> ev_t2n (109) returning to vs_txt (48). Tag 9: unpack K -> (S, R, C), range R..R, C..C,
+# CELL_GET (16) returning to vs_cel (45). Tag 5: block-read the 6-word record -> vs_rng (46). Tag 10:
+# block-read the union node -> vs_uni (47). Skip -> 43. Note: weights/func/agg/stream.md.
+# Hand-written. Not generated.
+input 67
+slice 0 65 67                     # v1 [t, PAY]
+slice 0 40 41                     # v2 [MD]
+slice 0 19 20                     # v3 [EF]
+concat 1 2                        # v4 [t, PAY, MD]
+dense 4 13 3                      # v5 thermometer s1..s11 on t, u2 u4 on MD
+  1 0 0
+  1 0 0
+  1 0 0
+  1 0 0
+  1 0 0
+  1 0 0
+  1 0 0
+  1 0 0
+  1 0 0
+  1 0 0
+  1 0 0
+  0 0 1
+  0 0 1
+  -0.5 -1.5 -2.5 -3.5 -4.5 -5.5 -6.5 -7.5 -8.5 -9.5 -10.5 -1.5 -3.5
+step 5                            # v6 (s1 0 .. s11 10, u2 11, u4 12)
+concat 6 3                        # v7 (.., EF 13)
+dense 7 13 14                     # v8 indicators
+  1 -1 0 0 0 0 0 0 0 0 0 0 0 0
+  0 1 -1 0 0 0 0 0 0 0 0 0 0 0
+  0 0 1 -1 0 0 0 0 0 0 0 0 0 0
+  0 0 0 1 -1 0 0 0 0 0 0 0 0 0
+  0 0 0 0 1 -1 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 1 -1 0 0 0 0 0
+  0 0 0 0 0 0 0 0 1 -1 0 0 0 0
+  0 0 0 0 0 0 0 0 0 1 -1 0 0 0
+  0 0 0 0 0 1 0 -1 0 0 1 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 -1 0 0
+  0 0 0 0 0 0 0 0 0 0 0 1 -1 0
+  0 0 0 0 0 0 0 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 1
+  0 0 0 0 0 0 0 0 0 1 0 0 0
+# v8: is1 0, is2 1, is3 2, is4 3, is5 4, is8 5, is9 6, is10 7, oth 8, nc 9, rw 10, lg 11, EF 12
+dense 8 7 13                      # v9 AND gates
+  0 1 0 0 0 0 0 0 0 0 1 0 0
+  0 0 0 1 0 0 0 0 0 0 1 0 0
+  0 1 0 0 0 0 0 0 0 1 0 0 0
+  0 1 0 0 0 0 0 0 0 0 0 1 0
+  0 0 0 1 0 0 0 0 0 0 -1 0 -1
+  0 0 1 0 0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 1 0 0 0 0 1 0 0
+  -1.5 -1.5 -1.5 -1.5 -0.5 -1.5 -1.5
+step 9                            # v10 (a23 0, a43 1, X 2, a2l 3, Rerr 4, b3n 5, b8r 6)
+concat 8 10                       # v11 (base 0..12, a23 13, a43 14, X 15, a2l 16, Rerr 17, b3n 18, b8r 19)
+dense 11 10 20                    # v12 [em, R, Rv, X, g9, g5, g10, eT, gA, gm]
+  1 0 1 0 0 1 0 0 0 0 0 0 0 1 1 0 0 0 0 0
+  0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 1 0 0
+  0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0
+  0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0
+  1 2 3 4 0 1 0 0 0 0 0 0 0 0 0 0 0 0 -2 7
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 0 0
+  0 0 0 0 1 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+slice 0 36 37                     # v13 [OUT]
+concat 12 1                       # v14 (.., t 10, PAY 11)
+concat 14 13                      # v15 (em 0, R 1, Rv 2, X 3, g9 4, g5 5, g10 6, eT 7, gA 8, gm 9, t 10, PAY 11, OUT 12)
+dense 15 8 13                     # v16 [gA, gm, g9, em, PAY, PAY, PAY, OUT]
+  0 0 0 0 0 0 0 0 1 0 0 0 0
+  0 0 0 0 0 0 0 0 0 1 0 0 0
+  0 0 0 0 1 0 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 0 0 0 0 0 1
+  0 0 0 0 0 0 0 0
+mul 16 0 4 4 8                    # v17 [gA PAY, gm PAY, K = g9 PAY, em OUT]
+slice 17 2 3                      # v18 [K]
+dense 18 1 1                      # v19 x1 = K 2^-14 (exact)
+  0.00006103515625
+  0
+dense 19 1 1                      # v20 x1 + 1.5 2^52
+  1
+  6755399441055744
+dense 20 1 1                      # v21 r1 = ROUND(x1)
+  1
+  -6755399441055744
+concat 21 19                      # v22 [r1, x1]
+dense 22 1 2                      # v23 [r1 - x1]
+  1 -1
+  0
+step 23                           # v24 [g1]
+concat 22 24                      # v25 [r1, x1, g1]
+dense 25 1 3                      # v26 q1 = FLOOR(x1) = S 2^20 + R
+  1 0 -1
+  0
+dense 26 1 1                      # v27 x2 = q1 2^-20 (exact)
+  0.00000095367431640625
+  0
+dense 27 1 1                      # v28
+  1
+  6755399441055744
+dense 28 1 1                      # v29 r2
+  1
+  -6755399441055744
+concat 29 27                      # v30 [r2, x2]
+dense 30 1 2                      # v31 [r2 - x2]
+  1 -1
+  0
+step 31                           # v32 [g2]
+concat 30 32                      # v33 [r2, x2, g2]
+dense 33 1 3                      # v34 S = FLOOR(x2)
+  1 0 -1
+  0
+concat 18 26                      # v35 [K, q1]
+concat 35 34                      # v36 [K, q1, S]
+dense 36 3 3                      # v37 [S, R, C]
+  0 0 1
+  0 1 -1048576
+  1 -16384 0
+  0 0 0
+concat 15 17                      # v38 (v15 0..12, gAP 13, gmP 14, K 15, emO 16)
+dense 38 8 17                     # v39 words 0..7
+  0 214 0 66 -27 3 4 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1
+  4 0 0 0 0 6 4 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  43 3 0 67108864 0 0 0 0
+dense 38 2 17                     # v40 [LR, LP]
+  0 0 0 48 45 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0
+slice 0 11 14                     # v41 words 10..12
+dense 38 2 17                     # v42 [A.TAG, A.PAY]
+  0 4 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 3 0 0 0 0 0 0 0 0 0 0 1 0 0 0
+  0 0
+dense 37 1 3                      # v43 [B.TAG = R1 = R]
+  0 1 0
+  0
+slice 0 23 31                     # v44 words 22..29
+dense 38 1 17                     # v45 [T1 = 0]
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0
+slice 0 32 36                     # v46 words 31..34
+dense 38 1 17                     # v47 [OUT' = OUT + 4 em]
+  4 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0
+  0
+dense 37 3 3                      # v48 [R2 = R, C1 = C, C2 = C]
+  0 1 0
+  0 0 1
+  0 0 1
+  0 0 0
+slice 0 40 65                     # v49 words 39..63
+dense 38 4 17                     # v50 payload [eT, PAY, dr = 0, dc = 0]
+  0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0
+slice 0 17 20                     # v51 words 16..18
+concat 39 40                      # v52 words 0..9
+concat 52 41
+concat 53 42
+concat 54 43                      # word 15 (R1)
+concat 55 51                      # words 16..18
+concat 56 37                      # words 19..21
+concat 57 44
+concat 58 45
+concat 59 46
+concat 60 47
+concat 61 48
+concat 62 49
+concat 63 50

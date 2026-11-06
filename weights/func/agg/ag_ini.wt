@@ -1,0 +1,88 @@
+# func/agg/ag_ini (id 49): fold start, entered at PC 1 by vs_nxt when the stream is complete. 2n =
+# OUT - SCR. COUNT, COUNTA: A = (1, n) -> FN_RET. Empty list: AVERAGE(A) #DIV/0!, COUNTBLANK VIS,
+# others 0 -> FN_RET. Else init ptr = SCR, SUM 0, MIN 0, MAX 0, PROD 1, SSQ 0, NB 0, flags oS oP oQ
+# 0, F 1, and block-read the first entry [SCR, 2] -> ag_stp (50). Note: weights/func/agg/fold.md.
+# Hand-written. Not generated.
+input 65
+slice 0 32 33                     # v1 [t = 64 + fid]
+slice 0 36 37                     # v2 [OUT]
+slice 0 57 58                     # v3 [SCR]
+slice 0 18 19                     # v4 [VIS]
+concat 1 2                        # v5
+concat 5 3                        # v6
+concat 6 4                        # v7 (t 0, OUT 1, SCR 2, VIS 3)
+dense 7 7 4                       # v8 thresholds
+  1 0 0 0
+  1 0 0 0
+  1 0 0 0
+  1 0 0 0
+  1 0 0 0
+  1 0 0 0
+  0 1 -1 0
+  -86.5 -88.5 -149.5 -151.5 -152.5 0 -0.5
+step 8                            # v9 (a0 86.5, a1 88.5, c0 149.5, c1 151.5, c2 152.5, unused, ne)
+concat 9 7                        # v10 (.., t 7, OUT 8, SCR 9, VIS 10)
+dense 10 4 11                     # v11 gates: imm, ea = avg AND NOT ne, ec = cb AND NOT ne, isCnt
+  0 0 1 -1 0 0 -1 0 0 0 0
+  1 -1 0 0 0 0 -1 0 0 0 0
+  0 0 0 1 -1 0 -1 0 0 0 0
+  0 0 1 -1 0 0 0 0 0 0 0
+  0.5 -0.5 -0.5 0
+step 11                           # v12 [imm, ea, ec, (isCnt stepped: equals isCnt)]
+concat 10 12                      # v13 (.., imm 11, ea 12, ec 13, cnt 14)
+dense 13 2 15                     # v14 [ec, VIS]
+  0 0 0 0 0 0 0 0 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 0 0 0 1 0 0 0 0
+  0 0
+mul 14 0 1 1 2                    # v15 [ec VIS]
+dense 13 1 15                     # v16 [cnt (OUT - SCR)]: built as relu MUX_INT, M = 2^23
+  0 0 0 0 0 0 0 0 1 -1 0 0 0 0 8388608
+  -8388608
+relu 16                           # v17 [cnt 2n]
+concat 13 15                      # v18 (.., ecV 15)
+concat 18 17                      # v19 (.., c2n 16)
+dense 19 8 17                     # v20 words 0..7
+  0 0 0 0 0 0 0 0 0 0 0 207 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 -4 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  50 4 0 67108866 0 0 0 0
+slice 0 9 14                     # v21 words 8..12
+dense 19 2 17                     # v22 [A.TAG, A.PAY]
+  0 0 0 0 0 0 0 0 0 0 0 0 3 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 1 0.25
+  1 0
+slice 0 16 19                     # v23 words 15..17
+dense 19 4 17                     # v24 [oS, oP, oQ, F]
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 1
+slice 0 23 33                     # v25 words 22..31
+dense 19 3 17                     # v26 [ptr = SCR, SUM 0, MIN 0]
+  0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0
+slice 0 36 37                     # v27 word 35 (OUT)
+dense 19 4 17                     # v28 [MAX 0, PROD 1, SSQ 0, NB 0]
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 1 0 0
+slice 0 41 65                     # v29 words 40..63
+concat 20 21
+concat 30 22
+concat 31 23
+concat 32 24
+concat 33 25
+concat 34 26
+concat 35 27
+concat 36 28
+concat 37 29

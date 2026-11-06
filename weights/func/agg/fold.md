@@ -1,0 +1,7 @@
+# Fold reducers: ag_ini 49 (built), ag_stp 50 and ag_avg 51 (designed, not built)
+
+Hand-written. Not generated. Log: log/func-agg-agent.md.
+
+**ag_ini (49).** Entered at PC 1 when the stream is complete. 4n = OUT - SCR. Thresholds on T2 (86.5, 88.5, 149.5, 151.5, 152.5) give avg (AVERAGE, AVERAGEA), cnt (COUNT, COUNTA), cb (COUNTBLANK); ne = [OUT > SCR]. imm = cnt OR NOT ne: A = (1, n) for COUNT and COUNTA (0.25 (4n) is exact), #DIV/0! for an empty AVERAGE(A), (1, VIS) for an empty COUNTBLANK, else (1, 0) -> FN_RET. Otherwise initialises ptr 32 = SCR, SUM 33, MIN 34, MAX 36, PROD 37 = 1, SSQ 38, NB 39, flags 18..20 = 0, F 21 = 1 and block-reads [SCR, 2] -> 50. Params 4 x 7 + 7 + 4 x 11 + 4 + 2 x 15 + 2 + 15 + 1 + 8 x 17 + 8 + 2 x 17 + 2 + 4 x 17 + 4 + 3 x 17 + 3 + 4 x 17 + 4 = 509.
+
+**ag_stp design (for the next agent).** Input 67 (entry [t, x] at 65, 66). Every step updates all accumulators in parallel: SUM += 2^-8 x with the fs_cell overflow test; MIN, MAX by step(MIN - x), step(x - MAX) and mul MUX with F; PROD *= x with the SAFE_MUL guard ((PROD 2^-600)(x 2^-600) >= 2^-176 -> flag, x gated to 1); SSQ += (2^-8 x)^2 with |2^-8 x| < 2^504 and SSQ < 2^1008 guards; NB += 1 unless (t = 2 and x = TEXT_EMPTY 0x302000). Gate SUM and SSQ to 0 once flagged so they stay finite. ptr += 4; more -> block read [ptr, 2] to self; else result by op one-hot (AVERAGE -> ag_avg: A.PAY = 256 SUM, B.PAY = n, words 30..37 = 0, 38 = 1 (gQ), next 267 with LR 257; MIN, MAX, PRODUCT, SUMSQ (65536 SSQ), COUNTBLANK (VIS - NB); #NUM! on flags) -> FN_RET.
