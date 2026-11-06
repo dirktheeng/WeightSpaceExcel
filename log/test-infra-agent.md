@@ -1,0 +1,19 @@
+# Test infrastructure agent log
+
+## 2026-11-06
+
+- 18:40 Read GOAL.md, harness/FORMAT.md, harness/harness.py, encodings/*, log/WORKLOG.md, docs/HARNESS.md, existing tests. Baseline run: 1 failed (test_output_tests_do_not_read_files, because test_stage1.py opens cases.yaml), 6 passed, 287 xfailed.
+- Found: test_stage1.py relied on a nonexistent harness.run_workbook. The frozen harness only offers Harness(networks, files, events, display, trace), run(net_id, x, max_steps) and mem. So the runner must drive the engine through events and observe memory.
+- Decided Q-G4 (D19 in WORKLOG): one packed event word per event, KIND/MODS/payload in disjoint bit ranges below 2^52. Key events carry both VK and the produced UTF-16 unit so typed text needs no layout network. Wrote encodings/io.md: word format, typing and go-to sequence (Ctrl+G, address, Enter), clearing with Delete, empty queue means halt, and the observation rules (cell hash and probe, TAG/PAY, text heap, CIRC_FLAG, FAULT, new REJECT_COUNT at 0x14).
+- Wrote tests/output/blackbox.py: event encoders (en-US VK table for punctuation), manifest reader (paths only), checklist done-set reader, boot(), and memory decoders. All memory reads go through peek(), which refuses WEIGHT_STAGING. Changed test_smoke.py to use peek.
+- Rewrote tests/output/test_stage1.py: per case, skip if a required function is not status=done in checklist/CHECKLIST.csv, xfail if weights/MANIFEST.txt is missing, else boot, type, run, decode, compare (rel tol 1e-12), and check FAULT, CIRC_FLAG and REJECT_COUNT.
+- Rewrote the compliance check: AST resolver of static paths (__file__, dirname, abspath, join, Path, .parent, /). Every open/loadtxt/fromfile/np.load/read_text call in tests/output must target a static path under tests/, or exactly weights/MANIFEST.txt or checklist/CHECKLIST.csv. Directory listings, loader names (load_file, load_memory, _build, Network), harness internals (.nets, .layers) and modules such as subprocess, pickle, shutil are banned. Added test_output_test_checker_is_strict with probe snippets (weight open, dynamic path, .. escape, loader import, h.nets, listdir all rejected; cases.yaml and manifest accepted).
+- Run 1: flagged test_stage1.py because CASES_PATH was built from bb.HERE (cross-module, not statically resolvable). Fixed by building it from __file__. Also allowed checklist/CHECKLIST.csv, which blackbox.py reads.
+- Run 2: flagged test_smoke.py for a ".wt" literal rule I had added. Dropped that rule: passing a weight path to Harness is legitimate; opening it is what is banned, and the open check covers that.
+- Run 3: 8 passed, 14 skipped (requires SUM), 273 xfailed (no manifest yet).
+- Ad hoc check of the helper on synthetic memory (no weights): decoded a text cell "abcd" at B3 through hash and heap, absent A1 reads blank, Ctrl+G encodes as 0x1020000470000.
+- Left untouched: historical mentions of run_workbook in log/stage1-tests-agent.md (history, not code); encodings/glyph.md Q-G4 sentence and control.md MANIFEST.md name (owned by other docs, flagged for the coordinator).
+- 19:20 Coordinator change: MANIFEST.txt lines are "ID PATH" (any order, append only, # comments). Rewrote blackbox.manifest_paths: builds the list by id, duplicate id fails the test, unlisted ids below 512 get the TRAP path (id 1, else the entry ending /trap.wt). Padded to 512 because control.md's allocator starts NET_NEXT at 512 and the harness appends io 7 loads at the current count; a shorter list would make generated ids land at the wrong place.
+- Ad hoc check with temporary manifests: ids 0 and 1 gave a 512 list (id 0 boot, id 5 trap); a duplicate id 0 raised "line 2: duplicate id 0".
+- Authorized doc edits: control.md section 5 (MANIFEST.txt name and ID PATH format, TRAP fill, 512 count), memory-map.md (REJECT_COUNT at 0x14, reserved range now 0x15 to 0x3F), glyph.md (Q-G4 resolved by io.md), io.md section 2 updated to match.
+- Run 4: 8 passed, 14 skipped, 273 xfailed.

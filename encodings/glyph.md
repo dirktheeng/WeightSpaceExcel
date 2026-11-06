@@ -20,7 +20,7 @@ Pages planned for stage 2: 0x00 (Basic Latin), 0x01 (Latin-1 Supplement), 0x02 a
 
 ## 2. External encodings
 
-Raw bytes from files and raw keyboard events are not characters until a network decodes them. UTF-8 (xlsx XML parts), UTF-16 and Windows-1252 (legacy CSV) decoders and encoders are file-stage networks; the Windows-1252 to UTF-16 map for bytes 0x80 to 0x9F is a 32-entry ROM. Keyboard events go through a key-to-character network that applies shift and caps lock state; the event word layout depends on the event format supplied by the tests (open question Q-G4, must be fixed before stage 2).
+Raw bytes from files and raw keyboard events are not characters until a network decodes them. UTF-8 (xlsx XML parts), UTF-16 and Windows-1252 (legacy CSV) decoders and encoders are file-stage networks; the Windows-1252 to UTF-16 map for bytes 0x80 to 0x9F is a 32-entry ROM. Keyboard events carry the produced UTF-16 unit and the virtual key code in one word (encodings/io.md, D19; Q-G4 resolved), so typed text needs no key-to-character network; shortcuts match on VK and MODS.
 
 ## 3. Framebuffer layout (D17)
 

@@ -1,30 +1,24 @@
-"""Stage 1 black-box output tests (docs/RULES.md rule 2, permitted test code).
+"""Stage 1 black-box output tests (docs/RULES.md rule 2, protocol in encodings/io.md).
 
-Feeds cell inputs to the engine through the harness and compares evaluated values
-with expected values written in stage1/cases.yaml. This file never opens, reads or
-inspects weight files, and contains no application logic: it computes no expected
-values and suggests no fixes.
-
-Assumed harness entry point (to be confirmed against harness/ once it exists):
-    harness.run_workbook(cells: dict[str, str], edits: list[dict[str, str]] | None = None) -> dict
-returning {address: value} where a value is a Python number, str, bool,
-{"error": "#X"}, or {"blank": True}, plus optional keys
-"__circular__": list of addresses and "__rejected__": list of addresses.
+For each case in stage1/cases.yaml: boot the manifest weights/MANIFEST.txt through the
+harness, type every cell's text as keystroke events (Ctrl+G go-to, text, Enter), run
+until the engine halts at end of input, then decode cell values from raw memory words.
+Never opens weight files; computes no expected values.
 """
 import math
-from pathlib import Path
+import os
 
 import pytest
 import yaml
 
-CASES = yaml.safe_load((Path(__file__).parent / "stage1" / "cases.yaml").read_text())["cases"]
-REL_TOL = 1e-12  # docs/ACCEPTANCE.md: reals within 1 part in 10^12 relative
+import blackbox as bb
 
-try:
-    import harness  # noqa: F401
-    ENGINE = hasattr(harness, "run_workbook")
-except ImportError:
-    ENGINE = False
+CASES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "stage1", "cases.yaml")
+with open(CASES_PATH) as _f:
+    CASES = yaml.safe_load(_f)["cases"]
+REL_TOL = 1e-12  # docs/ACCEPTANCE.md
+PATHS = bb.manifest_paths()
+DONE = bb.done_items()
 
 
 def _same(actual, expected):
@@ -34,20 +28,26 @@ def _same(actual, expected):
         if not isinstance(actual, (int, float)):
             return False
         if expected == 0:
-            return abs(actual) <= 1e-300 or actual == 0
+            return actual == 0
         return math.isclose(actual, expected, rel_tol=REL_TOL, abs_tol=0.0)
-    return actual == expected  # text, error dicts and blank dicts match exactly
+    return actual == expected
 
 
-@pytest.mark.xfail(not ENGINE, reason="Stage 1 engine not built yet", strict=False)
+@pytest.mark.xfail(PATHS is None, reason="weights/MANIFEST.txt missing: engine not built", strict=False)
 @pytest.mark.parametrize("case", CASES, ids=[c["id"] for c in CASES])
 def test_case(case):
-    import harness
-    out = harness.run_workbook(dict(case["cells"]), edits=case.get("edits"))
+    missing = [f for f in case.get("requires", []) if f not in DONE]
+    if missing:
+        pytest.skip(f"requires functions not done in checklist: {missing}")
+    assert PATHS is not None
+    h = bb.boot(bb.script(case["cells"], case.get("edits")))
+    assert bb.peek(h, bb.FAULT) == 0, f"fault {bb.peek(h, bb.FAULT)}"
     for addr, exp in case["expect"].items():
-        got = out.get(addr, {"blank": True})
+        got = bb.value(h, addr)
         assert _same(got, exp), f"{case['id']} {addr}: expected {exp!r}, got {got!r}"
+    circ = bb.peek(h, bb.CIRC_FLAG)
     if "circular" in case:
-        assert sorted(out.get("__circular__", [])) == sorted(case["circular"])
-    if "rejected" in case:
-        assert sorted(out.get("__rejected__", [])) == sorted(case["rejected"])
+        assert circ in [bb.key_of(a) + 1 for a in case["circular"]], circ
+    else:
+        assert circ == 0
+    assert bb.peek(h, bb.REJECT_COUNT) == len(case.get("rejected", []))

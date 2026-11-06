@@ -73,7 +73,8 @@ Charts, pivot caches and conditional formatting rules get space in later stages 
 | 0x11 | STAGING_TOP | next free word in WEIGHT_STAGING |
 | 0x12 | CIRC_FLAG | set when the last recalculation met a cycle; holds packed key + 1 of the first cycle cell |
 | 0x13 | DATE_1904 | 0 for the 1900 date system, 1 for 1904 |
-| 0x14 to 0x3F | reserved for stage 1 to 2 globals | |
+| 0x14 | REJECT_COUNT | entries refused by the cell entry network since boot (encodings/io.md section 3, D19) |
+| 0x15 to 0x3F | reserved for stage 1 to 2 globals | |
 | 0x40 to 0x7F | UI globals (stage 2) | |
 | 0x80 to 0xFF | spill area for the active subsystem's local registers (encodings/control.md section 3) | |
 

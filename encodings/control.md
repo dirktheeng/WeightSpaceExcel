@@ -58,7 +58,7 @@ Phase values are local to a network: PC 3 in the lexer and PC 3 in the evaluator
 
 ## 5. Network id allocation
 
-Network ids are positions in the harness network list. The launcher (an output test, or later a start script that only lists paths) passes a fixed manifest of exactly 512 hand-written weight file paths, defined in weights/MANIFEST.md (to be created with the first application network). Unused ids in the manifest are filled with copies of the TRAP network path.
+Network ids are positions in the harness network list. The launcher (an output test, or later a start script that only lists paths) passes a list of exactly 512 hand-written weight file paths built from weights/MANIFEST.txt. Each manifest line is `ID PATH` (network id, then the path relative to the repository root); `#` starts a comment, blank lines are ignored, lines may be in any order and the file is append only. A duplicate id is an error. The launcher places each path at its id and fills every unlisted id below 512 with the TRAP network path (id 1), so the loaded count is 512 and NET_NEXT starts there. The test launcher is tests/output/blackbox.py; encodings/io.md section 2.
 
 | Ids | Owner |
 |---|---|
