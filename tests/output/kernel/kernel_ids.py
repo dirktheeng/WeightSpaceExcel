@@ -20,10 +20,13 @@ NAMES = {
     16: "cs_hash", 17: "cs_probe", 18: "cs_ltag", 19: "cs_lpay", 20: "cs_cntr", 21: "cs_cntw",
     22: "cs_wtag", 23: "cs_wpay", 24: "cs_wform", 25: "cs_genr", 26: "cs_wcalc",
     27: "parse_stub", 28: "rej_rd", 29: "rej_wr",
+    # c_parse now routes to the real parser at id 78; kernel tests stay isolated
+    # from the parser by placing parse_stub there.
+    78: "parse_stub",
 }
 
 
-def paths(n=64, override=None):
+def paths(n=80, override=None):
     """Kernel ids 0..n-1; unused ids are TRAP. override: {id: path} for other agents' networks."""
     out = []
     for i in range(n):

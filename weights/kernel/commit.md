@@ -24,3 +24,5 @@ Hand-written. Not generated. Log: log/kernel-agent.md 2026-11-06, decisions K3 a
 **Parameters.** c_len 21, c_rc 14, c_top 31, c_parse 68, c_set 63, c_done_rd 14, c_done 39, parse_stub 27, rej_rd 14, rej_wr 14. Steps for one Enter commit of a new cell: 17 (6 chain + 1 stub + 9 CELL_SET + 2 finish); of an existing cell: 14.
 
 **Limits.** Every entry is stored as text until the parser exists (numbers, TRUE, formulas stay text). Rejected entries leave their string in the heap (no reclamation, Q-M2). **Multi-role weights.** None.
+
+**Change 2026-11-06 (parse agent, authorized by the coordinator).** c_parse.wt v4 first bias changed from 27 (parse_stub) to 78 (weights/parse/spill.wt, the real entry parser's entry network). parse_stub stays in the manifest but is no longer called. Log: log/parse-agent.md and log/WORKLOG.md decision P5.

@@ -1,0 +1,155 @@
+# parse/lnum (id 67): number lexer state, one character per step (x0 = char I, RDOK = 1).
+# PC 1 integer digits, 2 fraction digits, 3 after E, 4 after E sign, 5 exponent digits.
+# Accumulates X0 M (first 15 significant digits), X1 SIG, X2 FRAC, X3 DROP, X4 EXPV, X5 ESGN.
+# Token end: formula -> numconv 75; entry mode (EM) -> const 76 PC 2. Bad exponent: formula -> 79
+# (STATUS 1), entry -> const 76 PC 5 (text). EM also accepts ',' in the integer part.
+# Note: weights/parse/lnum.md
+input 65
+slice 0 0 1                       # v1 = [c]
+slice 0 30 32                     # v2 = [I, LEN]
+concat 1 2                        # v3 = [c, I, LEN]
+dense 3 1 3                       # v4 = I - LEN + 0.5
+   0 1 -1
+   0.5
+step 4                            # v5 = END
+concat 3 5                        # v6 = [c I LEN END]
+dense 6 1 4                       # v7 = c - 2^17 END
+   1 0 0 -131072
+   0
+relu 7                            # v8 = c_eff
+dense 8 11 1                      # v9 = class thresholds 43 44 45 46 47 48 58 69 70 101 102
+   1
+   1
+   1
+   1
+   1
+   1
+   1
+   1
+   1
+   1
+   1
+   -42.5 -43.5 -44.5 -45.5 -46.5 -47.5 -57.5 -68.5 -69.5 -100.5 -101.5
+step 9                            # v10
+slice 0 8 9                       # v11 = [PC]
+dense 11 6 1                      # v12
+   1
+   1
+   1
+   1
+   1
+   1
+   -0.5 -1.5 -2.5 -3.5 -4.5 -5.5
+step 12                           # v13 = s1..s6
+slice 0 57 63                     # v14 = [M SIG FRAC DROP EXPV ESGN]
+concat 14 8                       # v15 = [M SIG FRAC DROP EXPV ESGN c]
+dense 15 2 7                      # v16 = [SIG - 14.5, M + c - 48.5]
+   0 1 0 0 0 0 0
+   1 0 0 0 0 0 1
+   -14.5 -48.5
+step 16                           # v17 = [full, nz]
+slice 0 24 25                     # v18 = [EM]
+concat 10 13                      # v19 (17)
+concat 19 17                      # v20 (19)
+concat 20 18                      # v21 = B (20)
+dense 21 14 20                    # v22 = indicators
+# t43 t44 t45 t46 t47 t48 t58 t69 t70 t101 t102 s1 s2 s3 s4 s5 s6 full nz EM
+   1  -1   0   0   0   0   0   0   0   0    0   0  0  0  0  0  0  0    0  0   # PLUS
+   0   1  -1   0   0   0   0   0   0   0    0   0  0  0  0  0  0  0    0  0   # COMMA
+   0   0   1  -1   0   0   0   0   0   0    0   0  0  0  0  0  0  0    0  0   # MINUS
+   0   0   0   1  -1   0   0   0   0   0    0   0  0  0  0  0  0  0    0  0   # DOT
+   0   0   0   0   0   1  -1   0   0   0    0   0  0  0  0  0  0  0    0  0   # DIGIT
+   0   0   0   0   0   0   0   1  -1   1   -1   0  0  0  0  0  0  0    0  0   # EE
+   0   0   0   0   0   0   0   0   0   0    0   1 -1  0  0  0  0  0    0  0   # P1
+   0   0   0   0   0   0   0   0   0   0    0   0  1 -1  0  0  0  0    0  0   # P2
+   0   0   0   0   0   0   0   0   0   0    0   0  0  1 -1  0  0  0    0  0   # P3
+   0   0   0   0   0   0   0   0   0   0    0   0  0  0  1 -1  0  0    0  0   # P4
+   0   0   0   0   0   0   0   0   0   0    0   0  0  0  0  1 -1  0    0  0   # P5
+   0   0   0   0   0   0   0   0   0   0    0   0  0  0  0  0  0  1    0  0   # full
+   0   0   0   0   0   0   0   0   0   0    0   0  0  0  0  0  0  0    1  0   # nz
+   0   0   0   0   0   0   0   0   0   0    0   0  0  0  0  0  0  0    0  1   # EM
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0
+dense 22 15 14                    # v23 = gate pre-activations
+# PL CM MI DT DG EE P1 P2 P3 P4 P5 fu nz EM
+   0  0  0  0  1  0  1  0  0  0  0  0  0  0   # g0 dI
+   0  0  0  0  1  0  0  1  0  0  0  0  0  0   # g1 dF
+   0  0  0  1  0  0  1  0  0  0  0  0  0  0   # g2 dot1
+   0  0  0  0  0  1  1  1  0  0  0  0  0  0   # g3 eI
+   1  0  1  0  0  0  0  0  1  0  0  0  0  0   # g4 sgn
+   0  0  0  0  1  0  0  0  1  1  1  0  0  0   # g5 dE
+   0  1  0  0  0  0  1  0  0  0  0  0  0  1   # g6 cm
+   0  0  0  0  1  0  1  1  0  0  0 -1  0  0   # g7 gA
+   0  0  0  0  1  0  1  0  0  0  0  1  0  0   # g8 gD
+   0  0  0  0  1  0  1  1  0  0  0 -1  1  0   # g9 gS
+   0  0  0  0  1  0  0  1  0  0  0 -1  0  0   # g10 gF
+   0  0  1  0  0  0  0  0  1  0  0  0  0  0   # g11 gN
+   0  0  0  0  0  0  1  1  0  0  1  0  0  0   # g12 PIP
+   0  0  0  0  0  0  0  0  1  1  0  0  0  0   # g13 PER
+   0  0  0  0  0  0  0  0  0  0  0  0  0  1   # g14 EM
+   -1.5 -1.5 -1.5 -1.5 -1.5 -1.5 -2.5 -1.5 -2.5 -2.5 -1.5 -1.5 -0.5 -0.5 -0.5
+step 23                           # v24 = g0..g14
+dense 24 5 15                     # v25
+# g0 g1 g2 g3 g4 g5 g6 g7 g8 g9 g10 g11 g12 g13 g14
+   1  1  1  1  1  1  1  0  0  0  0   0   0   0   0    # CONT
+  -1 -1 -1 -1 -1 -1 -1  0  0  0  0   0   1   0  -1    # TENDF
+  -1 -1 -1 -1 -1 -1 -1  0  0  0  0   0   1   0   1    # TENDE
+  -1 -1 -1 -1 -1 -1 -1  0  0  0  0   0   0   1  -1    # REJF
+  -1 -1 -1 -1 -1 -1 -1  0  0  0  0   0   0   1   1    # REJE
+   -0.5 -0.5 -1.5 -0.5 -1.5
+step 25                           # v26 = [CONT TENDF TENDE REJF REJE]
+dense 15 2 7                      # v27 = [9M + d, 9 EXPV + d], d = c - 48
+   9 0 0 0 0 0 1
+   0 0 0 0 9 0 1
+   -48 -48
+dense 24 2 15                     # v28 = [gA, dE]
+   0 0 0 0 0 0 0 1 0 0 0 0 0 0 0
+   0 0 0 0 0 1 0 0 0 0 0 0 0 0 0
+   0 0
+concat 28 27                      # v29
+mul 29 0 2 2 4                    # v30 = [mM, mE]
+slice 0 30 31                     # v31 = [I]
+slice 0 13 14                     # v32 = [STATUS]
+concat 24 26                      # v33 (20)
+concat 33 14                      # v34 (26)
+concat 34 30                      # v35 (28)
+concat 35 31                      # v36 (29)
+concat 36 32                      # v37 = W (30)
+dense 37 17 30                    # v38 = D
+# g0 g1 g2 g3 g4 g5 g6 g7 g8 g9 g10 g11 g12 g13 g14 CO TF TE RF RE  M SIG FR DR EX ES mM mE  I ST
+   0  0  0  0  0  0  0  0  0  0  0   0   0   0   0  67 75 76 79 76  0  0  0  0  0  0  0  0  0  0  # next
+   0  0  0  0  0  0  0  0  0  0  0   0   0   0   0   1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  # mem_op
+   0  0  0  0  0  0  0  0  0  0  0   0   0   0   0   0  0  0  0  0  0  0  0  0  0  0  0  0  1  0  # addr
+   0  0  0  0  0  0  0  0  0  0  0   0   0   0   0   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+   0  0  0  0  0  0  0  0  0  0  0   0   0   0   0   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+   0  0  0  0  0  0  0  0  0  0  0   0   0   0   0   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+   0  0  0  0  0  0  0  0  0  0  0   0   0   0   0   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+   1  2  2  3  4  5  1  0  0  0  0   0   0   0   0   0  0  2  0  5  0  0  0  0  0  0  0  0  0  0  # PC
+   0  0  0  0  0  0  0  0  0  0  0   0   0   0   0   0  0  0  1  0  0  0  0  0  0  0  0  0  0  1  # STATUS
+   0  0  0  0  0  0  0  0  0  0  0   0   0   0   0   1  0  0  0  0  0  0  0  0  0  0  0  0  1  0  # I
+   0  0  0  0  0  0  0  0  0  0  0   0   0   0   0   1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  # RDOK
+   0  0  0  0  0  0  0  0  0  0  0   0   0   0   0   0  0  0  0  0  1  0  0  0  0  0  1  0  0  0  # M
+   0  0  0  0  0  0  0  0  0  1  0   0   0   0   0   0  0  0  0  0  0  1  0  0  0  0  0  0  0  0  # SIG
+   0  0  0  0  0  0  0  0  0  0  1   0   0   0   0   0  0  0  0  0  0  0  1  0  0  0  0  0  0  0  # FRAC
+   0  0  0  0  0  0  0  0  1  0  0   0   0   0   0   0  0  0  0  0  0  0  0  1  0  0  0  0  0  0  # DROP
+   0  0  0  0  0  0  0  0  0  0  0   0   0   0   0   0  0  0  0  0  0  0  0  0  1  0  0  1  0  0  # EXPV
+   0  0  0  0  0  0  0  0  0  0  0   1   0   0   0   0  0  0  0  0  0  0  0  0  0  1  0  0  0  0  # ESGN
+   0 0 10241 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+slice 38 0 8                      # v39 words 0..7
+slice 0 9 13                      # v40 words 8..11
+concat 39 40                      # v41
+slice 38 8 9                      # v42 STATUS
+concat 41 42                      # v43 (13)
+slice 0 14 30                     # v44 words 13..28
+concat 43 44                      # v45 (29)
+slice 38 9 10                     # v46 I
+concat 45 46                      # v47 (30)
+slice 0 31 32                     # v48 LEN
+concat 47 48                      # v49 (31)
+slice 38 10 11                    # v50 RDOK
+concat 49 50                      # v51 (32)
+slice 0 33 57                     # v52 words 32..55
+concat 51 52                      # v53 (56)
+slice 38 11 17                    # v54 X0..X5
+concat 53 54                      # v55 (62)
+slice 0 63 65                     # v56 words 62..63
+concat 55 56                      # v57 = output

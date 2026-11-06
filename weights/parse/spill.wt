@@ -1,0 +1,60 @@
+# parse/spill (id 78): parser entry from the kernel (c_parse). Saves L12..L23 (words 52..63) on
+# RET_STACK, one write per step, PC 0..11; then RSP += 12 and next = 64 (pentry) PC 0.
+# Note: weights/parse/spill.md
+input 65
+slice 0 8 9                       # v1 = [PC]
+dense 1 11 1                      # v2 = PC - j + 0.5, j = 1..11
+   1
+   1
+   1
+   1
+   1
+   1
+   1
+   1
+   1
+   1
+   1
+   -0.5 -1.5 -2.5 -3.5 -4.5 -5.5 -6.5 -7.5 -8.5 -9.5 -10.5
+step 2                            # v3 = s1..s11, s_j = [PC >= j]
+dense 3 12 11                     # v4 = h0..h11 one-hot of PC
+  -1  0  0  0  0  0  0  0  0  0  0
+   1 -1  0  0  0  0  0  0  0  0  0
+   0  1 -1  0  0  0  0  0  0  0  0
+   0  0  1 -1  0  0  0  0  0  0  0
+   0  0  0  1 -1  0  0  0  0  0  0
+   0  0  0  0  1 -1  0  0  0  0  0
+   0  0  0  0  0  1 -1  0  0  0  0
+   0  0  0  0  0  0  1 -1  0  0  0
+   0  0  0  0  0  0  0  1 -1  0  0
+   0  0  0  0  0  0  0  0  1 -1  0
+   0  0  0  0  0  0  0  0  0  1 -1
+   0  0  0  0  0  0  0  0  0  0  1
+   1  0  0  0  0  0  0  0  0  0  0  0
+slice 0 53 65                     # v5 = L12..L23
+concat 4 5                        # v6
+mul 6 0 12 12 24                  # v7 = h_k * L_k
+slice 0 11 12                     # v8 = [RSP]
+concat 1 3                        # v9 = [PC, s1..s11]
+concat 9 8                        # v10 = [PC, s1..s11, RSP]
+concat 7 10                       # v11 = [prod0..11, PC, s1..s11, RSP] (25)
+dense 11 8 25                     # v12 = words 0..7
+#  p0 p1 p2 p3 p4 p5 p6 p7 p8 p9 p10 p11 PC s1 s2 s3 s4 s5 s6 s7 s8 s9 s10 s11 RSP
+   0  0  0  0  0  0  0  0  0  0  0  0    0  0  0  0  0  0  0  0  0  0  0  -14  0
+   0  0  0  0  0  0  0  0  0  0  0  0    0  0  0  0  0  0  0  0  0  0  0   0   0
+   0  0  0  0  0  0  0  0  0  0  0  0    1  0  0  0  0  0  0  0  0  0  0   0   1
+   1  1  1  1  1  1  1  1  1  1  1  1    0  0  0  0  0  0  0  0  0  0  0   0   0
+   0  0  0  0  0  0  0  0  0  0  0  0    0  0  0  0  0  0  0  0  0  0  0   0   0
+   0  0  0  0  0  0  0  0  0  0  0  0    0  0  0  0  0  0  0  0  0  0  0   0   0
+   0  0  0  0  0  0  0  0  0  0  0  0    0  0  0  0  0  0  0  0  0  0  0   0   0
+   0  0  0  0  0  0  0  0  0  0  0  0    1  0  0  0  0  0  0  0  0  0  0  -12  0
+# biases: next 78, mem write, ..., PC + 1
+   78 2 0 0 0 0 0 1
+dense 11 1 25                     # v13 = RSP + 12 s11
+   0  0  0  0  0  0  0  0  0  0  0  0    0  0  0  0  0  0  0  0  0  0  0  12  1
+   0
+slice 0 9 11                      # v14 = words 8, 9
+concat 12 14                      # v15
+concat 15 13                      # v16 (11 words)
+slice 0 12 65                     # v17 = words 11..63
+concat 16 17                      # v18 = output

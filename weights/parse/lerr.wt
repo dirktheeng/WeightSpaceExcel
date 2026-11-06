@@ -1,0 +1,152 @@
+# parse/lerr (id 71): error literal after '#'. Key X0 = base-39 code of folded letters, '/' 27, '0' 28,
+# up to 10 characters (X1 = length, 100 = too long). Ends at '!' or '?' (consumed) or any other char.
+# Known: #NULL! #DIV/0! #VALUE! #REF! #NAME? #NUM! #N/A #SPILL! #CALC! #FIELD! #CONNECT! #BLOCKED!
+# #UNKNOWN! -> parse (73) with TK 1, TO 4, TV = code. Unknown -> reject (79). The terminator is not
+# checked against the name (#NAME! is read as #NAME?). Note: weights/parse/lerr.md
+input 65
+slice 0 0 1                       # v1 = [c]
+slice 0 30 32                     # v2 = [I LEN]
+concat 1 2                        # v3
+dense 3 1 3                       # v4
+   0 1 -1
+   0.5
+step 4                            # v5 = END
+concat 3 5                        # v6
+dense 6 1 4                       # v7
+   1 0 0 -131072
+   0
+relu 7                            # v8 = c_eff
+dense 8 11 1                      # v9 thresholds 33 34 47 48 49 63 64 65 91 97 123
+   1
+   1
+   1
+   1
+   1
+   1
+   1
+   1
+   1
+   1
+   1
+   -32.5 -33.5 -46.5 -47.5 -48.5 -62.5 -63.5 -64.5 -90.5 -96.5 -122.5
+step 9                            # v10
+slice 0 57 59                     # v11 = [KEY KLEN]
+dense 11 1 2                      # v12 = 9.5 - KLEN
+   0 -1
+   9.5
+step 12                           # v13 = kl9
+concat 10 13                      # v14 (12)
+dense 14 4 12                     # v15
+#t33 t34 t47 t48 t49 t63 t64 t65 t91 t97 t123 kl9
+   0   0   1   0  -1   0   0   1  -1   1  -1   1    # gK
+   0   0   1   0  -1   0   0   1  -1   1  -1  -1    # long
+   1  -1   0   0   0   1  -1   0   0   0   0   0    # endT
+   0   0  -1   0   1   0   0  -1   1  -1   1   0    # endA
+   -1.5 -0.5 -0.5 0.5
+step 15                           # v16 = [gK long endT endA]
+dense 11 26 2                     # v17 = [KEY - k_j, k_j - KEY]
+   1 0
+   1 0
+   1 0
+   1 0
+   1 0
+   1 0
+   1 0
+   1 0
+   1 0
+   1 0
+   1 0
+   1 0
+   1 0
+  -1 0
+  -1 0
+  -1 0
+  -1 0
+  -1 0
+  -1 0
+  -1 0
+  -1 0
+  -1 0
+  -1 0
+  -1 0
+  -1 0
+  -1 0
+# NULL DIV/0 VALUE REF NAME NUM N/A SPILL CALC FIELD CONNECT BLOCKED UNKNOWN
+  -862887 -9822178 -50974097 -27579 -832499 -22126 -22348 -44918652 -179949 -14422594 -11942820650 -8155074412 -75183059810
+  862887 9822178 50974097 27579 832499 22126 22348 44918652 179949 14422594 11942820650 8155074412 75183059810
+step 17                           # v18 = [p1..p13, n1..n13]
+concat 18 16                      # v19 (30)
+dense 19 2 30                     # v20 = [fnd, nfd]
+#p: NU DV VA RE NA NM N/A SP CA FI CO BL UN   n: (same)                         gK lg eT eA
+  -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1   -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1   0 0 0 1
+   1  1  1  1  1  1  1  1  1  1  1  1  1    1  1  1  1  1  1  1  1  1  1  1  1  1   0 0 0 1
+   11.5 -13.5
+step 20                           # v21 = [fnd nfd]
+dense 19 1 30                     # v22 = code gated by endA
+  -1 -2 -3 -4 -5 -6 -7 -9 -14 -13 -10 -11 -12  -1 -2 -3 -4 -5 -6 -7 -9 -14 -13 -10 -11 -12  0 0 0 8388608
+  -8388511
+relu 22                           # v23 = [codeg]
+concat 8 10                       # v24 = [c, thresholds] (12)
+concat 24 11                      # v25 (14)
+dense 25 1 14                     # v26 = aK = 39 KEY + v(c)
+#  c t33 t34 t47 t48 t49 t63 t64 t65 t91 t97 t123 KEY KLEN
+   1  0   0  -20  0   20  0   0  -64  64 -96  96  39   0
+   0
+slice 16 0 1                      # v27 = [gK]
+concat 27 26                      # v28
+mul 28 0 1 1 2                    # v29 = KEY'
+concat 16 21                      # v30 (6)
+concat 30 23                      # v31 (7)
+concat 31 2                       # v32 (9)
+slice 11 1 2                      # v33 = [KLEN]
+concat 32 33                      # v34 (10)
+slice 0 13 14                     # v35 = [STATUS]
+concat 34 35                      # v36 (11)
+concat 36 29                      # v37 = W (12): gK long endT endA fnd nfd codeg I LEN KLEN ST KEY'
+dense 37 1 12                     # v38 = KLEN + gK - M long
+   1 -8388608 0 0 0 0 0 0 0 1 0 0
+   0
+relu 38                           # v39
+concat 37 39                      # v40 (13)
+dense 40 16 13                    # v41 = D
+#gK lg eT eA fnd nfd cg I LEN KLEN ST KEY KLr
+  71 71  0  0 73  79   0 0  0   0    0  0   0   # next
+   1  1  0  0  0   0   0 0  0   0    0  0   0   # mem_op
+   0  0  0  0  0   0   0 1  0   0    0  0   0   # addr
+   0  0  0  0  0   0   0 0  0   0    0  0   0
+   0  0  0  0  0   0   0 0  0   0    0  0   0
+   0  0  0  0  0   0   0 0  0   0    0  0   0
+   0  0  0  0  0   0   0 0  0   0    0  0   0
+   1  1  0  0  0   0   0 0  0   0    0  0   0   # PC
+   0  0  0  0  0   1   0 0  0   0    1  0   0   # STATUS
+   1  1  1  0  0   0   0 1  0   0    0  0   0   # I
+   1  1  0  0  0   0   0 0  0   0    0  0   0   # RDOK
+   0  0  0  0  1   0   0 0  0   0    0  0   0   # TK
+   0  0  0  0  4   0   0 0  0   0    0  0   0   # TO
+   0  0  0  0  0   0   1 0  0   0    0  0   0   # TV
+   0  0  0  0  0   0   0 0  0   0    0  1   0   # KEY
+   0 100 0  0  0   0   0 0  0   0    0  0   1   # KLEN
+   0 0 10241 0 0 0 0 0 0 0 0 0 0 0 0 0
+slice 41 0 8                      # v42 words 0..7
+slice 0 9 13                      # v43 words 8..11
+concat 42 43                      # v44
+slice 41 8 9                      # v45 STATUS
+concat 44 45                      # v46 (13)
+slice 0 14 30                     # v47 words 13..28
+concat 46 47                      # v48 (29)
+slice 41 9 10                     # v49 I
+concat 48 49                      # v50 (30)
+slice 0 31 32                     # v51 LEN
+concat 50 51                      # v52 (31)
+slice 41 10 11                    # v53 RDOK
+concat 52 53                      # v54 (32)
+slice 0 33 53                     # v55 words 32..51
+concat 54 55                      # v56 (52)
+slice 41 11 14                    # v57 TK TO TV
+concat 56 57                      # v58 (55)
+slice 0 56 57                     # v59 word 55
+concat 58 59                      # v60 (56)
+slice 41 14 16                    # v61 KEY KLEN
+concat 60 61                      # v62 (58)
+slice 0 59 65                     # v63 words 58..63
+concat 62 63                      # v64 = output

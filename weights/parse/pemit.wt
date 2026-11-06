@@ -1,0 +1,120 @@
+# parse/pemit (id 74): parser emit phases. PC 1 write TV at OUTP+1 (OUTP += 2, NT += 1), then range
+# (TK 2) -> PC 2, comma or paren (TK 8, 9, missing argument) -> parse 73, else -> idle 66.
+# PC 2 write 7 at OUTP. PC 3 write TV2 at OUTP+1, -> idle. PC 4 write TOPA at OUTP+1 (popped token
+# operand). PC 5 read stack 0x2000 + SP - 1, SP -= 1, PP = 1 -> parse. PC 6 write end operand.
+# PC 7..11 formula record [FT] = HS, [FT+1] = FT + 8, [FT+2] = NT, HEAP_TOP = HT,
+# FORMULA_TOP = OUTP + 2, P1 = FT, exit 79. Note: weights/parse/pemit.md
+input 65
+slice 0 8 9                       # v1 = [PC]
+dense 1 11 1                      # v2
+   1
+   1
+   1
+   1
+   1
+   1
+   1
+   1
+   1
+   1
+   1
+   -0.5 -1.5 -2.5 -3.5 -4.5 -5.5 -6.5 -7.5 -8.5 -9.5 -10.5
+step 2                            # v3 = s1..s11
+dense 3 11 11                     # v4 = ph1..ph11
+   1 -1  0  0  0  0  0  0  0  0  0
+   0  1 -1  0  0  0  0  0  0  0  0
+   0  0  1 -1  0  0  0  0  0  0  0
+   0  0  0  1 -1  0  0  0  0  0  0
+   0  0  0  0  1 -1  0  0  0  0  0
+   0  0  0  0  0  1 -1  0  0  0  0
+   0  0  0  0  0  0  1 -1  0  0  0
+   0  0  0  0  0  0  0  1 -1  0  0
+   0  0  0  0  0  0  0  0  1 -1  0
+   0  0  0  0  0  0  0  0  0  1 -1
+   0  0  0  0  0  0  0  0  0  0  1
+   0 0 0 0 0 0 0 0 0 0 0
+slice 0 53 54                     # v5 = [TK]
+dense 5 4 1                       # v6
+   1
+   1
+   1
+   1
+   -1.5 -2.5 -7.5 -9.5
+step 6                            # v7 = [k2 k3 k8 k10]
+concat 4 7                        # v8 (15)
+dense 8 3 15                      # v9 = PC 1 branches
+#ph1 ph2 .. ph11                    k2 k3 k8 k10
+   1  0 0 0 0 0 0 0 0 0 0            1 -1  0  0     # bR range
+   1  0 0 0 0 0 0 0 0 0 0            0  0  1 -1     # bCQ back to parse
+   1  0 0 0 0 0 0 0 0 0 0           -1  1 -1  1     # bO back to idle
+   -1.5 -1.5 -0.5
+step 9                            # v10 = [bR bCQ bO]
+slice 0 35 40                     # v11 = [SP TOPK TOPA OUTP NT]
+slice 0 23 26                     # v12 = [HT EM HS]
+slice 0 28 29                     # v13 = [FT]
+concat 4 10                       # v14 (14)
+concat 14 11                      # v15 (19)
+concat 15 12                      # v16 (22)
+concat 16 13                      # v17 = W (23)
+dense 17 13 23                    # v18 MUX_INT pre (M = 8388608)
+#ph1    ph2     ph3     ph4     ph5     ph6     ph7     ph8     ph9     ph10    ph11    bR bCQ bO SP TOPK TOPA OUTP NT HT EM HS FT
+ 8388608 0       8388608 8388608 0       8388608 0       0       0       0       0       0  0   0  0  0    0    1    0  0  0  0  0    # A0 OUTP + 1
+ 0       8388608 0       0       0       0       0       0       0       0       0       0  0   0  0  0    0    1    0  0  0  0  0    # A1 OUTP
+ 0       0       0       0       8388608 0       0       0       0       0       0       0  0   0  1  0    0    0    0  0  0  0  0    # A2 stack SP - 1
+ 0       0       0       0       0       0       8388608 0       0       0       0       0  0   0  0  0    0    0    0  0  0  0  1    # A3 FT
+ 0       0       0       0       0       0       0       8388608 0       0       0       0  0   0  0  0    0    0    0  0  0  0  1    # A4 FT + 1
+ 0       0       0       0       0       0       0       0       8388608 0       0       0  0   0  0  0    0    0    0  0  0  0  1    # A5 FT + 2
+ 0       0       0       8388608 0       0       0       0       0       0       0       0  0   0  0  0    1    0    0  0  0  0  0    # V0 TOPA
+ 0       0       0       0       0       0       8388608 0       0       0       0       0  0   0  0  0    0    0    0  0  0  1  0    # V1 HS
+ 0       0       0       0       0       0       0       8388608 0       0       0       0  0   0  0  0    0    0    0  0  0  0  1    # V2 FT + 8
+ 0       0       0       0       0       0       0       0       8388608 0       0       0  0   0  0  0    0    0    1  0  0  0  0    # V3 NT
+ 0       0       0       0       0       0       0       0       0       8388608 0       0  0   0  0  0    0    0    0  1  0  0  0    # V4 HT
+ 0       0       0       0       0       0       0       0       0       0       8388608 0  0   0  0  0    0    1    0  0  0  0  0    # V5 OUTP + 2
+ 0       0       0       0       0       0       0       0       0       0       8388608 0  0   0  0  0    0    0    0  0  0  0  1    # P1v FT
+  -8388607 -8388608 -8380417 -8388608 -8388607 -8388606 -8388608 -8388608 -8388600 -8388608 -8388608 -8388606 -8388608
+relu 18                           # v19
+concat 17 19                      # v20 (36)
+slice 0 55 57                     # v21 = [TV TV2]
+dense 4 2 11                      # v22 = [ph1, ph3]
+   1 0 0 0 0 0 0 0 0 0 0
+   0 0 1 0 0 0 0 0 0 0 0
+   0 0
+concat 22 21                      # v23
+mul 23 0 2 2 4                    # v24 = [ph1 TV, ph3 TV2]
+concat 20 24                      # v25 (38)
+dense 25 14 38                    # v26 = D
+#p1 p2 p3 p4 p5 p6 p7 p8 p9 p10 p11 bR bCQ bO SP TK TA OU NT HT EM HS FT A0 A1 A2 A3 A4 A5 V0 V1 V2 V3 V4 V5 P1 wT wT2
+  0 74 66 74 73 74 74 74 74 74  79  74  73  66  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0   # next
+  0  0  0  0 -1  0  0  0  0  0   0   0   0   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0   # mem_op (bias 2)
+  0  0  0  0  0  0  0  0  0  1   2   0   0   0  0  0  0  0  0  0  0  0  0  1  1  1  1  1  1  0  0  0  0  0  0  0  0  0   # addr
+  0  7  0  0  0  0  0  0  0  0   0   0   0   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  1  1  1  1  1  0  1  1   # value
+  0  0  0  0  0  0  0  0  0  0   0   0   0   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+  0  0  0  0  0  0  0  0  0  0   0   0   0   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+  0  0  0  0  0  0  0  0  0  0   0   0   0   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+  0  3  1  5  0  7  8  9 10 11   0   2   0   1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0   # PC
+  0  0  0  0  0  0  0  0  0  0   0   0   0   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  0  0   # P1
+  0  0  0  0  0  0  0  0  0  0   0   0   0   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0   # RDOK
+  0  0  0  0 -1  0  0  0  0  0   0   0   0   0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0   # SP
+  2  0  2  2  0  0  0  0  0  0   0   0   0   0  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0   # OUTP
+  1  0  1  1  0  0  0  0  0  0   0   0   0   0  0  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0   # NT
+  0  0  0  0  1  0  0  0  0  0   0   0   0   0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0   # PP
+  0 2 0 0 0 0 0 0 0 0 0 0 0 0
+slice 26 0 8                      # v27 words 0..7
+slice 0 9 27                      # v28 words 8..25
+concat 27 28                      # v29 (26)
+slice 26 8 9                      # v30 P1
+concat 29 30                      # v31 (27)
+slice 0 28 32                     # v32 words 27..30
+concat 31 32                      # v33 (31)
+slice 26 9 10                     # v34 RDOK
+concat 33 34                      # v35 (32)
+slice 0 33 35                     # v36 words 32..33
+concat 35 36                      # v37 (34)
+slice 26 10 11                    # v38 SP
+concat 37 38                      # v39 (35)
+slice 0 36 38                     # v40 words 35..36
+concat 39 40                      # v41 (37)
+slice 26 11 14                    # v42 OUTP NT PP
+concat 41 42                      # v43 (40)
+slice 0 41 65                     # v44 words 40..63
+concat 43 44                      # v45 = output

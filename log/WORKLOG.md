@@ -238,3 +238,32 @@
 - Q-P1b: subnormal quotients may double round in DIV (fixable by a grid-aware midpoint check).
 - Q-P3: control.md assigns no network id range to primitives (only matters if a primitive is ever routed to).
 - The broad correctness of DIV rests on the hand cases and the argument in div.md; an Excel-sourced set of hard quotients is still wanted (Q-P1).
+
+## 2026-11-06, Stage 1: entry parser and formula compiler (parse agent; details in log/parse-agent.md)
+
+### P1 (DECISION): lexer as one network per state, routed by next
+- Decided: the formula lexer is a set of small networks, one per lexer state (idle 66, number 67, word 68, string 70, error literal 71, comparison 72), each consuming one character per step and choosing the next state's network as `next`. Token completion hands registers to the parser decision network (73) and its emit phases (74).
+- Alternatives: one lexer network with all states as phases (every step pays for every state's gates; a pair ROM over state x class would be 200+ AND units); a lexer pass writing a token list then a separate parser pass (two passes, more memory).
+- Why: dispatch by routing costs no parameters (encodings/primitives.md DISPATCH); each network only carries the character classes its state needs.
+- Affects: ids 64..79, step counts (about one step per character plus 1 to 4 per token).
+
+### P2 (DECISION): parser register use and spill of L12..L23
+- Decided: the kernel calls the parser with L0..L23 live (weights/kernel/commit.md). The parser enters through spill (78), which saves L12..L23 on RET_STACK (12 steps), and every exit goes through restore (79, 13 steps). Inside, the parser owns T0..T10 (29..39), L12..L23 (52..63), B, C (15..18), AR2, AC2, AS2 (22..24) and N0 (27). Map in weights/parse/README.md.
+- Alternatives: fit into caller-saved words only (21 free words, but the lexer and parser need 27); spill all 24 locals (twice the cost).
+- Why: 25 steps per entry is cheap relative to typing every network around a scattered register map.
+- Affects: all parse networks; any later caller must leave RSP valid.
+
+### P3 (DECISION): unpack the typed text once into a character buffer
+- Decided: unpack (65) copies the packed heap text into one unit per word at 0x2800 + i (inside PARSE_STACK's "lexer scratch" half; the operator stack uses 0x2000 to 0x27FF). Limit: 2047 characters per entry.
+- Alternatives: every lexer state network unpacks 3 units per word itself (UNPACK3 FLOOR blocks duplicated in six networks).
+- Why: UNPACK3 lives in one network; 4 steps per 3 characters.
+- Affects: memory-map PARSE_STACK split (0x2000 to 0x27FF operator stack, 0x2800 to 0x2FFF character buffer).
+
+### P4 (DECISION): decimal conversion in one pass with exact residual
+- Decided: numconv (75) computes M 10^k with one multiply for k >= 0; for k < 0 it computes q0 = M fl(10^-k), the exact residual M - q0 10^k by Dekker TwoProduct, and q = q0 + r fl(10^-k). |k| <= 22 only; beyond that the token is marked out of range (entry: text; formula: rejected).
+- Alternatives: DIV primitive (about 140 layers); plain M fl(10^-k) (gives 0.30000000000000004 for 0.3).
+- Why: 10^k is exact for k <= 22, so one residual correction gives the correctly rounded quotient in every case tested.
+- Affects: all numeric literals; open question: exponents beyond 22 (1E+308, 1E-200 in stage 1 cases) need a two-stage scale.
+
+### P5 (DECISION): kernel hook
+- Decided: weights/kernel/c_parse.wt now calls 78 instead of 27 (coordinator authorization). Documented in weights/kernel/commit.md.

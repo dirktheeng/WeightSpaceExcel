@@ -1,0 +1,151 @@
+# parse/ckey (id 77): constant keywords. Scans the whole entry from char 0 (one char per step), key
+# X0 = base-32 code of the case-folded text (A..Z 1..26, # 27, / 28, 0 29, ! 30, ? 31), X1 = KLEN
+# (100 = not a keyword). At the end: TRUE, FALSE -> A = (3, b); #NULL! #DIV/0! #VALUE! #REF! #NAME?
+# #NUM! #N/A #SPILL! #CALC! -> A = (4, code); exit 79. Otherwise -> const 76 PC 5 (text).
+# Note: weights/parse/ckey.md
+input 65
+slice 0 0 1                       # v1 = [c]
+slice 0 30 32                     # v2 = [I LEN]
+concat 1 2                        # v3
+dense 3 1 3                       # v4 = I - LEN + 0.5
+   0 1 -1
+   0.5
+step 4                            # v5 = END
+concat 3 5                        # v6 = [c I LEN END]
+dense 6 1 4                       # v7
+   1 0 0 -131072
+   0
+relu 7                            # v8 = c_eff
+dense 8 13 1                      # v9 thresholds 33 34 35 36 47 48 49 63 64 65 91 97 123
+   1
+   1
+   1
+   1
+   1
+   1
+   1
+   1
+   1
+   1
+   1
+   1
+   1
+   -32.5 -33.5 -34.5 -35.5 -46.5 -47.5 -48.5 -62.5 -63.5 -64.5 -90.5 -96.5 -122.5
+step 9                            # v10 (13)
+slice 0 57 59                     # v11 = [KEY KLEN]
+dense 11 1 2                      # v12 = 9.5 - KLEN
+   0 -1
+   9.5
+step 12                           # v13 = kl9
+concat 10 13                      # v14
+concat 14 5                       # v15 = [t33 t34 t35 t36 t47 t48 t49 t63 t64 t65 t91 t97 t123 kl9 END]
+dense 15 1 15                     # v16 = keychar + kl9 - 1.5
+   1 -1 1 -1 1 0 -1 1 -1 1 -1 1 -1 1 0
+   -1.5
+step 16                           # v17 = gK
+concat 17 5                       # v18 = [gK END]
+dense 18 1 2                      # v19 = 0.5 - gK - END
+   -1 -1
+   0.5
+step 19                           # v20 = bad
+concat 8 10                       # v21 = [c, thresholds]
+concat 21 11                      # v22 = [c t.. KEY KLEN] (16)
+dense 22 1 16                     # v23 = aK = 32 KEY + v(c)
+#  c t33 t34 t35 t36 t47 t48 t49 t63 t64 t65 t91 t97 t123 KEY KLEN
+   1 -3   3  -8   8  -19  0  19  -32  32 -64  64 -96   96  32   0
+   0
+slice 11 0 1                      # v24 = [KEY]
+concat 23 24                      # v25 = [aK KEY]
+concat 18 25                      # v26 = [gK END aK KEY]
+mul 26 0 2 2 4                    # v27
+dense 27 1 2                      # v28 = KEY'
+   1 1
+   0
+dense 24 22 1                     # v29 = [KEY - k_j, k_j - KEY]
+   1
+   1
+   1
+   1
+   1
+   1
+   1
+   1
+   1
+   1
+   1
+  -1
+  -1
+  -1
+  -1
+  -1
+  -1
+  -1
+  -1
+  -1
+  -1
+  -1
+# TRUE FALSE #NULL! #DIV/0! #VALUE! #REF! #NAME? #NUM! #N/A #SPILL! #CALC!
+  -674469 -6337125 -921350558 -29135434686 -29730690238 -28906718 -920695999 -28792254 -899969 -29645648286 -909160574
+  674469 6337125 921350558 29135434686 29730690238 28906718 920695999 28792254 899969 29645648286 909160574
+step 29                           # v30 = [p1..p11, n1..n11]
+concat 30 5                       # v31 (23)
+dense 31 2 23                     # v32 = END-gated tag and payload (MUX_INT)
+# p: T F NU DV VA RE NA NM N/A SP CA   n: T F NU DV VA RE NA NM N/A SP CA   END
+  -3 -3 -4 -4 -4 -4 -4 -4 -4 -4 -4   -3 -3 -4 -4 -4 -4 -4 -4 -4 -4 -4   8388608
+  -1  0 -1 -2 -3 -4 -5 -6 -7 -9 -14  -1  0 -1 -2 -3 -4 -5 -6 -7 -9 -14  8388608
+  -8388566 -8388556
+relu 32                           # v33 = [ATAG, APAY]
+dense 31 1 23                     # v34 = nf = END - found - 0.5
+   1 1 1 1 1 1 1 1 1 1 1  1 1 1 1 1 1 1 1 1 1 1  1
+   -11.5
+step 34                           # v35 = nf
+slice 2 0 1                       # v36 = [I]
+concat 5 35                       # v37 = [END nf]
+concat 37 36                      # v38
+slice 11 1 2                      # v39 = [KLEN]
+concat 38 39                      # v40
+concat 40 17                      # v41
+concat 41 20                      # v42 (6)
+concat 42 33                      # v43 (8)
+concat 43 28                      # v44 = W (9): END nf I KLEN gK bad ATAG APAY KEY'
+dense 44 1 9                      # v45 = KLEN + gK - M bad
+   0 0 0 1 1 -8388608 0 0 0
+   0
+relu 45                           # v46
+concat 44 46                      # v47 (10)
+dense 47 14 10                    # v48 = D
+# END nf I KLEN gK bad AT AP KEY KLr
+   2  -3  0  0  0  0   0  0  0   0    # next
+  -1   0  0  0  0  0   0  0  0   0    # mem_op
+   0   0  1  0  0  0   0  0  0   0    # addr
+   0   0  0  0  0  0   0  0  0   0
+   0   0  0  0  0  0   0  0  0   0
+   0   0  0  0  0  0   0  0  0   0
+   0   0  0  0  0  0   0  0  0   0
+  -1   5  0  0  0  0   0  0  0   0    # PC
+   0   0  0  0  0  0   1  0  0   0    # A.TAG
+   0   0  0  0  0  0   0  1  0   0    # A.PAY
+  -1   0  1  0  0  0   0  0  0   0    # I
+  -1   0  0  0  0  0   0  0  0   0    # RDOK
+   0   0  0  0  0  0   0  0  1   0    # KEY
+   0   0  0  0  0  100 0  0  0   1    # KLEN
+   77 1 10241 0 0 0 0 1 0 0 1 1 0 0
+slice 48 0 8                      # v49
+slice 0 9 14                      # v50 words 8..12
+concat 49 50                      # v51
+slice 48 8 10                     # v52 A
+concat 51 52                      # v53 (15)
+slice 0 16 30                     # v54 words 15..28
+concat 53 54                      # v55 (29)
+slice 48 10 11                    # v56 I
+concat 55 56                      # v57
+slice 0 31 32                     # v58 LEN
+concat 57 58                      # v59 (31)
+slice 48 11 12                    # v60 RDOK
+concat 59 60                      # v61 (32)
+slice 0 33 57                     # v62 words 32..55
+concat 61 62                      # v63 (56)
+slice 48 12 14                    # v64 KEY KLEN
+concat 63 64                      # v65 (58)
+slice 0 59 65                     # v66 words 58..63
+concat 65 66                      # v67 = output

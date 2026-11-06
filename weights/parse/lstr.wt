@@ -1,0 +1,170 @@
+# parse/lstr (id 70): string literal builder. Packs characters into a new heap string at SH = X4,
+# 3 units per word (X0 SACC accumulator, X1 SK position, X2 SL length, X3 SW words written).
+# PC 1 inside the string, PC 2 just after a quote ("" is a literal quote; anything else ends it),
+# PC 3 header write. RDOK = 0 in PC 1 or 2 fetches char I first (after a word write).
+# Formula mode: end of text inside the string -> reject (79); done -> parse (73) with TK 1, TO 2, TV handle.
+# Entry mode (EM): quotes are plain characters, end of text finishes; done -> const (76) PC 6.
+# Empty string -> TV = TEXT_EMPTY (0x302000). Note: weights/parse/lstr.md
+input 65
+slice 0 0 1                       # v1 = [c]
+slice 0 30 33                     # v2 = [I LEN RDOK]
+concat 1 2                        # v3
+dense 3 1 4                       # v4
+   0 1 -1 0
+   0.5
+step 4                            # v5 = END
+concat 3 5                        # v6 = [c I LEN RDOK END]
+dense 6 1 5                       # v7
+   1 0 0 131072 -131072
+   -131072
+relu 7                            # v8 = c_eff
+dense 8 3 1                       # v9
+   1
+   1
+   1
+   -0.5 -33.5 -34.5
+step 9                            # v10 = [CH t34 t35]
+slice 0 8 9                       # v11 = [PC]
+dense 11 3 1                      # v12
+   1
+   1
+   1
+   -0.5 -1.5 -2.5
+step 12                           # v13 = [s1 s2 s3]
+slice 0 57 62                     # v14 = [SACC SK SL SW SH]
+dense 14 3 5                      # v15
+   0 1 0 0 0
+   0 1 0 0 0
+   0 0 1 0 0
+   -0.5 -1.5 -0.5
+step 15                           # v16 = [sk1 sk2 SLnz]
+slice 0 24 25                     # v17 = [EM]
+concat 10 13                      # v18 (6)
+concat 18 16                      # v19 (9)
+concat 19 17                      # v20 (10)
+slice 6 3 5                       # v21 = [RDOK END]
+concat 20 21                      # v22 = B (12): CH t34 t35 s1 s2 s3 sk1 sk2 SLnz EM RDOK END
+dense 22 13 12                    # v23 gates
+# CH t34 t35 s1 s2 s3 sk1 sk2 SLnz EM RDOK END
+   0  0   0   1 -1  0  0   0   0    0  -1   0    # G0 F1
+   0  0   0   0  1 -1  0   0   0    0  -1   0    # G1 F2
+   0  1  -1   1 -1  0  0   0   0   -1   1   0    # G2 appQ
+   1 -1   1   1 -1  0  0   0   0    0   1   0    # G3 app1
+   0  1  -1   1 -1  0  0   0   0    1   1   0    # G4 app2
+   0  1  -1   0  1 -1  0   0   0    0   1   0    # G5 app3
+   0  0   0   1 -1  0  0   0   0   -1   1   1    # G6 rej
+   0  0   0   1 -1  0  0   0   0    1   1   1    # G7 fin1
+   0 -1   1   0  1 -1  0   0   0    0   1   0    # G8 fin2
+   0  0   0   0  0  1  0   0   1    0   0   0    # G9 hdrnz
+   0  0   0   0  0  1  0   0  -1    0   0   0    # G10 hdrz
+   0  0   0   0  0  1  0   0   0    1   0   0    # G11 hdrE
+   0  0   0   0  0  1  0   0   0   -1   0   0    # G12 hdrF
+   -0.5 -0.5 -2.5 -2.5 -3.5 -2.5 -2.5 -3.5 -1.5 -1.5 -0.5 -1.5 -0.5
+step 23                           # v24 = G0..G12
+concat 24 16                      # v25 (16)
+dense 25 2 16                     # v26
+# G0 G1 G2 G3 G4 G5 G6 G7 G8 G9 G10 G11 G12 sk1 sk2 SLnz
+   0  0  0  1  1  1  0  0  0  0  0   0   0   0   1   0     # appW
+   0  0  0  1  1  1  0  0  0  0  0   0   0   0  -1   0     # appR
+   -1.5 -0.5
+step 26                           # v27 = [appW appR]
+dense 16 1 3                      # v28 = scale = 2^(16 SK)
+   65535 4294901760 0
+   1
+concat 8 28                       # v29 = [c, scale]
+mul 29 0 1 1 2                    # v30 = prod
+slice 14 0 1                      # v31 = [SACC]
+concat 30 31                      # v32
+dense 32 1 2                      # v33 = newacc
+   1 1
+   0
+concat 24 27                      # v34 (15)
+dense 34 5 15                     # v35 = mul gates [appW, fin, appR, keepS, keepTV]
+# G0 G1 G2 G3 G4 G5 G6 G7 G8 G9 G10 G11 G12 aW aR
+   0  0  0  0  0  0  0  0  0  0  0   0   0   1  0
+   0  0  0  0  0  0  0  1  1  0  0   0   0   0  0
+   0  0  0  0  0  0  0  0  0  0  0   0   0   0  1
+   1  1  1  0  0  0  0  1  1  1  1   0   0   0  0
+   0  0  0  0  0  0  0  0  0 -1 -1   0   0   0  0
+   0 0 0 0 1
+slice 0 55 56                     # v36 = [TV]
+concat 33 31                      # v37 = [newacc SACC]
+concat 37 33                      # v38
+concat 38 31                      # v39
+concat 39 36                      # v40 = [newacc SACC newacc SACC TV]
+concat 35 40                      # v41 (10)
+mul 41 0 5 5 10                   # v42 = [wA wS nA kS kTV]
+slice 0 23 24                     # v43 = [HT]
+slice 0 53 55                     # v44 = [TK TO]
+slice 0 13 14                     # v45 = [STATUS]
+slice 0 30 31                     # v46 = [I]
+concat 34 16                      # v47 (18)
+concat 47 14                      # v48 (23)
+concat 48 43                      # v49 (24)
+concat 49 44                      # v50 (26)
+concat 50 45                      # v51 (27)
+concat 51 46                      # v52 (28)
+concat 52 42                      # v53 = W (33)
+dense 53 9 33                     # v54 MUX_INT pre (M = 8388608)
+# G0      G1      G2      G3 G4 G5 G6 G7      G8      G9      G10      G11 G12 aW      aR      sk1 sk2 SLnz SACC SK SL SW SH HT TK TO ST I wA wS nA kS kTV
+  8388608 8388608 8388608 0  0  0  0  0       0       0       0        0   0   0       8388608 0   0   0    0    0  0  0  0  0  0  0  0  1 0  0  0  0  0    # R0 char addr
+  0       0       0       0  0  0  0  8388608 8388608 0       0        0   0   8388608 0       0   0   0    0    0  0  1  1  0  0  0  0  0 0  0  0  0  0    # R1 word addr
+  0       0       0       0  0  0  0  0       0       8388608 8388608  0   0   0       0       0   0   0    0    0  0  0  1  0  0  0  0  0 0  0  0  0  0    # R2 header addr
+  0       0       0       0  0  0  0  0       0       8388608 8388608  0   0   0       0       0   0   0    0    0  1  0  0  0  0  0  0  0 0  0  0  0  0    # R3 header value SL
+  0       0       0       0  0  0  0  0       0       8388608 8388608  0   0   0       0       1   0   0    0    0  0  1  1  0  0  0  0  0 0  0  0  0  0    # R4 new HT
+  0       0       0       0  0  0  0  0       0      -8388608 -8388608 0   0   0       0       0   0   0    0    0  0  0  0  1  0  0  0  0 0  0  0  0  0    # R5 HT keep
+  0       0       0       0  0  0  0  0       0       8388608 0        0   0   0       0       0   0   0    0    0  0  0  1  0  0  0  0  0 0  0  0  0  0    # R6 TV = SH
+  0       0       0       0  0  0  0  0       0      -8388608 -8388608 0   0   0       0       0   0   0    0    0  0  0  0  0  1  0  0  0 0  0  0  0  0    # R7 TK keep
+  0       0       0       0  0  0  0  0       0      -8388608 -8388608 0   0   0       0       0   0   0    0    0  0  0  0  0  0  1  0  0 0  0  0  0  0    # R8 TO keep
+  -8378368 -8388606 -8388608 -8388608 -8388606 0 -8388608 0 0
+relu 54                           # v55
+concat 53 55                      # v56 (42)
+dense 56 19 42                    # v57 = D
+#G0 G1 G2 G3 G4 G5 G6 G7 G8 G9 10 11 12 aW aR k1 k2 SZ SA SK SL SW SH HT TK TO ST I wA wS nA kS kT R0 R1 R2 R3 R4 R5 R6 R7 R8
+ 70 70 70 70 70 70 79 70 70  0  0 76 73  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 0  0  0  0  0  0  0  0  0  0  0  0  0  0   # next
+  1  1  1  0  0  0  0  2  2  2  2  0  0  2  1  0  0  0  0  0  0  0  0  0  0  0  0  0 0  0  0  0  0  0  0  0  0  0  0  0  0  0   # mem_op
+  0  0  1  0  0  0  0  0  0  0  0  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0 0  0  0  0  0  1  1  1  0  0  0  0  0  0   # addr
+  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 1  1  0  0  0  0  0  0  1  0  0  0  0  0   # value
+  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 0  0  0  0  0  0  0  0  0  0  0  0  0  0
+  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 0  0  0  0  0  0  0  0  0  0  0  0  0  0
+  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 0  0  0  0  0  0  0  0  0  0  0  0  0  0
+  1  2  2  1  1  1  0  3  3  0  0  6  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 0  0  0  0  0  0  0  0  0  0  0  0  0  0   # PC
+  0  0  0  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  0 0  0  0  0  0  0  0  0  0  0  0  0  0  0   # STATUS
+  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 0  0  0  0  0  0  0  0  0  1  1  0  0  0   # HT
+  0  0  1  1  1  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1 0  0  0  0  0  0  0  0  0  0  0  0  0  0   # I
+  1  1  1  0  0  0  0  0  0  0  0  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0 0  0  0  0  0  0  0  0  0  0  0  0  0  0   # RDOK
+  0  0  0  0  0  0  0  0  0  1  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 0  0  0  0  0  0  0  0  0  0  0  0  1  0   # TK
+  0  0  0  0  0  0  0  0  0  2  2  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 0  0  0  0  0  0  0  0  0  0  0  0  0  1   # TO
+  0  0  0  0  0  0  0  0  0  0 3153920 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0  0  0 0  0  0  0  1  0  0  0  0  0  0  1  0  0   # TV
+  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0 0  0  1  1  0  0  0  0  0  0  0  0  0  0   # SACC
+  0  0  0  0  0  0  0  0  0  0  0  0  0 -2  1  0  0  0  0  1  0  0  0  0  0  0  0  0 0  0  0  0  0  0  0  0  0  0  0  0  0  0   # SK
+  0  0  0  1  1  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  0  0  0  0  0  0  0 0  0  0  0  0  0  0  0  0  0  0  0  0  0   # SL
+  0  0  0  0  0  0  0  0  0  0  0  0  0  1  0  0  0  0  0  0  0  1  0  0  0  0  0  0 0  0  0  0  0  0  0  0  0  0  0  0  0  0   # SW
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+slice 57 0 8                      # v58 words 0..7
+slice 0 9 13                      # v59 words 8..11
+concat 58 59                      # v60
+slice 57 8 9                      # v61 STATUS
+concat 60 61                      # v62 (13)
+slice 0 14 23                     # v63 words 13..21
+concat 62 63                      # v64 (22)
+slice 57 9 10                     # v65 HT
+concat 64 65                      # v66 (23)
+slice 0 24 30                     # v67 words 23..28
+concat 66 67                      # v68 (29)
+slice 57 10 11                    # v69 I
+concat 68 69                      # v70 (30)
+slice 0 31 32                     # v71 LEN
+concat 70 71                      # v72 (31)
+slice 57 11 12                    # v73 RDOK
+concat 72 73                      # v74 (32)
+slice 0 33 53                     # v75 words 32..51
+concat 74 75                      # v76 (52)
+slice 57 12 15                    # v77 TK TO TV
+concat 76 77                      # v78 (55)
+slice 0 56 57                     # v79 word 55
+concat 78 79                      # v80 (56)
+slice 57 15 19                    # v81 X0..X3
+concat 80 81                      # v82 (60)
+slice 0 61 65                     # v83 words 60..63
+concat 82 83                      # v84 = output

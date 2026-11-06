@@ -18,7 +18,7 @@ dense 3 10 3                      # v4 = words 0..9
    0 0 0                          # LR (bias 13 = c_set)
    0 0 0                          # LP 0
 # biases
-   27 0 0 0 0 0 0 0 13 0
+   78 0 0 0 0 0 0 0 13 0
 slice 0 11 13                     # v5 = words 10, 11 pass (RSP, MODE)
 dense 3 3 3                       # v6 = words 12..14
    0 0 0                          # STATUS 0

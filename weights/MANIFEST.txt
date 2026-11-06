@@ -31,3 +31,20 @@
 27 weights/kernel/parse_stub.wt
 28 weights/kernel/rej_rd.wt
 29 weights/kernel/rej_wr.wt
+# weights/parse (parse agent), ids 64..79; kernel c_parse calls 78
+64 weights/parse/pentry.wt
+65 weights/parse/unpack.wt
+67 weights/parse/lnum.wt
+70 weights/parse/lstr.wt
+75 weights/parse/numconv.wt
+76 weights/parse/const.wt
+77 weights/parse/ckey.wt
+78 weights/parse/spill.wt
+79 weights/parse/restore.wt
+66 weights/parse/idle.wt
+68 weights/parse/lword.wt
+69 weights/parse/wordend.wt
+71 weights/parse/lerr.wt
+72 weights/parse/lcmp.wt
+73 weights/parse/parse.wt
+74 weights/parse/pemit.wt

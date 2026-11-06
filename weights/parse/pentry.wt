@@ -1,0 +1,142 @@
+# parse/pentry (id 64): entry phases after spill. PC 0 read text length at HS = A.PAY; PC 1 LEN, read
+# HEAP_TOP; PC 2 HT, read FORMULA_TOP; PC 3 FT, call unpack (65); PC 4 read char 0; PC 5 dispatch:
+# '=' formula (66), apostrophe text copy (70), empty (79 restore, blank), else constant (76).
+# Note: weights/parse/pentry.md
+input 65
+slice 0 8 9                       # v1 = [PC]
+dense 1 5 1                       # v2
+   1
+   1
+   1
+   1
+   1
+   -0.5 -1.5 -2.5 -3.5 -4.5
+step 2                            # v3 = s1..s5
+slice 0 0 1                       # v4 = [x0]
+dense 4 4 1                       # v5 = x0 thresholds 61 62 39 40
+   1
+   1
+   1
+   1
+   -60.5 -61.5 -38.5 -39.5
+step 5                            # v6 = [t61 t62 t39 t40]
+slice 0 31 32                     # v7 = [LEN]
+dense 7 1 1                       # v8 = 0.5 - LEN
+   -1
+   0.5
+step 8                            # v9 = END = [LEN == 0]
+concat 3 6                        # v10
+concat 10 9                       # v11 = [s1..s5 t61 t62 t39 t40 END]
+dense 11 4 10                     # v12 gates
+#  s1 s2 s3 s4 s5 t61 t62 t39 t40 END
+   0  0  0  0  1   1  -1   0   0  -1     # gF formula
+   0  0  0  0  1   0   0   1  -1  -1     # gT apostrophe text
+   0  0  0  0  1   0   0   0   0   1     # gB blank
+   0  0  0  0  1  -1   1  -1   1  -1     # gC constant
+   -1.5 -1.5 -1.5 -0.5
+step 12                           # v13 = [gF gT gB gC]
+slice 0 15 16                     # v14 = [APAY]
+slice 0 23 26                     # v15 = [HT EM HS]
+slice 0 28 29                     # v16 = [FT]
+concat 3 13                       # v17 (9)
+concat 17 4                       # v18 (10) x0
+concat 18 14                      # v19 (11) APAY
+concat 19 15                      # v20 (14) HT EM HS
+concat 20 16                      # v21 (15) FT
+concat 21 7                       # v22 = W (16): s1 s2 s3 s4 s5 gF gT gB gC x0 APAY HT EM HS FT LEN
+dense 22 10 16                    # v23 = MUX_INT pre-activations (M = 8388608)
+# s1        s2        s3        s4        s5 gF gT       gB gC x0 APAY HT EM HS FT LEN
+ -8388608   0         0         0         0  0  0        0  0  0  1    0  0  0  0  0    # a0 APAY p0
+  8388608   0         0         0         0  0  0        0  0  0  0    0  0  1  0  0    # a1 HS keep
+  8388608  -8388608   0         0         0  0  0        0  0  1  0    0  0  0  0  0    # a2 x0 p1
+ -8388608   8388608   0         0         0  0  0        0  0  0  0    0  0  0  0  1    # a3 LEN keep
+  0         8388608  -8388608   0         0  0  0        0  0  1  0    0  0  0  0  0    # a4 x0-H0 p2
+  0        -8388608   8388608   0         0  0  0        0  0  0  0    1  0  0  0  0    # a5 HT keep
+  0         0         8388608  -8388608   0  0  0        0  0  1  0    0  0  0  0  0    # a6 x0-F0 p3
+  0         0        -8388608   8388608   0  0  0        0  0  0  0    0  0  0  1  0    # a7 FT keep
+  0         0         8388608  -8388608   0  0  0        0  0  0  0    0  0  1  0  0    # a8 HS+2 p3
+  0         0         0         0         0  0  8388608  0  0  0  0    1  0  0  0  0    # a9 HT gT
+  0 -8388608 -8388608 0 -11542530 0 -8978432 0 -8388606 -8388608
+relu 23                           # v24 = a0..a9
+concat 22 24                      # v25 (26)
+dense 25 14 26                    # v26 = D
+# s1 s2 s3 s4 s5 gF gT gB gC x0 APAY HT EM HS FT LEN  a0 a1 a2 a3 a4 a5 a6 a7 a8 a9
+  0  0  1 -1 -64 66 70 79 76  0  0   0  0  0  0  0    0  0  0  0  0  0  0  0  0  0   # next
+  0  0 -1  1 -1  0  0  0  1   0  0   0  0  0  0  0    0  0  0  0  0  0  0  0  0  0   # mem_op
+  1  1 -2 10240 -10240 0 0 0 10240 0 0 0 0 0 0 0      1  0  0  0  0  0  0  0  0  0   # addr
+  1  1 -3  5 -5   1  1  0  1  0  0   0  0  0  0  0    0  0  0  0  0  0  0  0  0  0   # PC
+  0 3153922 -3153922 0 0 0 0 0 0 0 0 0 0 0 0 0        0  0  0  0  1  1  0  0  0  0   # HT
+  0  0  0  0  0   0  1  0  1  0  0   0  0  0  0  0    0  0  0  0  0  0  0  0  0  0   # EM
+  0  0  0  0  0   0  0  0  0  0  0   0  0  0  0  0    1  1  0  0  0  0  0  0  0  0   # HS
+  0  0 589824 -589824 0 0 0 0 0 0 0 0 0 0 0 0         0  0  0  0  0  0  1  1  0  0   # FT
+  0  0  0  0  0   0  0  0 -1  0  0   0  0  0  0  0    0  0  0  0  0  0  0  0  0  0   # I
+  0  0  0  0  0   0  0  0  0  0  0   0  0  0  0  0    0  0  1  1  0  0  0  0  0  0   # LEN
+  0  0  0  0  0   0  0  0  1  0  0   0  0  0  0  0    0  0  0  0  0  0  0  0  0  0   # RDOK
+  0  0  0  0  0   0  0  0  0  0  0   0  0  0  1  0    0  0  0  0  0  0  0  0  0  0   # OUTP
+  0  0  0  0  0   0  0  0  0  0  0   0  0  0  0  0    0  0  0  0  0  0  0  0  1  0   # X1
+  0  0  0  0  0   0  0  0  0  0  0   0  0  0  0  0    0  0  0  0  0  0  0  0  0  1   # X4
+  64 1 0 1 0 0 0 0 1 0 0 8 0 0
+dense 4 21 1                      # v27 = K constants
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  0 0 0 0  0 0 0 0 0 0  0  1 0 0 0 0  0 0  0  0 0
+slice 26 0 3                      # v28 words 0-2
+slice 27 0 4                      # v29 words 3-6
+concat 28 29                      # v30
+slice 26 3 4                      # v31 PC
+concat 30 31                      # v32 (8)
+slice 0 9 13                      # v33 words 8-11
+concat 32 33                      # v34 (12)
+slice 27 4 10                     # v35 words 12-17 zero (STATUS A NEG PCT PAR)
+concat 34 35                      # v36 (18)
+slice 0 19 23                     # v37 words 18-21
+concat 36 37                      # v38 (22)
+slice 26 4 7                      # v39 words 22-24 HT EM HS
+concat 38 39                      # v40 (25)
+slice 0 26 27                     # v41 word 25
+concat 40 41                      # v42 (26)
+slice 27 10 11                    # v43 word 26 P1 = 0
+concat 42 43                      # v44 (27)
+slice 26 7 8                      # v45 word 27 FT
+concat 44 45                      # v46 (28)
+slice 0 29 30                     # v47 word 28
+concat 46 47                      # v48 (29)
+slice 26 8 11                     # v49 words 29-31 I LEN RDOK
+concat 48 49                      # v50 (32)
+slice 27 11 16                    # v51 words 32-36 E=1 J SP TOPK TOPA
+concat 50 51                      # v52 (37)
+slice 26 11 12                    # v53 word 37 OUTP
+concat 52 53                      # v54 (38)
+slice 27 16 18                    # v55 words 38-39 NT PP
+concat 54 55                      # v56 (40)
+slice 0 41 57                     # v57 words 40-55
+concat 56 57                      # v58 (56)
+slice 27 18 19                    # v59 word 56 X0 = 0
+concat 58 59                      # v60 (57)
+slice 26 12 13                    # v61 word 57 X1
+concat 60 61                      # v62 (58)
+slice 27 19 21                    # v63 words 58-59
+concat 62 63                      # v64 (60)
+slice 26 13 14                    # v65 word 60 X4
+concat 64 65                      # v66 (61)
+slice 0 62 65                     # v67 words 61-63
+concat 66 67                      # v68 (64)

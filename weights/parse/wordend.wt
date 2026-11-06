@@ -1,0 +1,162 @@
+# parse/wordend (id 69): classify a finished word (registers from lword; TK = next char is '(').
+# Range (colon seen and second corner valid) -> TK 2, TO 6, TV OPND1, TV2 OPND2.
+# Reference A1 (row 1..1048576, column A..XFD) not followed by '(' -> TK 1, TO 5, TV OPND.
+# '(' after a known function name (or any non-reference name) -> TK 7, TO 64 + fid (fid 0 unknown), '(' consumed.
+# TRUE / FALSE -> TK 1, TO 3. Any other plain name -> TK 1, TO 4, TV 5 (#NAME?, no defined names yet).
+# Else reject (79). OPND = FLAGS 2^36 + RF 2^15 + CF, relative fields biased (encodings/address.md 6).
+# Known functions (fid = checklist FN number): SUM 441 IF 218 AND 12 OR 348 NOT 334 ABS 1 MIN 304
+# MAX 296 AVERAGE 23 COUNT 86 ROUND 400 PI 362 TRUE 481 FALSE 165. Note: weights/parse/wordend.md
+input 65
+slice 0 57 65                     # v1 = [KEY KLEN COL ROW RS FLAGS OPND1 CSn]
+slice 0 53 54                     # v2 = [LPF]
+slice 0 21 23                     # v3 = [HR HC]
+concat 1 2                        # v4 (9)
+concat 4 3                        # v5 (11)
+dense 5 11 11                     # v6 thresholds
+#KEY KLEN COL ROW RS FL OP CS LPF HR HC
+  0   0    0   0   1  0  0  0  0   0  0     # rs4
+  0   0    0   0   1  0  0  0  0   0  0     # rs5
+  0   0   -1   0   0  0  0  0  0   0  0     # COLok
+  0   0    0  -1   0  0  0  0  0   0  0     # ROWok
+  0   0    0   1   0  0  0  0  0   0  0     # ROWge1
+  0  -1    0   0   0  0  0  0  0   0  0     # nameok
+  0   0    0   0   0  1  0  0  0   0  0     # f1
+  0   0    0   0   0  1  0  0  0   0  0     # f2
+  0   0    0   0   0  1  0  0  0   0  0     # f3
+  0   0    0   0   0  0  0  1  0   0  0     # CS
+  0   0    0   0   0  0  0  0  1   0  0     # LP
+  -3.5 -4.5 16384.5 1048576.5 -0.5 99.5 -0.5 -1.5 -2.5 -0.5 -0.5
+step 6                            # v7 (11)
+dense 5 28 11                     # v8 = [KEY - k_j, k_j - KEY]
+   1 0 0 0 0 0 0 0 0 0 0
+   1 0 0 0 0 0 0 0 0 0 0
+   1 0 0 0 0 0 0 0 0 0 0
+   1 0 0 0 0 0 0 0 0 0 0
+   1 0 0 0 0 0 0 0 0 0 0
+   1 0 0 0 0 0 0 0 0 0 0
+   1 0 0 0 0 0 0 0 0 0 0
+   1 0 0 0 0 0 0 0 0 0 0
+   1 0 0 0 0 0 0 0 0 0 0
+   1 0 0 0 0 0 0 0 0 0 0
+   1 0 0 0 0 0 0 0 0 0 0
+   1 0 0 0 0 0 0 0 0 0 0
+   1 0 0 0 0 0 0 0 0 0 0
+   1 0 0 0 0 0 0 0 0 0 0
+  -1 0 0 0 0 0 0 0 0 0 0
+  -1 0 0 0 0 0 0 0 0 0 0
+  -1 0 0 0 0 0 0 0 0 0 0
+  -1 0 0 0 0 0 0 0 0 0 0
+  -1 0 0 0 0 0 0 0 0 0 0
+  -1 0 0 0 0 0 0 0 0 0 0
+  -1 0 0 0 0 0 0 0 0 0 0
+  -1 0 0 0 0 0 0 0 0 0 0
+  -1 0 0 0 0 0 0 0 0 0 0
+  -1 0 0 0 0 0 0 0 0 0 0
+  -1 0 0 0 0 0 0 0 0 0 0
+  -1 0 0 0 0 0 0 0 0 0 0
+  -1 0 0 0 0 0 0 0 0 0 0
+  -1 0 0 0 0 0 0 0 0 0 0
+# SUM IF AND OR NOT ABS MIN MAX AVERAGE COUNT ROUND PI TRUE FALSE
+  -29731 -357 -2071 -603 -21899 -1618 -20138 -19836 -5516312885 -7862615 -42564214 -633 -1214582 -13958963
+  29731 357 2071 603 21899 1618 20138 19836 5516312885 7862615 42564214 633 1214582 13958963
+step 8                            # v9 = [p1..p14, n1..n14]
+concat 7 9                        # v10 (39)
+dense 10 8 39                     # v11 = layer A
+#rs4 rs5 Cok Rok R1 nm f1 f2 f3 CS LP | p(14)                        | n(14)
+  1  -1   1   1   1  0  0  0  0  0  0   0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0 0 0   # refv
+  0   0   0   0   0  0  0  0  0  0  0  -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1  -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1   # fm
+  0   0   0   0   0  0  0  0  0  0  0   0 0 0 0 0 0 0 0 0 0 0 0 -1 -1  0 0 0 0 0 0 0 0 0 0 0 0 -1 -1   # bt
+  0   0   0   0   0  0  1 -1  1  0  0   0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0 0 0   # rabs
+  0   0   0   0   0  0  0  1  0  0  0   0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0 0 0   # cabs
+  0   0   0   0   0  0  0  0  0  1  0   0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0 0 0   # CS
+  0   0   0   0   0  0  0  0  0  0  1   0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0 0 0   # LP
+  0   0   0   0   0  1  0  0  0  0  0   0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0 0 0   # nm
+  -3.5 13.5 1.5 -0.5 -0.5 -0.5 -0.5 -0.5
+step 11                           # v12 = [refv fm bt rabs cabs CS LP nm]
+dense 10 1 39                     # v13 = fid of the matched key (0 if none)
+  0 0 0 0 0 0 0 0 0 0 0  -441 -218 -12 -348 -334 -1 -304 -296 -23 -86 -400 -362 -481 -165  -441 -218 -12 -348 -334 -1 -304 -296 -23 -86 -400 -362 -481 -165
+  3471
+dense 12 6 8                      # v14 = layer B cases
+#refv fm bt rabs cabs CS LP nm
+   1   0  0  0    0    1  0  0    # rng
+   1   0  0  0    0   -1 -1  0    # ref
+   0   1  0  0    0   -1  1  1    # fn1 known function
+  -1  -1  0  0    0   -1  1  1    # fn2 unknown name with (
+  -1   0  1  0    0   -1 -1  0    # bool
+  -1   0 -1  0    0   -1 -1  1    # name
+   -1.5 -0.5 -2.5 -1.5 -0.5 -0.5
+step 14                           # v15 (6)
+concat 15 12                      # v16 (14)
+concat 16 13                      # v17 (15)
+concat 17 5                       # v18 (26)
+slice 0 30 31                     # v19 = [I]
+slice 0 13 14                     # v20 = [STATUS]
+concat 18 19                      # v21 (27)
+concat 21 20                      # v22 (28)
+dense 9 1 28                      # v23 = eqT
+  0 0 0 0 0 0 0 0 0 0 0 0 -1 0  0 0 0 0 0 0 0 0 0 0 0 0 -1 0
+  1
+concat 22 23                      # v24 = W (29)
+dense 24 3 29                     # v25 MUX_INT pre: rr, rc, rf
+#rng ref fn1     fn2     bool name refv fm bt rabs     cabs     CS LP nm fid KEY KLEN COL ROW RS FL OP CSn LPF HR HC I ST eqT
+ 0   0   0       0       0    0    0    0  0  -8388608 0        0  0  0  0   0   0    0   0   0  0  0  0   0   -1 0  0 0  0
+ 0   0   0       0       0    0    0    0  0  0        -8388608 0  0  0  0   0   0    0   0   0  0  0  0   0   0 -1  0 0  0
+ 0   0   8388608 8388608 0    0    0    0  0  0        0        0  0  0  1   0   0    0   0   0  0  0  0   0   0  0  0 0  0
+  1048576 16384 -8388608
+relu 25                           # v26 = [rr rc rf]
+concat 24 26                      # v27 (32)
+dense 27 1 32                     # v28 = OPND2
+#rng ref fn1 fn2 bool name refv fm bt ra ca CS LP nm fid KEY KLEN COL ROW   RS FL          OP CSn LPF HR HC I ST eqT rr    rc rf
+ 0   0   0   0   0    0    0    0  0  0  0  0  0  0  0   0   0    1   32768 0  68719476736 0  0   0   0  0  0 0  0   32768 1  0
+ -32769
+dense 27 4 32                     # v29 = mul gates [rng ref bool rng]
+ 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0
+slice 27 21 22                    # v30 = [OPND1]
+concat 30 28                      # v31 = [OPND1 OPND2]
+slice 27 28 29                    # v32 = [eqT]
+concat 31 32                      # v33
+concat 33 28                      # v34 = [OPND1 OPND2 eqT OPND2]
+concat 29 34                      # v35 (8)
+mul 35 0 4 4 8                    # v36 = [m1 m2 m3 m4]
+concat 27 36                      # v37 = W2 (36)
+dense 37 15 36                    # v38 = D
+#rng ref fn1 fn2 bool name | refv fm bt ra ca CS LP nm fid KEY KLEN COL ROW RS FL OP CSn LPF HR HC I ST eqT rr rc rf | m1 m2 m3 m4
+ -6 -6 -6 -6 -6 -6    0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0   # next = 79 - 6 (cases)
+  0  0  0  0  0  0    0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0
+  0  0  0  0  0  0    0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0
+  0  0  0  0  0  0    0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0
+  0  0  0  0  0  0    0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0
+  0  0  0  0  0  0    0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0
+  0  0  0  0  0  0    0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0
+  0  0  0  0  0  0    0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0   # PC 0
+ -1 -1 -1 -1 -1 -1    0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0   0 0 0 0   # STATUS
+  0  0  1  1  0  0    0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0   0 0 0 0   # I
+  0  0  0  0  0  0    0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0   # RDOK
+  2  1  7  7  1  1    0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0   # TK
+  6  5 64 64  3  4    0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1   0 0 0 0   # TO
+  0  0  0  0  0  5    0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0   1 1 1 0   # TV
+  0  0  0  0  0  0    0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 1   # TV2
+  79 0 0 0 0 0 0 0 1 0 0 0 0 0 0
+slice 38 0 8                      # v39 words 0..7
+slice 0 9 13                      # v40 words 8..11
+concat 39 40                      # v41
+slice 38 8 9                      # v42 STATUS
+concat 41 42                      # v43 (13)
+slice 0 14 30                     # v44 words 13..28
+concat 43 44                      # v45 (29)
+slice 38 9 10                     # v46 I
+concat 45 46                      # v47 (30)
+slice 0 31 32                     # v48 LEN
+concat 47 48                      # v49 (31)
+slice 38 10 11                    # v50 RDOK
+concat 49 50                      # v51 (32)
+slice 0 33 53                     # v52 words 32..51
+concat 51 52                      # v53 (52)
+slice 38 11 15                    # v54 TK TO TV TV2
+concat 53 54                      # v55 (56)
+slice 0 57 65                     # v56 words 56..63
+concat 55 56                      # v57 = output
