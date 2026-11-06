@@ -1,0 +1,105 @@
+# files/csv_commit (id 452): finish one CSV field string and commit it to cell (0, L1, L2).
+# Hand-written. Not generated. Note: weights/files/csv_pack.md
+# PC 0 write len at HS; 1 write refcount 1 at HS+1; 2 write HEAP_TOP = waddr + [pos > 0];
+# 3 call parser 78 (A = (2, HS), address (0, L1, L2), P1 = 0, LR 452 LP 4);
+# 4 call CELL_SET 16 (T1 = 1, LR = 450 hk_file); a rejected entry is stored as text (A = (2, HS), P1 = 0).
+input 65
+slice 0 8 9                       # v1 [PC]
+slice 0 13 16                     # v2 [STATUS, A.TAG, A.PAY]
+slice 0 27 28                     # v3 [P1]
+slice 0 42 49                     # v4 [L1 .. L7]
+concat 1 2                        # v5
+concat 5 3                        # v6
+concat 6 4                        # v7 u = [PC ST TAG PAY P1 L1 L2 HS len acc pos waddr]
+dense 7 13 12                     # v8 IS_K pairs PC 0..4, STATUS 0, pos > 0
+# PC ST TAG PAY P1 L1 L2 HS len acc pos waddr
+  1 0 0 0 0 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 1 0
+# biases
+  0.5 -0.5  -0.5 -1.5  -1.5 -2.5  -2.5 -3.5  -3.5 -4.5  0.5 -0.5  -0.5
+step 8                            # v9
+dense 9 7 13                      # v10 [p0 p1 p2 p3 p4 ok posnz]
+  1 -1 0  0 0  0 0  0 0  0 0  0 0
+  0  0 1 -1 0  0 0  0 0  0 0  0 0
+  0  0 0  0 1 -1 0  0 0  0 0  0 0
+  0  0 0  0 0  0 1 -1 0  0 0  0 0
+  0  0 0  0 0  0 0  0 1 -1 0  0 0
+  0  0 0  0 0  0 0  0 0  0 1 -1 0
+  0  0 0  0 0  0 0  0 0  0 0  0 1
+  0 0 0 0 0 0 0
+dense 10 2 7                      # v11 q = p4 and not ok; a2 = p2 and posnz
+# p0 p1 p2 p3 p4 ok posnz
+  0 0 0 0 1 -1 0
+  0 0 1 0 0  0 1
+  -0.5 -1.5
+step 11                           # v12
+concat 10 12                      # v13 H = [p0 p1 p2 p3 p4 ok posnz q a2]
+concat 13 7                       # v14 [H (9), u (12)] (21)
+dense 14 6 21                     # v15 gated integer terms
+# p0 p1 p2 p3 p4 ok posnz q a2 | PC ST TAG PAY P1 L1 L2 HS len acc pos waddr
+  8388608 8388608 0 0 0 0 0 0 0   0 0 0 0 0 0 0 1 0 0 0 0   # Ra HS if p0 or p1
+  8388608 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 1 0 0 0   # Rb len if p0
+  0 0 8388608 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 1   # Rc waddr if p2
+  0 0 0 -8 0 0 0 -8 0   0 0 1 0 0 0 0 0 0 0 0 0   # Rd TAG unless p3 or q
+  0 0 0 8388608 0 0 0 8388608 0   0 0 0 0 0 0 0 1 0 0 0 0   # Re HS if p3 or q
+  0 0 0 -8388608 0 0 0 -8388608 0   0 0 0 0 1 0 0 0 0 0 0 0   # Rf P1 unless p3 or q
+  -8388608 -8388608 -8388608 0 -8388608 0
+relu 15                           # v16 R
+dense 13 1 9                      # v17 keep = 1 - p3 - q
+  0 0 0 -1 0 0 0 -1 0
+  1
+slice 0 15 16                     # v18 [A.PAY]
+concat 17 18                      # v19 [keep, PAY]
+mul 19 0 1 1 2                    # v20 PAYk = keep * PAY (exact: keep is 0 or 1)
+concat 14 16                      # v21 [H, u, R] (27)
+concat 21 20                      # v22 (28)
+dense 22 17 28                    # v23 D = words 0..9, 13, 14, 19, 20, 21, 26, 30
+# p0 p1 p2 p3 p4 ok posnz q a2 | PC ST TAG PAY P1 L1 L2 HS len acc pos waddr | Ra Rb Rc Rd Re Rf | PAYk
+  0 0 0 -374 -436 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0   0   # next
+  2 2 2 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0   0   # mem_op
+  0 1 1 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0   1 0 0 0 0 0   0   # addr
+  0 1 0 0 0 0 0 0 1   0 0 0 0 0 0 0 0 0 0 0 0   0 1 1 0 0 0   0   # value
+  0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0   0   # io
+  0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0   0   # io_arg
+  0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0   0   # halt
+  1 2 3 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0   0   # PC
+  0 0 0 452 450 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0   0   # LR
+  0 0 0 4 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0   0   # LP
+  0 0 0 2 0 0 0 2 0   0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 1 0 0   0   # A.TAG
+  0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 1 0   1   # A.PAY
+  0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0   0   # AS
+  0 0 0 0 0 0 0 0 0   0 0 0 0 0 1 0 0 0 0 0 0   0 0 0 0 0 0   0   # AR1 = L1
+  0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 1 0 0 0 0 0   0 0 0 0 0 0   0   # AC1 = L2
+  0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 1   0   # P1
+  0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0   0   # T1
+  452 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1
+slice 23 0 10                     # v24 words 0..9
+slice 0 11 14                     # v25 words 10..12
+slice 23 10 12                    # v26 words 13, 14
+slice 0 16 20                     # v27 words 15..18
+slice 23 12 15                    # v28 words 19..21
+slice 0 23 27                     # v29 words 22..25
+slice 23 15 16                    # v30 word 26
+slice 0 28 31                     # v31 words 27..29
+slice 23 16 17                    # v32 word 30
+slice 0 32 65                     # v33 words 31..63
+concat 24 25
+concat 34 26
+concat 35 27
+concat 36 28
+concat 37 29
+concat 38 30
+concat 39 31
+concat 40 32
+concat 41 33

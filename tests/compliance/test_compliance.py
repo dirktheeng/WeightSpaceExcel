@@ -151,6 +151,20 @@ def output_test_violations(path):
         v = _norm(v) if v is not None else None
         return v is not None and (v in (MANIFEST_REL, CHECKLIST_REL) or (v[:1] == ("tests",) and len(v) > 1))
 
+    # Names bound only from expressions built on pytest's tmp_path fixture. Files
+    # there are written by the engine during the test (for example a CSV export),
+    # so reading them back is black-box observation, never a weight read.
+    tmp_names = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name):
+            if any(isinstance(n, ast.Name) and n.id == "tmp_path" for n in ast.walk(node.value)):
+                tmp_names.add(node.targets[0].id)
+
+    def _from_tmp_path(target):
+        if isinstance(target, ast.Name) and target.id in tmp_names:
+            return True
+        return any(isinstance(n, ast.Name) and n.id == "tmp_path" for n in ast.walk(target))
+
     for node in ast.walk(tree):
         if isinstance(node, (ast.Import, ast.ImportFrom)):
             mods = [a.name for a in node.names] if isinstance(node, ast.Import) else [node.module or ""]
@@ -178,6 +192,8 @@ def output_test_violations(path):
         elif name in OPEN_CALLS:
             if name == "load" and isinstance(fn, ast.Attribute) and getattr(fn.value, "id", "") in ("json", "yaml"):
                 continue  # parses an already opened handle
+            if node.args and _from_tmp_path(node.args[0]):
+                continue  # pytest's per-test temporary directory: output the engine wrote
             if not node.args or not allowed(node.args[0]):
                 bad.append(f"line {node.lineno}: {name} target not a static path under tests/")
     return bad

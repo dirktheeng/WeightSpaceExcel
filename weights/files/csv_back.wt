@@ -1,0 +1,17 @@
+# files/csv_back (id 451): read HEAP_TOP (0x01), go to csv_pack (449) PC 1. All other words pass.
+# Hand-written. Note: weights/files/csv_pack.md
+input 65
+slice 0 0 1                       # v1 = [x0] (multiplied by zero weights only)
+dense 1 8 1                       # v2 = words 0..7
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+# biases: next 449, read, addr 1, value, io, io_arg, halt, PC 1
+  449 1 1 0 0 0 0 1
+slice 0 9 65                      # v3 = words 8..63
+concat 2 3

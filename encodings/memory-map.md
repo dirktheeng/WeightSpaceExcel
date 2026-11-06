@@ -41,7 +41,8 @@ Free memory is 0x000000 to 0x0FFFFF (1,048,576 words) and 0x302000 to 0x3FFFFF (
 | UI_STATE | 0x0F0000 to 0x0FFFFF | 65536 | selection lists, edit buffer, dirty rectangle list, ribbon and dialog state (stage 2 onward) |
 | GUARD | 0x301041 to 0x301FFF | 4031 | unused |
 | TEXT_HEAP | 0x302000 to 0x37FFFF | 516096 | strings (section 9) |
-| VBA_STATE | 0x380000 to 0x3BFFFF | 262144 | VBA modules, bytecode, frames, objects (section 10) |
+| VBA_STATE | 0x380000 to 0x3AFFFF | 196608 | VBA modules, bytecode, frames, objects (section 10) |
+| FILE_SCRATCH | 0x3B0000 to 0x3BFFFF | 65536 | file import and export work space: CSV token stream, inflate output window, XML token stream (stage 8, decision F2 in log/WORKLOG.md; weights/files) |
 | WEIGHT_STAGING | 0x3C0000 to 0x3EFFFF | 196608 | memory-form networks written by generators (section 11) |
 | UNDO_LOG | 0x3F0000 to 0x3FFFFF | 65536 | circular undo and redo log (stage 7) |
 
@@ -161,7 +162,7 @@ Allocation is a bump pointer; strings are immutable once written. Reclaiming dea
 
 ## 10. VBA state (first plan)
 
-0x380000 to 0x38FFFF module source and token streams; 0x390000 to 0x39FFFF bytecode; 0x3A0000 to 0x3AFFFF call frames and locals (variables use the value layout with VBA tags 16 to 63); 0x3B0000 to 0x3BFFFF object table (handles for Application, Workbook, Worksheet, Range objects, collections, class instances). Defined in stage 9.
+0x380000 to 0x38FFFF module source and token streams; 0x390000 to 0x39FFFF bytecode; 0x3A0000 to 0x3A7FFF call frames and locals (variables use the value layout with VBA tags 16 to 63); 0x3A8000 to 0x3AFFFF object table (moved from 0x3B0000 by decision F2, which gave 0x3B0000 to 0x3BFFFF to FILE_SCRATCH) (handles for Application, Workbook, Worksheet, Range objects, collections, class instances). Defined in stage 9.
 
 ## 11. Weight staging
 

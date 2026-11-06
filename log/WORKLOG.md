@@ -539,3 +539,9 @@
 
 ## 2026-11-06, decision C1: borrowing from SynapseWrite
 - Decided by the project owner: agents may use architecture ideas and weight values from the sibling project SynapseWrite. Values are carried over by hand only (read and typed, or entered with the Edit tool); no code may extract, convert or generate weights. Each borrowed block's note cites its source.
+
+### F3 (DECISION): a CSV field the parser rejects is stored as text
+- Decided: csv_commit stores the field as a text constant when the entry parser rejects it (for example "=1+"), instead of skipping it.
+- Alternatives: skip the cell; store #NAME?.
+- Why: Excel's open of a CSV never asks for corrections and does not lose data; a malformed formula stays visible as text. Open question Q-F3: verify against Excel.
+- Affects: weights/files/csv_commit.wt only.

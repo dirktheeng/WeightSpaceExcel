@@ -1,0 +1,51 @@
+# files/csv_imp (id 453): CSV import entry. Spills [LINK, L0..L11] to RET_STACK by one block write,
+# RSP += 13, sets L0 = P0 (token buffer), L1 = AR1, L2 = L8 = AC1, L9 = L10 = L11 = 0; next csv_back (451).
+# Hand-written. Not generated. Note: weights/files/csv_pack.md. Output length 77 (64 state + 13 payload).
+input 65
+slice 0 9 12                      # v1 [LR LP RSP]
+slice 0 22 24                     # v2 [AR1 AC1]
+slice 0 26 27                     # v3 [P0]
+concat 1 2                        # v4
+concat 4 3                        # v5 c = [LR LP RSP AR1 AC1 P0]
+dense 5 8 6                       # v6 words 0..7
+# LR LP RSP AR1 AC1 P0
+  0 0 0 0 0 0                     # next 451
+  0 0 0 0 0 0                     # mem_op 3 block write
+  0 0 1 0 0 0                     # addr RSP
+  0 0 0 0 0 0                     # value 64 * 2^20 + 13
+  0 0 0 0 0 0
+  0 0 0 0 0 0
+  0 0 0 0 0 0
+  0 0 0 0 0 0                     # PC 1
+  451 3 0 67108877 0 0 0 1
+slice 0 9 11                      # v7 words 8, 9
+dense 5 1 6                       # v8 word 10 RSP + 13
+  0 0 1 0 0 0
+  13
+slice 0 12 41                     # v9 words 11..39
+dense 5 3 6                       # v10 words 40..42 L0 L1 L2
+  0 0 0 0 0 1
+  0 0 0 1 0 0
+  0 0 0 0 1 0
+  0 0 0
+slice 0 44 49                     # v11 words 43..47 (L3..L7, set later by csv_pack PC 1)
+dense 5 4 6                       # v12 words 48..51 L8 L9 L10 L11
+  0 0 0 0 1 0
+  0 0 0 0 0 0
+  0 0 0 0 0 0
+  0 0 0 0 0 0
+  0 0 0 0
+slice 0 53 65                     # v13 words 52..63
+dense 5 1 6                       # v14 payload word 64 LINK = 65536 LR + LP
+  65536 1 0 0 0 0
+  0
+slice 0 41 53                     # v15 payload 65..76 old L0..L11
+concat 6 7
+concat 16 8
+concat 17 9
+concat 18 10
+concat 19 11
+concat 20 12
+concat 21 13
+concat 22 14
+concat 23 15

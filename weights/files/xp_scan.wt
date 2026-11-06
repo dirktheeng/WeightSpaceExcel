@@ -1,0 +1,69 @@
+# files/xp_scan (id 456): used range of sheet 0 by a pass over all 65536 cell slots (KEY words).
+# PC 0: read KEY of slot L0. PC 1: x0 = KEY of slot L0: if 1 <= KEY <= 2^34 (sheet 0), row and col of
+# K = KEY - 1 update L1 = max row, L2 = max col; L0 += 1; read next KEY, or after slot 65535 read
+# HEAP_TOP and go to xp_cell (457) PC 9. Hand-written. Note: weights/files/csv_export.md
+input 65
+slice 0 0 1                       # v1 [k]
+slice 0 8 9                       # v2 [PC]
+slice 0 41 44                     # v3 [L0 L1 L2]
+concat 1 2                        # v4
+concat 4 3                        # v5 c = [k PC L0 L1 L2]
+dense 5 1 5                       # v6 Kp = k - 1
+  1 0 0 0 0
+  -1
+dense 6 1 1                       # v7 Kp 2^-14 + C
+  0.00006103515625
+  6755399441055744
+dense 7 1 1                       # v8 r = round(Kp 2^-14)
+  1
+  -6755399441055744
+concat 8 6                        # v9 [r, Kp]
+dense 9 1 2                       # v10 r - Kp 2^-14
+  1 -0.00006103515625
+  0
+step 10                           # v11 g; row = r - g
+dense 5 4 5                       # v12 [p1, k >= 1, k > 2^34, L0 >= 65535]
+  0 1 0 0 0
+  1 0 0 0 0
+  1 0 0 0 0
+  0 0 1 0 0
+  -0.5 -0.5 -17179869184.5 -65534.5
+step 12                           # v13
+dense 13 2 4                      # v14 [valid and p1, done]
+  1 1 -1 0
+  1 0 0 1
+  -1.5 -1.5
+step 14                           # v15
+concat 13 15                      # v16 [p1 kpos kbig dn v1u done]
+concat 16 9                       # v17 + [r Kp]
+concat 17 11                      # v18 + [g]
+concat 18 5                       # v19 + c (14)
+dense 19 3 14                     # v20
+# p1 kpos kbig dn v1u done r Kp g k PC L0 L1 L2
+  0 0 0 0 1099511627776 0 1 0 -1 0 0 0 -1 0                    # Q0 row - L1 if valid
+  0 0 0 0 1099511627776 0 -16384 1 16384 0 0 0 0 -1            # Q1 col - L2 if valid
+  8 0 0 0 0 -8388608 0 0 0 0 0 8 0 0                           # Q2 65536 + 8 (L0 + p1) unless done
+  -1099511627776 -1099511627776 65536
+relu 20                           # v21
+concat 19 21                      # v22 (17)
+dense 22 11 17                    # v23 words 0..7, 40..42
+# p1 kpos kbig dn v1u done r Kp g k PC L0 L1 L2 Q0 Q1 Q2
+  0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0   # next
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0   # mem_op read
+  0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 1   # addr
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 8 0 0 0 0 0 0 0 0 0 0 0   # PC
+  1 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0   # L0
+  0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 0 0   # L1
+  0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 0   # L2
+  456 1 0 0 0 0 0 1 0 0 0
+slice 23 0 8                      # v24
+slice 0 9 41                      # v25 words 8..39
+slice 23 8 11                     # v26 words 40..42
+slice 0 44 65                     # v27 words 43..63
+concat 24 25
+concat 28 26
+concat 29 27

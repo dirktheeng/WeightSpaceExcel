@@ -1,0 +1,48 @@
+# files/xp_imp (id 455): CSV export entry. Spills [LINK, L0..L11] by one block write (RSP += 13).
+# N0 = output file id. Sets L0 = 0 (slot), L1 = L2 = -1 (max row, col), L4 = N0, L5 = L6 = 0 (r, c),
+# L7 = 0x201001 (byte pointer). next xp_scan (456) PC 0. Hand-written. Note: weights/files/csv_export.md
+input 65
+slice 0 9 12                      # v1 [LR LP RSP]
+slice 0 28 29                     # v2 [N0]
+concat 1 2                        # v3 c = [LR LP RSP N0]
+dense 3 8 4                       # v4 words 0..7
+  0 0 0 0
+  0 0 0 0
+  0 0 1 0
+  0 0 0 0
+  0 0 0 0
+  0 0 0 0
+  0 0 0 0
+  0 0 0 0
+  456 3 0 67108877 0 0 0 0
+slice 0 9 11                      # v5 words 8, 9
+dense 3 1 4                       # v6 word 10 RSP + 13
+  0 0 1 0
+  13
+slice 0 12 41                     # v7 words 11..39
+dense 3 12 4                      # v8 words 40..51
+  0 0 0 0
+  0 0 0 0
+  0 0 0 0
+  0 0 0 0
+  0 0 0 1
+  0 0 0 0
+  0 0 0 0
+  0 0 0 0
+  0 0 0 0
+  0 0 0 0
+  0 0 0 0
+  0 0 0 0
+  0 -1 -1 0 0 0 0 2101249 0 0 0 0
+slice 0 53 65                     # v9 words 52..63
+dense 3 1 4                       # v10 payload LINK
+  65536 1 0 0
+  0
+slice 0 41 53                     # v11 payload old L0..L11
+concat 4 5
+concat 12 6
+concat 13 7
+concat 14 8
+concat 15 9
+concat 16 10
+concat 17 11

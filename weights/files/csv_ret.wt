@@ -1,0 +1,40 @@
+# files/csv_ret (id 454): block consumer after csv_pack's block read of the spill (13 words).
+# Input 78: [0, state 0..63, LINK, old L0..L11]. Restores L0..L11, STATUS 0, returns to LINK = (LR, LP).
+# Hand-written. Not generated. Note: weights/files/csv_pack.md. FLOOR block from encodings/primitives.md.
+input 78
+slice 0 65 66                     # v1 [LINK]
+dense 1 1 1                       # v2 y = LINK 2^-16 + C (C = 1.5 2^52)
+  0.0000152587890625
+  6755399441055744
+dense 2 1 1                       # v3 r = round(LINK 2^-16)
+  1
+  -6755399441055744
+concat 3 1                        # v4 [r, LINK]
+dense 4 1 2                       # v5 r - LINK 2^-16
+  1 -0.0000152587890625
+  0
+step 5                            # v6 g = [r > LINK 2^-16]
+concat 4 6                        # v7 [r, LINK, g]
+dense 7 8 3                       # v8 words 0..7
+# r LINK g
+  1 0 -1                          # next = floor = r - g
+  0 0 0
+  0 0 0
+  0 0 0
+  0 0 0
+  0 0 0
+  0 0 0
+  -65536 1 65536                  # PC = LINK - 65536 floor
+  0 0 0 0 0 0 0 0
+slice 0 9 13                      # v9 words 8..11
+dense 1 1 1                       # v10 word 12 STATUS 0
+  0
+  0
+slice 0 14 41                     # v11 words 13..39
+slice 0 66 78                     # v12 words 40..51 restored
+slice 0 53 65                     # v13 words 52..63
+concat 8 9
+concat 14 10
+concat 15 11
+concat 16 12
+concat 17 13
