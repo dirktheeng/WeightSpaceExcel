@@ -1,0 +1,15 @@
+# ui/olD (id 157): write UI_ACOL = L3; L14 = 0 (rectangle counter). next 158.
+# Note: weights/ui/outline.md
+input 65
+slice 0 44 45                     # v1 = [L3]
+dense 1 7 1                       # v2 = words 0..6
+   0 0 0 1 0 0 0
+   158 2 65 0 0 0 0
+slice 0 8 55                      # v3 = words 7..53
+dense 1 1 1                       # v4 = L14 = 0
+   0
+   0
+slice 0 56 65                     # v5 = words 55..63
+concat 2 3
+concat 6 4
+concat 7 5

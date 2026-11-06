@@ -1,0 +1,17 @@
+# ui/ce4 (id 147): write A.PAY into the cache. next 148. Note: weights/ui/cells.md
+input 65
+slice 0 15 16                     # v1 = [pay]
+slice 0 53 55                     # v2 = [r c]
+concat 1 2                        # v3 = [pay r c]
+dense 3 8 3                       # v4 = words 0..7
+   0 0  0
+   0 0  0
+   0 40 2
+   1 0  0                         # value = pay (single unit weight, exact)
+   0 0  0
+   0 0  0
+   0 0  0
+   0 0  0
+   148 2 987137 0 0 0 0 0
+slice 0 9 65                      # v5 = words 8..63
+concat 4 5

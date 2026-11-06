@@ -1,0 +1,35 @@
+# ui/ce3 (id 146): x0 = cached PAY, L14 = cached TAG. If (TAG, PAY) differs from A, write the
+# new TAG into the cache and go to 147; otherwise skip to 151. Note: weights/ui/cells.md
+input 65
+slice 0 0 1                       # v1 = [cpay]
+slice 0 14 16                     # v2 = [tag pay]
+slice 0 53 56                     # v3 = [r c ctag]
+concat 1 2                        # v4
+concat 4 3                        # v5 = [cpay tag pay r c ctag]
+dense 5 4 6                       # v6 = differences (R2 rows; only steps read them)
+   0  1  0 0 0 -1
+   0 -1  0 0 0  1
+  -1  0  1 0 0  0
+   1  0 -1 0 0  0
+   0 0 0 0
+step 6                            # v7
+dense 7 1 4                       # v8
+   1 1 1 1
+   -0.5
+step 8                            # v9 = ch
+slice 5 1 2                       # v10 = [tag]
+slice 5 3 5                       # v11 = [r c]
+concat 10 11                      # v12
+concat 12 9                       # v13 = [tag r c ch]
+dense 13 8 4                      # v14 = words 0..7
+   0 0  0 -4                      # next = 151 - 4 ch
+   0 0  0  2                      # mem_op = 2 ch
+   0 40 2  0                      # addr
+   1 0  0  0                      # value = tag
+   0 0  0  0
+   0 0  0  0
+   0 0  0  0
+   0 0  0  0
+   151 0 987136 0 0 0 0 0
+slice 0 9 65                      # v15 = words 8..63
+concat 14 15

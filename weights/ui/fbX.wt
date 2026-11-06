@@ -1,0 +1,16 @@
+# ui/fbX (id 169): nothing to show in the formula bar: return to (L22, L23).
+# Note: weights/ui/fbar.md
+input 65
+slice 0 63 65                     # v1 = [L22 L23]
+dense 1 8 2                       # v2 = words 0..7
+   1 0
+   0 0
+   0 0
+   0 0
+   0 0
+   0 0
+   0 0
+   0 1
+   0 0 0 0 0 0 0 0
+slice 0 9 65                      # v3 = words 8..63
+concat 2 3

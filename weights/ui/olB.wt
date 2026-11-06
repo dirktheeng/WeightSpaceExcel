@@ -1,0 +1,11 @@
+# ui/olB (id 155): L15 = old row (x0); read UI_ACOL (0x41). next 156. Note: weights/ui/outline.md
+input 65
+slice 0 0 1                       # v1 = [x0]
+dense 1 7 1                       # v2 = words 0..6
+   0 0 0 0 0 0 0
+   156 1 65 0 0 0 0
+slice 0 8 56                      # v3 = words 7..54
+slice 0 57 65                     # v4 = words 56..63
+concat 2 3
+concat 5 1
+concat 6 4

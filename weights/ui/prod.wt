@@ -1,0 +1,104 @@
+# ui/prod (id 149): produce the display text of value A into BUF, then return to L17.
+# TAG 1 number -> fnum (131); 2 text -> hcopy (133, T0 = handle); 3 boolean -> str (130,
+# TRUE 108 / FALSE 113); 4 error -> str (offset by error code); anything else -> go to L18.
+# Note: weights/ui/cells.md.  M = 2^20 = 1048576
+input 65
+slice 0 14 16                     # v1 = [tag pay]
+slice 0 58 60                     # v2 = [L17 L18]
+concat 1 2                        # v3 = [tag pay L17 L18]
+dense 3 20 4                      # v4 = tag thermometer m 1..5, pay thermometer m 1..15
+   1 0 0 0
+   1 0 0 0
+   1 0 0 0
+   1 0 0 0
+   1 0 0 0
+   0 1 0 0
+   0 1 0 0
+   0 1 0 0
+   0 1 0 0
+   0 1 0 0
+   0 1 0 0
+   0 1 0 0
+   0 1 0 0
+   0 1 0 0
+   0 1 0 0
+   0 1 0 0
+   0 1 0 0
+   0 1 0 0
+   0 1 0 0
+   0 1 0 0
+   -0.5 -1.5 -2.5 -3.5 -4.5
+   -0.5 -1.5 -2.5 -3.5 -4.5 -5.5 -6.5 -7.5 -8.5 -9.5 -10.5 -11.5 -12.5 -13.5 -14.5
+step 4                            # v5
+dense 5 4 20                      # v6 = is1..is4
+   1 -1  0  0  0   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   0  1 -1  0  0   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   0  0  1 -1  0   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   0  0  0  1 -1   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   0 0 0 0
+slice 5 5 20                      # v7 = pay thermometer et1..et15
+dense 7 14 15                     # v8 = one-hot error code 1..14
+   1 -1  0  0  0  0  0  0  0  0  0  0  0  0  0
+   0  1 -1  0  0  0  0  0  0  0  0  0  0  0  0
+   0  0  1 -1  0  0  0  0  0  0  0  0  0  0  0
+   0  0  0  1 -1  0  0  0  0  0  0  0  0  0  0
+   0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0
+   0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0
+   0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0
+   0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0
+   0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0
+   0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0
+   0  0  0  0  0  0  0  0  0  0  1 -1  0  0  0
+   0  0  0  0  0  0  0  0  0  0  0  1 -1  0  0
+   0  0  0  0  0  0  0  0  0  0  0  0  1 -1  0
+   0  0  0  0  0  0  0  0  0  0  0  0  0  1 -1
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0
+dense 8 1 14                      # v9 = string ROM offset of the error text (str.md)
+   119 126 134 142 148 155 161 166 180 188 198 208 218 226
+   0
+dense 3 1 4                       # v10 = pay - 0.5
+   0 1 0 0
+   -0.5
+step 10                           # v11 = p1 = [pay >= 1] (TRUE)
+concat 6 9                        # v12 = [is1 is2 is3 is4 ofs]
+concat 12 11                      # v13 = + p1
+concat 13 3                       # v14 = 10: 0 is1 1 is2 2 is3 3 is4 4 ofs 5 p1 6 tag 7 pay 8 L17 9 L18
+dense 14 3 10                     # v15 = MUX_INT rows
+  -1048576 -1048576 -1048576 -1048576 0  0 0 0 0 1     # L18 when no producer
+   0 0 1048576 0                       0 -5 0 0 0 0     # 113 - 5 p1 when boolean
+   0 0 0 1048576                       1  0 0 0 0 0     # ofs when error
+   0 -1048463 -1048576
+relu 15                           # v16 = [rs r3 r4]
+slice 14 1 2                      # v17 = [is2]
+slice 14 7 8                      # v18 = [pay]
+concat 17 18                      # v19
+mul 19 0 1 1 2                    # v20 = hp = is2 pay (exact gating)
+concat 14 16                      # v21 = 13: 10 rs 11 r3 12 r4
+concat 21 20                      # v22 = 14: 13 hp
+dense 22 10 14                    # v23 = words 0..9
+#  is1 is2 is3 is4 ofs p1 tag pay L17 L18 rs r3 r4 hp
+   131 133 130 130 0   0  0   0   0   0   1  0  0  0      # next
+   0   0   0   0   0   0  0   0   0   0   0  0  0  0
+   0   0   0   0   0   0  0   0   0   0   0  0  0  0
+   0   0   0   0   0   0  0   0   0   0   0  0  0  0
+   0   0   0   0   0   0  0   0   0   0   0  0  0  0
+   0   0   0   0   0   0  0   0   0   0   0  0  0  0
+   0   0   0   0   0   0  0   0   0   0   0  0  0  0
+   0   0   0   0   0   0  0   0   0   0   0  0  0  0      # PC 0
+   0   0   0   0   0   0  0   0   1   0   0  0  0  0      # LR = L17
+   0   0   0   0   0   0  0   0   0   0   0  0  0  0      # LP 0
+   0 0 0 0 0 0 0 0 0 0
+slice 0 11 26                     # v24 = words 10..24
+dense 22 1 14                     # v25 = P0 = BUF
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   983296
+slice 0 27 30                     # v26 = words 26..28
+dense 22 1 14                     # v27 = T0 = hp + r3 + r4 (0 for numbers)
+   0 0 0 0 0 0 0 0 0 0 0 1 1 1
+   0
+slice 0 31 65                     # v28 = words 30..63
+concat 23 24
+concat 29 25
+concat 30 26
+concat 31 27
+concat 32 28

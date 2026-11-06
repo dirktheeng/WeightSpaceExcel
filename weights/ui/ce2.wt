@@ -1,0 +1,21 @@
+# ui/ce2 (id 145): L14 = cached TAG (x0); read the cached PAY. next 146. Note: weights/ui/cells.md
+input 65
+slice 0 53 55                     # v1 = [r c]
+slice 0 0 1                       # v2 = [x0]
+concat 1 2                        # v3 = [r c x0]
+dense 3 8 3                       # v4 = words 0..7
+   0 0 0
+   0 0 0
+   40 2 0
+   0 0 0
+   0 0 0
+   0 0 0
+   0 0 0
+   0 0 0
+   146 1 987137 0 0 0 0 0
+slice 0 9 55                      # v5 = words 8..53
+slice 3 2 3                       # v6 = L14 = x0
+slice 0 56 65                     # v7 = words 55..63
+concat 4 5
+concat 8 6
+concat 9 7

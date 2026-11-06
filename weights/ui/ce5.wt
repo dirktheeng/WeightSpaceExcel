@@ -1,0 +1,34 @@
+# ui/ce5 (id 148): repaint the cell interior white: fill (128) x 31 + 64 c .. + 62,
+# y 196 + 20 r .. + 18, clip (1279, 755). LR 149. Note: weights/ui/cells.md
+input 65
+slice 0 53 55                     # v1 = [r c]
+dense 1 10 2                      # v2 = words 0..9
+   0 0
+   0 0
+   0 0
+   0 0
+   0 0
+   0 0
+   0 0
+   0 0
+   0 0
+   0 0
+   128 0 0 0 0 0 0 0 149 0
+slice 0 11 28                     # v3 = words 10..26
+dense 1 11 2                      # v4 = N0 N1 T0..T8
+   0  64                          # N0 = x0
+   20 0                           # N1 = y0
+   0  64                          # T0 = x0
+   0  64                          # T1 = x1
+   20 0                           # T2 = y1
+   0  0                           # T3 white
+   0  0
+   0  0
+   0  0
+   0  0                           # T7 clip right
+   0  0                           # T8 clip bottom
+   31 196 31 93 214 16777215 0 0 0 1279 755
+slice 0 39 65                     # v5 = words 38..63
+concat 2 3
+concat 6 4
+concat 7 5

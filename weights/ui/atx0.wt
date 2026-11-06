@@ -1,0 +1,24 @@
+# ui/atx0 (id 138): aligned text, step 1: call glyph (129) in measure mode on the buffer.
+# Args (kept for atx1): B.TAG X, B.PAY Wb, C.TAG align (0 left, 1 right, 2 centre), C.PAY top,
+# AR2 colour, AC2 clip right, AS2 buffer, N0 return id, N1 return phase.
+# Sets P0 = buffer, T0 = 0, T3 = 2^20 (no clip), T5 = -1, T6 = 0, T8 = 1; LR = 139.
+# Note: weights/ui/atext.md
+input 65
+slice 0 25 26                     # v1 = [AS2]
+dense 1 10 1                      # v2 = words 0..9
+   0 0 0 0 0 0 0 0 0 0
+   129 0 0 0 0 0 0 0 139 0
+slice 0 11 26                     # v3 = words 10..24
+dense 1 1 1                       # v4 = P0 = buffer
+   1
+   0
+slice 0 27 30                     # v5 = words 26..28
+dense 1 9 1                       # v6 = T0..T8
+   0 0 0 0 0 0 0 0 0
+   0 0 0 1048576 0 -1 0 0 1
+slice 0 39 65                     # v7 = words 38..63
+concat 2 3
+concat 8 4
+concat 9 5
+concat 10 6
+concat 11 7                       # v12 = output

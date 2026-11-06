@@ -1,0 +1,9 @@
+# ui/olA (id 154): active cell outline, step 1: read UI_AROW (0x40, last drawn active row).
+# next 155. Note: weights/ui/outline.md
+input 65
+slice 0 0 1                       # v1
+dense 1 7 1                       # v2 = words 0..6
+   0 0 0 0 0 0 0
+   155 1 64 0 0 0 0
+slice 0 8 65                      # v3 = words 7..63
+concat 2 3

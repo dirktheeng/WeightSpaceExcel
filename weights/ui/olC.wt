@@ -1,0 +1,13 @@
+# ui/olC (id 156): L16 = old column (x0); write UI_AROW = L2 (active row). next 157.
+# Note: weights/ui/outline.md
+input 65
+slice 0 43 44                     # v1 = [L2]
+dense 1 7 1                       # v2 = words 0..6
+   0 0 0 1 0 0 0
+   157 2 64 0 0 0 0
+slice 0 8 57                      # v3 = words 7..55
+slice 0 0 1                       # v4 = [x0] -> L16
+slice 0 58 65                     # v5 = words 57..63
+concat 2 3
+concat 6 4
+concat 7 5

@@ -1,0 +1,6 @@
+# Weight block notes: weights/ui/olA, olB, olC, olD, olR (ids 154..158, active cell outline)
+
+Hand-written. Log: log/ui-agent.md; decision U1.
+**Steps.** olA reads UI_AROW (0x40). olB latches it in L15 and reads UI_ACOL (0x41). olC latches L16 and writes UI_AROW = L2. olD writes UI_ACOL = L3 and sets L14 = 0. olR then makes 10 fill calls and returns to (L22, L23). These are the UI's memory copy of the active cell; the main loop keeps it in registers L2/L3 only (open item K-Q4).
+**Rectangles** relative to the cell origin (X, Y) = (31 + 64 c, 196 + 20 r): top (-1..63, -1..0), bottom (-1..63, 18..19), left (-1..0, -1..19), right (62..63, -1..19), fill handle (61..65, 17..21). x0 is clamped >= 31 and y0 >= 196 so the header separators are never touched, which makes column A's left edge one pixel wide. Entries 0..4 erase the previous outline by repainting these rectangles with the grid pattern (white or #E1E1E1). They never overlap cell text, which stays within x X+2..X+61 and y Y+5..Y+16, so no cell needs redrawing. Entries 5..9 draw the new outline in solid #217346.
+**Parameters.** about 900 for olR, 14 to 20 for the others. **Steps.** about 1,000 per frame. **Tests.** test_active_cell_outline, test_incremental_redraw.

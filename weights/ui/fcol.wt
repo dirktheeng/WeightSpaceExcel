@@ -1,0 +1,74 @@
+# ui/fcol (id 132): column index (0-based, T1) to letters A..ZZ in a buffer, then a 0.
+# Args: T1 = col, T0 = i (0 on entry), P0 = destination. One write per step at P0 + i.
+# Returns to (LR, LP) with P0 = address of the terminator. Note: weights/ui/fcol.md
+# C = 6755399441055744, M = 2^20 = 1048576
+input 65
+slice 0 30 32                     # v1 = [i c]
+slice 0 9 11                      # v2 = [LR LP]
+slice 0 26 27                     # v3 = [P0]
+dense 1 1 2                       # v4 = c/26 - 0.48
+   0 0.038461538461538464
+   -0.48
+dense 4 1 1                       # v5
+   1
+   6755399441055744
+dense 5 1 1                       # v6 = hi = floor(c/26)
+   1
+   -6755399441055744
+concat 1 6                        # v7 = [i c hi]
+dense 7 4 3                       # v8
+   0 1 0                          # two = [c >= 26]
+  -1 0 0                          # i0 = [i == 0]
+   1 0 0                          # s1 = [i >= 1]
+   1 0 0                          # s2 = [i >= 2]
+   -25.5 0.5 -0.5 -1.5
+step 8                            # v9 = [two i0 s1 s2]
+concat 7 9                        # v10 = [i c hi two i0 s1 s2]
+dense 10 5 7                      # v11
+   0 0 0  1 1 0  0                # g0 = i0 AND two
+   0 0 0 -1 1 0  0                # g1 = i0 AND NOT two
+   0 0 0  1 0 1 -1                # g2 = i1 AND two
+   0 0 0 -1 0 1 -1                # l1 = i1 AND NOT two (last)
+   0 0 0  1 0 0  1                # l2 = i2 AND two (last)
+   -1.5 -0.5 -1.5 -0.5 -1.5
+step 11                           # v12
+concat 10 12                      # v13 = 12: 7 g0 8 g1 9 g2 10 l1 11 l2
+concat 13 3                       # v14 = 13: 12 P0
+concat 14 2                       # v15 = 15: 13 LR 14 LP
+dense 15 7 15                     # v16 = MUX_INT rows
+#  i c   hi  two i0 s1 s2 g0      g1      g2      l1       l2       P0 LR LP
+   0 0   1   0   0  0  0  1048576 0       0       0        0        0  0  0     # 64 + hi
+   0 1   0   0   0  0  0  0       1048576 0       0        0        0  0  0     # 65 + c
+   0 1  -26  0   0  0  0  0       0       1048576 0        0        0  0  0     # 65 + lo
+   0 0   0   0   0  0  0  0       0       0       1048576  1048576  0  1  0     # LR last
+   0 0   0   0   0  0  0  0       0       0      -1048576 -1048576  0  0  0     # 132 not last
+   0 0   0   0   0  0  0  0       0       0       1048576  1048576  0  0  1     # LP last
+   1 0   0   0   0  0  0  0       0       0       1048576  1048576  0  0  0     # i last
+   -1048512 -1048511 -1048511 -1048576 132 -1048576 -1048576
+relu 16                           # v17
+concat 15 17                      # v18 = 22: 15 c0 16 c1 17 c2 18 nL 19 nS 20 pL 21 pi
+dense 18 8 22                     # v19 = words 0..7
+#  0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21
+   0 0 0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  1  1  0  0    # next
+   0 0 0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0    # mem_op = 2
+   1 0 0 0 0 0 0 0 0 0 0  0  1  0  0  0  0  0  0  0  0  0    # addr = P0 + i
+   0 0 0 0 0 0 0 0 0 0 0  0  0  0  0  1  1  1  0  0  0  0    # value = ch
+   0 0 0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0
+   0 0 0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0
+   0 0 0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0
+   0 0 0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  1  0    # PC
+   0 2 0 0 0 0 0 0
+slice 0 9 26                      # v20 = words 8..24
+dense 18 1 22                     # v21 = P0' = P0 + i on the last step
+   0 0 0 0 0 0 0 0 0 0 0  0  1  0  0  0  0  0  0  0  0  1
+   0
+slice 0 27 30                     # v22 = words 26..28
+dense 18 1 22                     # v23 = T0' = i + 1
+   1 0 0 0 0 0 0 0 0 0 0  0  0  0  0  0  0  0  0  0  0  0
+   1
+slice 0 31 65                     # v24 = words 30..63
+concat 19 20
+concat 25 21
+concat 26 22
+concat 27 23
+concat 28 24                      # v29 = output

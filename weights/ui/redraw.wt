@@ -1,0 +1,16 @@
+# ui/redraw (id 153): incremental frame entry (after an event batch): MODE 4, enter the scene
+# program (152) at PC 29 (cells, outline, formula bar, display, back to main_poll).
+# Note: weights/ui/scene.md
+input 65
+slice 0 0 1                       # v1
+dense 1 8 1                       # v2 = words 0..7
+   0 0 0 0 0 0 0 0
+   152 0 0 0 0 0 0 29
+slice 0 9 12                      # v3 = words 8..10
+dense 1 1 1                       # v4 = MODE 4
+   0
+   4
+slice 0 13 65                     # v5 = words 12..63
+concat 2 3
+concat 6 4
+concat 7 5

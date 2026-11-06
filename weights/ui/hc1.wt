@@ -1,0 +1,32 @@
+# ui/hc1 (id 134): x0 = length n. T1 = n, read the first packed word at h + 2, T0 = h + 3,
+# T3 = 0. next 135 if n > 0, else 137 (terminator). Note: weights/ui/hcopy.md
+input 65
+slice 0 0 1                       # v1 = [n]
+slice 0 30 31                     # v2 = [h]
+concat 1 2                        # v3 = [n h]
+dense 3 1 2                       # v4
+   1 0
+   -0.5
+step 4                            # v5 = g = [n > 0]
+concat 3 5                        # v6 = [n h g]
+dense 6 8 3                       # v7 = words 0..7
+   0 0 -2                         # next = 137 - 2 g
+   0 0  0                         # mem_op = 1
+   0 1  0                         # addr = h + 2
+   0 0  0
+   0 0  0
+   0 0  0
+   0 0  0
+   0 0  0
+   137 1 2 0 0 0 0 0
+slice 0 9 30                      # v8 = words 8..28
+dense 6 4 3                       # v9 = T0..T3
+   0 1 0                          # T0 = h + 3
+   1 0 0                          # T1 = n
+   0 0 0                          # T2 = 0
+   0 0 0                          # T3 = 0
+   3 0 0 0
+slice 0 34 65                     # v10 = words 33..63
+concat 7 8
+concat 11 9
+concat 12 10

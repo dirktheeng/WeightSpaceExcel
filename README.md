@@ -6,6 +6,8 @@ No training. No code that generates weights. Every number in every weight file i
 
 The aim is full parity with Excel, including how it looks, and to see how far weight-space programming can go. See [GOAL.md](GOAL.md) for the goal statement and [docs/](docs/) for the rules and plan.
 
+<p align="center"><img src="docs/img/ui-latest.png" alt="Latest frame drawn entirely by hand-written networks" width="720"><br><sub>Latest frame, every pixel drawn by hand-written networks</sub></p>
+
 <p align="center"><img src="docs/img/step-loop.svg" alt="Animated diagram of one harness step" width="720"></p>
 
 ## How it works
@@ -90,7 +92,7 @@ gantt
 - **Building-block library** ([weights/prim/](weights/prim/), 13 primitives, 172 tests): integer equality and one-hot, real compare, select (two forms), floor, ceiling, truncate and both rounding modes (including Excel's half away from zero), mod 2^k, divide by a constant, 15-digit extraction, overflow-guarded add and multiply, the cell-address hash, integer division by a variable divisor, and correctly rounded floating-point division.
 - **Parser** ([weights/parse/](weights/parse/), 16 networks, about 18,100 parameters, 91 tests): hooked into the kernel. Typed constants (numbers with decimals, exponents, percent, currency and thousands separators, booleans, error literals, text) parse with Excel's 15-digit truncation and exact decimal conversion. Formulas compile to postfix token records with Excel's precedence, references in every `$` form, ranges, and calls to 14 functions; bad syntax is rejected. Entering `=1+2*3` takes 83 steps. Not yet: whole-row and whole-column references, sheet prefixes, union and intersection operators, defined names.
 - **Evaluator and recalculation** ([weights/eval/](weights/eval/), 34 networks, about 32,400 parameters, 91 tests): every Stage 1 operator, Excel's coercion and comparison rules, error propagation, overflow to `#NUM!`, number-to-text with 15 significant digits, dependency tracking, recalculation in dependency order and circular reference detection. Entering `=1+2` takes 62 steps. Not yet: text-to-number coercion (`"1"+1`), non-integer powers, functions.
-- **Minimal UI** ([weights/ui/](weights/ui/), in progress): title bar, ribbon tabs, name box, formula bar, headers, gridlines, cell text in a hand-designed font, and the active cell outline. Waiting on harness block writes for speed.
+- **Minimal UI** ([weights/ui/](weights/ui/), 41 networks, about 10,000 parameters, 40 tests): title bar, ribbon tabs, name box, formula bar with the active cell's contents, headers, gridlines, cell text in a hand-drawn 96-glyph font (text left, numbers right, booleans and errors centred), the active cell outline with fill handle, and redrawing only cells that changed. A full frame takes about 1.1M steps on the current harness; block writes will bring that to about 800.
 - **Harness v2** (in progress, approved): block memory writes and reads, and a faster forward-pass engine.
 
 ### Checklist by category

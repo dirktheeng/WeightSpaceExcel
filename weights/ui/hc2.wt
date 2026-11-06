@@ -1,0 +1,72 @@
+# ui/hc2 (id 135): write one code unit. j = T3 (0, 1, 2); the packed word is x0 when j = 0,
+# else T2. c = u mod 2^16 written at P0; P0 += 1; T1 = n - 1; T2 = floor(u / 2^16); T3 = j + 1.
+# next: 137 if this was the last unit, 136 (read next word) if j = 2, else 135.
+# Note: weights/ui/hcopy.md.  C = 6755399441055744, M = 2^50 = 1125899906842624
+input 65
+slice 0 0 1                       # v1 = [x0]
+slice 0 26 27                     # v2 = [P0]
+slice 0 31 34                     # v3 = [n u j]
+concat 1 2                        # v4
+concat 4 3                        # v5 = G: 0 x0 1 P0 2 n 3 u 4 j
+dense 5 3 5                       # v6
+   0 0  0 0 -1                    # j0 = [j == 0]
+   0 0 -1 0  0                    # z = [n <= 1]
+   0 0  0 0  1                    # g3 = [j >= 2]
+   0.5 1.5 -1.5
+step 6                            # v7
+concat 5 7                        # v8 = 8: 5 j0 6 z 7 g3
+dense 8 2 8                       # v9 = MUX_INT
+   1 0 0 0 0  1125899906842624 0 0
+   0 0 0 1 0 -1125899906842624 0 0
+   -1125899906842624 0
+relu 9                            # v10
+dense 10 1 2                      # v11 = u_in
+   1 1
+   0
+dense 11 1 1                      # v12 = u/2^16 - (1/2 - 2^-17)
+   0.0000152587890625
+   -0.49999237060546875
+dense 12 1 1                      # v13
+   1
+   6755399441055744
+dense 13 1 1                      # v14 = q = floor(u / 2^16)
+   1
+   -6755399441055744
+concat 11 14                      # v15
+dense 15 1 2                      # v16 = c = u - 65536 q
+   1 -65536
+   0
+dense 8 1 8                       # v17 = ng = g3 AND NOT z
+   0 0 0 0 0 0 -1 1
+   -0.5
+step 17                           # v18
+concat 8 16                       # v19 = 9: 8 c
+concat 19 14                      # v20 = 10: 9 q
+concat 20 18                      # v21 = 11: 10 ng
+dense 21 8 11                     # v22 = words 0..7
+#  x0 P0 n u j j0 z g3 c q ng
+   0  0  0 0 0 0  2 0  0 0 1      # next = 135 + 2 z + ng
+   0  0  0 0 0 0  0 0  0 0 0      # mem_op 2
+   0  1  0 0 0 0  0 0  0 0 0      # addr = P0
+   0  0  0 0 0 0  0 0  1 0 0      # value = c
+   0  0  0 0 0 0  0 0  0 0 0
+   0  0  0 0 0 0  0 0  0 0 0
+   0  0  0 0 0 0  0 0  0 0 0
+   0  0  0 0 0 0  0 0  0 0 0
+   135 2 0 0 0 0 0 0
+slice 0 9 26                      # v23 = words 8..24
+dense 21 1 11                     # v24 = P0 + 1
+   0 1 0 0 0 0 0 0 0 0 0
+   1
+slice 0 27 31                     # v25 = words 26..29
+dense 21 3 11                     # v26 = T1..T3
+   0 0 1 0 0 0 0 0 0 0 0          # n - 1
+   0 0 0 0 0 0 0 0 0 1 0          # q
+   0 0 0 0 1 0 0 0 0 0 0          # j + 1
+   -1 0 1
+slice 0 34 65                     # v27 = words 33..63
+concat 22 23
+concat 28 24
+concat 29 25
+concat 30 26
+concat 31 27

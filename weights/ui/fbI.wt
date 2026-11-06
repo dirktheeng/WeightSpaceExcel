@@ -1,0 +1,21 @@
+# ui/fbI (id 167): x0 = formula text handle: heap copy (133) into BUF, LR 168.
+# Note: weights/ui/fbar.md
+input 65
+slice 0 0 1                       # v1 = [h]
+dense 1 10 1                      # v2 = words 0..9
+   0 0 0 0 0 0 0 0 0 0
+   133 0 0 0 0 0 0 0 168 0
+slice 0 11 26                     # v3 = words 10..24
+dense 1 1 1                       # v4 = P0 = BUF
+   0
+   983296
+slice 0 27 30                     # v5 = words 26..28
+dense 1 1 1                       # v6 = T0 = h
+   1
+   0
+slice 0 31 65                     # v7 = words 30..63
+concat 2 3
+concat 8 4
+concat 9 5
+concat 10 6
+concat 11 7

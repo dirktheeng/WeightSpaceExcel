@@ -1,0 +1,22 @@
+# ui/fbC (id 161): name box text, part 2: row number L2 + 1 with fnum (131) at P0 (left at the
+# terminator by fcol), LR 162. Note: weights/ui/fbar.md
+input 65
+slice 0 43 44                     # v1 = [L2]
+dense 1 10 1                      # v2 = words 0..9
+   0 0 0 0 0 0 0 0 0 0
+   131 0 0 0 0 0 0 0 162 0
+slice 0 11 14                     # v3 = words 10..12
+dense 1 2 1                       # v4 = A = (1, L2 + 1)
+   0
+   1
+   1 1
+slice 0 16 30                     # v5 = words 15..28
+dense 1 1 1                       # v6 = T0 = 0
+   0
+   0
+slice 0 31 65                     # v7 = words 30..63
+concat 2 3
+concat 8 4
+concat 9 5
+concat 10 6
+concat 11 7

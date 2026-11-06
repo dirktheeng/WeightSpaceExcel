@@ -1,0 +1,18 @@
+# ui/hcz (id 137): write the 0 terminator at P0 and return to (LR, LP).
+# Note: weights/ui/hcopy.md
+input 65
+slice 0 9 11                      # v1 = [LR LP]
+slice 0 26 27                     # v2 = [P0]
+concat 1 2                        # v3 = [LR LP P0]
+dense 3 8 3                       # v4 = words 0..7
+   1 0 0                          # next = LR
+   0 0 0                          # mem_op 2
+   0 0 1                          # addr = P0
+   0 0 0                          # value 0
+   0 0 0
+   0 0 0
+   0 0 0
+   0 1 0                          # PC = LP
+   0 2 0 0 0 0 0 0
+slice 0 9 65                      # v5 = words 8..63
+concat 4 5

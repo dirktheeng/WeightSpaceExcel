@@ -1,0 +1,16 @@
+# ui/ce1 (id 144): A = cell value. Read the cached TAG at 0x0F1000 + 40 r + 2 c. next 145.
+# Note: weights/ui/cells.md
+input 65
+slice 0 53 55                     # v1 = [r c]
+dense 1 8 2                       # v2 = words 0..7
+   0 0
+   0 0
+   40 2
+   0 0
+   0 0
+   0 0
+   0 0
+   0 0
+   145 1 987136 0 0 0 0 0
+slice 0 9 65                      # v3 = words 8..63
+concat 2 3

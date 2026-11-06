@@ -1,0 +1,54 @@
+# ui/hd1 (id 141): call aligned text (138) for header label j, centred, colour #444444.
+# mode 0: X = 31 + 64 j, Wb = 63, top 180, clip min(93 + 64 j, 1279).
+# mode 1: X = 0, Wb = 30, top 201 + 20 j, clip 29. Returns to 142.
+# Note: weights/ui/headers.md.  M = 2^20 = 1048576
+input 65
+slice 0 53 55                     # v1 = [j mode]
+dense 1 3 2                       # v2
+   64 0                           # 64 j - 1186 (clip overflow past x 1279)
+   64 -1048576                    # (31 + 64 j) (1 - mode)
+   20  1048576                    # (21 + 20 j) mode
+   -1186 31 -1048555
+relu 2                            # v3 = [ov Xr tp]
+concat 1 3                        # v4 = [j mode ov Xr tp]
+dense 4 1 5                       # v5 = (93 + 64 j - ov) (1 - mode)
+   64 -1048576 -1 0 0
+   93
+relu 5                            # v6 = cl0
+concat 4 6                        # v7 = [j mode ov Xr tp cl0]
+dense 7 8 6                       # v8 = words 0..7
+   0 0 0 0 0 0
+   0 0 0 0 0 0
+   0 0 0 0 0 0
+   0 0 0 0 0 0
+   0 0 0 0 0 0
+   0 0 0 0 0 0
+   0 0 0 0 0 0
+   0 0 0 0 0 0
+   138 0 0 0 0 0 0 0
+slice 0 9 16                      # v9 = words 8..14
+dense 7 4 6                       # v10 = B.TAG X, B.PAY Wb, C.TAG align, C.PAY top
+   0 0   0 1 0 0
+   0 -33 0 0 0 0
+   0 0   0 0 0 0
+   0 0   0 0 1 0
+   0 63 2 180
+slice 0 20 23                     # v11 = words 19..21
+dense 7 3 6                       # v12 = AR2 colour, AC2 clip, AS2 buffer
+   0 0  0 0 0 0
+   0 29 0 0 0 1
+   0 0  0 0 0 0
+   4473924 0 983296
+slice 0 26 28                     # v13 = words 25..26
+dense 7 2 6                       # v14 = N0 = 142, N1 = 0
+   0 0 0 0 0 0
+   0 0 0 0 0 0
+   142 0
+slice 0 30 65                     # v15 = words 29..63
+concat 8 9
+concat 16 10
+concat 17 11
+concat 18 12
+concat 19 13
+concat 20 14
+concat 21 15

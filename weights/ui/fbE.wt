@@ -1,0 +1,15 @@
+# ui/fbE (id 163): repaint the formula box interior (x 161..1275, y 152..171) white, LR 164.
+# Note: weights/ui/fbar.md
+input 65
+slice 0 0 1                       # v1
+dense 1 10 1                      # v2 = words 0..9
+   0 0 0 0 0 0 0 0 0 0
+   128 0 0 0 0 0 0 0 164 0
+slice 0 11 28                     # v3 = words 10..26
+dense 1 11 1                      # v4 = N0 N1 T0..T8
+   0 0 0 0 0 0 0 0 0 0 0
+   161 152 161 1275 171 16777215 0 0 0 1279 799
+slice 0 39 65                     # v5 = words 38..63
+concat 2 3
+concat 6 4
+concat 7 5

@@ -1,0 +1,21 @@
+# ui/hc3 (id 136): read the next packed word at T0; T0 += 1; T3 = 0. next 135.
+# Note: weights/ui/hcopy.md
+input 65
+slice 0 30 31                     # v1 = [T0]
+dense 1 8 1                       # v2 = words 0..7
+   0 0 1 0 0 0 0 0
+   135 1 0 0 0 0 0 0
+slice 0 9 30                      # v3 = words 8..28
+dense 1 1 1                       # v4 = T0 + 1
+   1
+   1
+slice 0 31 33                     # v5 = T1 T2
+dense 1 1 1                       # v6 = T3 = 0
+   0
+   0
+slice 0 34 65                     # v7 = words 33..63
+concat 2 3
+concat 8 4
+concat 9 5
+concat 10 6
+concat 11 7

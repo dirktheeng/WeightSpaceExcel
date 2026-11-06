@@ -1,0 +1,9 @@
+# ui/hc0 (id 133): heap string copy, step 1: read the length word at handle T0. next 134.
+# Note: weights/ui/hcopy.md
+input 65
+slice 0 30 31                     # v1 = [h]
+dense 1 8 1                       # v2 = words 0..7
+   0 0 1 0 0 0 0 0
+   134 1 0 0 0 0 0 0
+slice 0 9 65                      # v3 = words 8..63
+concat 2 3

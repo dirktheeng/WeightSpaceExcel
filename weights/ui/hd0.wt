@@ -1,0 +1,39 @@
+# ui/hd0 (id 140): header label producer. L12 = j, L13 = mode (0 column headers, 1 row headers).
+# mode 0: fcol (132) with T1 = j; mode 1: fnum (131) with A = (1, j + 1). P0 = BUF, T0 = 0,
+# LR = 141. Note: weights/ui/headers.md.  BUF = 0x0F0100 = 983296
+input 65
+slice 0 53 55                     # v1 = [j mode]
+dense 1 10 2                      # v2 = words 0..9
+   0 -1                           # next = 132 - mode
+   0 0
+   0 0
+   0 0
+   0 0
+   0 0
+   0 0
+   0 0
+   0 0                            # LR = 141
+   0 0                            # LP = 0
+   132 0 0 0 0 0 0 0 141 0
+slice 0 11 14                     # v3 = words 10..12
+dense 1 2 2                       # v4 = A = (1, j + 1)
+   0 0
+   1 0
+   1 1
+slice 0 16 26                     # v5 = words 15..24
+dense 1 1 2                       # v6 = P0 = BUF
+   0 0
+   983296
+slice 0 27 30                     # v7 = words 26..28
+dense 1 2 2                       # v8 = T0 = 0, T1 = j
+   0 0
+   1 0
+   0 0
+slice 0 32 65                     # v9 = words 31..63
+concat 2 3
+concat 10 4
+concat 11 5
+concat 12 6
+concat 13 7
+concat 14 8
+concat 15 9

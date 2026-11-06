@@ -1,0 +1,39 @@
+# ui/hd2 (id 142): advance header label. Columns j 0..19, then rows j 0..27, then return to
+# (L22, L23). Note: weights/ui/headers.md.  M = 2^20 = 1048576
+input 65
+slice 0 53 55                     # v1 = [j mode]
+slice 0 63 65                     # v2 = [L22 L23]
+concat 1 2                        # v3 = [j mode L22 L23]
+dense 3 2 4                       # v4
+   1 -100 0 0                     # a = mode 0 and j = 19
+   1    1 0 0                     # b = mode 1 and j = 27
+   -18.5 -27.5
+step 4                            # v5
+concat 3 5                        # v6 = [j mode L22 L23 a b]
+dense 6 4 6                       # v7
+   0 0 1 0 0  1048576             # L22 b
+   0 0 0 0 0 -1048576             # 140 (1 - b)
+   0 0 0 1 0  1048576             # L23 b
+   1 0 0 0 -1048576 0             # (j + 1)(1 - a)
+   -1048576 140 -1048576 1
+relu 7                            # v8
+concat 6 8                        # v9 = 10: 6 r0 7 r1 8 r2 9 r3
+dense 9 8 10                      # v10 = words 0..7
+   0 0 0 0 0 0 1 1 0 0
+   0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 1 0
+   0 0 0 0 0 0 0 0
+slice 0 9 53                      # v11 = words 8..51
+dense 9 2 10                      # v12 = L12 j', L13 mode'
+   0 0 0 0 0 0 0 0 0 1
+   0 1 0 0 1 0 0 0 0 0
+   0 0
+slice 0 55 65                     # v13 = words 54..63
+concat 10 11
+concat 14 12
+concat 15 13
