@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 300" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <title>One harness step: forward pass, memory operation, I/O, next network</title>
+  <rect width="760" height="300" fill="#ffffff"/>
+  <!-- Network box -->
+  <rect x="30" y="90" width="200" height="120" rx="12" fill="#e8f3ec" stroke="#217346" stroke-width="2"/>
+  <text x="130" y="122" text-anchor="middle" font-size="16" font-weight="600" fill="#185c37">Active network</text>
+  <text x="130" y="146" text-anchor="middle" font-size="12" fill="#333">hand-written weights</text>
+  <text x="130" y="166" text-anchor="middle" font-size="12" fill="#333">65 words in, 64 out</text>
+  <g fill="#217346">
+    <circle cx="75" cy="190" r="5"><animate attributeName="opacity" values="0.2;1;0.2" dur="2.4s" repeatCount="indefinite"/></circle>
+    <circle cx="105" cy="190" r="5"><animate attributeName="opacity" values="0.2;1;0.2" dur="2.4s" begin="0.2s" repeatCount="indefinite"/></circle>
+    <circle cx="135" cy="190" r="5"><animate attributeName="opacity" values="0.2;1;0.2" dur="2.4s" begin="0.4s" repeatCount="indefinite"/></circle>
+    <circle cx="165" cy="190" r="5"><animate attributeName="opacity" values="0.2;1;0.2" dur="2.4s" begin="0.6s" repeatCount="indefinite"/></circle>
+    <circle cx="195" cy="190" r="5"><animate attributeName="opacity" values="0.2;1;0.2" dur="2.4s" begin="0.8s" repeatCount="indefinite"/></circle>
+  </g>
+  <!-- Harness box -->
+  <rect x="290" y="90" width="180" height="120" rx="12" fill="#f3f3f3" stroke="#666" stroke-width="2"/>
+  <text x="380" y="122" text-anchor="middle" font-size="16" font-weight="600" fill="#333">Frozen harness</text>
+  <text x="380" y="146" text-anchor="middle" font-size="12" fill="#333">obeys output fields:</text>
+  <text x="380" y="166" text-anchor="middle" font-size="12" fill="#333">next, mem op, addr,</text>
+  <text x="380" y="184" text-anchor="middle" font-size="12" fill="#333">value, io, halt</text>
+  <!-- Memory box -->
+  <rect x="530" y="60" width="200" height="180" rx="12" fill="#eef3fb" stroke="#2b579a" stroke-width="2"/>
+  <text x="630" y="88" text-anchor="middle" font-size="16" font-weight="600" fill="#1f3f73">Memory</text>
+  <g font-size="11" fill="#333">
+    <rect x="550" y="100" width="160" height="22" fill="#d7e3f6"/><text x="630" y="115" text-anchor="middle">cell store (hash table)</text>
+    <rect x="550" y="126" width="160" height="22" fill="#d7e3f6"/><text x="630" y="141" text-anchor="middle">text heap, formulas</text>
+    <rect x="550" y="152" width="160" height="22" fill="#d7e3f6"/><text x="630" y="167" text-anchor="middle">input events</text>
+    <rect x="550" y="178" width="160" height="22" fill="#d7e3f6"/><text x="630" y="193" text-anchor="middle">framebuffer</text>
+    <rect x="550" y="204" width="160" height="22" fill="#d7e3f6"/><text x="630" y="219" text-anchor="middle">generated networks</text>
+  </g>
+  <!-- Paths -->
+  <path id="out" d="M230 130 L290 130" stroke="#217346" stroke-width="2" fill="none" marker-end="url(#a)"/>
+  <path id="mem" d="M470 130 L530 130" stroke="#2b579a" stroke-width="2" fill="none" marker-end="url(#b)"/>
+  <path id="back" d="M530 170 L470 170" stroke="#2b579a" stroke-width="2" fill="none" marker-end="url(#b)"/>
+  <path id="ret" d="M290 170 L230 170" stroke="#217346" stroke-width="2" fill="none" marker-end="url(#a)"/>
+  <defs>
+    <marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#217346"/></marker>
+    <marker id="b" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#2b579a"/></marker>
+  </defs>
+  <!-- Moving token: one full step every 4 s -->
+  <circle r="7" fill="#f2b705" stroke="#8a6a00">
+    <animateMotion dur="4s" repeatCount="indefinite" keyPoints="0;0.25;0.5;0.75;1" keyTimes="0;0.25;0.5;0.75;1" calcMode="linear"
+      path="M230 130 L290 130 L380 130 L470 130 L530 130 L530 170 L470 170 L380 170 L290 170 L230 170"/>
+  </circle>
+  <!-- Captions -->
+  <text x="380" y="40" text-anchor="middle" font-size="18" font-weight="700" fill="#185c37">One step of the machine</text>
+  <text x="260" y="122" text-anchor="middle" font-size="10" fill="#217346">output</text>
+  <text x="500" y="122" text-anchor="middle" font-size="10" fill="#2b579a">read / write</text>
+  <text x="500" y="188" text-anchor="middle" font-size="10" fill="#2b579a">read result</text>
+  <text x="260" y="188" text-anchor="middle" font-size="10" fill="#217346">next input</text>
+  <text x="380" y="270" text-anchor="middle" font-size="12" fill="#555">The networks decide every address, read, write, jump and halt. The harness only carries them out.</text>
+</svg>
