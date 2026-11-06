@@ -1,0 +1,14 @@
+# smoke/add: reads a at input[1], b at input[2]; writes a+b to address 0; halts.
+# Notes: weights/smoke/add.md
+input 8
+dense 0 7 8
+#  in0 in1 in2 in3 in4 in5 in6 in7
+   0   0   0   0   0   0   0   0     # out0 next = 0
+   0   0   0   0   0   0   0   0     # out1 mem_op (bias gives 2 = write)
+   0   0   0   0   0   0   0   0     # out2 addr = 0
+   0   1   1   0   0   0   0   0     # out3 value = a + b
+   0   0   0   0   0   0   0   0     # out4 io = none
+   0   0   0   0   0   0   0   0     # out5 io_arg = 0
+   0   0   0   0   0   0   0   0     # out6 halt (bias gives 1)
+# biases
+   0   2   0   0   0   0   1

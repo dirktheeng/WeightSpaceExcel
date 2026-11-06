@@ -1,0 +1,336 @@
+# Stage 1 conformance cases: core formula language.
+# Written 2026-11-06 before any Stage 1 weights exist. Do not edit to fit results (docs/ACCEPTANCE.md).
+# Expected values are from Excel's documented behavior (Microsoft support pages on operator
+# precedence, calculation operators, error values, circular references), not computed by code.
+#
+# Conventions
+#   cells:   A1-style address -> raw text exactly as typed into the cell (en-US locale).
+#   expect:  address -> evaluated value.
+#            YAML number = number; YAML bool = logical; quoted string = text;
+#            {error: "#X"} = error value; {blank: true} = empty cell.
+#   circular: list of cells Excel flags in its circular reference warning (any order).
+#             Default Excel behavior (iteration off): cells in the cycle evaluate to 0.
+#   rejected: list of cells whose entry Excel refuses ("There's a problem with this formula").
+#             Harness should report the entry as rejected; the cell stays as before (blank).
+#   requires: Stage 3 functions the case also uses (only SUM). Runner may skip if not built.
+#   confidence: high unless stated (medium or low).
+# Settings assumed: en-US, automatic calculation, iterative calculation off, 1900 date system.
+
+cases:
+# ---------------------------------------------------------------- entry: constants as typed
+- {id: ent01, area: entry, cells: {A1: "5"}, expect: {A1: 5}}
+- {id: ent02, area: entry, cells: {A1: "-5"}, expect: {A1: -5}}
+- {id: ent03, area: entry, cells: {A1: "3.25"}, expect: {A1: 3.25}}
+- {id: ent04, area: entry, cells: {A1: "1e3"}, expect: {A1: 1000}}
+- {id: ent05, area: entry, cells: {A1: "12%"}, expect: {A1: 0.12}}
+- {id: ent06, area: entry, cells: {A1: "1,000"}, expect: {A1: 1000}}
+- {id: ent07, area: entry, cells: {A1: "$1,234.50"}, expect: {A1: 1234.5}, confidence: medium}
+- {id: ent08, area: entry, cells: {A1: "(5)"}, expect: {A1: -5}, confidence: medium, note: "parentheses entry is read as negative"}
+- {id: ent09, area: entry, cells: {A1: "TRUE"}, expect: {A1: true}}
+- {id: ent10, area: entry, cells: {A1: "false"}, expect: {A1: false}}
+- {id: ent11, area: entry, cells: {A1: "abc"}, expect: {A1: "abc"}}
+- {id: ent12, area: entry, cells: {A1: "'123"}, expect: {A1: "123"}, note: "apostrophe forces text"}
+- {id: ent13, area: entry, cells: {A1: "'=1+1"}, expect: {A1: "=1+1"}}
+- {id: ent14, area: entry, cells: {A1: "#N/A"}, expect: {A1: {error: "#N/A"}}}
+- {id: ent15, area: entry, cells: {A1: "#DIV/0!"}, expect: {A1: {error: "#DIV/0!"}}}
+- {id: ent16, area: entry, cells: {A1: "+5"}, expect: {A1: 5}, confidence: medium}
+- {id: ent17, area: entry, cells: {A1: ".5"}, expect: {A1: 0.5}}
+- {id: ent18, area: entry, cells: {A1: "1 2"}, expect: {A1: "1 2"}}
+- {id: ent19, area: entry, cells: {A1: "0012"}, expect: {A1: 12}}
+
+# ---------------------------------------------------------------- parse: lexing and syntax
+- {id: par01, area: parse, cells: {A1: "=1+2"}, expect: {A1: 3}}
+- {id: par02, area: parse, cells: {A1: "= 1 + 2"}, expect: {A1: 3}, note: "spaces between tokens"}
+- {id: par03, area: parse, cells: {A1: "=((((7))))"}, expect: {A1: 7}}
+- {id: par04, area: parse, cells: {A1: "=.5+.25"}, expect: {A1: 0.75}}
+- {id: par05, area: parse, cells: {A1: "=1.5E+2"}, expect: {A1: 150}}
+- {id: par06, area: parse, cells: {A1: "=1e-2"}, expect: {A1: 0.01}}
+- {id: par07, area: parse, cells: {A1: "=2.5e1*2"}, expect: {A1: 50}}
+- {id: par08, area: parse, cells: {A1: "=\"abc\""}, expect: {A1: "abc"}}
+- {id: par09, area: parse, cells: {A1: "=\"\""}, expect: {A1: ""}, note: "empty text, not blank"}
+- {id: par10, area: parse, cells: {A1: "=\"a\"\"b\""}, expect: {A1: "a\"b"}, note: "doubled quote escapes a quote"}
+- {id: par11, area: parse, cells: {A1: "=\"\"\"\""}, expect: {A1: "\""}}
+- {id: par12, area: parse, cells: {A1: "=\"1+1\""}, expect: {A1: "1+1"}}
+- {id: par13, area: parse, cells: {A1: "=TRUE"}, expect: {A1: true}}
+- {id: par14, area: parse, cells: {A1: "=true"}, expect: {A1: true}, note: "keywords case-insensitive"}
+- {id: par15, area: parse, cells: {A1: "=FALSE"}, expect: {A1: false}}
+- {id: par16, area: parse, cells: {A1: "=#N/A"}, expect: {A1: {error: "#N/A"}}}
+- {id: par17, area: parse, cells: {A1: "=#div/0!"}, expect: {A1: {error: "#DIV/0!"}}, confidence: medium, note: "error literal case-insensitive"}
+- {id: par18, area: parse, cells: {A1: "=1+"}, rejected: [A1], expect: {A1: {blank: true}}}
+- {id: par19, area: parse, cells: {A1: "=(1+2"}, rejected: [A1], expect: {A1: {blank: true}}, confidence: medium, note: "Excel may offer to add the missing paren; harness has no dialog, so entry is rejected"}
+- {id: par20, area: parse, cells: {A1: "=1+2)"}, rejected: [A1], expect: {A1: {blank: true}}}
+- {id: par21, area: parse, cells: {A1: "=\"abc"}, rejected: [A1], expect: {A1: {blank: true}}}
+- {id: par22, area: parse, cells: {A1: "=*2"}, rejected: [A1], expect: {A1: {blank: true}}}
+- {id: par23, area: parse, cells: {A1: "=1 2"}, rejected: [A1], expect: {A1: {blank: true}}, confidence: medium}
+- {id: par24, area: parse, cells: {A1: "=()"}, rejected: [A1], expect: {A1: {blank: true}}}
+- {id: par25, area: parse, cells: {A1: "=0.1+0.2"}, expect: {A1: 0.3}}
+- {id: par26, area: parse, cells: {A1: "=123456789012345"}, expect: {A1: 123456789012345}}
+
+# ---------------------------------------------------------------- references
+- {id: ref01, area: references, cells: {A1: "7", B1: "=A1"}, expect: {B1: 7}}
+- {id: ref02, area: references, cells: {A1: "7", B1: "=$A$1"}, expect: {B1: 7}}
+- {id: ref03, area: references, cells: {A1: "7", B1: "=$A1"}, expect: {B1: 7}}
+- {id: ref04, area: references, cells: {A1: "7", B1: "=A$1"}, expect: {B1: 7}}
+- {id: ref05, area: references, cells: {A1: "7", B1: "=a1"}, expect: {B1: 7}, note: "lowercase reference"}
+- {id: ref06, area: references, cells: {A1: "2", B2: "3", C3: "=A1*B2"}, expect: {C3: 6}}
+- {id: ref07, area: references, cells: {Z100: "4", A1: "=Z100+1"}, expect: {A1: 5}}
+- {id: ref08, area: references, cells: {AA1: "9", A1: "=AA1"}, expect: {A1: 9}}
+- {id: ref09, area: references, cells: {AZ5: "1", BA5: "2", A1: "=AZ5&BA5"}, expect: {A1: "12"}}
+- {id: ref10, area: references, cells: {XFD1048576: "11", A1: "=XFD1048576"}, expect: {A1: 11}, note: "last cell of the grid"}
+- {id: ref11, area: references, cells: {A1: "=$XFD$1048576+1"}, expect: {A1: 1}}
+- {id: ref12, area: references, cells: {A1: "=XFE1"}, rejected: [A1], expect: {A1: {blank: true}}, confidence: low, note: "XFE1 is past the last column; Excel treats it as a name and gives #NAME?, or rejects. If not rejected expect #NAME?"}
+- {id: ref13, area: references, cells: {A1: "abc", B1: "=A1"}, expect: {B1: "abc"}}
+- {id: ref14, area: references, cells: {A1: "TRUE", B1: "=A1"}, expect: {B1: true}}
+- {id: ref15, area: references, cells: {A1: "#N/A", B1: "=A1"}, expect: {B1: {error: "#N/A"}}}
+- {id: ref16, area: references, cells: {A1: "'", B1: "=A1"}, expect: {B1: ""}, confidence: medium, note: "lone apostrophe makes an empty text cell"}
+- {id: ref17, area: references, cells: {A1: "3", A2: "=A1+A1*A1"}, expect: {A2: 12}}
+- {id: ref18, area: references, cells: {A1: "=B1", B1: "=C1", C1: "=D1", D1: "42"}, expect: {A1: 42, B1: 42, C1: 42}}
+
+# ---------------------------------------------------------------- ranges (operators : space ,)
+- {id: rng01, area: ranges, cells: {A1: "1", A2: "2", A3: "3", B1: "=SUM(A1:A3)"}, expect: {B1: 6}, requires: [SUM]}
+- {id: rng02, area: ranges, cells: {A1: "1", A2: "2", A3: "3", B1: "=SUM(A3:A1)"}, expect: {B1: 6}, requires: [SUM], note: "reversed corners normalize"}
+- {id: rng03, area: ranges, cells: {A1: "1", B2: "2", C3: "3", D1: "=SUM(A1:C3)"}, expect: {D1: 6}, requires: [SUM]}
+- {id: rng04, area: ranges, cells: {A1: "1", A2: "2", A3: "3", B1: "=SUM($A$1:A3)"}, expect: {B1: 6}, requires: [SUM]}
+- {id: rng05, area: ranges, cells: {A1: "1", A2: "x", A3: "TRUE", A4: "4", B1: "=SUM(A1:A4)"}, expect: {B1: 5}, requires: [SUM], note: "text and logicals in a range are ignored"}
+- {id: rng06, area: ranges, cells: {A1: "1", A2: "=1/0", B1: "=SUM(A1:A2)"}, expect: {B1: {error: "#DIV/0!"}}, requires: [SUM]}
+- {id: rng07, area: ranges, cells: {A1: "1", C1: "5", B1: "=SUM((A1,C1))"}, expect: {B1: 6}, requires: [SUM], note: "union operator"}
+- {id: rng08, area: ranges, cells: {A1: "1", A2: "2", B1: "=SUM(A1:A2,A1:A2)"}, expect: {B1: 6}, requires: [SUM]}
+- {id: rng09, area: ranges, cells: {A1: "1", B1: "2", C1: "3", B2: "20", B3: "30", E1: "=A1:C1 B1:B3"}, expect: {E1: 2}, note: "intersection operator (space)"}
+- {id: rng10, area: ranges, cells: {A1: "1", A2: "2", C1: "3", C2: "4", E1: "=A1:A2 C1:C2"}, expect: {E1: {error: "#NULL!"}}}
+- {id: rng11, area: ranges, cells: {B2: "8", E1: "=A1:C3 B2:D4 B2"}, expect: {E1: 8}}
+- {id: rng12, area: ranges, cells: {B2: "8", E1: "=SUM(A1:C3 B2:D4)"}, expect: {E1: 8}, requires: [SUM]}
+- {id: rng13, area: ranges, cells: {A1: "5", B1: "=SUM(A:A)"}, expect: {B1: 5}, requires: [SUM], note: "whole-column reference"}
+- {id: rng14, area: ranges, cells: {C3: "5", B1: "=SUM(3:3)"}, expect: {B1: 5}, requires: [SUM], note: "whole-row reference"}
+- {id: rng15, area: ranges, cells: {A1: "2", B1: "3", D1: "=SUM(A1:B1)*2"}, expect: {D1: 10}, requires: [SUM]}
+- {id: rng16, area: ranges, cells: {B1: "=SUM(A1:A3)"}, expect: {B1: 0}, requires: [SUM], note: "all-blank range"}
+
+# ---------------------------------------------------------------- arithmetic
+- {id: ari01, area: arithmetic, cells: {A1: "=7-10"}, expect: {A1: -3}}
+- {id: ari02, area: arithmetic, cells: {A1: "=6*7"}, expect: {A1: 42}}
+- {id: ari03, area: arithmetic, cells: {A1: "=7/2"}, expect: {A1: 3.5}}
+- {id: ari04, area: arithmetic, cells: {A1: "=2^10"}, expect: {A1: 1024}}
+- {id: ari05, area: arithmetic, cells: {A1: "=2^0.5"}, expect: {A1: 1.4142135623730951}}
+- {id: ari06, area: arithmetic, cells: {A1: "=2^-2"}, expect: {A1: 0.25}}
+- {id: ari07, area: arithmetic, cells: {A1: "=10-2-3"}, expect: {A1: 5}, note: "left associative"}
+- {id: ari08, area: arithmetic, cells: {A1: "=100/10/2"}, expect: {A1: 5}}
+- {id: ari09, area: arithmetic, cells: {A1: "=1/3*3"}, expect: {A1: 1}}
+- {id: ari10, area: arithmetic, cells: {A1: "=2*-3"}, expect: {A1: -6}}
+- {id: ari11, area: arithmetic, cells: {A1: "=2--3"}, expect: {A1: 5}}
+- {id: ari12, area: arithmetic, cells: {A1: "=2+-+-3"}, expect: {A1: 5}}
+- {id: ari13, area: arithmetic, cells: {A1: "=0^0"}, expect: {A1: {error: "#NUM!"}}}
+- {id: ari14, area: arithmetic, cells: {A1: "=0^-1"}, expect: {A1: {error: "#DIV/0!"}}, confidence: medium}
+- {id: ari15, area: arithmetic, cells: {A1: "=(-8)^(1/3)"}, expect: {A1: {error: "#NUM!"}}, confidence: low, note: "negative base, fractional exponent"}
+- {id: ari16, area: arithmetic, cells: {A1: "=(-2)^3"}, expect: {A1: -8}}
+- {id: ari17, area: arithmetic, cells: {A1: "=(-2)^0.5"}, expect: {A1: {error: "#NUM!"}}}
+- {id: ari18, area: arithmetic, cells: {A1: "=1E+308*10"}, expect: {A1: {error: "#NUM!"}}}
+- {id: ari19, area: arithmetic, cells: {A1: "=10^309"}, expect: {A1: {error: "#NUM!"}}}
+- {id: ari20, area: arithmetic, cells: {A1: "=1E-200*1E-200"}, expect: {A1: 0}, confidence: medium, note: "underflow to 0"}
+- {id: ari21, area: arithmetic, cells: {A1: "=0.1*3"}, expect: {A1: 0.3}}
+- {id: ari22, area: arithmetic, cells: {A1: "=1.5*4"}, expect: {A1: 6}}
+- {id: ari23, area: arithmetic, cells: {A1: "=-0"}, expect: {A1: 0}}
+- {id: ari24, area: arithmetic, cells: {A1: "=5-5"}, expect: {A1: 0}}
+- {id: ari25, area: arithmetic, cells: {A1: "=1000000*1000000"}, expect: {A1: 1000000000000}}
+
+# ---------------------------------------------------------------- precedence
+- {id: pre01, area: precedence, cells: {A1: "=1+2*3"}, expect: {A1: 7}}
+- {id: pre02, area: precedence, cells: {A1: "=(1+2)*3"}, expect: {A1: 9}}
+- {id: pre03, area: precedence, cells: {A1: "=-2^2"}, expect: {A1: 4}, note: "unary minus binds tighter than ^"}
+- {id: pre04, area: precedence, cells: {A1: "=-(2^2)"}, expect: {A1: -4}}
+- {id: pre05, area: precedence, cells: {A1: "=0-2^2"}, expect: {A1: -4}, note: "binary minus is lower than ^"}
+- {id: pre06, area: precedence, cells: {A1: "=-1^2"}, expect: {A1: 1}}
+- {id: pre07, area: precedence, cells: {A1: "=2-1^2"}, expect: {A1: 1}}
+- {id: pre08, area: precedence, cells: {A1: "=2^3^2"}, expect: {A1: 64}, note: "^ is left associative in Excel"}
+- {id: pre09, area: precedence, cells: {A1: "=2^(3^2)"}, expect: {A1: 512}}
+- {id: pre10, area: precedence, cells: {A1: "=-2^-2"}, expect: {A1: 0.25}}
+- {id: pre11, area: precedence, cells: {A1: "=2*3^2"}, expect: {A1: 18}}
+- {id: pre12, area: precedence, cells: {A1: "=8/2*4"}, expect: {A1: 16}}
+- {id: pre13, area: precedence, cells: {A1: "=8/(2*4)"}, expect: {A1: 1}}
+- {id: pre14, area: precedence, cells: {A1: "=1+2&3"}, expect: {A1: "33"}, note: "& below +"}
+- {id: pre15, area: precedence, cells: {A1: "=1&2+3"}, expect: {A1: "15"}}
+- {id: pre16, area: precedence, cells: {A1: "=1&2=\"12\""}, expect: {A1: true}, note: "& above ="}
+- {id: pre17, area: precedence, cells: {A1: "=1+1=2"}, expect: {A1: true}}
+- {id: pre18, area: precedence, cells: {A1: "=1=1=1"}, expect: {A1: false}, note: "(TRUE)=1 is FALSE"}
+- {id: pre19, area: precedence, cells: {A1: "=2>1>0"}, expect: {A1: true}, note: "TRUE>0, logical sorts above number"}
+- {id: pre20, area: precedence, cells: {A1: "=-2^2+1"}, expect: {A1: 5}}
+- {id: pre21, area: precedence, cells: {A1: "=3-2-1^0"}, expect: {A1: 0}}
+- {id: pre22, area: precedence, cells: {A1: "=2*50%"}, expect: {A1: 1}}
+- {id: pre23, area: precedence, cells: {A1: "=50%^2"}, expect: {A1: 0.25}, note: "% above ^"}
+- {id: pre24, area: precedence, cells: {A1: "=-50%"}, expect: {A1: -0.5}}
+- {id: pre25, area: precedence, cells: {A1: "=-2^2%"}, expect: {A1: {error: "#NUM!"}}, confidence: medium, note: "negation and % both bind before ^, giving (-2)^0.02"}
+- {id: pre26, area: precedence, cells: {A1: "=10-5&\"\""}, expect: {A1: "5"}}
+- {id: pre27, area: precedence, cells: {A1: "=(2+3)*(4-1)^2"}, expect: {A1: 45}}
+
+# ---------------------------------------------------------------- unary and percent
+- {id: una01, area: unary_percent, cells: {A1: "=---1"}, expect: {A1: -1}}
+- {id: una02, area: unary_percent, cells: {A1: "=--\"3\""}, expect: {A1: 3}}
+- {id: una03, area: unary_percent, cells: {A1: "=-\"3\""}, expect: {A1: -3}}
+- {id: una04, area: unary_percent, cells: {A1: "=-\"a\""}, expect: {A1: {error: "#VALUE!"}}}
+- {id: una05, area: unary_percent, cells: {A1: "=-TRUE"}, expect: {A1: -1}}
+- {id: una06, area: unary_percent, cells: {A1: "=--FALSE"}, expect: {A1: 0}}
+- {id: una07, area: unary_percent, cells: {A1: "=+\"3\""}, expect: {A1: "3"}, confidence: medium, note: "unary plus does not coerce"}
+- {id: una08, area: unary_percent, cells: {A1: "=+5"}, expect: {A1: 5}}
+- {id: una09, area: unary_percent, cells: {A1: "=10%"}, expect: {A1: 0.1}}
+- {id: una10, area: unary_percent, cells: {A1: "=200%%"}, expect: {A1: 0.02}}
+- {id: una11, area: unary_percent, cells: {A1: "50", B1: "=A1%"}, expect: {B1: 0.5}}
+- {id: una12, area: unary_percent, cells: {A1: "=\"50\"%"}, expect: {A1: 0.5}}
+- {id: una13, area: unary_percent, cells: {A1: "=(1+1)%"}, expect: {A1: 0.02}}
+- {id: una14, area: unary_percent, cells: {B1: "=-A1"}, expect: {B1: 0}, note: "negated blank"}
+- {id: una15, area: unary_percent, cells: {A1: "=\"a\"%"}, expect: {A1: {error: "#VALUE!"}}}
+
+# ---------------------------------------------------------------- concatenation
+- {id: cat01, area: concat, cells: {A1: "=\"ab\"&\"cd\""}, expect: {A1: "abcd"}}
+- {id: cat02, area: concat, cells: {A1: "=1&2"}, expect: {A1: "12"}}
+- {id: cat03, area: concat, cells: {A1: "=1.5&\"\""}, expect: {A1: "1.5"}}
+- {id: cat04, area: concat, cells: {A1: "=TRUE&\"\""}, expect: {A1: "TRUE"}}
+- {id: cat05, area: concat, cells: {A1: "=TRUE&FALSE"}, expect: {A1: "TRUEFALSE"}}
+- {id: cat06, area: concat, cells: {A1: "=1/3&\"\""}, expect: {A1: "0.333333333333333"}, note: "15 significant digits"}
+- {id: cat07, area: concat, cells: {A1: "=0.1+0.2&\"\""}, expect: {A1: "0.3"}}
+- {id: cat08, area: concat, cells: {A1: "=1E+20&\"\""}, expect: {A1: "1E+20"}}
+- {id: cat09, area: concat, cells: {A1: "=-5&\"\""}, expect: {A1: "-5"}}
+- {id: cat10, area: concat, cells: {A1: "=12%&\"\""}, expect: {A1: "0.12"}}
+- {id: cat11, area: concat, cells: {A1: "=A2&A3"}, expect: {A1: ""}, note: "two blanks concatenate to empty text"}
+- {id: cat12, area: concat, cells: {A1: "=B1&\"x\""}, expect: {A1: "x"}}
+- {id: cat13, area: concat, cells: {A1: "abc", B1: "=A1&\" \"&A1"}, expect: {B1: "abc abc"}}
+- {id: cat14, area: concat, cells: {A1: "=(1/0)&\"x\""}, expect: {A1: {error: "#DIV/0!"}}}
+- {id: cat15, area: concat, cells: {A1: "=\"x\"&#N/A"}, expect: {A1: {error: "#N/A"}}}
+- {id: cat16, area: concat, cells: {A1: "=123456789012&\"\""}, expect: {A1: "123456789012"}}
+- {id: cat17, area: concat, cells: {A1: "=0.000001&\"\""}, expect: {A1: "0.000001"}, confidence: low}
+- {id: cat18, area: concat, cells: {A1: "=1&2&3"}, expect: {A1: "123"}}
+
+# ---------------------------------------------------------------- comparison
+- {id: cmp01, area: comparison, cells: {A1: "=1<2"}, expect: {A1: true}}
+- {id: cmp02, area: comparison, cells: {A1: "=2<=2"}, expect: {A1: true}}
+- {id: cmp03, area: comparison, cells: {A1: "=2>=3"}, expect: {A1: false}}
+- {id: cmp04, area: comparison, cells: {A1: "=1<>2"}, expect: {A1: true}}
+- {id: cmp05, area: comparison, cells: {A1: "=3>2"}, expect: {A1: true}}
+- {id: cmp06, area: comparison, cells: {A1: "=2=2"}, expect: {A1: true}}
+- {id: cmp07, area: comparison, cells: {A1: "=\"abc\"=\"ABC\""}, expect: {A1: true}, note: "text compare is case-insensitive"}
+- {id: cmp08, area: comparison, cells: {A1: "=\"a\"<\"b\""}, expect: {A1: true}}
+- {id: cmp09, area: comparison, cells: {A1: "=\"A\"<\"b\""}, expect: {A1: true}}
+- {id: cmp10, area: comparison, cells: {A1: "=\"b\"<\"A\""}, expect: {A1: false}}
+- {id: cmp11, area: comparison, cells: {A1: "=\"ab\"<\"abc\""}, expect: {A1: true}}
+- {id: cmp12, area: comparison, cells: {A1: "=\"10\"<\"9\""}, expect: {A1: true}, note: "text compared as text"}
+- {id: cmp13, area: comparison, cells: {A1: "=\"1\"=1"}, expect: {A1: false}, note: "comparison does not coerce text"}
+- {id: cmp14, area: comparison, cells: {A1: "=1<\"a\""}, expect: {A1: true}, note: "numbers < text < logicals"}
+- {id: cmp15, area: comparison, cells: {A1: "=999999<\"0\""}, expect: {A1: true}}
+- {id: cmp16, area: comparison, cells: {A1: "=\"zzz\"<TRUE"}, expect: {A1: true}}
+- {id: cmp17, area: comparison, cells: {A1: "=FALSE>1000"}, expect: {A1: true}}
+- {id: cmp18, area: comparison, cells: {A1: "=TRUE=1"}, expect: {A1: false}}
+- {id: cmp19, area: comparison, cells: {A1: "=FALSE<TRUE"}, expect: {A1: true}}
+- {id: cmp20, area: comparison, cells: {A1: "=\"TRUE\"=TRUE"}, expect: {A1: false}}
+- {id: cmp21, area: comparison, cells: {A1: "=\"\"=\"\""}, expect: {A1: true}}
+- {id: cmp22, area: comparison, cells: {A1: "=0.1+0.2=0.3"}, expect: {A1: true}, confidence: medium, note: "Excel's 15-digit comparison tolerance"}
+- {id: cmp23, area: comparison, cells: {A1: "=\"a \"=\"a\""}, expect: {A1: false}, note: "trailing space matters"}
+- {id: cmp24, area: comparison, cells: {A1: "=-1<0"}, expect: {A1: true}}
+- {id: cmp25, area: comparison, cells: {A1: "=1<#N/A"}, expect: {A1: {error: "#N/A"}}}
+
+# ---------------------------------------------------------------- coercion in arithmetic
+- {id: coe01, area: coercion, cells: {A1: "=\"1\"+1"}, expect: {A1: 2}}
+- {id: coe02, area: coercion, cells: {A1: "=\"a\"+1"}, expect: {A1: {error: "#VALUE!"}}}
+- {id: coe03, area: coercion, cells: {A1: "=\"\"+1"}, expect: {A1: {error: "#VALUE!"}}}
+- {id: coe04, area: coercion, cells: {A1: "=TRUE+1"}, expect: {A1: 2}}
+- {id: coe05, area: coercion, cells: {A1: "=FALSE*5"}, expect: {A1: 0}}
+- {id: coe06, area: coercion, cells: {A1: "=TRUE*TRUE"}, expect: {A1: 1}}
+- {id: coe07, area: coercion, cells: {A1: "=\"1e2\"+0"}, expect: {A1: 100}}
+- {id: coe08, area: coercion, cells: {A1: "=\"50%\"+0"}, expect: {A1: 0.5}}
+- {id: coe09, area: coercion, cells: {A1: "=\"$5\"+0"}, expect: {A1: 5}, confidence: medium}
+- {id: coe10, area: coercion, cells: {A1: "=\"1,000\"*2"}, expect: {A1: 2000}, confidence: medium}
+- {id: coe11, area: coercion, cells: {A1: "=\" 2 \"+1"}, expect: {A1: 3}, confidence: medium, note: "surrounding spaces tolerated"}
+- {id: coe12, area: coercion, cells: {A1: "=\"TRUE\"+0"}, expect: {A1: {error: "#VALUE!"}}, confidence: medium, note: "text TRUE is not coerced to a number"}
+- {id: coe13, area: coercion, cells: {A1: "=\"-3\"*\"2\""}, expect: {A1: -6}}
+- {id: coe14, area: coercion, cells: {A1: "=\"2\"^\"3\""}, expect: {A1: 8}}
+- {id: coe15, area: coercion, cells: {A1: "'123", B1: "=A1+1"}, expect: {B1: 124}, note: "text cell coerces in arithmetic"}
+- {id: coe16, area: coercion, cells: {A1: "'123", B1: "=A1=123"}, expect: {B1: false}}
+- {id: coe17, area: coercion, cells: {A1: "'123", B1: "=A1+0=123"}, expect: {B1: true}}
+- {id: coe18, area: coercion, cells: {A1: "abc", B1: "=A1*2"}, expect: {B1: {error: "#VALUE!"}}}
+- {id: coe19, area: coercion, cells: {A1: "TRUE", B1: "=A1+A1"}, expect: {B1: 2}}
+- {id: coe20, area: coercion, cells: {A1: "=\"(4)\"+0"}, expect: {A1: -4}, confidence: low}
+- {id: coe21, area: coercion, cells: {A1: "=\"1/2/2000\"+0"}, expect: {A1: 36527}, confidence: medium, note: "date text coerces to serial (en-US)"}
+- {id: coe22, area: coercion, cells: {A1: "=\"1 1\"+0"}, expect: {A1: {error: "#VALUE!"}}, confidence: low}
+- {id: coe23, area: coercion, cells: {A1: "=\".5\"*2"}, expect: {A1: 1}}
+
+# ---------------------------------------------------------------- blank cells
+- {id: blk01, area: blank, cells: {B1: "=A1"}, expect: {B1: 0}, note: "reference to blank shows 0"}
+- {id: blk02, area: blank, cells: {B1: "=A1+1"}, expect: {B1: 1}}
+- {id: blk03, area: blank, cells: {B1: "=A1*5"}, expect: {B1: 0}}
+- {id: blk04, area: blank, cells: {B1: "=A1=\"\""}, expect: {B1: true}}
+- {id: blk05, area: blank, cells: {B1: "=A1=0"}, expect: {B1: true}}
+- {id: blk06, area: blank, cells: {B1: "=A1=FALSE"}, expect: {B1: true}}
+- {id: blk07, area: blank, cells: {B1: "=A1<1"}, expect: {B1: true}}
+- {id: blk08, area: blank, cells: {B1: "=A1<\"a\""}, expect: {B1: true}, note: "blank compared to text acts as empty text"}
+- {id: blk09, area: blank, cells: {B1: "=A1=C1"}, expect: {B1: true}}
+- {id: blk10, area: blank, cells: {B1: "=5/A1"}, expect: {B1: {error: "#DIV/0!"}}}
+- {id: blk11, area: blank, cells: {B1: "=A1/5"}, expect: {B1: 0}}
+- {id: blk12, area: blank, cells: {B1: "=A1^0"}, expect: {B1: {error: "#NUM!"}}, note: "0^0"}
+- {id: blk13, area: blank, cells: {A1: "=\"\"", B1: "=A1+1"}, expect: {B1: {error: "#VALUE!"}}, note: "empty text is not blank"}
+- {id: blk14, area: blank, cells: {A1: "=\"\"", B1: "=A1=0"}, expect: {B1: false}}
+- {id: blk15, area: blank, cells: {B1: "=A1&A1"}, expect: {B1: ""}}
+- {id: blk16, area: blank, cells: {B1: "=-A1%"}, expect: {B1: 0}}
+- {id: blk17, area: blank, cells: {}, expect: {A1: {blank: true}}}
+
+# ---------------------------------------------------------------- errors
+- {id: err01, area: errors, cells: {A1: "=1/0"}, expect: {A1: {error: "#DIV/0!"}}}
+- {id: err02, area: errors, cells: {A1: "=0/0"}, expect: {A1: {error: "#DIV/0!"}}}
+- {id: err03, area: errors, cells: {A1: "=\"a\"*1"}, expect: {A1: {error: "#VALUE!"}}}
+- {id: err04, area: errors, cells: {A1: "=#N/A+1"}, expect: {A1: {error: "#N/A"}}}
+- {id: err05, area: errors, cells: {A1: "=#REF!"}, expect: {A1: {error: "#REF!"}}}
+- {id: err06, area: errors, cells: {A1: "=#NAME?"}, expect: {A1: {error: "#NAME?"}}}
+- {id: err07, area: errors, cells: {A1: "=#NUM!*0"}, expect: {A1: {error: "#NUM!"}}}
+- {id: err08, area: errors, cells: {A1: "=#NULL!"}, expect: {A1: {error: "#NULL!"}}}
+- {id: err09, area: errors, cells: {A1: "=#VALUE!&\"\""}, expect: {A1: {error: "#VALUE!"}}}
+- {id: err10, area: errors, cells: {A1: "=foo"}, expect: {A1: {error: "#NAME?"}}, note: "undefined name"}
+- {id: err11, area: errors, cells: {A1: "=abc+1"}, expect: {A1: {error: "#NAME?"}}}
+- {id: err12, area: errors, cells: {A1: "=1/0", B1: "=A1+1"}, expect: {B1: {error: "#DIV/0!"}}}
+- {id: err13, area: errors, cells: {A1: "=1/0", B1: "=A1*0"}, expect: {B1: {error: "#DIV/0!"}}, note: "errors propagate even through *0"}
+- {id: err14, area: errors, cells: {A1: "=1/0", B1: "=A1", C1: "=B1", D1: "=C1&\"x\""}, expect: {B1: {error: "#DIV/0!"}, C1: {error: "#DIV/0!"}, D1: {error: "#DIV/0!"}}}
+- {id: err15, area: errors, cells: {A1: "=1/0", B1: "=A1=A1"}, expect: {B1: {error: "#DIV/0!"}}}
+- {id: err16, area: errors, cells: {A1: "#N/A", B1: "=-A1"}, expect: {B1: {error: "#N/A"}}}
+- {id: err17, area: errors, cells: {A1: "#N/A", B1: "=A1%"}, expect: {B1: {error: "#N/A"}}}
+- {id: err18, area: errors, cells: {A1: "=#N/A", B1: "=A1"}, expect: {A1: {error: "#N/A"}, B1: {error: "#N/A"}}}
+- {id: err19, area: errors, cells: {A1: "#N/A", B1: "=A1=\"#N/A\""}, expect: {B1: {error: "#N/A"}}, note: "error never equals text"}
+- {id: err20, area: errors, cells: {A1: "#N/A", B1: "'#N/A", C1: "=B1&\"\""}, expect: {B1: "#N/A", C1: "#N/A"}, note: "text that looks like an error is text"}
+
+# ---------------------------------------------------------------- error precedence
+# Excel evaluates binary operands left to right and returns the first error encountered.
+- {id: epr01, area: error_precedence, cells: {A1: "=#N/A+#DIV/0!"}, expect: {A1: {error: "#N/A"}}}
+- {id: epr02, area: error_precedence, cells: {A1: "=#DIV/0!+#N/A"}, expect: {A1: {error: "#DIV/0!"}}}
+- {id: epr03, area: error_precedence, cells: {A1: "=1/0+#N/A"}, expect: {A1: {error: "#DIV/0!"}}}
+- {id: epr04, area: error_precedence, cells: {A1: "=#VALUE!&#REF!"}, expect: {A1: {error: "#VALUE!"}}}
+- {id: epr05, area: error_precedence, cells: {A1: "=#REF!=#NUM!"}, expect: {A1: {error: "#REF!"}}}
+- {id: epr06, area: error_precedence, cells: {A1: "=\"a\"+1/0"}, expect: {A1: {error: "#VALUE!"}}, confidence: medium, note: "left operand coercion failure found first"}
+- {id: epr07, area: error_precedence, cells: {A1: "=1/0+\"a\""}, expect: {A1: {error: "#DIV/0!"}}, confidence: medium}
+- {id: epr08, area: error_precedence, cells: {A1: "=#N/A", B1: "=1/0", C1: "=B1-A1"}, expect: {C1: {error: "#DIV/0!"}}}
+- {id: epr09, area: error_precedence, cells: {A1: "=#N/A", B1: "=1/0", C1: "=A1-B1"}, expect: {C1: {error: "#N/A"}}}
+- {id: epr10, area: error_precedence, cells: {A1: "=1+2*#NUM!"}, expect: {A1: {error: "#NUM!"}}}
+- {id: epr11, area: error_precedence, cells: {A1: "=-#N/A^2"}, expect: {A1: {error: "#N/A"}}}
+- {id: epr12, area: error_precedence, cells: {A1: "=(#NULL!+1)*(#N/A)"}, expect: {A1: {error: "#NULL!"}}}
+
+# ---------------------------------------------------------------- recalculation order
+- {id: rec01, area: recalc, cells: {A1: "=A2+1", A2: "=A3+1", A3: "=A4+1", A4: "1"}, expect: {A1: 4, A2: 3, A3: 2}, note: "dependencies below dependents"}
+- {id: rec02, area: recalc, cells: {A1: "1", A2: "=A1+1", A3: "=A2+1", A4: "=A3+1"}, expect: {A4: 4}}
+- {id: rec03, area: recalc, cells: {C1: "=A1+B1", A1: "=B1*2", B1: "5"}, expect: {A1: 10, C1: 15}}
+- {id: rec04, area: recalc, cells: {A1: "2", B1: "=A1*A1", C1: "=B1+A1", D1: "=C1*B1"}, expect: {B1: 4, C1: 6, D1: 24}, note: "diamond"}
+- {id: rec05, area: recalc, cells: {D4: "=C3+B2+A1", C3: "=B2*2", B2: "=A1+1", A1: "3"}, expect: {B2: 4, C3: 8, D4: 15}}
+- {id: rec06, area: recalc, cells: {E1: "=D1&C1", D1: "=C1&\"b\"", C1: "a"}, expect: {D1: "ab", E1: "aba"}}
+- {id: rec07, area: recalc, cells: {Z1: "=Y1+1", Y1: "=X1+1", X1: "=W1+1", W1: "=V1+1", V1: "=U1+1", U1: "0"}, expect: {Z1: 5}}
+- {id: rec08, area: recalc, cells: {A1: "10", B1: "=A1"}, edits: [{A1: "20"}], expect: {B1: 20}, note: "edit after initial entry triggers recalc"}
+- {id: rec09, area: recalc, cells: {A1: "10", B1: "=A1*2", C1: "=B1+1"}, edits: [{A1: "1"}], expect: {B1: 2, C1: 3}}
+- {id: rec10, area: recalc, cells: {A1: "10", B1: "=A1"}, edits: [{A1: ""}], expect: {A1: {blank: true}, B1: 0}, note: "clearing a cell"}
+- {id: rec11, area: recalc, cells: {A1: "1", B1: "=A1+1"}, edits: [{B1: "=A1+2"}, {A1: "5"}], expect: {B1: 7}}
+- {id: rec12, area: recalc, cells: {A1: "1", B1: "=A1"}, edits: [{B1: "7"}, {A1: "9"}], expect: {B1: 7}, note: "replaced formula no longer depends"}
+- {id: rec13, area: recalc, cells: {A1: "=1/0", B1: "=A1+1"}, edits: [{A1: "4"}], expect: {B1: 5}, note: "error clears after fix"}
+- {id: rec14, area: recalc, cells: {B1: "=A1+1"}, edits: [{A1: "41"}], expect: {B1: 42}, note: "dependency on a cell that was blank"}
+
+# ---------------------------------------------------------------- circular references
+- {id: cir01, area: circular, cells: {A1: "=A1"}, expect: {A1: 0}, circular: [A1]}
+- {id: cir02, area: circular, cells: {A1: "=A1+1"}, expect: {A1: 0}, circular: [A1]}
+- {id: cir03, area: circular, cells: {A1: "=B1", B1: "=A1"}, expect: {A1: 0, B1: 0}, circular: [A1, B1]}
+- {id: cir04, area: circular, cells: {A1: "=B1+1", B1: "=C1+1", C1: "=A1+1"}, expect: {A1: 0, B1: 0, C1: 0}, circular: [A1, B1, C1], confidence: medium}
+- {id: cir05, area: circular, cells: {A1: "5", B1: "=A1+1"}, expect: {B1: 6}, circular: [], note: "no false positive"}
+- {id: cir06, area: circular, cells: {A1: "1", B1: "=A1", C1: "=A1+B1"}, expect: {C1: 2}, circular: [], note: "diamond is not a cycle"}
+- {id: cir07, area: circular, cells: {A1: "=SUM(A1:A3)", A2: "1"}, expect: {A1: 0}, circular: [A1], requires: [SUM], note: "self inside a range"}
+- {id: cir08, area: circular, cells: {A1: "1", B1: "=A1"}, edits: [{A1: "=B1"}], expect: {A1: 0, B1: 0}, circular: [A1, B1], note: "cycle created by edit"}
+- {id: cir09, area: circular, cells: {A1: "=B1", B1: "=A1"}, edits: [{B1: "3"}], expect: {A1: 3, B1: 3}, circular: [], note: "cycle broken by edit"}
+- {id: cir10, area: circular, cells: {A1: "=B1", B1: "=A1", C1: "=A1+1"}, expect: {C1: 1}, circular: [A1, B1], confidence: low, note: "dependent of a cycle sees the cycle's 0"}
+- {id: cir11, area: circular, cells: {A1: "=A1:A1 A1"}, expect: {A1: 0}, circular: [A1], confidence: medium}
+- {id: cir12, area: circular, cells: {A1: "=1/0+A1"}, expect: {A1: 0}, circular: [A1], confidence: low, note: "Excel does not evaluate a cycle with iteration off; displays 0"}

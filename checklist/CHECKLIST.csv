@@ -1,0 +1,1221 @@
+id,category,item,stage,status
+FN-0001,Function: Math and trigonometry,ABS,3,todo
+FN-0002,Function: Financial,ACCRINT,5,todo
+FN-0003,Function: Financial,ACCRINTM,5,todo
+FN-0004,Function: Math and trigonometry,ACOS,3,todo
+FN-0005,Function: Math and trigonometry,ACOSH,3,todo
+FN-0006,Function: Math and trigonometry,ACOT,3,todo
+FN-0007,Function: Math and trigonometry,ACOTH,3,todo
+FN-0008,Function: Math and trigonometry,AGGREGATE,3,todo
+FN-0009,Function: Lookup and reference,ADDRESS,4,todo
+FN-0010,Function: Financial,AMORDEGRC,5,todo
+FN-0011,Function: Financial,AMORLINC,5,todo
+FN-0012,Function: Logical,AND,3,todo
+FN-0013,Function: Math and trigonometry,ARABIC,3,todo
+FN-0014,Function: Lookup and reference,AREAS,4,todo
+FN-0015,Function: Text,ARRAYTOTEXT,3,todo
+FN-0016,Function: Text,ASC,3,todo
+FN-0017,Function: Math and trigonometry,ASIN,3,todo
+FN-0018,Function: Math and trigonometry,ASINH,3,todo
+FN-0019,Function: Math and trigonometry,ATAN,3,todo
+FN-0020,Function: Math and trigonometry,ATAN2,3,todo
+FN-0021,Function: Math and trigonometry,ATANH,3,todo
+FN-0022,Function: Statistical,AVEDEV,5,todo
+FN-0023,Function: Statistical,AVERAGE,5,todo
+FN-0024,Function: Statistical,AVERAGEA,5,todo
+FN-0025,Function: Statistical,AVERAGEIF,5,todo
+FN-0026,Function: Statistical,AVERAGEIFS,5,todo
+FN-0027,Function: Text,BAHTTEXT,3,todo
+FN-0028,Function: Math and trigonometry,BASE,3,todo
+FN-0029,Function: Engineering,BESSELI,5,todo
+FN-0030,Function: Engineering,BESSELJ,5,todo
+FN-0031,Function: Engineering,BESSELK,5,todo
+FN-0032,Function: Engineering,BESSELY,5,todo
+FN-0033,Function: Compatibility,BETADIST,5,todo
+FN-0034,Function: Statistical,BETA.DIST,5,todo
+FN-0035,Function: Compatibility,BETAINV,5,todo
+FN-0036,Function: Statistical,BETA.INV,5,todo
+FN-0037,Function: Engineering,BIN2DEC,5,todo
+FN-0038,Function: Engineering,BIN2HEX,5,todo
+FN-0039,Function: Engineering,BIN2OCT,5,todo
+FN-0040,Function: Compatibility,BINOMDIST,5,todo
+FN-0041,Function: Statistical,BINOM.DIST,5,todo
+FN-0042,Function: Statistical,BINOM.DIST.RANGE,5,todo
+FN-0043,Function: Statistical,BINOM.INV,5,todo
+FN-0044,Function: Engineering,BITAND,5,todo
+FN-0045,Function: Engineering,BITLSHIFT,5,todo
+FN-0046,Function: Engineering,BITOR,5,todo
+FN-0047,Function: Engineering,BITRSHIFT,5,todo
+FN-0048,Function: Engineering,BITXOR,5,todo
+FN-0049,Function: Logical,BYCOL,10,todo
+FN-0050,Function: Logical,BYROW,10,todo
+FN-0051,Function: Add-in and Automation,CALL,10,todo
+FN-0052,Function: Compatibility,CEILING,3,todo
+FN-0053,Function: Math and trigonometry,CEILING.MATH,3,todo
+FN-0054,Function: Math and trigonometry,CEILING.PRECISE,3,todo
+FN-0055,Function: Information,CELL,3,todo
+FN-0056,Function: Text,CHAR,3,todo
+FN-0057,Function: Compatibility,CHIDIST,5,todo
+FN-0058,Function: Compatibility,CHIINV,5,todo
+FN-0059,Function: Compatibility,CHITEST,5,todo
+FN-0060,Function: Statistical,CHISQ.DIST,5,todo
+FN-0061,Function: Statistical,CHISQ.DIST.RT,5,todo
+FN-0062,Function: Statistical,CHISQ.INV,5,todo
+FN-0063,Function: Statistical,CHISQ.INV.RT,5,todo
+FN-0064,Function: Statistical,CHISQ.TEST,5,todo
+FN-0065,Function: Lookup and reference,CHOOSE,4,todo
+FN-0066,Function: Lookup and reference,CHOOSECOLS,10,todo
+FN-0067,Function: Lookup and reference,CHOOSEROWS,10,todo
+FN-0068,Function: Text,CLEAN,3,todo
+FN-0069,Function: Text,CODE,3,todo
+FN-0070,Function: Lookup and reference,COLUMN,4,todo
+FN-0071,Function: Lookup and reference,COLUMNS,4,todo
+FN-0072,Function: Math and trigonometry,COMBIN,3,todo
+FN-0073,Function: Math and trigonometry,COMBINA,3,todo
+FN-0074,Function: Engineering,COMPLEX,5,todo
+FN-0075,Function: Text,CONCAT,3,todo
+FN-0076,Function: Text,CONCATENATE,3,todo
+FN-0077,Function: Compatibility,CONFIDENCE,5,todo
+FN-0078,Function: Statistical,CONFIDENCE.NORM,5,todo
+FN-0079,Function: Statistical,CONFIDENCE.T,5,todo
+FN-0080,Function: Engineering,CONVERT,5,todo
+FN-0081,Function: Statistical,CORREL,5,todo
+FN-0082,Function: Math and trigonometry,COS,3,todo
+FN-0083,Function: Math and trigonometry,COSH,3,todo
+FN-0084,Function: Math and trigonometry,COT,3,todo
+FN-0085,Function: Math and trigonometry,COTH,3,todo
+FN-0086,Function: Statistical,COUNT,5,todo
+FN-0087,Function: Statistical,COUNTA,5,todo
+FN-0088,Function: Statistical,COUNTBLANK,5,todo
+FN-0089,Function: Statistical,COUNTIF,5,todo
+FN-0090,Function: Statistical,COUNTIFS,5,todo
+FN-0091,Function: Financial,COUPDAYBS,5,todo
+FN-0092,Function: Financial,COUPDAYS,5,todo
+FN-0093,Function: Financial,COUPDAYSNC,5,todo
+FN-0094,Function: Financial,COUPNCD,5,todo
+FN-0095,Function: Financial,COUPNUM,5,todo
+FN-0096,Function: Financial,COUPPCD,5,todo
+FN-0097,Function: Compatibility,COVAR,5,todo
+FN-0098,Function: Statistical,COVARIANCE.P,5,todo
+FN-0099,Function: Statistical,COVARIANCE.S,5,todo
+FN-0100,Function: Compatibility,CRITBINOM,5,todo
+FN-0101,Function: Math and trigonometry,CSC,3,todo
+FN-0102,Function: Math and trigonometry,CSCH,3,todo
+FN-0103,Function: Cube,CUBEKPIMEMBER,10,todo
+FN-0104,Function: Cube,CUBEMEMBER,10,todo
+FN-0105,Function: Cube,CUBEMEMBERPROPERTY,10,todo
+FN-0106,Function: Cube,CUBERANKEDMEMBER,10,todo
+FN-0107,Function: Cube,CUBESET,10,todo
+FN-0108,Function: Cube,CUBESETCOUNT,10,todo
+FN-0109,Function: Cube,CUBEVALUE,10,todo
+FN-0110,Function: Financial,CUMIPMT,5,todo
+FN-0111,Function: Financial,CUMPRINC,5,todo
+FN-0112,Function: Date and time,DATE,4,todo
+FN-0113,Function: Date and time,DATEDIF,4,todo
+FN-0114,Function: Date and time,DATEVALUE,4,todo
+FN-0115,Function: Database,DAVERAGE,10,todo
+FN-0116,Function: Date and time,DAY,4,todo
+FN-0117,Function: Date and time,DAYS,4,todo
+FN-0118,Function: Date and time,DAYS360,4,todo
+FN-0119,Function: Financial,DB,5,todo
+FN-0120,Function: Text,DBCS,3,todo
+FN-0121,Function: Database,DCOUNT,10,todo
+FN-0122,Function: Database,DCOUNTA,10,todo
+FN-0123,Function: Financial,DDB,5,todo
+FN-0124,Function: Engineering,DEC2BIN,5,todo
+FN-0125,Function: Engineering,DEC2HEX,5,todo
+FN-0126,Function: Engineering,DEC2OCT,5,todo
+FN-0127,Function: Math and trigonometry,DECIMAL,3,todo
+FN-0128,Function: Math and trigonometry,DEGREES,3,todo
+FN-0129,Function: Engineering,DELTA,5,todo
+FN-0130,Function: Text,DETECTLANGUAGE,10,todo
+FN-0131,Function: Statistical,DEVSQ,5,todo
+FN-0132,Function: Database,DGET,10,todo
+FN-0133,Function: Financial,DISC,5,todo
+FN-0134,Function: Database,DMAX,10,todo
+FN-0135,Function: Database,DMIN,10,todo
+FN-0136,Function: Text,DOLLAR,3,todo
+FN-0137,Function: Financial,DOLLARDE,5,todo
+FN-0138,Function: Financial,DOLLARFR,5,todo
+FN-0139,Function: Database,DPRODUCT,10,todo
+FN-0140,Function: Lookup and reference,DROP,10,todo
+FN-0141,Function: Database,DSTDEV,10,todo
+FN-0142,Function: Database,DSTDEVP,10,todo
+FN-0143,Function: Database,DSUM,10,todo
+FN-0144,Function: Financial,DURATION,5,todo
+FN-0145,Function: Database,DVAR,10,todo
+FN-0146,Function: Database,DVARP,10,todo
+FN-0147,Function: Date and time,EDATE,4,todo
+FN-0148,Function: Financial,EFFECT,5,todo
+FN-0149,Function: Web,ENCODEURL,10,todo
+FN-0150,Function: Date and time,EOMONTH,4,todo
+FN-0151,Function: Engineering,ERF,5,todo
+FN-0152,Function: Engineering,ERF.PRECISE,5,todo
+FN-0153,Function: Engineering,ERFC,5,todo
+FN-0154,Function: Engineering,ERFC.PRECISE,5,todo
+FN-0155,Function: Information,ERROR.TYPE,3,todo
+FN-0156,Function: Add-in and Automation,EUROCONVERT,10,todo
+FN-0157,Function: Math and trigonometry,EVEN,3,todo
+FN-0158,Function: Text,EXACT,3,todo
+FN-0159,Function: Math and trigonometry,EXP,3,todo
+FN-0160,Function: Lookup and reference,EXPAND,10,todo
+FN-0161,Function: Statistical,EXPON.DIST,5,todo
+FN-0162,Function: Compatibility,EXPONDIST,5,todo
+FN-0163,Function: Math and trigonometry,FACT,3,todo
+FN-0164,Function: Math and trigonometry,FACTDOUBLE,3,todo
+FN-0165,Function: Logical,FALSE,3,todo
+FN-0166,Function: Statistical,F.DIST,5,todo
+FN-0167,Function: Compatibility,FDIST,5,todo
+FN-0168,Function: Statistical,F.DIST.RT,5,todo
+FN-0169,Function: Lookup and reference,FILTER,10,todo
+FN-0170,Function: Web,FILTERXML,10,todo
+FN-0171,Function: Text,FIND,3,todo
+FN-0172,Function: Text,FINDB,3,todo
+FN-0173,Function: Statistical,F.INV,5,todo
+FN-0174,Function: Statistical,F.INV.RT,5,todo
+FN-0175,Function: Compatibility,FINV,5,todo
+FN-0176,Function: Statistical,FISHER,5,todo
+FN-0177,Function: Statistical,FISHERINV,5,todo
+FN-0178,Function: Text,FIXED,3,todo
+FN-0179,Function: Compatibility,FLOOR,3,todo
+FN-0180,Function: Math and trigonometry,FLOOR.MATH,3,todo
+FN-0181,Function: Math and trigonometry,FLOOR.PRECISE,3,todo
+FN-0182,Function: Statistical,FORECAST,5,todo
+FN-0183,Function: Statistical,FORECAST.ETS,5,todo
+FN-0184,Function: Statistical,FORECAST.ETS.CONFINT,5,todo
+FN-0185,Function: Statistical,FORECAST.ETS.SEASONALITY,5,todo
+FN-0186,Function: Statistical,FORECAST.ETS.STAT,5,todo
+FN-0187,Function: Statistical,FORECAST.LINEAR,5,todo
+FN-0188,Function: Lookup and reference,FORMULATEXT,4,todo
+FN-0189,Function: Statistical,FREQUENCY,5,todo
+FN-0190,Function: Statistical,F.TEST,5,todo
+FN-0191,Function: Compatibility,FTEST,5,todo
+FN-0192,Function: Financial,FV,5,todo
+FN-0193,Function: Financial,FVSCHEDULE,5,todo
+FN-0194,Function: Statistical,GAMMA,5,todo
+FN-0195,Function: Statistical,GAMMA.DIST,5,todo
+FN-0196,Function: Compatibility,GAMMADIST,5,todo
+FN-0197,Function: Statistical,GAMMA.INV,5,todo
+FN-0198,Function: Compatibility,GAMMAINV,5,todo
+FN-0199,Function: Statistical,GAMMALN,5,todo
+FN-0200,Function: Statistical,GAMMALN.PRECISE,5,todo
+FN-0201,Function: Statistical,GAUSS,5,todo
+FN-0202,Function: Math and trigonometry,GCD,3,todo
+FN-0203,Function: Statistical,GEOMEAN,5,todo
+FN-0204,Function: Engineering,GESTEP,5,todo
+FN-0205,Function: Lookup and reference,GETPIVOTDATA,10,todo
+FN-0206,Function: Lookup and reference,GROUPBY,10,todo
+FN-0207,Function: Statistical,GROWTH,5,todo
+FN-0208,Function: Statistical,HARMEAN,5,todo
+FN-0209,Function: Engineering,HEX2BIN,5,todo
+FN-0210,Function: Engineering,HEX2DEC,5,todo
+FN-0211,Function: Engineering,HEX2OCT,5,todo
+FN-0212,Function: Lookup and reference,HLOOKUP,4,todo
+FN-0213,Function: Date and time,HOUR,4,todo
+FN-0214,Function: Lookup and reference,HSTACK,10,todo
+FN-0215,Function: Lookup and reference,HYPERLINK,4,todo
+FN-0216,Function: Statistical,HYPGEOM.DIST,5,todo
+FN-0217,Function: Compatibility,HYPGEOMDIST,5,todo
+FN-0218,Function: Logical,IF,3,todo
+FN-0219,Function: Logical,IFERROR,3,todo
+FN-0220,Function: Logical,IFNA,3,todo
+FN-0221,Function: Logical,IFS,3,todo
+FN-0222,Function: Engineering,IMABS,5,todo
+FN-0223,Function: Lookup and reference,IMAGE,10,todo
+FN-0224,Function: Engineering,IMAGINARY,5,todo
+FN-0225,Function: Engineering,IMARGUMENT,5,todo
+FN-0226,Function: Engineering,IMCONJUGATE,5,todo
+FN-0227,Function: Engineering,IMCOS,5,todo
+FN-0228,Function: Engineering,IMCOSH,5,todo
+FN-0229,Function: Engineering,IMCOT,5,todo
+FN-0230,Function: Engineering,IMCSC,5,todo
+FN-0231,Function: Engineering,IMCSCH,5,todo
+FN-0232,Function: Engineering,IMDIV,5,todo
+FN-0233,Function: Engineering,IMEXP,5,todo
+FN-0234,Function: Engineering,IMLN,5,todo
+FN-0235,Function: Engineering,IMLOG10,5,todo
+FN-0236,Function: Engineering,IMLOG2,5,todo
+FN-0237,Function: Engineering,IMPOWER,5,todo
+FN-0238,Function: Engineering,IMPRODUCT,5,todo
+FN-0239,Function: Engineering,IMREAL,5,todo
+FN-0240,Function: Engineering,IMSEC,5,todo
+FN-0241,Function: Engineering,IMSECH,5,todo
+FN-0242,Function: Engineering,IMSIN,5,todo
+FN-0243,Function: Engineering,IMSINH,5,todo
+FN-0244,Function: Engineering,IMSQRT,5,todo
+FN-0245,Function: Engineering,IMSUB,5,todo
+FN-0246,Function: Engineering,IMSUM,5,todo
+FN-0247,Function: Engineering,IMTAN,5,todo
+FN-0248,Function: Lookup and reference,INDEX,4,todo
+FN-0249,Function: Lookup and reference,INDIRECT,4,todo
+FN-0250,Function: Information,INFO,3,todo
+FN-0251,Function: Math and trigonometry,INT,3,todo
+FN-0252,Function: Statistical,INTERCEPT,5,todo
+FN-0253,Function: Financial,INTRATE,5,todo
+FN-0254,Function: Financial,IPMT,5,todo
+FN-0255,Function: Financial,IRR,5,todo
+FN-0256,Function: Information,ISBLANK,3,todo
+FN-0257,Function: Information,ISERR,3,todo
+FN-0258,Function: Information,ISERROR,3,todo
+FN-0259,Function: Information,ISEVEN,3,todo
+FN-0260,Function: Information,ISFORMULA,3,todo
+FN-0261,Function: Information,ISLOGICAL,3,todo
+FN-0262,Function: Information,ISNA,3,todo
+FN-0263,Function: Information,ISNONTEXT,3,todo
+FN-0264,Function: Information,ISNUMBER,3,todo
+FN-0265,Function: Information,ISODD,3,todo
+FN-0266,Function: Information,ISOMITTED,10,todo
+FN-0267,Function: Information,ISREF,3,todo
+FN-0268,Function: Information,ISTEXT,3,todo
+FN-0269,Function: Math and trigonometry,ISO.CEILING,3,todo
+FN-0270,Function: Date and time,ISOWEEKNUM,4,todo
+FN-0271,Function: Financial,ISPMT,5,todo
+FN-0272,Function: Text,JIS,3,todo
+FN-0273,Function: Statistical,KURT,5,todo
+FN-0274,Function: Logical,LAMBDA,10,todo
+FN-0275,Function: Statistical,LARGE,5,todo
+FN-0276,Function: Math and trigonometry,LCM,3,todo
+FN-0277,Function: Text,LEFT,3,todo
+FN-0278,Function: Text,LEFTB,3,todo
+FN-0279,Function: Text,LEN,3,todo
+FN-0280,Function: Text,LENB,3,todo
+FN-0281,Function: Logical,LET,10,todo
+FN-0282,Function: Statistical,LINEST,5,todo
+FN-0283,Function: Math and trigonometry,LN,3,todo
+FN-0284,Function: Math and trigonometry,LOG,3,todo
+FN-0285,Function: Math and trigonometry,LOG10,3,todo
+FN-0286,Function: Statistical,LOGEST,5,todo
+FN-0287,Function: Compatibility,LOGINV,5,todo
+FN-0288,Function: Statistical,LOGNORM.DIST,5,todo
+FN-0289,Function: Compatibility,LOGNORMDIST,5,todo
+FN-0290,Function: Statistical,LOGNORM.INV,5,todo
+FN-0291,Function: Lookup and reference,LOOKUP,4,todo
+FN-0292,Function: Text,LOWER,3,todo
+FN-0293,Function: Logical,MAKEARRAY,10,todo
+FN-0294,Function: Logical,MAP,10,todo
+FN-0295,Function: Lookup and reference,MATCH,4,todo
+FN-0296,Function: Statistical,MAX,5,todo
+FN-0297,Function: Statistical,MAXA,5,todo
+FN-0298,Function: Statistical,MAXIFS,5,todo
+FN-0299,Function: Math and trigonometry,MDETERM,3,todo
+FN-0300,Function: Financial,MDURATION,5,todo
+FN-0301,Function: Statistical,MEDIAN,5,todo
+FN-0302,Function: Text,MID,3,todo
+FN-0303,Function: Text,MIDB,3,todo
+FN-0304,Function: Statistical,MIN,5,todo
+FN-0305,Function: Statistical,MINIFS,5,todo
+FN-0306,Function: Statistical,MINA,5,todo
+FN-0307,Function: Date and time,MINUTE,4,todo
+FN-0308,Function: Math and trigonometry,MINVERSE,3,todo
+FN-0309,Function: Financial,MIRR,5,todo
+FN-0310,Function: Math and trigonometry,MMULT,3,todo
+FN-0311,Function: Math and trigonometry,MOD,3,todo
+FN-0312,Function: Compatibility,MODE,5,todo
+FN-0313,Function: Statistical,MODE.MULT,5,todo
+FN-0314,Function: Statistical,MODE.SNGL,5,todo
+FN-0315,Function: Date and time,MONTH,4,todo
+FN-0316,Function: Math and trigonometry,MROUND,3,todo
+FN-0317,Function: Math and trigonometry,MULTINOMIAL,3,todo
+FN-0318,Function: Math and trigonometry,MUNIT,3,todo
+FN-0319,Function: Information,N,3,todo
+FN-0320,Function: Information,NA,3,todo
+FN-0321,Function: Statistical,NEGBINOM.DIST,5,todo
+FN-0322,Function: Compatibility,NEGBINOMDIST,5,todo
+FN-0323,Function: Date and time,NETWORKDAYS,4,todo
+FN-0324,Function: Date and time,NETWORKDAYS.INTL,4,todo
+FN-0325,Function: Financial,NOMINAL,5,todo
+FN-0326,Function: Statistical,NORM.DIST,5,todo
+FN-0327,Function: Compatibility,NORMDIST,5,todo
+FN-0328,Function: Compatibility,NORMINV,5,todo
+FN-0329,Function: Statistical,NORM.INV,5,todo
+FN-0330,Function: Statistical,NORM.S.DIST,5,todo
+FN-0331,Function: Compatibility,NORMSDIST,5,todo
+FN-0332,Function: Statistical,NORM.S.INV,5,todo
+FN-0333,Function: Compatibility,NORMSINV,5,todo
+FN-0334,Function: Logical,NOT,3,todo
+FN-0335,Function: Date and time,NOW,4,todo
+FN-0336,Function: Financial,NPER,5,todo
+FN-0337,Function: Financial,NPV,5,todo
+FN-0338,Function: Text,NUMBERVALUE,3,todo
+FN-0339,Function: Engineering,OCT2BIN,5,todo
+FN-0340,Function: Engineering,OCT2DEC,5,todo
+FN-0341,Function: Engineering,OCT2HEX,5,todo
+FN-0342,Function: Math and trigonometry,ODD,3,todo
+FN-0343,Function: Financial,ODDFPRICE,5,todo
+FN-0344,Function: Financial,ODDFYIELD,5,todo
+FN-0345,Function: Financial,ODDLPRICE,5,todo
+FN-0346,Function: Financial,ODDLYIELD,5,todo
+FN-0347,Function: Lookup and reference,OFFSET,4,todo
+FN-0348,Function: Logical,OR,3,todo
+FN-0349,Function: Financial,PDURATION,5,todo
+FN-0350,Function: Statistical,PEARSON,5,todo
+FN-0351,Function: Statistical,PERCENTILE.EXC,5,todo
+FN-0352,Function: Statistical,PERCENTILE.INC,5,todo
+FN-0353,Function: Compatibility,PERCENTILE,5,todo
+FN-0354,Function: Math and trigonometry,PERCENTOF,3,todo
+FN-0355,Function: Statistical,PERCENTRANK.EXC,5,todo
+FN-0356,Function: Statistical,PERCENTRANK.INC,5,todo
+FN-0357,Function: Compatibility,PERCENTRANK,5,todo
+FN-0358,Function: Statistical,PERMUT,5,todo
+FN-0359,Function: Statistical,PERMUTATIONA,5,todo
+FN-0360,Function: Statistical,PHI,5,todo
+FN-0361,Function: Text,PHONETIC,3,todo
+FN-0362,Function: Math and trigonometry,PI,3,todo
+FN-0363,Function: Lookup and reference,PIVOTBY,10,todo
+FN-0364,Function: Financial,PMT,5,todo
+FN-0365,Function: Statistical,POISSON.DIST,5,todo
+FN-0366,Function: Compatibility,POISSON,5,todo
+FN-0367,Function: Math and trigonometry,POWER,3,todo
+FN-0368,Function: Financial,PPMT,5,todo
+FN-0369,Function: Financial,PRICE,5,todo
+FN-0370,Function: Financial,PRICEDISC,5,todo
+FN-0371,Function: Financial,PRICEMAT,5,todo
+FN-0372,Function: Statistical,PROB,5,todo
+FN-0373,Function: Math and trigonometry,PRODUCT,3,todo
+FN-0374,Function: Text,PROPER,3,todo
+FN-0375,Function: Financial,PV,5,todo
+FN-0376,Function: Compatibility,QUARTILE,5,todo
+FN-0377,Function: Statistical,QUARTILE.EXC,5,todo
+FN-0378,Function: Statistical,QUARTILE.INC,5,todo
+FN-0379,Function: Math and trigonometry,QUOTIENT,3,todo
+FN-0380,Function: Math and trigonometry,RADIANS,3,todo
+FN-0381,Function: Math and trigonometry,RAND,3,todo
+FN-0382,Function: Math and trigonometry,RANDARRAY,10,todo
+FN-0383,Function: Math and trigonometry,RANDBETWEEN,3,todo
+FN-0384,Function: Statistical,RANK.AVG,5,todo
+FN-0385,Function: Statistical,RANK.EQ,5,todo
+FN-0386,Function: Compatibility,RANK,5,todo
+FN-0387,Function: Financial,RATE,5,todo
+FN-0388,Function: Financial,RECEIVED,5,todo
+FN-0389,Function: Logical,REDUCE,10,todo
+FN-0390,Function: Text,REGEXEXTRACT,3,todo
+FN-0391,Function: Text,REGEXREPLACE,3,todo
+FN-0392,Function: Text,REGEXTEST,3,todo
+FN-0393,Function: Add-in and Automation,REGISTER.ID,10,todo
+FN-0394,Function: Text,REPLACE,3,todo
+FN-0395,Function: Text,REPLACEB,3,todo
+FN-0396,Function: Text,REPT,3,todo
+FN-0397,Function: Text,RIGHT,3,todo
+FN-0398,Function: Text,RIGHTB,3,todo
+FN-0399,Function: Math and trigonometry,ROMAN,3,todo
+FN-0400,Function: Math and trigonometry,ROUND,3,todo
+FN-0401,Function: Math and trigonometry,ROUNDDOWN,3,todo
+FN-0402,Function: Math and trigonometry,ROUNDUP,3,todo
+FN-0403,Function: Lookup and reference,ROW,4,todo
+FN-0404,Function: Lookup and reference,ROWS,4,todo
+FN-0405,Function: Financial,RRI,5,todo
+FN-0406,Function: Statistical,RSQ,5,todo
+FN-0407,Function: Lookup and reference,RTD,10,todo
+FN-0408,Function: Logical,SCAN,10,todo
+FN-0409,Function: Text,SEARCH,3,todo
+FN-0410,Function: Text,SEARCHB,3,todo
+FN-0411,Function: Math and trigonometry,SEC,3,todo
+FN-0412,Function: Math and trigonometry,SECH,3,todo
+FN-0413,Function: Date and time,SECOND,4,todo
+FN-0414,Function: Math and trigonometry,SEQUENCE,10,todo
+FN-0415,Function: Math and trigonometry,SERIESSUM,3,todo
+FN-0416,Function: Information,SHEET,3,todo
+FN-0417,Function: Information,SHEETS,3,todo
+FN-0418,Function: Math and trigonometry,SIGN,3,todo
+FN-0419,Function: Math and trigonometry,SIN,3,todo
+FN-0420,Function: Math and trigonometry,SINH,3,todo
+FN-0421,Function: Statistical,SKEW,5,todo
+FN-0422,Function: Statistical,SKEW.P,5,todo
+FN-0423,Function: Financial,SLN,5,todo
+FN-0424,Function: Statistical,SLOPE,5,todo
+FN-0425,Function: Statistical,SMALL,5,todo
+FN-0426,Function: Lookup and reference,SORT,10,todo
+FN-0427,Function: Lookup and reference,SORTBY,10,todo
+FN-0428,Function: Math and trigonometry,SQRT,3,todo
+FN-0429,Function: Math and trigonometry,SQRTPI,3,todo
+FN-0430,Function: Statistical,STANDARDIZE,5,todo
+FN-0431,Function: Compatibility,STDEV,5,todo
+FN-0432,Function: Statistical,STDEV.P,5,todo
+FN-0433,Function: Statistical,STDEV.S,5,todo
+FN-0434,Function: Statistical,STDEVA,5,todo
+FN-0435,Function: Compatibility,STDEVP,5,todo
+FN-0436,Function: Statistical,STDEVPA,5,todo
+FN-0437,Function: Statistical,STEYX,5,todo
+FN-0438,Function: Information,STOCKHISTORY,10,todo
+FN-0439,Function: Text,SUBSTITUTE,3,todo
+FN-0440,Function: Math and trigonometry,SUBTOTAL,3,todo
+FN-0441,Function: Math and trigonometry,SUM,3,todo
+FN-0442,Function: Math and trigonometry,SUMIF,3,todo
+FN-0443,Function: Math and trigonometry,SUMIFS,3,todo
+FN-0444,Function: Math and trigonometry,SUMPRODUCT,3,todo
+FN-0445,Function: Math and trigonometry,SUMSQ,3,todo
+FN-0446,Function: Math and trigonometry,SUMX2MY2,3,todo
+FN-0447,Function: Math and trigonometry,SUMX2PY2,3,todo
+FN-0448,Function: Math and trigonometry,SUMXMY2,3,todo
+FN-0449,Function: Logical,SWITCH,3,todo
+FN-0450,Function: Financial,SYD,5,todo
+FN-0451,Function: Text,T,3,todo
+FN-0452,Function: Math and trigonometry,TAN,3,todo
+FN-0453,Function: Math and trigonometry,TANH,3,todo
+FN-0454,Function: Lookup and reference,TAKE,10,todo
+FN-0455,Function: Financial,TBILLEQ,5,todo
+FN-0456,Function: Financial,TBILLPRICE,5,todo
+FN-0457,Function: Financial,TBILLYIELD,5,todo
+FN-0458,Function: Statistical,T.DIST,5,todo
+FN-0459,Function: Statistical,T.DIST.2T,5,todo
+FN-0460,Function: Statistical,T.DIST.RT,5,todo
+FN-0461,Function: Compatibility,TDIST,5,todo
+FN-0462,Function: Text,TEXT,3,todo
+FN-0463,Function: Text,TEXTAFTER,3,todo
+FN-0464,Function: Text,TEXTBEFORE,3,todo
+FN-0465,Function: Text,TEXTJOIN,3,todo
+FN-0466,Function: Text,TEXTSPLIT,10,todo
+FN-0467,Function: Date and time,TIME,4,todo
+FN-0468,Function: Date and time,TIMEVALUE,4,todo
+FN-0469,Function: Statistical,T.INV,5,todo
+FN-0470,Function: Statistical,T.INV.2T,5,todo
+FN-0471,Function: Compatibility,TINV,5,todo
+FN-0472,Function: Lookup and reference,TOCOL,10,todo
+FN-0473,Function: Lookup and reference,TOROW,10,todo
+FN-0474,Function: Date and time,TODAY,4,todo
+FN-0475,Function: Text,TRANSLATE,10,todo
+FN-0476,Function: Lookup and reference,TRANSPOSE,4,todo
+FN-0477,Function: Statistical,TREND,5,todo
+FN-0478,Function: Text,TRIM,3,todo
+FN-0479,Function: Statistical,TRIMMEAN,5,todo
+FN-0480,Function: Lookup and reference,TRIMRANGE,10,todo
+FN-0481,Function: Logical,TRUE,3,todo
+FN-0482,Function: Math and trigonometry,TRUNC,3,todo
+FN-0483,Function: Statistical,T.TEST,5,todo
+FN-0484,Function: Compatibility,TTEST,5,todo
+FN-0485,Function: Information,TYPE,3,todo
+FN-0486,Function: Text,UNICHAR,3,todo
+FN-0487,Function: Text,UNICODE,3,todo
+FN-0488,Function: Lookup and reference,UNIQUE,10,todo
+FN-0489,Function: Text,UPPER,3,todo
+FN-0490,Function: Text,VALUE,3,todo
+FN-0491,Function: Text,VALUETOTEXT,3,todo
+FN-0492,Function: Compatibility,VAR,5,todo
+FN-0493,Function: Statistical,VAR.P,5,todo
+FN-0494,Function: Statistical,VAR.S,5,todo
+FN-0495,Function: Statistical,VARA,5,todo
+FN-0496,Function: Compatibility,VARP,5,todo
+FN-0497,Function: Statistical,VARPA,5,todo
+FN-0498,Function: Financial,VDB,5,todo
+FN-0499,Function: Lookup and reference,VLOOKUP,4,todo
+FN-0500,Function: Lookup and reference,VSTACK,10,todo
+FN-0501,Function: Web,WEBSERVICE,10,todo
+FN-0502,Function: Date and time,WEEKDAY,4,todo
+FN-0503,Function: Date and time,WEEKNUM,4,todo
+FN-0504,Function: Compatibility,WEIBULL,5,todo
+FN-0505,Function: Statistical,WEIBULL.DIST,5,todo
+FN-0506,Function: Date and time,WORKDAY,4,todo
+FN-0507,Function: Date and time,WORKDAY.INTL,4,todo
+FN-0508,Function: Lookup and reference,WRAPCOLS,10,todo
+FN-0509,Function: Lookup and reference,WRAPROWS,10,todo
+FN-0510,Function: Financial,XIRR,5,todo
+FN-0511,Function: Lookup and reference,XLOOKUP,4,todo
+FN-0512,Function: Lookup and reference,XMATCH,4,todo
+FN-0513,Function: Financial,XNPV,5,todo
+FN-0514,Function: Logical,XOR,3,todo
+FN-0515,Function: Date and time,YEAR,4,todo
+FN-0516,Function: Date and time,YEARFRAC,4,todo
+FN-0517,Function: Financial,YIELD,5,todo
+FN-0518,Function: Financial,YIELDDISC,5,todo
+FN-0519,Function: Financial,YIELDMAT,5,todo
+FN-0520,Function: Statistical,Z.TEST,5,todo
+FN-0521,Function: Compatibility,ZTEST,5,todo
+FN-0522,Function: Unconfirmed,COPILOT (own Microsoft page; not on alphabetical page; needs external service; scope to decide),10,todo
+FN-0523,Function: Unconfirmed,PY (Python in Excel; not on alphabetical page; scope to decide),10,todo
+FN-0524,Function: Unconfirmed,IMPORTCSV (Insider preview; not on alphabetical page; confirm),10,todo
+FN-0525,Function: Unconfirmed,IMPORTTEXT (Insider preview; not on alphabetical page; confirm),10,todo
+FN-0526,Function: Text,TEXT format codes: digit placeholders 0 # ? and decimal point,3,todo
+FN-0527,Function: Text,TEXT format codes: thousands separator and scaling by trailing commas,3,todo
+FN-0528,Function: Text,TEXT format codes: percent and scientific E+ E-,3,todo
+FN-0529,Function: Text,TEXT format codes: date and time tokens d m y h s AM/PM and elapsed [h] [m] [s],4,todo
+FN-0530,Function: Text,TEXT format codes: literal text quoting backslash escape and @,3,todo
+FN-0531,Function: Text,TEXT format codes: sections and conditions,4,todo
+FN-0532,Function: Text,TEXT format codes: fractions,4,todo
+FL-001,Formula language,Arithmetic operator + addition,1,todo
+FL-002,Formula language,Arithmetic operator - subtraction,1,todo
+FL-003,Formula language,Arithmetic operator * multiplication,1,todo
+FL-004,Formula language,Arithmetic operator / division,1,todo
+FL-005,Formula language,Arithmetic operator ^ exponent,1,todo
+FL-006,Formula language,Postfix percent operator %,1,todo
+FL-007,Formula language,Unary minus and unary plus (precedence above ^),1,todo
+FL-008,Formula language,Text concatenation operator &,1,todo
+FL-009,Formula language,Comparison operators = <> < > <= >=,1,todo
+FL-010,Formula language,Range operator colon,1,todo
+FL-011,Formula language,Union operator comma inside references,1,todo
+FL-012,Formula language,Intersection operator space,1,todo
+FL-013,Formula language,Operator precedence table and left associativity,1,todo
+FL-014,Formula language,Parentheses grouping,1,todo
+FL-015,Formula language,Numeric literals including decimals and exponent notation,1,todo
+FL-016,Formula language,String literals with doubled quote escape,1,todo
+FL-017,Formula language,Boolean literals TRUE and FALSE,1,todo
+FL-018,Formula language,Error literals typed in formulas,1,todo
+FL-019,Formula language,Relative A1 references,1,todo
+FL-020,Formula language,Absolute references with $,1,todo
+FL-021,Formula language,Mixed references,1,todo
+FL-022,Formula language,F4 cycling of reference type while editing,2,todo
+FL-023,Formula language,Whole column and whole row references (A:A and 1:1),1,todo
+FL-024,Formula language,R1C1 reference style absolute and relative (R[1]C[-1]),1,todo
+FL-025,Formula language,Switching workbook between A1 and R1C1 display,10,todo
+FL-026,Formula language,Cross-sheet references Sheet1!A1,1,todo
+FL-027,Formula language,Quoted sheet names with spaces and apostrophes,1,todo
+FL-028,Formula language,3D references Sheet1:Sheet3!A1,1,todo
+FL-029,Formula language,External workbook references [Book.xlsx]Sheet!A1,10,todo
+FL-030,Formula language,Defined names referring to ranges,1,todo
+FL-031,Formula language,Defined names referring to constants and formulas,1,todo
+FL-032,Formula language,Workbook-scoped and sheet-scoped names,1,todo
+FL-033,Formula language,LAMBDA stored as a named function,10,todo
+FL-034,Formula language,Structured references Table[Column],7,todo
+FL-035,Formula language,Structured reference specifiers #All #Data #Headers #Totals @ (this row),7,todo
+FL-036,Formula language,Multi-column structured references Table[[A]:[B]],7,todo
+FL-037,Formula language,Array constants with comma and semicolon separators,1,todo
+FL-038,Formula language,Legacy array formulas (Ctrl+Shift+Enter) with braces,10,todo
+FL-039,Formula language,Dynamic array spilling,10,todo
+FL-040,Formula language,Spill range reference operator #,10,todo
+FL-041,Formula language,Implicit intersection operator @,10,todo
+FL-042,Formula language,Implicit intersection in legacy formulas,10,todo
+FL-043,Formula language,Function call syntax with optional and omitted arguments,1,todo
+FL-044,Formula language,Nested function calls up to 64 levels,1,todo
+FL-045,Formula language,Formula length limit 8192 characters,1,todo
+FL-046,Formula language,Function argument limit 255,1,todo
+FL-047,Formula language,Text to number coercion in arithmetic,1,todo
+FL-048,Formula language,Boolean to number coercion in arithmetic,1,todo
+FL-049,Formula language,Blank cell coercion to zero or empty text,1,todo
+FL-050,Formula language,Number to text coercion in concatenation,1,todo
+FL-051,Formula language,Date text coercion in arithmetic,4,todo
+FL-052,Formula language,Comparison ordering across types (numbers < text < booleans),1,todo
+FL-053,Formula language,Case-insensitive text comparison,1,todo
+FL-054,Formula language,Range arguments ignoring text and booleans in aggregate functions,3,todo
+FL-055,Formula language,Wildcard matching * ? ~ in criteria functions,3,todo
+FL-056,Formula language,Criteria strings with operators (">5"),3,todo
+FL-057,Formula language,Case-insensitive function and name parsing with uppercase display,1,todo
+FL-058,Formula language,_xlfn and _xlws prefixes for newer functions in files,8,todo
+FL-059,Formula language,Leading + or - starting a formula,1,todo
+FL-060,Formula language,Reference adjustment when formulas are copied,7,todo
+FL-061,Formula language,#REF! substitution when referenced cells are deleted,7,todo
+FL-062,Formula language,Range functions returning references (OFFSET INDEX INDIRECT as reference),4,todo
+FL-063,Formula language,Array broadcasting of scalar and array operands,10,todo
+FL-064,Formula language,Array size mismatch yielding #N/A padding,10,todo
+FL-065,Formula language,Whitespace and line breaks inside formulas,1,todo
+VE-001,Values and errors,IEEE double numbers,1,todo
+VE-002,Values and errors,15 significant digit display and entry truncation,1,todo
+VE-003,Values and errors,Near-zero result snapping in subtraction,1,todo
+VE-004,Values and errors,Number range limits and overflow to #NUM!,1,todo
+VE-005,Values and errors,Text values up to 32767 characters,1,todo
+VE-006,Values and errors,Booleans TRUE and FALSE,1,todo
+VE-007,Values and errors,Blank cells distinct from empty text,1,todo
+VE-008,Values and errors,Date serial numbers 1900 system,1,todo
+VE-009,Values and errors,1900 leap year quirk (serial 60 = 29 Feb 1900),1,todo
+VE-010,Values and errors,1904 date system option,4,todo
+VE-011,Values and errors,Times as day fractions,1,todo
+VE-012,Values and errors,Negative dates and times shown as ####,4,todo
+VE-013,Values and errors,Error #DIV/0!,1,todo
+VE-014,Values and errors,Error #N/A,1,todo
+VE-015,Values and errors,Error #VALUE!,1,todo
+VE-016,Values and errors,Error #REF!,1,todo
+VE-017,Values and errors,Error #NAME?,1,todo
+VE-018,Values and errors,Error #NUM!,1,todo
+VE-019,Values and errors,Error #NULL!,1,todo
+VE-020,Values and errors,Error #SPILL!,10,todo
+VE-021,Values and errors,Error #CALC!,10,todo
+VE-022,Values and errors,Error #GETTING_DATA,10,todo
+VE-023,Values and errors,Error #BUSY! and #FIELD! and #BLOCKED! and #CONNECT! and #UNKNOWN!,10,todo
+VE-024,Values and errors,Error propagation through operators (leftmost error wins),1,todo
+VE-025,Values and errors,Error propagation through function arguments,1,todo
+VE-026,Values and errors,Arrays of mixed types as values,10,todo
+VE-027,Values and errors,Rich value types (linked data types and images in cells),10,todo
+VE-028,Values and errors,Numbers entered as text and the number-stored-as-text state,2,todo
+VE-029,Values and errors,Entry parsing of typed values (dates times percents currency fractions),2,todo
+CA-001,Calculation,Multiple worksheets in a workbook,1,todo
+CA-002,Calculation,Dependency graph construction,1,todo
+CA-003,Calculation,Dependency-ordered recalculation,1,todo
+CA-004,Calculation,Minimal recalculation of dirty cells,1,todo
+CA-005,Calculation,Automatic calculation mode,1,todo
+CA-006,Calculation,Automatic except for data tables mode,10,todo
+CA-007,Calculation,Manual calculation mode with F9 and Shift+F9,1,todo
+CA-008,Calculation,Full recalc Ctrl+Alt+F9 and rebuild Ctrl+Shift+Alt+F9,1,todo
+CA-009,Calculation,Recalculate before save option,8,todo
+CA-010,Calculation,Circular reference detection,1,todo
+CA-011,Calculation,Circular reference warning dialog and status bar indicator,2,todo
+CA-012,Calculation,Iterative calculation enable,1,todo
+CA-013,Calculation,Iterative calculation maximum iterations,1,todo
+CA-014,Calculation,Iterative calculation maximum change,1,todo
+CA-015,Calculation,Volatile functions recalc on every calculation (NOW TODAY RAND OFFSET INDIRECT CELL INFO),1,todo
+CA-016,Calculation,Precision as displayed option,4,todo
+CA-017,Calculation,Calculate status bar indicator,2,todo
+CA-018,Calculation,Spill range dependency and resizing,10,todo
+CA-019,Calculation,Cross-sheet dependency tracking,1,todo
+CA-020,Calculation,Name dependency tracking,1,todo
+CA-021,Calculation,Evaluate Formula step-through,10,todo
+CA-022,Calculation,Trace precedents and dependents arrows,10,todo
+CA-023,Calculation,Error checking rules and background error checking,10,todo
+CA-024,Calculation,Watch Window,10,todo
+CA-025,Calculation,Show Formulas mode (Ctrl+`),2,todo
+FM-001,Formatting,Built-in number format General,3,todo
+FM-002,Formatting,Built-in number format Number with decimals and thousands separator,3,todo
+FM-003,Formatting,Built-in number format Currency,3,todo
+FM-004,Formatting,Built-in number format Accounting,3,todo
+FM-005,Formatting,Built-in number format Short Date and Long Date,4,todo
+FM-006,Formatting,Built-in number format Time,4,todo
+FM-007,Formatting,Built-in number format Percentage,3,todo
+FM-008,Formatting,Built-in number format Fraction,4,todo
+FM-009,Formatting,Built-in number format Scientific,3,todo
+FM-010,Formatting,Built-in number format Text,3,todo
+FM-011,Formatting,Built-in number format Special (zip phone SSN),4,todo
+FM-012,Formatting,Negative number display options (red and parentheses),3,todo
+FM-013,Formatting,Custom format: up to four sections,4,todo
+FM-014,Formatting,Custom format: conditions [>100],4,todo
+FM-015,Formatting,Custom format: colors [Red] and [ColorN],4,todo
+FM-016,Formatting,Custom format: date and time codes,4,todo
+FM-017,Formatting,Custom format: elapsed time codes,4,todo
+FM-018,Formatting,Custom format: fractions with fixed denominators,4,todo
+FM-019,Formatting,Custom format: scientific,4,todo
+FM-020,Formatting,Custom format: fill character * and space _,4,todo
+FM-021,Formatting,Custom format: locale and currency codes [$-409],4,todo
+FM-022,Formatting,Display of #### when a value does not fit,3,todo
+FM-023,Formatting,General format column-width adaptive rounding,3,todo
+FM-024,Formatting,Font face,4,todo
+FM-025,Formatting,Font size,4,todo
+FM-026,Formatting,Bold,4,todo
+FM-027,Formatting,Italic,4,todo
+FM-028,Formatting,Underline single double and accounting variants,4,todo
+FM-029,Formatting,Strikethrough,4,todo
+FM-030,Formatting,Superscript and subscript,4,todo
+FM-031,Formatting,Font color,4,todo
+FM-032,Formatting,Rich text runs within a cell,4,todo
+FM-033,Formatting,Solid fill color,4,todo
+FM-034,Formatting,Pattern fills,4,todo
+FM-035,Formatting,Gradient fills,4,todo
+FM-036,Formatting,Border line styles (all 13),4,todo
+FM-037,Formatting,Border colors,4,todo
+FM-038,Formatting,Diagonal borders,4,todo
+FM-039,Formatting,Horizontal alignment (General Left Center Right Fill Justify Center Across Selection Distributed),4,todo
+FM-040,Formatting,Vertical alignment (Top Center Bottom Justify Distributed),4,todo
+FM-041,Formatting,Indent,4,todo
+FM-042,Formatting,Text rotation and vertical text,4,todo
+FM-043,Formatting,Wrap text,4,todo
+FM-044,Formatting,Shrink to fit,4,todo
+FM-045,Formatting,Text overflow into adjacent empty cells,2,todo
+FM-046,Formatting,Merge and center / merge across / merge cells / unmerge,4,todo
+FM-047,Formatting,Row height manual and autofit,4,todo
+FM-048,Formatting,Column width manual and autofit,4,todo
+FM-049,Formatting,Default column width and standard width,4,todo
+FM-050,Formatting,Hide and unhide rows,4,todo
+FM-051,Formatting,Hide and unhide columns,4,todo
+FM-052,Formatting,Hide and unhide sheets,4,todo
+FM-053,Formatting,Freeze panes / top row / first column,4,todo
+FM-054,Formatting,Split panes,4,todo
+FM-055,Formatting,Built-in cell styles gallery,4,todo
+FM-056,Formatting,Custom cell styles create modify merge,4,todo
+FM-057,Formatting,Themes (Office theme default),4,todo
+FM-058,Formatting,Theme colors and tints,4,todo
+FM-059,Formatting,Theme fonts (Aptos and Calibri sets),4,todo
+FM-060,Formatting,Format Painter,4,todo
+FM-061,Formatting,Clear formats,4,todo
+FM-062,Formatting,Cell protection locked and hidden,4,todo
+FM-063,Formatting,Gridline show and hide,2,todo
+FM-064,Formatting,Sheet tab colors,2,todo
+FM-065,Formatting,Background image for sheet,10,todo
+FM-066,Formatting,Conditional format: cell value is (between greater less equal),6,todo
+FM-067,Formatting,Conditional format: text that contains,6,todo
+FM-068,Formatting,Conditional format: dates occurring,6,todo
+FM-069,Formatting,Conditional format: duplicate and unique values,6,todo
+FM-070,Formatting,Conditional format: top and bottom N and percent,6,todo
+FM-071,Formatting,Conditional format: above and below average and std dev,6,todo
+FM-072,Formatting,Conditional format: blanks and no blanks and errors and no errors,6,todo
+FM-073,Formatting,Conditional format: formula-based rules,6,todo
+FM-074,Formatting,Conditional format: 2-color scales,6,todo
+FM-075,Formatting,Conditional format: 3-color scales,6,todo
+FM-076,Formatting,Conditional format: data bars gradient and solid with negative axis,6,todo
+FM-077,Formatting,Conditional format: icon sets (all built-in sets),6,todo
+FM-078,Formatting,Conditional format: rule priority and stop if true,6,todo
+FM-079,Formatting,Conditional format: Rules Manager,6,todo
+FM-080,Formatting,Conditional format: applies-to range adjustment,6,todo
+DA-001,Data features,Sort ascending and descending single key,7,todo
+DA-002,Data features,Multi-key sort dialog,7,todo
+DA-003,Data features,Sort by cell color font color and icon,7,todo
+DA-004,Data features,Sort left to right,7,todo
+DA-005,Data features,Custom lists for sort and fill,7,todo
+DA-006,Data features,Case-sensitive sort option,7,todo
+DA-007,Data features,AutoFilter drop-downs,7,todo
+DA-008,Data features,Text number and date filters,7,todo
+DA-009,Data features,Filter by color,7,todo
+DA-010,Data features,Top 10 filter,7,todo
+DA-011,Data features,Filter search box,7,todo
+DA-012,Data features,Reapply and clear filter,7,todo
+DA-013,Data features,Advanced filter with criteria range and copy to,7,todo
+DA-014,Data features,Unique records only filter,7,todo
+DA-015,Data features,Create table (Ctrl+T),7,todo
+DA-016,Data features,Table styles gallery,7,todo
+DA-017,Data features,Table total row,7,todo
+DA-018,Data features,Table banded rows and columns,7,todo
+DA-019,Data features,Table auto-expansion,7,todo
+DA-020,Data features,Calculated columns,7,todo
+DA-021,Data features,Table resize and convert to range,7,todo
+DA-022,Data features,Slicers for tables,10,todo
+DA-023,Data features,Remove duplicates,7,todo
+DA-024,Data features,Text to Columns wizard,7,todo
+DA-025,Data features,Data validation: whole number decimal date time text length,7,todo
+DA-026,Data features,Data validation: list with in-cell drop-down,7,todo
+DA-027,Data features,Data validation: custom formula,7,todo
+DA-028,Data features,Data validation: input message and error alert styles,7,todo
+DA-029,Data features,Circle invalid data,7,todo
+DA-030,Data features,Find,7,todo
+DA-031,Data features,Replace,7,todo
+DA-032,Data features,Find options (match case whole cell within look in formats),7,todo
+DA-033,Data features,Find All results list,7,todo
+DA-034,Data features,Go To and Go To Special,7,todo
+DA-035,Data features,Fill handle copy,7,todo
+DA-036,Data features,Fill series linear growth date,7,todo
+DA-037,Data features,Autofill of weekday and month names,7,todo
+DA-038,Data features,Auto Fill Options button,7,todo
+DA-039,Data features,Fill Down Right Up Left (Ctrl+D Ctrl+R),7,todo
+DA-040,Data features,Series dialog,7,todo
+DA-041,Data features,Flash Fill,7,todo
+DA-042,Data features,AutoComplete of cell entries from column,7,todo
+DA-043,Data features,Copy,7,todo
+DA-044,Data features,Cut and move with reference update,7,todo
+DA-045,Data features,Paste,7,todo
+DA-046,Data features,Paste special: values formulas formats comments validation,7,todo
+DA-047,Data features,Paste special: operations add subtract multiply divide,7,todo
+DA-048,Data features,Paste special: skip blanks and transpose,7,todo
+DA-049,Data features,Paste link and paste as picture,7,todo
+DA-050,Data features,Paste Options button,7,todo
+DA-051,Data features,Office clipboard pane,10,todo
+DA-052,Data features,Drag and drop move and copy of cells,7,todo
+DA-053,Data features,Undo multi-level,7,todo
+DA-054,Data features,Redo,7,todo
+DA-055,Data features,Repeat last action F4,7,todo
+DA-056,Data features,Insert rows and columns with reference adjustment,7,todo
+DA-057,Data features,Delete rows and columns with reference adjustment,7,todo
+DA-058,Data features,Insert and delete cells shifting right or down,7,todo
+DA-059,Data features,Insert delete rename move copy sheets,7,todo
+DA-060,Data features,Name Manager,7,todo
+DA-061,Data features,Define Name dialog,7,todo
+DA-062,Data features,Create names from selection,7,todo
+DA-063,Data features,Name box defining names,7,todo
+DA-064,Data features,Threaded comments,7,todo
+DA-065,Data features,Notes (legacy comments),7,todo
+DA-066,Data features,Hyperlinks to web file and in-workbook locations,7,todo
+DA-067,Data features,Group and ungroup outline with subtotals,7,todo
+DA-068,Data features,Subtotal command,7,todo
+DA-069,Data features,Consolidate,10,todo
+DA-070,Data features,Pivot table create from range,10,todo
+DA-071,Data features,Pivot table field list and layout areas,10,todo
+DA-072,Data features,Pivot table aggregation functions,10,todo
+DA-073,Data features,Pivot table show values as,10,todo
+DA-074,Data features,Pivot table calculated fields and items,10,todo
+DA-075,Data features,Pivot table grouping dates and numbers,10,todo
+DA-076,Data features,Pivot table filters and slicers and timelines,10,todo
+DA-077,Data features,Pivot table refresh,10,todo
+DA-078,Data features,Pivot table report layouts and styles,10,todo
+DA-079,Data features,Pivot table drill down,10,todo
+DA-080,Data features,PivotChart,10,todo
+DA-081,Data features,Goal Seek,10,todo
+DA-082,Data features,Data Table one-variable,10,todo
+DA-083,Data features,Data Table two-variable,10,todo
+DA-084,Data features,Scenario Manager,10,todo
+DA-085,Data features,Scenario summary report,10,todo
+DA-086,Data features,Solver add-in (Simplex LP GRG Nonlinear Evolutionary),10,todo
+DA-087,Data features,Forecast Sheet,10,todo
+DA-088,Data features,Analysis ToolPak tools,10,todo
+DA-089,Data features,Protect sheet and protect workbook,7,todo
+DA-090,Data features,Spelling check,10,todo
+DA-091,Data features,Quick Analysis,10,todo
+CH-001,Charts,Clustered column,6,todo
+CH-002,Charts,Stacked column,6,todo
+CH-003,Charts,100% stacked column,6,todo
+CH-004,Charts,3-D column variants,6,todo
+CH-005,Charts,Clustered bar,6,todo
+CH-006,Charts,Stacked bar,6,todo
+CH-007,Charts,100% stacked bar,6,todo
+CH-008,Charts,3-D bar variants,6,todo
+CH-009,Charts,Line,6,todo
+CH-010,Charts,Stacked line and 100% stacked line,6,todo
+CH-011,Charts,Line with markers,6,todo
+CH-012,Charts,3-D line,6,todo
+CH-013,Charts,Pie,6,todo
+CH-014,Charts,3-D pie,6,todo
+CH-015,Charts,Pie of pie and bar of pie,6,todo
+CH-016,Charts,Doughnut,6,todo
+CH-017,Charts,Area and stacked area and 100% stacked area,6,todo
+CH-018,Charts,3-D area variants,6,todo
+CH-019,Charts,Scatter markers only,6,todo
+CH-020,Charts,Scatter with smooth lines and with straight lines,6,todo
+CH-021,Charts,Bubble and 3-D bubble,6,todo
+CH-022,Charts,Stock high-low-close,6,todo
+CH-023,Charts,Stock open-high-low-close,6,todo
+CH-024,Charts,Stock volume-high-low-close and volume-open-high-low-close,6,todo
+CH-025,Charts,Surface 3-D and wireframe,6,todo
+CH-026,Charts,Contour and wireframe contour,6,todo
+CH-027,Charts,Radar and radar with markers and filled radar,6,todo
+CH-028,Charts,Combo charts with secondary axis,6,todo
+CH-029,Charts,Histogram,6,todo
+CH-030,Charts,Pareto,6,todo
+CH-031,Charts,Box and whisker,6,todo
+CH-032,Charts,Waterfall,6,todo
+CH-033,Charts,Treemap,6,todo
+CH-034,Charts,Sunburst,6,todo
+CH-035,Charts,Funnel,6,todo
+CH-036,Charts,Filled map,10,todo
+CH-037,Charts,Chart title,6,todo
+CH-038,Charts,Axis titles,6,todo
+CH-039,Charts,Category axis (text and date axis),6,todo
+CH-040,Charts,Value axis min max major minor units,6,todo
+CH-041,Charts,Logarithmic axis scale,6,todo
+CH-042,Charts,Axis reverse order and crossing point,6,todo
+CH-043,Charts,Secondary axes,6,todo
+CH-044,Charts,Axis number format and tick marks,6,todo
+CH-045,Charts,Major and minor gridlines,6,todo
+CH-046,Charts,Legend position and entries,6,todo
+CH-047,Charts,Data labels (value category series percent position),6,todo
+CH-048,Charts,Data table under chart,6,todo
+CH-049,Charts,Trendlines linear exponential logarithmic polynomial power moving average,6,todo
+CH-050,Charts,Trendline equation and R-squared display,6,todo
+CH-051,Charts,Error bars fixed percent std dev std error custom,6,todo
+CH-052,Charts,Up/down bars high-low lines drop lines series lines,6,todo
+CH-053,Charts,Series fill line and marker formatting,6,todo
+CH-054,Charts,Individual point formatting,6,todo
+CH-055,Charts,Gap width and overlap,6,todo
+CH-056,Charts,Chart area and plot area formatting,6,todo
+CH-057,Charts,Chart styles and color palettes,6,todo
+CH-058,Charts,Quick layouts,6,todo
+CH-059,Charts,Select Data Source dialog,6,todo
+CH-060,Charts,Switch row and column,6,todo
+CH-061,Charts,Hidden and empty cell handling,6,todo
+CH-062,Charts,SERIES formula,6,todo
+CH-063,Charts,Live update when source data changes,6,todo
+CH-064,Charts,Move and resize chart objects,6,todo
+CH-065,Charts,Chart sheets,6,todo
+CH-066,Charts,Change chart type,6,todo
+CH-067,Charts,Chart Elements Styles and Filters side buttons,6,todo
+CH-068,Charts,Recommended charts,10,todo
+CH-069,Charts,Chart templates,10,todo
+CH-070,Charts,Sparkline line,6,todo
+CH-071,Charts,Sparkline column,6,todo
+CH-072,Charts,Sparkline win/loss,6,todo
+CH-073,Charts,Sparkline markers high low first last negative,6,todo
+CH-074,Charts,Sparkline axis and group settings,6,todo
+UI-001,UI: Layout,Title bar with file name and window controls,2,todo
+UI-002,UI: Layout,AutoSave toggle and search box in title bar,10,todo
+UI-003,UI: Layout,Quick Access Toolbar,10,todo
+UI-004,UI: Layout,Ribbon tab row,10,todo
+UI-005,UI: Layout,Ribbon collapse and display options,10,todo
+UI-006,UI: Layout,Name box,2,todo
+UI-007,UI: Layout,Formula bar with cancel enter and Insert Function buttons,2,todo
+UI-008,UI: Layout,Formula bar expand and collapse,2,todo
+UI-009,UI: Layout,Column headers,2,todo
+UI-010,UI: Layout,Row headers,2,todo
+UI-011,UI: Layout,Select All corner button,2,todo
+UI-012,UI: Layout,Cell grid,2,todo
+UI-013,UI: Layout,Sheet tab bar with navigation arrows and new sheet button,2,todo
+UI-014,UI: Layout,Horizontal and vertical scroll bars,2,todo
+UI-015,UI: Layout,Status bar,2,todo
+UI-016,UI: Layout,Default proportions and pixel sizes of all regions,2,todo
+UI-017,UI: Visual style,Default theme colors for chrome,2,todo
+UI-018,UI: Visual style,Default font Aptos Narrow 11 (Calibri 11 for older workbooks),2,todo
+UI-019,UI: Visual style,Gridline color,2,todo
+UI-020,UI: Visual style,Header shading and highlight of selected headers,2,todo
+UI-021,UI: Visual style,Selection fill highlight,2,todo
+UI-022,UI: Visual style,Active cell outline,2,todo
+UI-023,UI: Visual style,Fill handle square,2,todo
+UI-024,UI: Visual style,Hover and pressed states,10,todo
+UI-025,UI: Visual style,Original icon approximations for every command,10,todo
+UI-026,UI: Screen behavior,Cursor shapes (cross move resize fill text),2,todo
+UI-027,UI: Screen behavior,Edit mode appearance and Enter/Edit/Point modes,2,todo
+UI-028,UI: Screen behavior,Marching ants copy border,7,todo
+UI-029,UI: Screen behavior,Spill range outline,10,todo
+UI-030,UI: Screen behavior,Error indicator triangles and smart tag,10,todo
+UI-031,UI: Screen behavior,Comment and note markers,7,todo
+UI-032,UI: Screen behavior,Formula reference color highlighting,2,todo
+UI-033,UI: Grid,Scrolling by wheel bars and keys,2,todo
+UI-034,UI: Grid,Zoom slider and Zoom dialog,2,todo
+UI-035,UI: Grid,Single cell selection,2,todo
+UI-036,UI: Grid,Range selection by drag and Shift,2,todo
+UI-037,UI: Grid,Multiple range selection with Ctrl,2,todo
+UI-038,UI: Grid,Row and column selection by header,2,todo
+UI-039,UI: Grid,Cell editing in cell and in formula bar,2,todo
+UI-040,UI: Grid,Function autocomplete list,10,todo
+UI-041,UI: Grid,Function argument tooltip,10,todo
+UI-042,UI: Grid,Sheet tabs add rename move copy color,2,todo
+UI-043,UI: Grid,Sheet tab context menu,10,todo
+UI-044,UI: Status bar,Cell mode indicator (Ready Enter Edit Point),2,todo
+UI-045,UI: Status bar,Average aggregate,2,todo
+UI-046,UI: Status bar,Count aggregate,2,todo
+UI-047,UI: Status bar,Numerical Count aggregate,2,todo
+UI-048,UI: Status bar,Minimum aggregate,2,todo
+UI-049,UI: Status bar,Maximum aggregate,2,todo
+UI-050,UI: Status bar,Sum aggregate,2,todo
+UI-051,UI: Status bar,Caps Lock Num Lock Scroll Lock indicators,2,todo
+UI-052,UI: Status bar,View shortcuts Normal Page Layout Page Break Preview,2,todo
+UI-053,UI: Status bar,Zoom slider and percentage,2,todo
+UI-054,UI: Status bar,Customize Status Bar context menu,10,todo
+UI-055,UI: Status bar,Calculation and circular reference indicators,2,todo
+UI-056,UI: Status bar,Macro recording button,9,todo
+UI-057,UI: Ribbon tab,File (Backstage),10,todo
+UI-058,UI: Ribbon tab,Home,10,todo
+UI-059,UI: Ribbon tab,Insert,10,todo
+UI-060,UI: Ribbon tab,Draw,10,todo
+UI-061,UI: Ribbon tab,Page Layout,10,todo
+UI-062,UI: Ribbon tab,Formulas,10,todo
+UI-063,UI: Ribbon tab,Data,10,todo
+UI-064,UI: Ribbon tab,Review,10,todo
+UI-065,UI: Ribbon tab,View,10,todo
+UI-066,UI: Ribbon tab,Developer,10,todo
+UI-067,UI: Ribbon tab,Help,10,todo
+UI-068,UI: Ribbon tab,Contextual: Table Design,10,todo
+UI-069,UI: Ribbon tab,Contextual: Chart Design and Format,10,todo
+UI-070,UI: Ribbon tab,Contextual: PivotTable Analyze and Design,10,todo
+UI-071,UI: Ribbon tab,Contextual: Shape Format and Picture Format,10,todo
+UI-072,UI: Ribbon group,Home > Clipboard (Paste split button Cut Copy Format Painter),10,todo
+UI-073,UI: Ribbon group,Home > Font (font box size box grow shrink B I U borders fill color font color),10,todo
+UI-074,UI: Ribbon group,Home > Alignment (vertical horizontal orientation indent wrap merge),10,todo
+UI-075,UI: Ribbon group,Home > Number (format box accounting percent comma increase decrease decimal),10,todo
+UI-076,UI: Ribbon group,Home > Styles (Conditional Formatting Format as Table Cell Styles),10,todo
+UI-077,UI: Ribbon group,Home > Cells (Insert Delete Format),10,todo
+UI-078,UI: Ribbon group,Home > Editing (AutoSum Fill Clear Sort and Filter Find and Select),10,todo
+UI-079,UI: Ribbon group,Insert > Tables (PivotTable Recommended PivotTables Table),10,todo
+UI-080,UI: Ribbon group,Insert > Illustrations (Pictures Shapes Icons 3D Models SmartArt Screenshot),10,todo
+UI-081,UI: Ribbon group,Insert > Charts (type split buttons and Recommended Charts and PivotChart),10,todo
+UI-082,UI: Ribbon group,Insert > Sparklines (Line Column Win/Loss),10,todo
+UI-083,UI: Ribbon group,Insert > Filters (Slicer Timeline),10,todo
+UI-084,UI: Ribbon group,Insert > Links (Link),10,todo
+UI-085,UI: Ribbon group,Insert > Comments (Comment),10,todo
+UI-086,UI: Ribbon group,Insert > Text (Text Box Header and Footer WordArt Signature Line Object),10,todo
+UI-087,UI: Ribbon group,Insert > Symbols (Equation Symbol),10,todo
+UI-088,UI: Ribbon group,Page Layout > Themes (Themes Colors Fonts Effects),10,todo
+UI-089,UI: Ribbon group,Page Layout > Page Setup (Margins Orientation Size Print Area Breaks Background Print Titles),10,todo
+UI-090,UI: Ribbon group,Page Layout > Scale to Fit (Width Height Scale),10,todo
+UI-091,UI: Ribbon group,Page Layout > Sheet Options (Gridlines and Headings View and Print),10,todo
+UI-092,UI: Ribbon group,Page Layout > Arrange (Bring Forward Send Backward Selection Pane Align Group Rotate),10,todo
+UI-093,UI: Ribbon group,Formulas > Function Library (Insert Function AutoSum and category drop-downs),10,todo
+UI-094,UI: Ribbon group,Formulas > Defined Names (Name Manager Define Name Use in Formula Create from Selection),10,todo
+UI-095,UI: Ribbon group,Formulas > Formula Auditing (Trace Precedents Trace Dependents Remove Arrows Show Formulas Error Checking Evaluate Formula Watch Window),10,todo
+UI-096,UI: Ribbon group,Formulas > Calculation (Calculation Options Calculate Now Calculate Sheet),10,todo
+UI-097,UI: Ribbon group,Data > Get and Transform Data (Get Data From Text/CSV From Web From Table/Range Recent Sources Existing Connections),10,todo
+UI-098,UI: Ribbon group,Data > Queries and Connections (Refresh All Queries and Connections Properties Edit Links),10,todo
+UI-099,UI: Ribbon group,Data > Data Types,10,todo
+UI-100,UI: Ribbon group,Data > Sort and Filter (Sort A to Z Sort Z to A Sort Filter Clear Reapply Advanced),10,todo
+UI-101,UI: Ribbon group,Data > Data Tools (Text to Columns Flash Fill Remove Duplicates Data Validation Consolidate Relationships),10,todo
+UI-102,UI: Ribbon group,Data > Forecast (What-If Analysis Forecast Sheet),10,todo
+UI-103,UI: Ribbon group,Data > Outline (Group Ungroup Subtotal),10,todo
+UI-104,UI: Ribbon group,Data > Analyze (Solver Data Analysis when add-ins loaded),10,todo
+UI-105,UI: Ribbon group,Review > Proofing (Spelling Thesaurus Workbook Statistics),10,todo
+UI-106,UI: Ribbon group,Review > Accessibility (Check Accessibility),10,todo
+UI-107,UI: Ribbon group,Review > Comments (New Delete Previous Next Show Comments),10,todo
+UI-108,UI: Ribbon group,Review > Notes,10,todo
+UI-109,UI: Ribbon group,Review > Protect (Protect Sheet Protect Workbook Allow Edit Ranges Unshare),10,todo
+UI-110,UI: Ribbon group,View > Sheet View,10,todo
+UI-111,UI: Ribbon group,View > Workbook Views (Normal Page Break Preview Page Layout Custom Views),10,todo
+UI-112,UI: Ribbon group,View > Show (Ruler Gridlines Formula Bar Headings),10,todo
+UI-113,UI: Ribbon group,View > Zoom (Zoom 100% Zoom to Selection),10,todo
+UI-114,UI: Ribbon group,View > Window (New Window Arrange All Freeze Panes Split Hide Unhide View Side by Side Switch Windows),10,todo
+UI-115,UI: Ribbon group,View > Macros,10,todo
+UI-116,UI: Ribbon group,Developer > Code (Visual Basic Macros Record Macro Use Relative References Macro Security),10,todo
+UI-117,UI: Ribbon group,Developer > Add-ins,10,todo
+UI-118,UI: Ribbon group,Developer > Controls (Insert form and ActiveX controls Design Mode Properties View Code),10,todo
+UI-119,UI: Ribbon group,Developer > XML,10,todo
+UI-120,UI: Ribbon group,Draw > Tools and Pens and Convert,10,todo
+UI-121,UI: Ribbon group,File Backstage pages (Home New Open Info Save Save As Print Share Export Close Options),10,todo
+UI-122,UI: Dialog,Format Cells: Number tab,4,todo
+UI-123,UI: Dialog,Format Cells: Alignment tab,4,todo
+UI-124,UI: Dialog,Format Cells: Font tab,4,todo
+UI-125,UI: Dialog,Format Cells: Border tab,4,todo
+UI-126,UI: Dialog,Format Cells: Fill tab,4,todo
+UI-127,UI: Dialog,Format Cells: Protection tab,4,todo
+UI-128,UI: Dialog,Insert Function,10,todo
+UI-129,UI: Dialog,Function Arguments,10,todo
+UI-130,UI: Dialog,Paste Special,7,todo
+UI-131,UI: Dialog,Find and Replace,7,todo
+UI-132,UI: Dialog,Go To and Go To Special,7,todo
+UI-133,UI: Dialog,Sort,7,todo
+UI-134,UI: Dialog,Custom AutoFilter,7,todo
+UI-135,UI: Dialog,Advanced Filter,7,todo
+UI-136,UI: Dialog,Data Validation,7,todo
+UI-137,UI: Dialog,Create Table,7,todo
+UI-138,UI: Dialog,Insert and Delete cells,7,todo
+UI-139,UI: Dialog,Row Height and Column Width,4,todo
+UI-140,UI: Dialog,Name Manager and New Name,7,todo
+UI-141,UI: Dialog,Conditional Formatting Rules Manager and New Formatting Rule,6,todo
+UI-142,UI: Dialog,Insert Chart and Change Chart Type,6,todo
+UI-143,UI: Dialog,Select Data Source,6,todo
+UI-144,UI: Dialog,Format task panes for chart elements,6,todo
+UI-145,UI: Dialog,Create PivotTable and PivotTable Fields pane,10,todo
+UI-146,UI: Dialog,Value Field Settings,10,todo
+UI-147,UI: Dialog,Goal Seek,10,todo
+UI-148,UI: Dialog,Data Table,10,todo
+UI-149,UI: Dialog,Scenario Manager,10,todo
+UI-150,UI: Dialog,Solver Parameters,10,todo
+UI-151,UI: Dialog,Page Setup (Page Margins Header/Footer Sheet tabs),10,todo
+UI-152,UI: Dialog,Print backstage with preview,10,todo
+UI-153,UI: Dialog,Excel Options (all pages),10,todo
+UI-154,UI: Dialog,Text Import Wizard and Text to Columns wizard,8,todo
+UI-155,UI: Dialog,Insert Hyperlink,7,todo
+UI-156,UI: Dialog,Protect Sheet,7,todo
+UI-157,UI: Dialog,Move or Copy sheet,7,todo
+UI-158,UI: Dialog,Series,7,todo
+UI-159,UI: Dialog,Style,4,todo
+UI-160,UI: Dialog,Zoom,2,todo
+UI-161,UI: Dialog,Macro and Record Macro,9,todo
+UI-162,UI: Dialog,Evaluate Formula,10,todo
+UI-163,UI: Dialog,Error alert and message boxes,2,todo
+UI-164,UI: Dialog,Open and Save As file dialogs,8,todo
+UI-165,UI: Context menu,Cell context menu,10,todo
+UI-166,UI: Context menu,Row and column header context menus,10,todo
+UI-167,UI: Context menu,Sheet tab context menu,10,todo
+UI-168,UI: Context menu,Chart element context menus,10,todo
+UI-169,UI: Context menu,Mini toolbar,10,todo
+UI-170,UI: Keyboard,Navigation keys arrows Ctrl+arrows Home End PageUp PageDown,2,todo
+UI-171,UI: Keyboard,Selection extension with Shift and Ctrl+Shift,2,todo
+UI-172,UI: Keyboard,Enter Tab Esc F2 editing keys,2,todo
+UI-173,UI: Keyboard,Ctrl shortcuts for formatting (Ctrl+B I U 1 and Ctrl+Shift number formats),4,todo
+UI-174,UI: Keyboard,Ctrl shortcuts for clipboard and undo,7,todo
+UI-175,UI: Keyboard,Alt key ribbon KeyTips,10,todo
+UI-176,UI: Keyboard,Function keys F1 through F12 with modifiers,10,todo
+UI-177,UI: Keyboard,Insert date and time Ctrl+; Ctrl+Shift+;,4,todo
+UI-178,UI: Keyboard,AutoSum Alt+=,3,todo
+UI-179,UI: Print,Page Layout view,10,todo
+UI-180,UI: Print,Page Break Preview,10,todo
+UI-181,UI: Print,Print area and print titles,10,todo
+UI-182,UI: Print,Headers and footers with codes,10,todo
+UI-183,UI: Print,Scaling and fit to pages,10,todo
+UI-184,UI: Print,Print preview rendering,10,todo
+UI-185,UI: Objects,Shapes text boxes and pictures on sheet,10,todo
+UI-186,UI: Objects,Form controls (button check box combo box list box spin scroll),9,todo
+VB-001,VBA language,Lexer: identifiers keywords literals comments line continuation,9,todo
+VB-002,VBA language,Parser: modules procedures statements expressions,9,todo
+VB-003,VBA language,Interpreter execution model,9,todo
+VB-004,VBA language,Type Boolean,9,todo
+VB-005,VBA language,Type Byte,9,todo
+VB-006,VBA language,Type Integer,9,todo
+VB-007,VBA language,Type Long and LongLong and LongPtr,9,todo
+VB-008,VBA language,Type Single and Double,9,todo
+VB-009,VBA language,Type Currency and Decimal,9,todo
+VB-010,VBA language,Type Date,9,todo
+VB-011,VBA language,Type String fixed and variable,9,todo
+VB-012,VBA language,Type Object and Variant and Empty Null Nothing,9,todo
+VB-013,VBA language,User-defined types (Type ... End Type),9,todo
+VB-014,VBA language,Enums,9,todo
+VB-015,VBA language,Constants (Const) and literals,9,todo
+VB-016,VBA language,Dim Private Public Static declarations and scope,9,todo
+VB-017,VBA language,Option Explicit Option Base Option Compare Option Private Module,9,todo
+VB-018,VBA language,Static and dynamic arrays with ReDim and ReDim Preserve,9,todo
+VB-019,VBA language,Multidimensional arrays and LBound UBound,9,todo
+VB-020,VBA language,Operators arithmetic comparison logical concatenation Like Is,9,todo
+VB-021,VBA language,If Then ElseIf Else and single-line If,9,todo
+VB-022,VBA language,Select Case,9,todo
+VB-023,VBA language,For Next with Step,9,todo
+VB-024,VBA language,For Each,9,todo
+VB-025,VBA language,Do Loop While Until variants and While Wend,9,todo
+VB-026,VBA language,Exit and GoTo and GoSub Return and labels,9,todo
+VB-027,VBA language,With blocks,9,todo
+VB-028,VBA language,Sub and Function procedures,9,todo
+VB-029,VBA language,Property Get Let Set,9,todo
+VB-030,VBA language,ByRef ByVal Optional ParamArray named arguments,9,todo
+VB-031,VBA language,Class modules with Initialize and Terminate,9,todo
+VB-032,VBA language,Implements and interfaces,9,todo
+VB-033,VBA language,Events in classes (Event RaiseEvent WithEvents),9,todo
+VB-034,VBA language,On Error GoTo / Resume Next / GoTo 0 and Resume,9,todo
+VB-035,VBA language,Err object and Error statement,9,todo
+VB-036,VBA language,Implicit type conversion rules and Let coercion,9,todo
+VB-037,VBA language,Built-in conversion functions (CInt CLng CDbl CStr CDate etc),9,todo
+VB-038,VBA language,Built-in string functions (Left Mid InStr Replace Split Join Format etc),9,todo
+VB-039,VBA language,Built-in math and date functions,9,todo
+VB-040,VBA language,MsgBox and InputBox,9,todo
+VB-041,VBA language,Collection object,9,todo
+VB-042,VBA language,Scripting.Dictionary and late binding CreateObject,9,todo
+VB-043,VBA language,File I/O statements (Open Input Print Close Dir),9,todo
+VB-044,VBA language,Declare statements for external APIs (scope to decide),10,todo
+VB-045,VBA language,Conditional compilation #If #Const,9,todo
+VB-046,VBA language,DoEvents and Application.OnTime,9,todo
+VB-047,VBA editor,Project Explorer,9,todo
+VB-048,VBA editor,Code window with syntax coloring and auto syntax check,9,todo
+VB-049,VBA editor,Properties window,9,todo
+VB-050,VBA editor,Immediate Locals and Watch windows,9,todo
+VB-051,VBA editor,Breakpoints step into step over,9,todo
+VB-052,VBA editor,IntelliSense member lists,9,todo
+VB-053,VBA editor,Object Browser,9,todo
+VB-054,VBA editor,UserForm designer and toolbox,9,todo
+VB-055,VBA editor,Insert Module Class Module UserForm,9,todo
+VB-056,VBA,User-defined functions callable from cells,9,todo
+VB-057,VBA,Application.Volatile and UDF recalculation,9,todo
+VB-058,VBA,Macro recorder generating code for recorded actions,9,todo
+VB-059,VBA,Relative reference recording,9,todo
+VB-060,VBA,Running macros from Macros dialog buttons and shortcuts,9,todo
+VB-061,VBA,Macro security settings,9,todo
+VB-062,VBA,UserForms runtime with controls (Label TextBox ComboBox ListBox CheckBox OptionButton CommandButton Frame MultiPage),9,todo
+VB-063,VBA events,Workbook events (Open BeforeClose BeforeSave SheetChange NewSheet etc),9,todo
+VB-064,VBA events,Worksheet events (Change SelectionChange Activate Calculate BeforeDoubleClick BeforeRightClick),9,todo
+VB-065,VBA events,Application events via WithEvents,9,todo
+VB-066,VBA events,Chart events,9,todo
+VB-067,VBA events,Application.EnableEvents,9,todo
+OM-001,VBA object model,Application,9,todo
+OM-002,VBA object model,Workbooks and Workbook,9,todo
+OM-003,VBA object model,Worksheets Sheets and Worksheet,9,todo
+OM-004,VBA object model,Range,9,todo
+OM-005,VBA object model,Cells Rows Columns properties,9,todo
+OM-006,VBA object model,Areas,9,todo
+OM-007,VBA object model,Font,9,todo
+OM-008,VBA object model,Interior,9,todo
+OM-009,VBA object model,Borders and Border,9,todo
+OM-010,VBA object model,Style and Styles,9,todo
+OM-011,VBA object model,Name and Names,9,todo
+OM-012,VBA object model,WorksheetFunction,9,todo
+OM-013,VBA object model,Charts ChartObjects ChartObject Chart,9,todo
+OM-014,VBA object model,SeriesCollection Series Axes Axis ChartTitle Legend DataLabels Trendlines,9,todo
+OM-015,VBA object model,ListObjects ListObject ListRows ListColumns,9,todo
+OM-016,VBA object model,PivotCaches PivotCache PivotTables PivotTable PivotFields PivotField PivotItem,9,todo
+OM-017,VBA object model,FormatConditions FormatCondition ColorScale Databar IconSetCondition,9,todo
+OM-018,VBA object model,Validation,9,todo
+OM-019,VBA object model,Comment CommentThreaded,9,todo
+OM-020,VBA object model,Hyperlinks Hyperlink,9,todo
+OM-021,VBA object model,Shapes Shape,9,todo
+OM-022,VBA object model,Window Windows Pane,9,todo
+OM-023,VBA object model,PageSetup,9,todo
+OM-024,VBA object model,AutoFilter Filters Sort SortFields,9,todo
+OM-025,VBA object model,Scenarios Scenario,9,todo
+OM-026,VBA object model,Sparklines SparklineGroups,9,todo
+OM-027,VBA object model,Dialogs and FileDialog,9,todo
+OM-028,VBA object model,CommandBars (legacy context menus),9,todo
+OM-029,VBA object model,Range methods (Copy PasteSpecial Find Replace Sort AutoFill Insert Delete Clear Calculate),9,todo
+OM-030,VBA object model,Range properties (Value Value2 Formula Formula2 FormulaR1C1 NumberFormat Text HasFormula SpillingToRange),9,todo
+OM-031,VBA object model,Application methods (Calculate Run Evaluate InputBox Intersect Union GoalSeek),9,todo
+OM-032,VBA object model,Application properties (ScreenUpdating Calculation DisplayAlerts StatusBar),9,todo
+OM-033,VBA object model,VBProject access (VBIDE) for code modules,10,todo
+FI-001,Files,ZIP container read (deflate decompression),8,todo
+FI-002,Files,ZIP container write (deflate compression and CRC32),8,todo
+FI-003,Files,XML parsing of package parts,8,todo
+FI-004,Files,XML writing of package parts,8,todo
+FI-005,Files,[Content_Types].xml and relationships parts,8,todo
+FI-006,Files,workbook.xml (sheets names calc properties defined names),8,todo
+FI-007,Files,worksheet XML (cells values formulas shared formulas array formulas),8,todo
+FI-008,Files,sharedStrings.xml including rich text runs,8,todo
+FI-009,Files,styles.xml (number formats fonts fills borders cellXfs cell styles dxfs),8,todo
+FI-010,Files,theme1.xml,8,todo
+FI-011,Files,Column widths row heights hidden and outline state,8,todo
+FI-012,Files,Merged cells panes selection and sheet views,8,todo
+FI-013,Files,Conditional formatting and data validation parts,8,todo
+FI-014,Files,Tables (table parts),8,todo
+FI-015,Files,Charts and drawings (DrawingML chart parts),8,todo
+FI-016,Files,Pivot caches and pivot tables parts,8,todo
+FI-017,Files,Comments threaded comments and notes parts,8,todo
+FI-018,Files,Hyperlinks,8,todo
+FI-019,Files,Calculation chain and metadata for dynamic arrays,8,todo
+FI-020,Files,Document properties core and app,8,todo
+FI-021,Files,Sparklines extension lists,8,todo
+FI-022,Files,Print settings and headers footers,8,todo
+FI-023,Files,.xlsx read,8,todo
+FI-024,Files,.xlsx write,8,todo
+FI-025,Files,.xlsm read and write with vbaProject.bin,8,todo
+FI-026,Files,vbaProject.bin compound file and VBA source decompression,9,todo
+FI-027,Files,.xltx and .xltm templates,8,todo
+FI-028,Files,.csv import with delimiter and encoding detection,8,todo
+FI-029,Files,.csv export,8,todo
+FI-030,Files,.txt import with Text Import Wizard options (delimited fixed width column types),8,todo
+FI-031,Files,.txt export tab delimited and Unicode text,8,todo
+FI-032,Files,UTF-8 UTF-16 and ANSI code page handling,8,todo
+FI-033,Files,Round trip preservation of all supported features,8,todo
+FI-034,Files,Preservation of unknown parts on round trip,8,todo
+FI-035,Files,.xlsb binary workbook (scope to decide),10,todo
+FI-036,Files,.xls BIFF8 legacy workbook (scope to decide),10,todo
+FI-037,Files,PDF export,10,todo
+FI-038,Files,Workbook encryption and password protection (scope to decide),10,todo

@@ -1,0 +1,36 @@
+# poc/round_floor: x = input[1]. Writes floor(x) to address 0, puts round(x) (ties to even) in output word 7, halts.
+# Proof of concept for encodings/primitives.md ROUND and FLOOR. Notes: weights/poc/round_floor.md
+input 8
+# layer 1 (value 1): y = x + C, C = 1.5 * 2^52, so the float add rounds x to an integer
+dense 0 1 8
+   0 1 0 0 0 0 0 0
+   6755399441055744
+# layer 2 (value 2): r = y - C (exact), r = round(x)
+dense 1 1 1
+   1
+   -6755399441055744
+# layer 3 (value 3): [x]
+slice 0 1 2
+# layer 4 (value 4): [r, x]
+concat 2 3
+# layer 5 (value 5): r - x
+dense 4 1 2
+   1 -1
+   0
+# layer 6 (value 6): g = 1 if r > x
+step 5
+# layer 7 (value 7): [r, x, g]
+concat 4 6
+# layer 8 (value 8): protocol output plus word 7
+dense 7 8 3
+#  r  x  g
+   0  0  0    # out0 next
+   0  0  0    # out1 mem_op (bias 2 = write)
+   0  0  0    # out2 addr 0
+   1  0 -1    # out3 value = floor(x) = r - g
+   0  0  0    # out4 io
+   0  0  0    # out5 io_arg
+   0  0  0    # out6 halt (bias 1)
+   1  0  0    # out7 round(x)
+# biases
+   0  2  0  0  0  0  1  0
