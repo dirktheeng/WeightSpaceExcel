@@ -1181,8 +1181,8 @@ OM-030,VBA object model,Range properties (Value Value2 Formula Formula2 FormulaR
 OM-031,VBA object model,Application methods (Calculate Run Evaluate InputBox Intersect Union GoalSeek),9,todo
 OM-032,VBA object model,Application properties (ScreenUpdating Calculation DisplayAlerts StatusBar),9,todo
 OM-033,VBA object model,VBProject access (VBIDE) for code modules,10,todo
-FI-001,Files,ZIP container read (deflate decompression),8,todo
-FI-002,Files,ZIP container write (deflate compression and CRC32),8,todo
+FI-001,Files,ZIP container read (deflate decompression),8,done
+FI-002,Files,ZIP container write (deflate compression and CRC32),8,done
 FI-003,Files,XML parsing of package parts,8,todo
 FI-004,Files,XML writing of package parts,8,todo
 FI-005,Files,[Content_Types].xml and relationships parts,8,todo
