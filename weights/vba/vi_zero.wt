@@ -1,0 +1,46 @@
+# vba/vi_zero (id 435): loop. While ZP (49) < ZE (50): block write 8 zero words at ZP, ZP += 8.
+# Then fetch (block read 2 at IP) -> vi_disp. Writing up to 7 words past ZE only touches free
+# stack. Output 72. Note: weights/vba/interp.md
+input 65
+slice 0 50 52                     # v1 [ZP, ZE]
+slice 0 41 42                     # v2 [IP]
+concat 1 2                        # v3 [ZP, ZE, IP]
+dense 3 1 3                       # v4 more = ZE > ZP
+  -1 1 0
+  -0.5
+step 4                            # v5 [more]
+concat 3 5                        # v6 [ZP, ZE, IP, more]
+dense 6 2 4                       # v7 MUX_INT rows for addr = more ? ZP : IP
+  1 0 -1 8388608
+  -1 0 1 8388608
+  -8388608 -8388608
+relu 7                            # v8 [r+, r-]
+concat 6 8                        # v9 [ZP, ZE, IP, more, r+, r-]
+dense 9 17 6                      # v10 [next mem addr value io ioarg halt PC ZP' payload x8]
+  0 0 0 13 0 0
+  0 0 0 -1 0 0
+  0 0 1 0 1 -1
+  0 0 0 6 0 0
+  0 0 0 0 0 0
+  0 0 0 0 0 0
+  0 0 0 0 0 0
+  0 0 0 0 0 0
+  1 0 0 8 0 0
+  0 0 0 0 0 0
+  0 0 0 0 0 0
+  0 0 0 0 0 0
+  0 0 0 0 0 0
+  0 0 0 0 0 0
+  0 0 0 0 0 0
+  0 0 0 0 0 0
+  0 0 0 0 0 0
+  422 4 0 67108866 0 0 0 0 0 0 0 0 0 0 0 0 0
+slice 10 0 8                      # v11 words 0..7
+slice 0 9 50                      # v12 words 8..48
+slice 10 8 9                      # v13 word 49
+slice 0 51 65                     # v14 words 50..63
+slice 10 9 17                     # v15 payload
+concat 11 12
+concat 16 13
+concat 17 14
+concat 18 15

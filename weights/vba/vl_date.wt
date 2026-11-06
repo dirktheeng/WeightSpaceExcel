@@ -1,0 +1,73 @@
+# vba/vl_date (id 392): date literal #m/d/yyyy#. Digits go to field FI (59) of F1, F2, F3
+# (56, 57, 58), '/' advances FI, other chars are skipped; '#' (consumed) or end -> vl_dser
+# (397) with block read 0. Note: weights/vba/lexer.md
+input 66
+slice 0 65 66                     # v1 [c]
+slice 0 60 61                     # v2 [FI]
+concat 1 2                        # v3 [c, FI]
+dense 3 9 2                       # v4 thresholds c: 1 35 36 47 48 58; FI: 1 2; dummy
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  0 1
+  0 1
+  0 0
+  -0.5 -34.5 -35.5 -46.5 -47.5 -57.5 -0.5 -1.5 0
+step 4                            # v5 [t1 t35 t36 t47 t48 t58 u1 u2 0]
+slice 0 57 60                     # v6 [F1, F2, F3]
+slice 0 41 42                     # v7 [I]
+concat 5 1
+concat 8 6
+concat 9 2
+concat 10 7                       # v11 (14): 0 t1 1 t35 2 t36 3 t47 4 t48 5 t58 6 u1 7 u2 8 z 9 c 10 F1 11 F2 12 F3 13 FI 14 I
+dense 11 4 15                     # v12 pre: g1 = dig f0, g2 = dig f1, g3 = dig f2 (step), cD (relu later)
+  0 0 0 0 1 -1 -1 0 0 0 0 0 0 0 0
+  0 0 0 0 1 -1 1 -1 0 0 0 0 0 0 0
+  0 0 0 0 1 -1 0 1 0 0 0 0 0 0 0
+  0 0 0 0 131072 -131072 0 0 0 1 0 0 0 0 0
+  -0.5 -1.5 -1.5 -131072
+slice 12 0 3                      # v13
+step 13                           # v14 [g1, g2, g3]
+slice 12 3 4                      # v15
+relu 15                           # v16 [cD]
+concat 11 16                      # v17 (16): 15 cD
+dense 17 3 16                     # v18 values [9 Fk + d], d = cD - 48 dig
+  0 0 0 0 -48 48 0 0 0 0 9 0 0 0 0 1
+  0 0 0 0 -48 48 0 0 0 0 0 9 0 0 0 1
+  0 0 0 0 -48 48 0 0 0 0 0 0 9 0 0 1
+  0 0 0
+concat 14 18
+mul 19 0 3 3 6                    # v20 [dF1, dF2, dF3]
+concat 17 20                      # v21 (19): 16..18 dF
+dense 21 12 19                    # v22 [fields 0..7, I', F1', F2', F3'] then FI' separately
+  -5 5 -5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0
+  1 -1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0 0
+  0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1
+  397 4 3670273 67108864 0 0 0 0 0 0 0 0
+dense 21 1 19                     # v23 FI' = FI + slash
+  0 0 0 1 -1 0 0 0 0 0 0 0 0 1 0 0 0 0 0
+  0
+slice 22 0 8                      # v24 words 0..7
+slice 0 9 41                      # v25 words 8..39
+slice 22 8 9                      # v26 word 40
+slice 0 42 57                     # v27 words 41..55
+slice 22 9 12                     # v28 words 56..58
+slice 0 61 65                     # v29 words 60..63
+concat 24 25
+concat 30 26
+concat 31 27
+concat 32 28
+concat 33 23
+concat 34 29

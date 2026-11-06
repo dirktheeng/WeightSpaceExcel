@@ -1,0 +1,16 @@
+# vba/vc_cnum (id 444): return point of ev_totext on the CStr path: block read 1 at h = A.PAY
+# (length) -> vu_wr (437) at PC 0 (UXIT is already 445). Note: weights/vba/strings.md
+input 65
+slice 0 15 16                     # v1 [h]
+dense 1 8 1                       # v2 fields 0..7
+  0
+  0
+  1
+  0
+  0
+  0
+  0
+  0
+  437 4 0 67108865 0 0 0 0
+slice 0 9 65                      # v3 words 8..63
+concat 2 3

@@ -1,0 +1,64 @@
+# vba/vo_tail (id 438): end of PRINT / MSGBOX. PC 0: block write [' ' if TRAIL, LF if NL] at DST,
+# DST += TRAIL + NL, PC 1 -> self. PC 1: MSGBOX: block write Integer 1 (18, 1) at SP - 2
+# (else 0 words, SP -= 2); DST -> MOUT (MSGBOX) or DOUT (PRINT); IP += 2 -> vi_fetch.
+# Output 66. Note: weights/vba/output.md
+input 65
+slice 0 8 9                       # v1 [p]
+slice 0 52 56                     # v2 [DST, TRAIL, NL, MSG]
+slice 0 41 43                     # v3 [IP, SP]
+slice 0 45 47                     # v4 [DOUT, MOUT]
+concat 1 2                        # v5
+concat 5 3                        # v6
+concat 6 4                        # v7 (9): p DST TRAIL NL MSG IP SP DOUT MOUT
+dense 7 4 9                       # v8 pre-step [t1, t2, t3, gD]
+  -1 0 1 0 0 0 0 0 0
+  -1 0 0 1 0 0 0 0 0
+  1 0 0 0 1 0 0 0 0
+  1 0 0 0 -1 0 0 0 0
+  -0.5 -0.5 -1.5 -0.5
+step 8                            # v9
+concat 7 9                        # v10 (13): 9 t1 10 t2 11 t3 12 gD
+dense 10 6 13                     # v11 MUX_INT rows (M = 2^23)
+  8388608 -1 0 0 0 0 1 0 0 0 0 0 0
+  8388608 1 0 0 0 0 -1 0 0 0 0 0 0
+  0 1 0 0 0 0 0 -1 0 0 0 0 8388608
+  0 -1 0 0 0 0 0 1 0 0 0 0 8388608
+  0 1 0 0 0 0 0 0 -1 0 0 8388608 0
+  0 -1 0 0 0 0 0 0 1 0 0 8388608 0
+  -8388610 -8388606 -8388608 -8388608 -8388608 -8388608
+relu 11                           # v12
+concat 10 12                      # v13 (19): 13 a+ 14 a- 15 o+ 16 o- 17 m+ 18 m-
+dense 13 15 19                    # v14 [next mem addr value io ioarg halt PC IP' SP' DOUT' MOUT' DST' c0 c1]
+  -17 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0 0 0 0 0 1 -1 0 0 0 0
+  0 0 0 0 0 0 0 0 0 1 1 2 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  -1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  2 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0
+  -2 0 0 0 0 0 1 0 0 0 0 2 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 -1 0 0
+  0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 -1
+  0 1 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0
+  8 0 0 0 0 0 0 0 0 22 0 0 0 0 0 0 0 0 0
+  -9 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  438 3 0 67108864 0 0 0 1 0 0 0 0 0 10 10
+slice 14 0 8                      # v15 words 0..7
+slice 0 9 41                      # v16 words 8..39
+slice 14 8 10                     # v17 words 40, 41
+slice 0 43 45                     # v18 words 42, 43
+slice 14 10 12                    # v19 words 44, 45
+slice 0 47 52                     # v20 words 46..50
+slice 14 12 13                    # v21 word 51
+slice 0 53 65                     # v22 words 52..63
+slice 14 13 15                    # v23 payload
+concat 15 16
+concat 24 17
+concat 25 18
+concat 26 19
+concat 27 20
+concat 28 21
+concat 29 22
+concat 30 23

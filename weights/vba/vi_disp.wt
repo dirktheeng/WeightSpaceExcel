@@ -1,0 +1,98 @@
+# vba/vi_disp (id 422): block consumer of [OP, ARG] (inputs 65, 66). Classifies OP by 16
+# thresholds and issues the first memory operation of the handler (table in interp.md):
+# END -> vi_halt | JMP: IP = ARG, fetch ARG -> self | JZ, JNZ: read 2 at SP-2 -> vi_jz |
+# LOAD: read 2 at FP+2ARG -> vi_load | STORE: read 2 at SP-2 -> vi_store | POP: SP -= 2,
+# IP += 2, fetch -> self | CALL: read 4 at PROCT+4ARG -> vi_call | RET: read 4 at FP-2 -> vi_ret |
+# PRINT, MSGBOX: read 2 at SP-2 -> vi_out | FORCHK: read 6 at SP-6 -> vi_for | OBJ -> vi_obj |
+# binary and unary: read 4 at SP-4 -> vi_bin | PUSH (64+TAG): write [OP-64, ARG] at SP, SP += 2,
+# IP += 2 -> vi_fetch | anything else: ERR += 51 -> vi_halt. OP, ARG saved in words 47, 48.
+# Output 66 words (payload 64, 65 for PUSH). Note: weights/vba/interp.md
+input 67
+slice 0 65 66                     # v1 [OP]
+dense 1 16 1                      # v2 OP - k + 0.5, k = 1 2 4 5 6 7 8 9 11 12 13 14 16 42 64 128
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  -0.5 -1.5 -3.5 -4.5 -5.5 -6.5 -7.5 -8.5 -10.5 -11.5 -12.5 -13.5 -15.5 -41.5 -63.5 -127.5
+step 2                            # v3 t1 t2 t4 t5 t6 t7 t8 t9 t11 t12 t13 t14 t16 t42 t64 t128
+dense 3 14 16                     # v4 classes END JMP JZ LOAD STORE POP CALL RET OUT FOR HOOK BIN PUSH BAD
+  -1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+   1 -1  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+   0  1 -1  0  0  0  0  0  0  0  0  0  0  0  0  0
+   0  0  1 -1  0  0  0  0  0  0  0  0  0  0  0  0
+   0  0  0  1 -1  0  0  0  0  0  0  0  0  0  0  0
+   0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0  0
+   0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0  0
+   0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0  0
+   0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0  0
+   0  0  0  0  0  0  0  0  1 -1  0  0  0  0  0  0
+   0  0  0  0  0  0  0  0  0  0  1 -1  0  0  0  0
+   0  0  0  0  0  0  0  0  0  0  0  0  1 -1  0  0
+   0  0  0  0  0  0  0  0  0  0  0  0  0  0  1 -1
+   0  0  0  0  0  0  0  0  0  1 -1  1 -1  1 -1  1
+  1 0 0 0 0 0 0 0 0 0 0 0 0 0
+dense 4 6 14                      # v5 gates [gI, gS, gF, gA, gJ, gJ]
+  0 0 0 0 0 1 0 0 0 0 0 0 0 0
+  0 0 1 0 1 0 0 0 1 1 0 1 1 0
+  0 0 0 1 0 0 0 1 0 0 0 0 0 0
+  0 1 0 2 0 0 4 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0
+slice 0 41 44                     # v6 [IP, SP, FP]
+slice 0 66 67                     # v7 [ARG]
+concat 6 7                        # v8
+concat 8 7                        # v9
+slice 0 41 42                     # v10 [IP]
+concat 9 10                       # v11 values [IP, SP, FP, ARG, ARG, IP]
+concat 5 11                       # v12
+mul 12 0 6 6 12                   # v13 products [PI, PS, PF, PA, PJ, PJ2]
+concat 4 13                       # v14 (20)
+slice 0 41 43                     # v15 [IP, SP]
+concat 14 15                      # v16 (22)
+slice 0 47 48                     # v17 [ERR]
+concat 16 17                      # v18 (23)
+concat 18 1                       # v19 F (24): classes 0..13, products 14..19, IP 20, SP 21, ERR 22, OP 23
+dense 19 12 24                    # v20 [next, mem_op, addr, value, io, io_arg, halt, PC, IP', SP', ERR', OP-64]
+  423 422 426 424 425 422 428 429 430 431 446 427 421 423  0 0 0 0 0 0  0 0 0 0
+  4 4 4 4 4 4 4 4 4 4 4 4 3 4  0 0 0 0 0 0  0 0 0 0
+  0 0 -2 0 -2 2 3768320 -2 -2 -6 0 -4 0 0  1 1 1 1 0 0  0 0 0 0
+  -2 0 0 0 0 0 2 2 0 4 -2 2 0 -2  0 0 0 0 0 0  0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0  0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0  0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0  0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0  0 0 0 0
+  0 0 0 0 0 2 0 0 0 0 0 0 2 0  0 0 0 0 1 -1  1 0 0 0
+  0 0 0 0 0 -2 0 0 0 0 0 0 2 0  0 0 0 0 0 0  0 1 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 51  0 0 0 0 0 0  0 0 1 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0  0 0 0 1
+  0 0 0 67108866 0 0 0 0 0 0 0 -64
+slice 20 0 8                      # v21 words 0..7
+slice 0 9 41                      # v22 words 8..39
+slice 20 8 10                     # v23 words 40, 41
+slice 0 43 47                     # v24 words 42..45
+slice 20 10 11                    # v25 word 46
+slice 0 65 67                     # v26 words 47, 48 = OP, ARG
+slice 0 50 65                     # v27 words 49..63
+slice 20 11 12                    # v28 payload word 64 = OP - 64
+concat 21 22                      # v29
+concat 29 23                      # v30
+concat 30 24                      # v31
+concat 31 25                      # v32
+concat 32 26                      # v33
+concat 33 27                      # v34
+concat 34 28                      # v35
+concat 35 7                       # v36 payload word 65 = ARG

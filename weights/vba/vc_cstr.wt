@@ -1,0 +1,122 @@
+# vba/vc_cstr (id 443): subroutine CStr(A) -> A = (24, VSTR handle), return to (LR, LP).
+# String: unchanged | Empty: VSTR_EMPTY 0x399000 | Boolean: block write [len, "True"/"False"]
+# at VHT, VHT += 5 + isF | number: saves the link in SLR (55), SLP (56), VS0 (57) = VHT,
+# DST (51) = VHT + 1, SRC (49) = 0, UXIT (62) = 445, A = (1, x), LR = vc_cnum (444), PC 0 ->
+# ev_totext (110) | other: ERR 13 -> vi_halt. Output 70. Note: weights/vba/strings.md
+input 65
+slice 0 14 16                     # v1 [aT, aP]
+slice 0 9 11                      # v2 [LR, LP]
+slice 0 44 45                     # v3 [VHT]
+slice 0 47 48                     # v4 [ERR]
+concat 1 2                        # v5
+concat 5 3                        # v6
+concat 6 4                        # v7 X [aT, aP, LR, LP, VHT, ERR]
+dense 7 12 6                      # v8 u1 u18 u22 u23 u24 u25 u27 u28 u33 u34 pos neg
+  1 0 0 0 0 0
+  1 0 0 0 0 0
+  1 0 0 0 0 0
+  1 0 0 0 0 0
+  1 0 0 0 0 0
+  1 0 0 0 0 0
+  1 0 0 0 0 0
+  1 0 0 0 0 0
+  1 0 0 0 0 0
+  1 0 0 0 0 0
+  0 1 0 0 0 0
+  0 -1 0 0 0 0
+  -0.5 -17.5 -21.5 -22.5 -23.5 -24.5 -26.5 -27.5 -32.5 -33.5 0 0
+step 8                            # v9
+dense 9 5 12                      # v10 [isE, isNum, isStr, isBool, zr]
+  -1 0 0 0 0 0 0 0 0 0 0 0
+  0 1 -1 1 -1 0 0 0 1 -1 0 0
+  0 0 0 0 1 -1 0 0 0 0 0 0
+  0 0 0 0 0 0 1 -1 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 -1 -1
+  1 0 0 0 1
+concat 10 7                       # v11 (11): isE isNum isStr isBool zr aT aP LR LP VHT ERR
+dense 11 1 11                     # v12 isF pre
+  0 0 0 1 1 0 0 0 0 0 0
+  -1.5
+step 12                           # v13 [isF]
+dense 11 2 11                     # v14 MUX_INT [LR ret, LP ret], ret = isE + isStr + isBool
+  1024 0 1024 1024 0 0 0 1 0 0 0
+  1024 0 1024 1024 0 0 0 0 1 0 0
+  -1024 -1024
+relu 14                           # v15 [rLR, rLP]
+dense 10 1 5                      # v16 [g = isNum + isStr]
+  0 1 1 0 0
+  0
+slice 1 1 2                       # v17 [aP]
+concat 16 17                      # v18
+mul 18 0 1 1 2                    # v19 [g aP]
+dense 11 1 11                     # v20 VHT isBool (MUX_INT, M = 2^23)
+  0 0 0 8388608 0 0 0 0 0 1 0
+  -8388608
+relu 20                           # v21 [bV]
+concat 11 13                      # v22 (12): 11 isF
+concat 22 15                      # v23 (14): 12 rLR 13 rLP
+concat 23 19                      # v24 (15): 14 gaP
+concat 24 21                      # v25 F (16): 15 bV
+dense 25 26 16                    # v26 rows: fields 0..7, LR, LP, A.TAG, A.PAY, VHT', ERR', SRC, DST, SLR, SLP, VS0, UXIT, payload x6
+  -423 -313 -423 -423 0 0 0 0 0 0 0 0 1 0 0 0
+  0 0 0 -1 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0
+  0 0 0 6 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0
+  0 444 0 0 0 0 0 0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0
+  0 -23 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  3772416 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1
+  0 0 0 5 0 0 0 0 0 1 0 1 0 0 0 0
+  -13 -13 -13 -13 0 0 0 0 0 0 1 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0
+  0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 4 0 0 0 0 0 0 0 1 0 0 0 0
+  0 0 0 84 0 0 0 0 0 0 0 -14 0 0 0 0
+  0 0 0 114 0 0 0 0 0 0 0 -17 0 0 0 0
+  0 0 0 117 0 0 0 0 0 0 0 -9 0 0 0 0
+  0 0 0 101 0 0 0 0 0 0 0 14 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 101 0 0 0 0
+  423 4 0 67108864 0 0 0 0 0 0 24 0 0 13 0 1 0 0 0 445 0 0 0 0 0 0
+slice 26 0 8                      # v27 words 0..7
+slice 26 8 10                     # v28 words 8, 9
+slice 0 11 14                     # v29 words 10..12
+slice 26 10 12                    # v30 words 13, 14
+slice 0 16 44                     # v31 words 15..42
+slice 26 12 13                    # v32 word 43 VHT
+slice 0 45 47                     # v33 words 44, 45
+slice 26 13 14                    # v34 word 46 ERR
+slice 0 48 50                     # v35 words 47, 48
+slice 26 14 15                    # v36 word 49 SRC
+slice 0 51 52                     # v37 word 50
+slice 26 15 16                    # v38 word 51 DST
+slice 0 53 56                     # v39 words 52..54
+slice 26 16 19                    # v40 words 55..57
+slice 0 59 63                     # v41 words 58..61
+slice 26 19 20                    # v42 word 62 UXIT
+slice 0 64 65                     # v43 word 63
+slice 26 20 26                    # v44 payload
+concat 27 28
+concat 45 29
+concat 46 30
+concat 47 31
+concat 48 32
+concat 49 33
+concat 50 34
+concat 51 35
+concat 52 36
+concat 53 37
+concat 54 38
+concat 55 39
+concat 56 40
+concat 57 41
+concat 58 42
+concat 59 43
+concat 60 44

@@ -179,8 +179,8 @@ slice 0 56 65                     # v62 = words 55..63
 concat 61 62                      # v63 (64)
 slice 1 6 7                       # v64 = [RID]
 concat 64 51                      # v65 = [RID, OOR]
-dense 65 1 2                      # v66 = RID - 128 OOR
-   1 -128
+dense 65 1 2                      # v66 = RID - 2^20 OOR (gate constant must exceed every caller id; was 128, which broke callers above 127)
+   1 -1048576
    0
 relu 66                           # v67 = RID when in range, else 0
 concat 67 51                      # v68 = [RIDg, OOR]

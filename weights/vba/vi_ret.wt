@@ -1,0 +1,28 @@
+# vba/vi_ret (id 429): block consumer of [retIP, oldFP, rT, rP] read at FP - 2. Writes the
+# result [rT, rP] at FP - 2, SP = FP, FP = oldFP, IP = retIP -> vi_fetch. Output 66. Note: interp.md
+input 69
+slice 0 65 67                     # v1 [retIP, oldFP]
+slice 0 43 44                     # v2 [FP]
+concat 1 2                        # v3 [retIP, oldFP, FP]
+dense 3 11 3                      # v4 [next mem addr value io ioarg halt PC IP' SP' FP']
+  0 0 0
+  0 0 0
+  0 0 1
+  0 0 0
+  0 0 0
+  0 0 0
+  0 0 0
+  0 0 0
+  1 0 0
+  0 0 1
+  0 1 0
+  421 3 -2 67108866 0 0 0 0 0 0 0
+slice 4 0 8                       # v5 words 0..7
+slice 0 9 41                      # v6 words 8..39
+slice 4 8 11                      # v7 words 40..42
+slice 0 44 65                     # v8 words 43..63
+slice 0 67 69                     # v9 payload [rT, rP]
+concat 5 6
+concat 10 7
+concat 11 8
+concat 12 9

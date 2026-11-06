@@ -1,0 +1,30 @@
+# vba/vl_done (id 398): after the EOF token. Block write [NPROC, NT, 0, 0, VHT] at VGLOB + 4
+# (NPROC, NTOK, BCLEN, PERRTOK, VHT). CHAIN (38) = 1: -> parser entry (400), else halt.
+# Output 69. Note: weights/vba/lexer.md
+input 65
+slice 0 39 40                     # v1 [CHAIN]
+slice 0 47 48                     # v2 [NPROC]
+slice 0 45 46                     # v3 [NT]
+slice 0 44 45                     # v4 [VHT]
+concat 1 2
+concat 5 3
+concat 6 4                        # v7 [CHAIN, NPROC, NT, VHT]
+dense 7 12 4                      # v8 [fields 0..6, payload x5]
+  400 0 0 0
+  0 0 0 0
+  0 0 0 0
+  0 0 0 0
+  0 0 0 0
+  0 0 0 0
+  -1 0 0 0
+  0 1 0 0
+  0 0 1 0
+  0 0 0 0
+  0 0 0 0
+  0 0 0 1
+  0 3 3670020 67108869 0 0 1 0 0 0 0 0
+slice 8 0 7                       # v9 fields
+slice 0 8 65                      # v10 words 7..63
+slice 8 7 12                      # v11 payload
+concat 9 10
+concat 12 11

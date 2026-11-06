@@ -1,0 +1,15 @@
+# vba/vi_fetch (id 421): block read the instruction [OP, ARG] at IP (word 40) -> vi_disp (422).
+# Note: weights/vba/interp.md
+input 65
+slice 0 41 42                     # v1 [IP]
+dense 1 7 1                       # v2 fields
+  0
+  0
+  1
+  0
+  0
+  0
+  0
+  422 4 0 67108866 0 0 0
+slice 0 8 65                      # v3 words 7..63
+concat 2 3

@@ -1,0 +1,35 @@
+# vba/vu_rd (id 442): packed-string unpack loop, read side. CNT (50) > 0: block read 1 at SRC
+# (49), SRC += 1, PC 1 -> vu_wr; else -> UXIT (62) at PC 0 (MUX_INT, M = 1024).
+# Note: weights/vba/output.md
+input 65
+slice 0 50 52                     # v1 [SRC, CNT]
+dense 1 1 2                       # v2 more
+  0 1
+  -0.5
+step 2                            # v3 [more]
+slice 0 63 64                     # v4 [UXIT]
+concat 1 3                        # v5 [SRC, CNT, more]
+concat 5 4                        # v6 [SRC, CNT, more, UXIT]
+dense 6 1 4                       # v7 UXIT - 1024 more
+  0 0 -1024 1
+  0
+relu 7                            # v8 [ux]
+concat 6 8                        # v9 [SRC, CNT, more, UXIT, ux]
+dense 9 9 5                       # v10 [next mem addr value io ioarg halt PC SRC']
+  0 0 437 0 1
+  0 0 4 0 0
+  1 0 0 0 0
+  0 0 0 0 0
+  0 0 0 0 0
+  0 0 0 0 0
+  0 0 0 0 0
+  0 0 1 0 0
+  1 0 1 0 0
+  0 0 0 67108865 0 0 0 0 0
+slice 10 0 8                      # v11 words 0..7
+slice 0 9 50                      # v12 words 8..48
+slice 10 8 9                      # v13 word 49
+slice 0 51 65                     # v14 words 50..63
+concat 11 12
+concat 15 13
+concat 16 14

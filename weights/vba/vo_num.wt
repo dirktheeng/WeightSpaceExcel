@@ -1,0 +1,23 @@
+# vba/vo_num (id 436): return point of ev_totext (A = (2, h), packed TEXT_HEAP string) on the
+# PRINT / MSGBOX path. UXIT (62) = 438 (vo_tail); block read 1 at h (the length) -> vu_wr (437)
+# at PC 0. Note: weights/vba/output.md
+input 65
+slice 0 15 16                     # v1 [h]
+dense 1 8 1                       # v2 fields 0..7
+  0
+  0
+  1
+  0
+  0
+  0
+  0
+  0
+  437 4 0 67108865 0 0 0 0
+slice 0 9 63                      # v3 words 8..61
+dense 1 1 1                       # v4 UXIT
+  0
+  438
+slice 0 64 65                     # v5 word 63
+concat 2 3
+concat 6 4
+concat 7 5

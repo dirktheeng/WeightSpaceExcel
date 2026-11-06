@@ -1,0 +1,19 @@
+# vba/vo_slen (id 441): block consumer of a VSTR length (65): CNT (50) = length -> vs_rd (439).
+# Note: weights/vba/output.md
+input 66
+slice 0 65 66                     # v1 [len]
+dense 1 8 1                       # v2 fields 0..7
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  439 0 0 0 0 0 0 0
+slice 0 9 51                      # v3 words 8..49
+slice 0 52 65                     # v4 words 51..63
+concat 2 3
+concat 5 1
+concat 6 4

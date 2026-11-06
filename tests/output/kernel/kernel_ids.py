@@ -34,9 +34,14 @@ def paths(n=118, override=None):
     sys.path.insert(0, os.path.dirname(HERE))
     import blackbox as bb
     man = bb.manifest_paths()
+    n = max(n, len(man))
     out = []
     for i in range(n):
-        if 80 <= i <= 117 and i < len(man):
+        # The kernel's own ids (0..29) and the parse stub at 78 come from NAMES so
+        # these tests stay isolated from the parser; every other network the kernel
+        # now reaches (evaluator, UI redraw, FT_INIT and the function core) comes
+        # from the manifest.
+        if i not in NAMES and i < len(man):
             out.append(man[i])
             continue
         f = os.path.join(K, NAMES.get(i, "trap") + ".wt")

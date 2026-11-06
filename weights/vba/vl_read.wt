@@ -1,0 +1,17 @@
+# vba/vl_read (id 385): block read 1 of char I at SRC + 1 + I (0x380101 + I) -> RS (55).
+# Note: weights/vba/lexer.md
+input 65
+slice 0 41 42                     # v1 [I]
+slice 0 56 57                     # v2 [RS]
+concat 1 2                        # v3 [I, RS]
+dense 3 7 2                       # v4 fields
+  0 1
+  0 0
+  1 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 4 3670273 67108865 0 0 0
+slice 0 8 65                      # v5 words 7..63
+concat 4 5

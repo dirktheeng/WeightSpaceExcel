@@ -1,0 +1,23 @@
+# vba/vl_preg (id 388): register a procedure: write LV (39) at PROCT + 4 NPROC, NPROC += 1
+# -> vl_read (RS is vl_idle). Note: weights/vba/lexer.md
+input 65
+slice 0 40 41                     # v1 [LV]
+slice 0 47 48                     # v2 [NPROC]
+concat 1 2                        # v3
+dense 3 8 2                       # v4 fields 0..6, NPROC'
+  0 0
+  0 0
+  0 4
+  1 0
+  0 0
+  0 0
+  0 0
+  0 1
+  385 2 3768320 0 0 0 0 1
+slice 4 0 7                       # v5
+slice 0 8 47                      # v6 words 7..45
+slice 4 7 8                       # v7 word 46
+slice 0 48 65                     # v8 words 47..63
+concat 5 6
+concat 9 7
+concat 10 8

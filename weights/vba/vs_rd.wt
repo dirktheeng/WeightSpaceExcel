@@ -1,0 +1,29 @@
+# vba/vs_rd (id 439): unpacked string copy loop, read side. CNT (50) > 0: block read 8 at SRC
+# (49) -> vs_wr; else return to (LR, LP) (MUX_INT with M = 1024). Note: weights/vba/strings.md
+input 65
+slice 0 9 11                      # v1 [LR, LP]
+slice 0 50 52                     # v2 [SRC, CNT]
+concat 1 2                        # v3 [LR, LP, SRC, CNT]
+dense 3 1 4                       # v4 more
+  0 0 0 1
+  -0.5
+step 4                            # v5 [more]
+concat 3 5                        # v6 [LR, LP, SRC, CNT, more]
+dense 6 2 5                       # v7 [LR - 1024 more, LP - 1024 more]
+  1 0 0 0 -1024
+  0 1 0 0 -1024
+  0 0
+relu 7                            # v8 [rLR, rLP]
+concat 6 8                        # v9 (7)
+dense 9 8 7                       # v10 fields 0..7
+  0 0 0 0 440 1 0
+  0 0 0 0 4 0 0
+  0 0 1 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 1
+  0 0 0 67108872 0 0 0 0
+slice 0 9 65                      # v11 words 8..63
+concat 10 11

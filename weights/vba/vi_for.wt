@@ -1,0 +1,41 @@
+# vba/vi_for (id 431): block consumer of [i, limit, step] (6 words at 65..70) for FORCHK.
+# cond = (step >= 0 and i <= limit) or (step < 0 and i >= limit); writes Boolean (27, -cond)
+# at SP - 6, SP -= 4, IP += 2 -> vi_fetch. Operands are assumed numeric (limit). Note: interp.md
+input 71
+slice 0 65 71                     # v1 [iT, iP, lT, lP, sT, sP]
+dense 1 3 6                       # v2 [iP - lP, lP - iP, -sP]
+  0 1 0 -1 0 0
+  0 -1 0 1 0 0
+  0 0 0 0 0 -1
+  0 0 0
+step 2                            # v3 [gt, lt, sneg]
+dense 3 2 3                       # v4 [!sneg and !gt, sneg and !lt]
+  -1 0 -1
+  0 -1 1
+  0.5 -0.5
+step 4                            # v5 [c1, c2]
+slice 0 41 43                     # v6 [IP, SP]
+concat 5 6                        # v7 [c1, c2, IP, SP]
+dense 7 12 4                      # v8 [next mem addr value io ioarg halt PC IP' SP' rT rP]
+  0 0 0 0
+  0 0 0 0
+  0 0 0 1
+  0 0 0 0
+  0 0 0 0
+  0 0 0 0
+  0 0 0 0
+  0 0 0 0
+  0 0 1 0
+  0 0 0 1
+  0 0 0 0
+  -1 -1 0 0
+  421 3 -6 67108866 0 0 0 0 2 -4 27 0
+slice 8 0 8                       # v9 words 0..7
+slice 0 9 41                      # v10 words 8..39
+slice 8 8 10                      # v11 words 40, 41
+slice 0 43 65                     # v12 words 42..63
+slice 8 10 12                     # v13 payload
+concat 9 10
+concat 14 11
+concat 15 12
+concat 16 13

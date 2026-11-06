@@ -1,0 +1,67 @@
+# vba/vl_nend (id 391): return point of numconv; TV (54) = value. Kind: Double if NDBL (point,
+# exponent, # or !); % Integer, & Long; no suffix: Integer if <= 32767, Long if <= 2147483647,
+# else Double. Block write [K, TV] at TP, TP += 2, NT += 1, PREVK = K, RS = 384 -> vl_read.
+# Output 66. Note: weights/vba/lexer.md
+input 65
+slice 0 55 56                     # v1 [TV]
+slice 0 48 49                     # v2 [NDBL]
+slice 0 51 52                     # v3 [NSUF]
+concat 1 2
+concat 4 3                        # v5 [TV, NDBL, NSUF]
+dense 5 5 3                       # v6 pre-step [dbl, s2, s3, small, mid]
+  0 1 0
+  0 0 1
+  0 0 1
+  -1 0 0
+  -1 0 0
+  -0.5 -1.5 -2.5 32767.5 2147483647.5
+step 6                            # v7
+dense 7 2 5                       # v8 pre-step [a = s0 and small, b = s0 and not small and mid]
+  0 -1 0 1 0
+  0 -1 0 -1 1
+  -0.5 -0.5
+step 8                            # v9
+concat 7 9                        # v10 [dbl s2 s3 small mid a b]
+dense 10 2 7                      # v11 pre-step [isInt, isLong]; sI = s2 - s3, sL = s3
+  -1 1 -1 0 0 1 0
+  -1 0 1 0 0 0 1
+  -0.5 -0.5
+step 11                           # v12
+slice 0 43 44                     # v13 [TP]
+slice 0 45 46                     # v14 [NT]
+concat 12 13
+concat 15 14                      # v16 [isInt, isLong, TP, NT]
+dense 16 12 4                     # v17 [fields 0..7, TP', NT', PREVK', K]
+  0 0 0 0
+  0 0 0 0
+  0 0 1 0
+  0 0 0 0
+  0 0 0 0
+  0 0 0 0
+  0 0 0 0
+  0 0 0 0
+  0 0 1 0
+  0 0 0 1
+  -2 -1 0 0
+  -2 -1 0 0
+  385 3 0 67108866 0 0 0 0 2 1 5 5
+slice 17 0 8                      # v18 words 0..7
+slice 0 9 43                      # v19 words 8..41
+slice 17 8 9                      # v20 word 42
+slice 0 44 45                     # v21 word 43
+slice 17 9 11                     # v22 words 44, 45
+slice 0 47 56                     # v23 words 46..54
+dense 1 1 1                       # v24 [RS = 384]
+  0
+  384
+slice 0 57 65                     # v25 words 56..63
+slice 17 11 12                    # v26 K
+concat 18 19
+concat 27 20
+concat 28 21
+concat 29 22
+concat 30 23
+concat 31 24
+concat 32 25
+concat 33 26
+concat 34 1                       # payload V = TV

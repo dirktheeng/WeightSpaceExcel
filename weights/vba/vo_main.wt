@@ -1,0 +1,113 @@
+# vba/vo_main (id 430): PRINT (OP 9) and MSGBOX (OP 10), block consumer of the value (65, 66).
+# DST (51) = DOUT or MOUT. Empty -> vo_tail | String: block read 1 at the handle (length),
+# SRC = handle + 1, LR = vo_tail -> vo_slen | number: block write ' ' at DST (DST += 1 only for
+# PRINT of x >= 0), A = (1, x), LR = vo_num, PC 0 -> ev_totext (110) | Boolean: block write
+# "True" or "False" at DST -> vo_tail | other: ERR 13 -> vi_halt. TRAIL (52) = PRINT of a number,
+# NL (53) = not (PRINT with ARG 1), MSG (54) = OP - 9. Output 69. Note: weights/vba/output.md
+input 67
+slice 0 65 67                     # v1 [vT, vP]
+slice 0 48 50                     # v2 [OP, ARG]
+slice 0 45 47                     # v3 [DOUT, MOUT]
+concat 1 2                        # v4
+concat 4 3                        # v5 [vT, vP, OP, ARG, DOUT, MOUT]
+dense 5 12 6                      # v6 u1 u18 u22 u23 u24 u25 u27 u28 u33 u34 pos neg
+  1 0 0 0 0 0
+  1 0 0 0 0 0
+  1 0 0 0 0 0
+  1 0 0 0 0 0
+  1 0 0 0 0 0
+  1 0 0 0 0 0
+  1 0 0 0 0 0
+  1 0 0 0 0 0
+  1 0 0 0 0 0
+  1 0 0 0 0 0
+  0 1 0 0 0 0
+  0 -1 0 0 0 0
+  -0.5 -17.5 -21.5 -22.5 -23.5 -24.5 -26.5 -27.5 -32.5 -33.5 0 0
+step 6                            # v7
+dense 7 6 12                      # v8 [isE, isNum, isStr, isBool, nonneg, zr]
+  -1 0 0 0 0 0 0 0 0 0 0 0
+  0 1 -1 1 -1 0 0 0 1 -1 0 0
+  0 0 0 0 1 -1 0 0 0 0 0 0
+  0 0 0 0 0 0 1 -1 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 -1
+  0 0 0 0 0 0 0 0 0 0 -1 -1
+  1 0 0 0 1 1
+concat 8 5                        # v9 (12): isE isNum isStr isBool nonneg zr vT vP OP ARG DOUT MOUT
+dense 9 4 12                      # v10 pre-step [LEAD, isF, TRAIL, NLoff]
+  0 1 0 0 1 0 0 0 -1 0 0 0
+  0 0 0 1 0 1 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 -1 0 0 0
+  0 0 0 0 0 0 0 0 -1 1 0 0
+  7.5 -1.5 8.5 8.5
+step 10                           # v11
+dense 9 2 12                      # v12 MUX_INT rows for DST = DOUT + isMsg (MOUT - DOUT)
+  0 0 0 0 0 0 0 0 8388608 0 -1 1
+  0 0 0 0 0 0 0 0 8388608 0 1 -1
+  -83886080 -83886080
+relu 12                           # v13 [m+, m-]
+concat 9 13                       # v14 (14)
+dense 14 1 14                     # v15 [DST]
+  0 0 0 0 0 0 0 0 0 0 1 0 1 -1
+  0
+dense 8 2 6                       # v16 gates [1 - isStr, isStr]
+  0 0 -1 0 0 0
+  0 0 1 0 0 0
+  1 0
+slice 1 1 2                       # v17 [vP]
+concat 15 17                      # v18 [DST, vP]
+concat 16 18                      # v19
+mul 19 0 2 2 4                    # v20 [pD, pV]
+concat 14 11                      # v21 (18): 14 LEAD 15 isF 16 TRAIL 17 NLoff
+concat 21 15                      # v22 (19): 18 DST
+concat 22 20                      # v23 (21): 19 pD 20 pV
+slice 0 47 48                     # v24 [ERR]
+concat 23 24                      # v25 F (22): 21 ERR
+dense 25 23 22                    # v26 rows: fields 0..7, LR, LP, A.TAG, A.PAY, SRC, DST', TRAIL, NL, MSG, ERR', c0..c4
+  15 -313 18 15 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 -1 0 -1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0
+  0 1 1 4 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 -2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0
+  0 0 0 4 0 0 0 0 0 0 0 0 0 0 1 1 0 0 1 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1 0 0 0 0
+  0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0
+  -13 -13 -13 -13 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1
+  0 32 0 84 0 0 0 0 0 0 0 0 0 0 0 -14 0 0 0 0 0 0
+  0 0 0 114 0 0 0 0 0 0 0 0 0 0 0 -17 0 0 0 0 0 0
+  0 0 0 117 0 0 0 0 0 0 0 0 0 0 0 -9 0 0 0 0 0 0
+  0 0 0 101 0 0 0 0 0 0 0 0 0 0 0 14 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 101 0 0 0 0 0 0
+  423 4 0 67108864 0 0 0 0 438 0 1 0 1 0 0 1 -9 13 0 0 0 0 0
+slice 26 0 8                      # v27 words 0..7
+slice 26 8 10                     # v28 words 8, 9 (LR, LP)
+slice 0 11 14                     # v29 words 10..12
+slice 26 10 12                    # v30 words 13, 14 (A)
+slice 0 16 47                     # v31 words 15..45
+slice 26 17 18                    # v32 word 46 (ERR)
+slice 0 48 50                     # v33 words 47, 48
+slice 26 12 13                    # v34 word 49 (SRC)
+slice 0 51 52                     # v35 word 50
+slice 26 13 17                    # v36 words 51..54 (DST, TRAIL, NL, MSG)
+slice 0 56 65                     # v37 words 55..63
+slice 26 18 23                    # v38 payload c0..c4
+concat 27 28
+concat 39 29
+concat 40 30
+concat 41 31
+concat 42 32
+concat 43 33
+concat 44 34
+concat 45 35
+concat 46 36
+concat 47 37
+concat 48 38

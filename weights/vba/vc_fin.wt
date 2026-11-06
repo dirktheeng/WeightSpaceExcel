@@ -1,0 +1,31 @@
+# vba/vc_fin (id 445): end of CStr of a number: write length DST - VS0 - 1 at VS0, VHT = DST,
+# A = (24, VS0), return to (SLR, SLP). Note: weights/vba/strings.md
+input 65
+slice 0 52 53                     # v1 [DST]
+slice 0 56 59                     # v2 [SLR, SLP, VS0]
+concat 1 2                        # v3 [DST, SLR, SLP, VS0]
+dense 3 12 4                      # v4 [next mem addr value io ioarg halt PC A.TAG A.PAY VHT' pad]
+  0 1 0 0
+  0 0 0 0
+  0 0 0 1
+  1 0 0 -1
+  0 0 0 0
+  0 0 0 0
+  0 0 0 0
+  0 0 1 0
+  0 0 0 0
+  0 0 0 1
+  1 0 0 0
+  0 0 0 0
+  0 2 0 -1 0 0 0 0 24 0 0 0
+slice 4 0 8                       # v5 words 0..7
+slice 0 9 14                      # v6 words 8..12
+slice 4 8 10                      # v7 words 13, 14
+slice 0 16 44                     # v8 words 15..42
+slice 4 10 11                     # v9 word 43
+slice 0 45 65                     # v10 words 44..63
+concat 5 6
+concat 11 7
+concat 12 8
+concat 13 9
+concat 14 10

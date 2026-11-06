@@ -1,0 +1,49 @@
+# vba/vl_strq (id 395): char after a quote inside a string. '"' (doubled quote): block write '"'
+# at DST, DST += 1, I += 1 -> vl_read (RS = 390). Otherwise close: block write the length
+# DST - S0 - 1 at S0 (53) -> vl_semit (396), char not consumed. Output 66. Note: lexer.md
+input 66
+slice 0 65 66                     # v1 [c]
+dense 1 2 1                       # v2 [c >= 34, c >= 35]
+  1
+  1
+  -33.5 -34.5
+step 2                            # v3
+slice 0 41 42                     # v4 [I]
+slice 0 52 55                     # v5 [DST, w52, S0]
+concat 3 4
+concat 6 5                        # v7 [t34 t35 I DST w52 S0]; q2 = t34 - t35
+dense 7 4 6                       # v8 MUX_INT rows (M = 2^23): addr S0 + q2 (DST - S0), pay0 L + q2 (34 - L), L = DST - S0 - 1
+  8388608 -8388608 0 1 0 -1
+  8388608 -8388608 0 -1 0 1
+  8388608 -8388608 0 -1 0 1
+  8388608 -8388608 0 1 0 -1
+  -8388608 -8388608 -8388573 -8388643
+relu 8                            # v9 [a+, a-, p+, p-]
+concat 7 9                        # v10 (10)
+dense 10 11 10                    # v11 [fields 0..7, I', DST', pay0]
+  -11 11 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 1 1 -1 0 0
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  1 -1 1 0 0 0 0 0 0 0
+  1 -1 0 1 0 0 0 0 0 0
+  0 0 0 1 0 -1 0 0 1 -1
+  396 3 0 67108865 0 0 0 0 0 0 -1
+slice 11 0 8                      # v12 words 0..7
+slice 0 9 41                      # v13 words 8..39
+slice 11 8 9                      # v14 word 40
+slice 0 42 52                     # v15 words 41..50
+slice 11 9 10                     # v16 word 51
+slice 0 53 65                     # v17 words 52..63
+slice 11 10 11                    # v18 pay0
+concat 12 13
+concat 19 14
+concat 20 15
+concat 21 16
+concat 22 17
+concat 23 18
+concat 24 18                      # pay1 (ignored)

@@ -545,3 +545,75 @@
 - Alternatives: skip the cell; store #NAME?.
 - Why: Excel's open of a CSV never asks for corrections and does not lose data; a malformed formula stays visible as text. Open question Q-F3: verify against Excel.
 - Affects: weights/files/csv_commit.wt only.
+
+## 2026-11-06, Stage 4: date and time functions (func-date agent; details in log/func-date-agent.md)
+
+### FD-1 (DECISION): floor division by a constant as one dense row plus ROUND
+- Decided: floor(x / d) for integer x is ROUND(c x + b), c close to 1/d, b close to -0.5 + 0.5/d; the margin 0.5/d dominates the rounding of the row, so constants worked out by hand to about 12 digits are exact for all date ranges used.
+- Alternatives: DIVMOD_K from encodings/primitives.md (two-sided correction, about 9 layers and 3 step units per division); a lookup by thermometer.
+- Why: 3 dense layers and no step units per floor; the many floors of the civil-date algorithms stay cheap and can be merged with the linear rows that form x.
+- Affects: every network in weights/func/date.
+
+### FD-2 (DECISION): Hinnant's civil-date algorithms with an Excel quirk layer
+- Decided: serial -> date uses days since 0000-03-01 (z = n + 693899 + [n < 60]) with overrides for serial 0 (1900-01-00) and 60 (1900-02-29); date -> serial uses a 250-era year offset and subtracts 1 from month starts before serial 61.
+- Alternatives: lookup tables of year starts (thousands of hand-typed constants); day counting loops (thousands of steps).
+- Why: one forward pass, constants all derivable by hand.
+- Affects: dt_ymd, dt_date; the closed form for Jan 1 in dt_wk and dt_yf follows the same convention.
+
+### FD-3 (DECISION): link in T9/T10 and chained subroutines for multi-date functions
+- Decided: entry phases save LR/LP in T9/T10 and call dt_ymd with LR/LP pointing at the next phase of the same function; dt_ymd passes T9/T10 and AS..AR2 through, so dt_pair parks the first date's parts there and needs no memory.
+- Alternatives: the RET_STACK push/pop of control.md section 4 (two extra memory steps per call).
+- Why: zero memory traffic; DAYS360, DATEDIF and YEARFRAC take 6 steps in all.
+- Affects: when encodings/functions.md arrives, its wrapper must not rely on T9/T10 or AS..AR2 surviving these calls.
+
+### FD-4 (DECISION): correctly rounded secs / 86400 in TIME
+- Decided: (secs / 675) / 128 with an exact residual from a 2^-26 split of q0, then one correction.
+- Alternatives: retyping weights/prim/div.wt (about 140 layers, 10k parameters); a single product secs fl(1/86400) (not always correctly rounded, e.g. 1/3 could be off by an ulp).
+- Why: about 15 layers; exact Excel values for every whole-second time.
+
+### FD-5 (DECISION): variable divisors in YEARFRAC by Newton from a power-of-two start
+- Decided: y0 = 2^-j from a 13-unit thermometer on Dv, six Newton steps, then the FD-4 residual correction.
+- Why: Dv ranges over 360 .. 3 million (multi-year actual/actual), so a fixed start would need about 20 iterations.
+
+### Result
+- 8 networks (ids 344 to 350, 353), 18,253 dense parameters. tests/output/func_date: 279 passed.
+- Checklist items passing their tests: FN-0112 DATE, FN-0113 DATEDIF, FN-0116 DAY, FN-0117 DAYS, FN-0118 DAYS360, FN-0147 EDATE, FN-0150 EOMONTH, FN-0213 HOUR, FN-0270 ISOWEEKNUM, FN-0307 MINUTE, FN-0315 MONTH, FN-0335 NOW, FN-0413 SECOND, FN-0467 TIME, FN-0474 TODAY, FN-0502 WEEKDAY, FN-0503 WEEKNUM, FN-0515 YEAR, FN-0516 YEARFRAC (as cores, before the function ABI wrapper; text date arguments not coerced).
+
+## 2026-11-06, Stage 9 groundwork: VBA lexer and interpreter (VBA agent; details in log/vba-agent.md, spec encodings/vba.md)
+
+### VB1 (DECISION): token stream with base-64 identifier keys, keywords by exact key plus length
+- Decided: identifiers fold to KEY (last 8 characters, base 64, letters case-insensitive) and V = KEY + 2^48 length; keywords are 55 IS_K tests on V against hand-computed constants.
+- Alternatives: a keyword trie of states (many networks); a hash with collisions checked by a second pass.
+- Why: one forward pass, exact integers below 2^53, no table in memory. Affects: identifiers over 8 characters may collide (same length and last 8 characters).
+
+### VB2 (DECISION): VBA source and VBA strings unpacked, one unit per word
+- Decided: SRC and VSTR records hold one UTF-16 unit per word; copies move 8 units per two steps by block operations.
+- Alternatives: TEXT_HEAP packing (3 per word) as for cells.
+- Why: the lexer reads one char per step anyway and block copies need no repacking. Affects: Range values will convert VSTR <-> packed text at the object model boundary.
+
+### VB3 (DECISION): Variant tags = 16 + VarType, Empty on tag 0
+- Decided: Integer 18, Long 19, Single 20, Double 21, Date 23, String 24, Object 25, Boolean 27 (PAY -1/0), Byte 33; Empty uses the Excel blank tag 0.
+- Why: VarType is TAG - 16; zeroed frames are Empty with no initialisation. Affects encodings/value.md tags 16..63.
+
+### VB4 (DECISION): stack bytecode, 2 words per instruction, frames on VSTACK; division as a later loop network
+- Decided: opcodes in encodings/vba.md section 7; fetch / dispatch / handler, about 3 steps per instruction. ev_div and ev_cat cannot be called (they return to the evaluator dispatcher), so VBA has its own concatenation, and / \ Mod are routed to a not yet written vi_div (434).
+- Affects: a request to the eval or prim agent for an LR-returning DIV subroutine would remove the need for vi_div.
+
+### VB5 (DECISION): VBA source is NUL-terminated
+- Decided: the lexer ends at a 0 unit; the length word is still written for other readers. Why: saves a length register and a compare per char.
+
+### VB6 (DECISION): networks with payloads use block operations on every step
+- Decided: after a non-block step the harness forwards the whole output, so a network with a payload uses a block read of 0 words where it needs no memory access.
+
+### VB7 (DECISION): number text through ev_totext
+- Decided: CStr and Print of numbers call the eval agent's ev_totext (110) and unpack its packed result. Affects: VBA shows the Excel General format (differs from VBA for small numbers, below 0.1 VBA uses E notation earlier).
+
+### VB8 (DECISION): memory inside 0x380000..0x3AFFFF
+- Decided after FILE_SCRATCH (F2) took 0x3B0000 and up: VSTR 0x399000, DEBUG_OUT 0x39C000, MSG_OUT 0x39E000, VSTACK 0x3A0000..0x3A7FFF, OBJT 0x3A8000.
+
+### Requests to other owners (not applied)
+- weights/parse/numconv.wt v66 (`RID - 128 OOR`): use 1024 instead of 128 so callers with ids above 127 (VBA lexer, 391) survive the numbig route for exponents beyond 22.
+- An LR-returning DIV (the prim div block with a return tail) for VBA `/`, `\`, Mod.
+
+## 2026-11-06, coordinator fix C2: numconv gate constant
+- weights/parse/numconv.wt v66 used RID - 128 OOR, so the out-of-range gate failed for callers with ids above 127 (reported by the VBA agent, whose lexer is at 384 and up). Changed the constant by hand to 2^20, larger than any network id. Parser and VBA tests: 228 passed.

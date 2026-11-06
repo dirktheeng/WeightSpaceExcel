@@ -1,0 +1,112 @@
+# vba/vu_wr (id 437): packed-string unpack loop, block consumer of one word x (65).
+# PC 0 (x = length, h = A.PAY): CNT = x, SRC = h + 3; x > 0: block read 1 at h + 2, PC 1 -> self;
+# else -> UXIT (62). PC 1 (x = packed word): units c0 c1 c2 by two FLOORs (x < 2^48), block write 3
+# at DST, DST += min(3, CNT), CNT -= 3, PC 0 -> vu_rd (442). Output 67. Note: weights/vba/output.md
+input 66
+slice 0 65 66                     # v1 [x]
+dense 1 2 1                       # v2 [x 2^-32 + C, x 2^-32]
+  2.3283064365386962890625e-10
+  2.3283064365386962890625e-10
+  6755399441055744 0
+dense 2 2 2                       # v3 [r, y]
+  1 0
+  0 1
+  -6755399441055744 0
+dense 3 1 2                       # v4 r - y
+  1 -1
+  0
+step 4                            # v5 [s]
+concat 3 5                        # v6 [r, y, s]
+dense 6 1 3                       # v7 [c2 = r - s]
+  1 0 -1
+  0
+concat 1 7                        # v8 [x, c2]
+dense 8 1 2                       # v9 [rr = x - 2^32 c2]
+  1 -4294967296
+  0
+dense 9 2 1                       # v10 [rr 2^-16 + C, rr 2^-16]
+  0.0000152587890625
+  0.0000152587890625
+  6755399441055744 0
+dense 10 2 2                      # v11 [r1, y1]
+  1 0
+  0 1
+  -6755399441055744 0
+dense 11 1 2                      # v12 r1 - y1
+  1 -1
+  0
+step 12                           # v13 [s1]
+concat 11 13                      # v14 [r1, y1, s1]
+dense 14 1 3                      # v15 [c1 = r1 - s1]
+  1 0 -1
+  0
+concat 9 15                       # v16 [rr, c1]
+dense 16 1 2                      # v17 [c0 = rr - 65536 c1]
+  1 -65536
+  0
+slice 0 8 9                       # v18 [p = PC]
+slice 0 50 53                     # v19 [SRC, CNT, DST]
+slice 0 15 16                     # v20 [h]
+concat 18 19                      # v21
+concat 21 20                      # v22
+concat 22 1                       # v23 [p, SRC, CNT, DST, h, x]
+dense 23 2 6                      # v24 MUX_INT [CNT p, x (1 - p)], M = 2^49
+  562949953421312 0 1 0 0 0
+  -562949953421312 0 0 0 0 1
+  -562949953421312 0
+relu 24                           # v25 [c+, x+]
+dense 23 1 6                      # v26 more0 = x > 0
+  0 0 0 0 0 1
+  -0.5
+step 26                           # v27 [more0]
+concat 23 25                      # v28 (8)
+concat 28 27                      # v29 (9): p SRC CNT DST h x c+ x+ more0
+dense 29 1 9                      # v30 CNTe - 3
+  0 0 0 0 0 0 1 1 0
+  -3
+relu 30                           # v31 [ex]
+concat 29 31                      # v32 (10): 9 ex
+dense 32 1 10                     # v33 q0 = (not p) and more0
+  -1 0 0 0 0 0 0 0 1 0
+  -0.5
+step 33                           # v34 [q0]
+dense 32 5 10                     # v35 MUX_INT rows A+ A- S+ S- E (M = 2^23)
+  8388608 0 0 1 -1 0 0 0 0 0
+  8388608 0 0 -1 1 0 0 0 0 0
+  8388608 1 0 0 -1 0 0 0 0 0
+  8388608 -1 0 0 1 0 0 0 0 0
+  8388608 0 0 0 0 0 0 0 0 1
+  -8388610 -8388606 -8388611 -8388605 -8388608
+relu 35                           # v36
+concat 32 34                      # v37 (11): 10 q0
+concat 37 36                      # v38 (16): 11 A+ 12 A- 13 S+ 14 S- 15 E
+slice 0 63 64                     # v39 [UXIT]
+concat 38 39                      # v40 (17): 16 UXIT
+dense 40 1 17                     # v41 exit term UXIT - 1024 (p + q0)
+  -1024 0 0 0 0 0 0 0 0 0 -1024 0 0 0 0 0 1
+  0
+relu 41                           # v42 [ux]
+concat 40 42                      # v43 (18): 17 ux
+dense 43 11 18                    # v44 [next mem addr value io ioarg halt PC SRC' CNT' DST']
+  442 0 0 0 0 0 0 0 0 0 437 0 0 0 0 0 0 1
+  -1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 1 0 0 0 0 0 0 1 -1 0 0 0 0 0
+  3 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  -1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 1 0 0 0 0 0 0 0 0 1 -1 0 0 0
+  -3 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0
+  0 0 0 1 0 0 1 0 0 0 0 0 0 0 0 -1 0 0
+  0 4 2 67108864 0 0 0 1 3 0 0
+slice 44 0 8                      # v45 words 0..7
+slice 0 9 50                      # v46 words 8..48
+slice 44 8 11                     # v47 words 49..51
+slice 0 53 65                     # v48 words 52..63
+concat 45 46
+concat 49 47
+concat 50 48
+concat 51 17                      # payload c0
+concat 52 15                      # c1
+concat 53 7                       # c2

@@ -1,0 +1,21 @@
+# vba/vi_halt (id 423): block write [DOUT - 0x39C000, MOUT - 0x39E000, ERR] at VGLOB 0x380000
+# (DEBUG_LEN, MSG_LEN, ERRNUM) and halt. Note: weights/vba/interp.md
+input 65
+slice 0 45 48                     # v1 [DOUT, MOUT, ERR]
+dense 1 7 3                       # v2 fields
+  0 0 0
+  0 0 0
+  0 0 0
+  0 0 0
+  0 0 0
+  0 0 0
+  0 0 0
+  423 3 3670016 67108867 0 0 1
+slice 0 8 65                      # v3 words 7..63
+dense 1 3 3                       # v4 payload
+  1 0 0
+  0 1 0
+  0 0 1
+  -3784704 -3792896 0
+concat 2 3                        # v5 64 words
+concat 5 4                        # v6 67 words

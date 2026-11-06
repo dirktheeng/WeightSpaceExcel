@@ -1,0 +1,23 @@
+# vba/vi_obj (id 446): object model hook (encodings/vba.md section 8). Groundwork: ERR += 438
+# -> vi_halt. To be replaced by the object model stage. Note: weights/vba/interp.md
+input 65
+slice 0 47 48                     # v1 [ERR]
+dense 1 8 1                       # v2 fields 0..7
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  423 0 0 0 0 0 0 0
+dense 1 1 1                       # v3 ERR'
+  1
+  438
+slice 0 8 47                      # v4 words 7..45
+slice 0 48 65                     # v5 words 47..63
+slice 2 0 7                       # v6 words 0..6
+concat 6 4
+concat 7 3
+concat 8 5

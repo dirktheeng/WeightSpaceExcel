@@ -1,0 +1,44 @@
+# vba/vl_start (id 399): lexer entry. I = 0, TP = TOK 0x388000, VHT = 0x399001, NT = 0,
+# PREVK = 1, NPROC = 0, CONT = 0, RS = vl_idle; block read 1 at SRC + 1 (first char) -> vl_idle.
+# CHAIN (38) comes from the caller. Note: weights/vba/lexer.md
+input 65
+slice 0 0 1                       # v1 x0 (zero weights)
+dense 1 7 1                       # v2 fields
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  384 4 3670273 67108865 0 0 0
+slice 0 8 41                      # v3 words 7..39
+dense 1 1 1                       # v4 [I]
+  0
+  0
+slice 0 42 43                     # v5 word 41
+dense 1 5 1                       # v6 [TP, VHT, NT, PREVK, NPROC]
+  0
+  0
+  0
+  0
+  0
+  3702784 3772417 0 1 0
+slice 0 48 50                     # v7 words 47, 48
+dense 1 1 1                       # v8 [CONT]
+  0
+  0
+slice 0 51 56                     # v9 words 50..54
+dense 1 1 1                       # v10 [RS]
+  0
+  384
+slice 0 57 65                     # v11 words 56..63
+concat 2 3
+concat 12 4
+concat 13 5
+concat 14 6
+concat 15 7
+concat 16 8
+concat 17 9
+concat 18 10
+concat 19 11

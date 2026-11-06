@@ -1,0 +1,87 @@
+# vba/vl_word (id 386): identifier body. Word char (digit, letter, '_'): v = 27..36, 1..26, 37;
+# KEY = 64 (KEY mod 2^42) + v (last 8 chars, exact), KLEN += 1, read char I + 1 -> self.
+# Otherwise re-read char I -> vl_kw (387). Note: weights/vba/lexer.md
+input 66
+slice 0 65 66                     # v1 [c]
+slice 0 52 53                     # v2 [KEY]
+concat 1 2                        # v3 [c, KEY]
+dense 3 10 2                      # v4 thresholds on c (8), [KEY 2^-42 + C, KEY 2^-42]
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  0 2.27373675443232059478759765625e-13
+  0 2.27373675443232059478759765625e-13
+  -47.5 -57.5 -64.5 -90.5 -94.5 -95.5 -96.5 -122.5 6755399441055744 0
+slice 4 0 8                       # v5 thresholds
+step 5                            # v6 t48 t58 t65 t91 t95 t96 t97 t123
+slice 4 8 10                      # v7 [y + C, y]
+dense 7 2 2                       # v8 [r, y]
+  1 0
+  0 1
+  -6755399441055744 0
+dense 8 1 2                       # v9 r - y
+  1 -1
+  0
+step 9                            # v10 [s]
+concat 8 10                       # v11 [r, y, s]
+dense 6 5 8                       # v12 [dig, up, us, low, isW]
+  1 -1 0 0 0 0 0 0
+  0 0 1 -1 0 0 0 0
+  0 0 0 0 1 -1 0 0
+  0 0 0 0 0 0 1 -1
+  1 -1 1 -1 1 -1 1 -1
+  0 0 0 0 0
+concat 12 3                       # v13 [dig, up, us, low, isW, c, KEY]
+concat 13 11                      # v14 (10): ... r 7, y 8, s 9
+dense 14 1 10                     # v15 cw pre
+  0 0 0 0 131072 1 0 0 0 0
+  -131072
+relu 15                           # v16 [cw]
+concat 14 16                      # v17 (11): 10 cw
+dense 17 1 11                     # v18 [km = KEY - 2^42 (r - s)], exact (< 2^42)
+  0 0 0 0 0 0 1 -4398046511104 0 4398046511104 0
+  0
+concat 17 18                      # v19 (12): 11 km
+dense 19 2 12                     # v20 [isW, newKEY - KEY = 64 km + v - KEY]
+  0 0 0 0 1 0 0 0 0 0 0 0
+  -21 -64 -58 -96 0 0 -1 0 0 0 1 64
+  0 0
+mul 20 0 1 1 2                    # v21 [isW (newKEY - KEY)]
+slice 0 41 42                     # v22 [I]
+slice 0 54 55                     # v23 [KLEN]
+concat 17 22                      # v24 (12): 11 I
+concat 24 23                      # v25 (13): 12 KLEN
+concat 25 21                      # v26 (14): 13 dK
+dense 26 11 14                    # v27 [next mem addr value io ioarg halt PC I' KEY' KLEN']
+  0 0 0 0 -1 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 1 0 0 0 0 0 0 1 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 1 0 0 0 0 0 0 1 0 0
+  0 0 0 0 0 0 1 0 0 0 0 0 0 1
+  0 0 0 0 1 0 0 0 0 0 0 0 1 0
+  387 4 3670273 67108865 0 0 0 0 0 0 0
+slice 27 0 8                      # v28 words 0..7
+slice 0 9 41                      # v29 words 8..39
+slice 27 8 9                      # v30 word 40
+slice 0 42 52                     # v31 words 41..50
+slice 27 9 10                     # v32 word 51 KEY
+slice 0 53 54                     # v33 word 52
+slice 27 10 11                    # v34 word 53 KLEN
+slice 0 55 65                     # v35 words 54..63
+concat 28 29
+concat 36 30
+concat 37 31
+concat 38 32
+concat 39 33
+concat 40 34
+concat 41 35

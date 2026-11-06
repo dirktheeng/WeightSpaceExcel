@@ -1,0 +1,38 @@
+# vba/vi_call (id 428): block consumer of the PROCT record [key, entry, ns, np] (65..68).
+# FPn = SP - 2 (np + 1); block write the link [IP + 2, FP] at FPn - 2; FP = FPn, IP = entry,
+# SP = FPn + 2 ns; zero range ZP (49) = old SP to ZE (50) = new SP -> vi_zero (435). Output 66.
+# Note: weights/vba/interp.md
+input 69
+slice 0 65 69                     # v1 [key, entry, ns, np]
+slice 0 41 44                     # v2 [IP, SP, FP]
+concat 1 2                        # v3 [key, entry, ns, np, IP, SP, FP]
+dense 3 15 7                      # v4 [next mem addr value io ioarg halt PC IP' SP' FP' ZP ZE pay0 pay1]
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 -2 0 1 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  0 1 0 0 0 0 0
+  0 0 2 -2 0 1 0
+  0 0 0 -2 0 1 0
+  0 0 0 0 0 1 0
+  0 0 2 -2 0 1 0
+  0 0 0 0 1 0 0
+  0 0 0 0 0 0 1
+  435 3 -4 67108866 0 0 0 0 0 -2 -2 0 -2 2 0
+slice 4 0 8                       # v5 words 0..7
+slice 0 9 41                      # v6 words 8..39
+slice 4 8 11                      # v7 words 40..42
+slice 0 44 50                     # v8 words 43..48
+slice 4 11 13                     # v9 words 49, 50
+slice 0 52 65                     # v10 words 51..63
+slice 4 13 15                     # v11 payload
+concat 5 6
+concat 12 7
+concat 13 8
+concat 14 9
+concat 15 10
+concat 16 11

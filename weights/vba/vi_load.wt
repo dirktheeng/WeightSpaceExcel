@@ -1,0 +1,25 @@
+# vba/vi_load (id 424): block consumer of a slot value (inputs 65, 66, read by vi_disp at
+# FP + 2 ARG). Block write it at SP, SP += 2, IP += 2 -> vi_fetch. Output 66. Note: interp.md
+input 67
+slice 0 41 43                     # v1 [IP, SP]
+dense 1 10 2                      # v2 [next, mem_op, addr, value, io, io_arg, halt, PC, IP', SP']
+  0 0
+  0 0
+  0 1
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  1 0
+  0 1
+  421 3 0 67108866 0 0 0 0 2 2
+slice 2 0 8                       # v3 words 0..7
+slice 0 9 41                      # v4 words 8..39
+slice 2 8 10                      # v5 words 40, 41
+slice 0 43 65                     # v6 words 42..63
+slice 0 65 67                     # v7 payload
+concat 3 4
+concat 8 5
+concat 9 6
+concat 10 7
