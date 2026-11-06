@@ -23,3 +23,128 @@
 - Forward passes via tests/output/test_smoke.py: (2, 3) wrote 5 to address 0 in exactly one step and halted; (-1.25, 0.5) wrote -0.75, address 1 untouched. Both passed.
 - Froze the harness: harness/FROZEN.sha256 holds the SHA-256 over harness/ files (relative path plus contents, sorted, excluding FROZEN.sha256 and __pycache__). Full suite: 7 passed.
 - Next: Stage 0 remaining deliverables (itemized parity checklist) and a manual harness audit against docs/HARNESS.md.
+
+## 2026-11-06, Stage 1: shared encodings design
+
+- Goal: define the latent encodings and memory map every later weight block will use (encodings/value.md, address.md, memory-map.md, control.md, primitives.md, glyph.md). Design only; no application weights.
+- Read the harness closely first, because it fixes several constraints that drive every choice below: (1) next input = [read result] + previous output, so input length must equal 1 + previous output length; (2) exactly one memory operation per step, and a read result only arrives in the next step's input word 0; (3) fields 0 to 6 are rounded, everything else is a raw float64; (4) memory is 0x400000 words with the designated regions taking 0x100000 to 0x301040, leaving about 2.09 million words for networks; (5) on io 7 a network id at or beyond the current count is appended at the end, not placed at the requested id; (6) numpy indexing accepts negative addresses and wraps.
+- Proof of concept: wrote weights/poc/round_floor.wt and weights/poc/round_floor.md by hand to validate the ROUND trick (D5) before building FLOOR, MOD and hashing on it. Ad hoc forward passes (not committed): 2.5 gave floor 2 round 2; 3.5 gave 3 and 4; -2.5 gave -3 and -2; -0.0001 gave -1 and 0; 0.49999999999999994 gave 0 and 0; 2^51 - 0.5 gave 2^51 - 1 and 2^51. All as derived, so numpy's dense evaluation does give plain IEEE rounding for one-term-plus-bias rows.
+- Next: weights/lib reference blocks (IS_K, ONEHOT, FLOOR, MUX, DIVMOD_K) with notes, then BOOT, TRAP, RET, and the cell lookup network; settle the open questions listed at the end of this entry.
+
+### D1 (DECISION): one state width S = 64 for all application networks
+- Decided: every application network outputs 64 words and takes 65.
+- Alternatives: per-subsystem widths (smaller networks, but any return to a different caller would break the harness length rule unless every boundary had an adapter network costing a step); S = 32 (too few words once control, three value registers, a range address and pointers are placed); S = 128 (no planned subsystem needs it).
+- Why: returns can go to any caller, so one width is the only safe choice; slice and concat make pass-through free in parameters.
+- Affects: every network file (input 65), the register map (D10), generator templates (D16).
+
+### D2 (DECISION): values are two words (TAG, PAY) with a scalar tag
+- Decided: TAG is a small integer (0 blank, 1 number, 2 text, 3 boolean, 4 error, 5 reference, 6 array, 7 lambda, 8 missing argument, 16 to 63 VBA); PAY is the double, handle, flag, error code or pointer. Error codes follow ERROR.TYPE numbering.
+- Alternatives: one-hot tag (9+ words per value; 9 reads to load a type); one word with NaN boxing (rejected: NaN poisons every row of the next dense layer, since 0 * NaN = NaN); type folded into PAY by value ranges (impossible, numbers use the full double range).
+- Why: one read per word is the scarcest resource; indicators are cheap to derive in-pass with ONEHOT. Blank = 0 means unwritten memory is already blank.
+- Affects: cell records, operand stack, arrays, VBA variants, every operator and function network.
+
+### D3 (DECISION): numeric precision plan
+- Decided: PAY holds the exact IEEE double Excel would hold. Entry keeps 15 significant digits by truncation into an exact integer mantissa, converted with one correctly rounded multiply or divide by an exact power of ten when |E| <= 22; two-stage scaling otherwise. Arithmetic uses IEEE-faithful blocks (D13, D15). Excel's final-operation cancellation snap is a separate CANCEL_SNAP block with threshold to be pinned by tests. Display uses exponent search, scaling, ROUND and DIGITS.
+- Alternatives: decimal (BCD-like) arithmetic in integer words (would not match Excel, which is binary double); fixed point (range far too small).
+- Why: matching Excel bit for bit is only possible with the same binary doubles; the harness gives exactly that.
+- Affects: lexer, formatter, all arithmetic, comparison tests.
+
+### D4 (DECISION): cell store is an open-addressing hash table
+- Decided: 2^16 slots of 8 words at 0x010000; hash t = 40503 ROW + 65599 COL + 1000003 SHEET + 7919 NS, slot = t mod 2^16 via FLOOR; linear probing; tombstones -1; key word holds packed K + 1.
+- Alternatives: dense grid (2^34 cells per sheet, impossible in 4M words); page table of tiles (directory alone needs millions of words for the full grid); sorted list with binary search (about 16 reads per lookup and costly inserts); linked lists per column (a column scan per lookup).
+- Why: about 3 steps per hit, memory only for used cells, all arithmetic exact (V2).
+- Affects: every cell read and write, range scans (need the occupancy list), capacity (about 45,000 cells at 70 percent load, open question Q-M1).
+
+### D5 (DECISION): ROUND by the 1.5 * 2^52 magic constant
+- Decided: round(x) = (x + C) - C in two separate dense layers, C = 6755399441055744; FLOOR, MOD2K, DIVMOD_K and UNPACK build on it.
+- Alternatives: step banks (one unit per possible integer value; useless for 20-bit fields); repeated subtraction across steps (one step per unit).
+- Why: two layers, exact, validated by weights/poc/round_floor.wt.
+- Affects: hashing, key and token unpacking, digit extraction, character unpacking, the return trampoline.
+
+### D6 (DECISION): unpacked register form, packed storage form for addresses
+- Decided: registers hold (SHEET, ROW, COL) or a 6-word range; storage and comparison use K = NS 2^50 + SHEET 2^34 + ROW 2^14 + COL.
+- Alternatives: packed everywhere (every hash or offset needs an unpack); unpacked in memory (3 reads to compare a key).
+- Why: packing is one dense row, unpacking costs FLOOR blocks; each form is used where it is cheap.
+- Affects: address registers 19 to 24, dependency nodes, cell keys.
+
+### D7 (DECISION): relative references in compiled tokens
+- Decided: reference operand = FLAGS 2^36 + RF 2^15 + CF, relative fields biased by 2^20 and 2^14; tokens are 2 words [OPC, OPND].
+- Alternatives: absolute addresses in tokens (copying a formula needs recompilation); 1-word tokens (no room for double literals).
+- Why: copied and filled formulas share compiled streams, as in Excel's internal R1C1 form.
+- Affects: lexer and parser output, evaluator, insert and delete reference adjustment (stage 7).
+
+### D8 (DECISION): fixed memory regions
+- Decided: the region table in encodings/memory-map.md, zero page globals at 0x000000, network data in the two free spans, a guard after the entropy block.
+- Alternatives: one general allocator for all records (a large shared network on every path).
+- Why: each subsystem computes addresses with one dense row from its own bump pointer or free list.
+- Affects: all networks; region growth later needs new decision records.
+
+### D9 (DECISION): text as packed UTF-16, three units per word
+- Decided: string record = [length, reference count, packed words]; word = c0 + c1 2^16 + c2 2^32.
+- Alternatives: one unit per word (3 times the reads and memory); 6 bytes per word (cannot hold UTF-16).
+- Why: triples characters per read; unpacking is in-pass.
+- Affects: lexer, string functions, rendering, file encoders and decoders.
+
+### D10 (DECISION): register map
+- Decided: words 7 PC, 8 LR, 9 LP, 10 RSP, 11 MODE, 12 STATUS, 13 to 18 value registers A, B, C, 19 to 24 address register, 25 to 28 pointers and counters, 29 to 39 temporaries, 40 to 63 callee-saved locals.
+- Alternatives: no fixed map (each network pair negotiates; unmanageable across hundreds of networks).
+- Why: a fixed map lets any subroutine be called from anywhere, and gives each word one owner at a time.
+- Affects: every network note (clobber sets), crosstalk tests.
+
+### D11 (DECISION): calling convention with link registers and a memory return stack
+- Decided: call sets next, PC, LR, LP; nested callers push LINK = LR 2^16 + LP in the call step's free memory slot; return copies LR and LP into next and PC; RET (id 2) pops and returns for stack-based returns.
+- Alternatives: stack only (extra read step on every return); registers only (no nesting); one network per subsystem with internal PC only (networks would become huge).
+- Why: zero-overhead leaf calls, which dominate.
+- Affects: every multi-network subsystem.
+
+### D12 (DECISION): network id plan and allocation
+- Decided: a 512-entry hand-written manifest (unused ids filled with TRAP); fixed id ranges per subsystem; generated ids from 512 handed out sequentially by an allocator keeping NET_NEXT equal to the loaded count.
+- Alternatives: generated ids requested at arbitrary numbers (the harness would silently append them at a different index).
+- Why: the harness append rule requires sequential allocation; fixed ranges make DISPATCH tables stable.
+- Affects: weights/MANIFEST.md (to be written), FUNC_TABLE, glyph page dispatch, generators.
+
+### D13 (DECISION): IEEE-faithful dense row rules R1 to R6
+- Decided: real arithmetic uses only one-term rows, two unit-weight-term rows, one-term-plus-bias rows and mul layers; multi-term rows only for exact integers.
+- Alternatives: trust dense rows with many real terms (summation order and fused multiply add are unspecified in numpy and BLAS, so results could differ from Excel by an ulp unpredictably).
+- Why: makes every arithmetic result well defined and equal to Excel's.
+- Affects: every arithmetic block and its note.
+
+### D14 (DECISION): select by mul gating for doubles, relu big-M only for bounded integers
+- Decided: MUX via mul layer for any value; MUX_INT via relu with M = 2^23 only for integers below 2^22.
+- Alternatives: big-M everywhere (rounds or overflows for large doubles); mul everywhere (fine, but a relu form is cheaper inside integer-only networks).
+- Why: exactness for doubles, cheaper integer selects.
+- Affects: phase dispatch, operator networks, address resolution.
+
+### D15 (DECISION): division by normalisation, Newton reciprocal and exact residual correction
+- Decided: NORM by a binary exponent cascade, 4 Newton steps from a linear initial guess, Dekker TwoProduct residual and one correction.
+- Alternatives: long division across steps (about 53 steps per divide); reciprocal ROM (enormous); Newton without correction (not correctly rounded; =6/3=2 could fail).
+- Why: one forward pass, close to or exactly correctly rounded (open question Q-P1).
+- Affects: / operator, MOD, QUOTIENT, every function that divides, decimal conversion.
+
+### D16 (DECISION): generator stamping by rules, not stored matrices
+- Decided: generators write one memory-form token per step, computing token values from ROMs of header tokens, parameter copies, and (row, col) rules for patterned matrices; generated networks rely on slice and concat for pass-through to stay small.
+- Alternatives: generators holding full copies of template matrices (large generators); no generation (hundreds of near-identical function networks typed by hand).
+- Why: keeps both generators and generated networks small and every value traceable.
+- Affects: function compiler (stage 3), formula specialiser (stage 1 or later), documentation of generated networks (Q-P2).
+
+### D17 (DECISION): framebuffer 1280 x 800, row-major, packed 0xRRGGBB words
+- Decided: as stated; incremental redraw by dirty rectangles.
+- Alternatives: full-region 1024 x 1024 (not a usual window shape); planar channels (3 writes per pixel).
+- Why: fits the region, one write per pixel.
+- Affects: all rendering, UI tests (window size must match, Q-G1).
+
+### D18 (DECISION): glyphs as hand-designed bitmap ROMs per (variant, 128-unit page)
+- Decided: one page network per font variant and page, rows as packed bit integers, dispatch by routing, ink-only pixel writes.
+- Alternatives: vector outlines rasterised by networks (far larger and slower); one ROM for all of Unicode (enormous ONEHOT front end).
+- Why: small per-page networks, cost only for pages used, and rendering steps proportional to ink.
+- Affects: stage 2 rendering, text layout (ADV ROM), zoom.
+
+### Open questions recorded by this entry
+- Q-M1 capacity: about 2.09M free words; the cell table holds about 45,000 cells. Large workbooks from file tests may not fit.
+- Q-M2 text heap reclamation (compaction) design.
+- Q-C2 network id reuse for run-time specialised networks.
+- Q-P1 is DIV correctly rounded in all cases without a fused multiply add; build a test set of hard quotients from Excel.
+- Q-P2 how to document generated networks that exist only in memory.
+- Excel's cancellation snap threshold, and whether = compares exactly; needs Excel-sourced cases.
+- Range scan strategy crossover (hash per cell versus occupancy list) and the 16-cell range dependency threshold.
+- Q-G1 window size; Q-G2 full-frame speed at one pixel per step; Q-G3 unsupported characters; Q-G4 input event word format; Q-G5 scaled glyph quality.
