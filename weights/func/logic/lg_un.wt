@@ -1,0 +1,262 @@
+# func/logic/lg_un (id 299): ABI entry (encodings/functions.md) for the one-argument Information
+# functions and NOT, NA, TRUE, FALSE, ISFORMULA. fid from T2 = 64 + fid (input 32), argument in B.
+# PC 0: tag 9 argument (cell reference) and not ISREF -> CELL_GET (16) with LR 299, LP 1.
+#       ISFORMULA of a non-reference -> FN_RET with #VALUE!. Otherwise -> lg_info (296) with A = B
+#       (tag 9 shown as 5 for ISREF), T0 = selector, LR = 257, LP = 0, so lg_info returns into FN_RET.
+# PC 1: after CELL_GET. ISFORMULA: found -> read slot FORMULA word (P0 + 3), PC 2; absent -> FALSE.
+#       Others -> lg_info with A = cell value.
+# PC 2: ISFORMULA result = (FORMULA word > 0) -> FN_RET. Note: lg_un.md
+input 65
+# v1 [T2]
+slice 0 32 33
+# v2 T2 - k + 0.5 at the 19 served values of 64 + fid
+dense 1 19 1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  -218.5 -228.5 -319.5 -320.5 -321.5 -322.5 -323.5 -324.5 -325.5 -326.5 -327.5 -328.5 -330.5 -331.5 -382.5 -383.5 -397.5 -544.5 -548.5
+# v3 G (T2 >= 219, 229, 320, 321, 322, 323, 324, 325, 326, 327, 328, 329, 331, 332, 383, 384, 398, 545, 549)
+step 2
+# v4 [sel, isref, f19]
+dense 3 3 19
+  12 6 -17 5 -1 9 5 -15 3 1 -6 13 -6 -6 7 6 -3 4 -6
+  0 0 0 0 0 0 0 0 0 0 0 0 1 -1 0 0 0 0 0
+  0 0 0 0 0 0 1 -1 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0
+# v5 [x0]
+slice 0 0 1
+# v6 [PC]
+slice 0 8 9
+# v7 [STATUS]
+slice 0 13 14
+# v8 [Bt, Bp]
+slice 0 16 18
+# v9
+concat 5 6
+# v10
+concat 9 7
+# v11 [x0, PC, ST, Bt, Bp]
+concat 10 8
+# v12 PC >= 1, 2, 3; STATUS > 0; Bt >= 9; Bt >= 10; x0 > 0
+dense 11 7 5
+  0 1 0 0 0
+  0 1 0 0 0
+  0 1 0 0 0
+  0 0 1 0 0
+  0 0 0 1 0
+  0 0 0 1 0
+  1 0 0 0 0
+  -0.5 -1.5 -2.5 -0.5 -8.5 -9.5 0
+# v13
+step 12
+# v14 [s0..s6, sel, isref, f19]
+concat 13 4
+# v15 [ph0, ph1, ph2, st0, d9, nz]
+dense 14 6 10
+  -1 0 0 0 0 0 0 0 0 0
+  1 -1 0 0 0 0 0 0 0 0
+  0 1 -1 0 0 0 0 0 0 0
+  0 0 0 -1 0 0 0 0 0 0
+  0 0 0 0 1 -1 0 0 0 0
+  0 0 0 0 0 0 1 0 0 0
+  1 0 0 1 0 0
+# v16 [ph0 ph1 ph2 st0 d9 nz sel isref f19]
+concat 15 4
+# v17 g0, g1, g3, g4 before step
+dense 16 4 9
+  1 0 0 0 1 0 0 -1 0
+  1 0 0 0 -1 0 0 0 1
+  0 1 0 1 0 0 0 0 1
+  0 1 0 -1 0 0 0 0 1
+  -1.5 -1.5 -2.5 -1.5
+# v18
+step 17
+# v19 [ph0 ph1 ph2 st0 d9 nz sel isref f19 g0 g1 g3 g4]
+concat 16 18
+# ---- unpack K = SHEET 2^34 + ROW 2^14 + COL from Bp
+# v20 [K]
+slice 0 17 18
+# v21
+dense 20 1 1
+  0.00006103515625
+  6755399441055744
+# v22 r1
+dense 21 1 1
+  1
+  -6755399441055744
+# v23 x1 = K 2^-14
+dense 20 1 1
+  0.00006103515625
+  0
+# v24
+concat 22 23
+# v25
+dense 24 1 2
+  1 -1
+  0
+# v26 c1
+step 25
+# v27
+concat 24 26
+# v28 q1 = FLOOR(K 2^-14)
+dense 27 1 3
+  1 0 -1
+  0
+# v29
+dense 28 1 1
+  0.00000095367431640625
+  6755399441055744
+# v30 r2
+dense 29 1 1
+  1
+  -6755399441055744
+# v31 x2 = q1 2^-20
+dense 28 1 1
+  0.00000095367431640625
+  0
+# v32
+concat 30 31
+# v33
+dense 32 1 2
+  1 -1
+  0
+# v34 c2
+step 33
+# v35
+concat 32 34
+# v36 SHEET
+dense 35 1 3
+  1 0 -1
+  0
+# v37
+concat 20 28
+# v38 [K, q1, SHEET]
+concat 37 36
+# v39 [SHEET, ROW, COL]
+dense 38 3 3
+  0 0 1
+  0 1 -1048576
+  1 -16384 0
+  0 0 0
+# ---- gated products
+# v40 [P0]
+slice 0 26 27
+# v41 [At, Ap]
+slice 0 14 16
+# v42
+concat 40 8
+# v43 [P0, Bt, Bp, At, Ap]
+concat 42 41
+# v44 + 13 features: P0 0 Bt 1 Bp 2 At 3 Ap 4 ph0 5 ph1 6 ph2 7 st0 8 d9 9 nz 10 sel 11 isref 12 f19 13 g0 14 g1 15 g3 16 g4 17
+concat 43 19
+# v45 + SH 18 ROW 19 COL 20
+concat 44 39
+# v46 12 gates then 12 values
+#  P0 Bt Bp At Ap ph0 ph1 ph2 st0 d9 nz sel isr f19 g0 g1 g3 g4 SH RW CL
+dense 45 24 21
+  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  0  0  0  0
+  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  0  0  0  0  0  0
+  0  0  0  0  0  1  0  0  0  0  0  0  0  0 -1 -1  0  0  0  0  0
+  0  0  0  0  0  0  1  0  0  0  0  0  0  0  0  0  0 -1  0  0  0
+  0  0  0  0  0  1  0  0  0  0  0  0  0  0  0 -1  0  0  0  0  0
+  0  0  0  0  0  0  1  0  0  0  0  0  0  0  0  0  0 -1  0  0  0
+  0  0  0  0  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0
+  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  0  0  0  0  0  0
+  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  0  0  0  0  0  0
+  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  0  0  0  0  0  0
+  0  0  0  0  0  1  0  0  0  0  0  0  0  0 -1 -1  0  0  0  0  0
+  0  0  0  0  0  0  1  0  0  0  0  0  0  0  0  0 -1 -1  0  0  0
+  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+  0  1  0  0  0  0  0  0  0 -4  0  0  0  0  0  0  0  0  0  0  0
+  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+  0  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+  0  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+  0  0  0  0  0  0  0  0  0  0  1  0  0  0  0  0  0  0  0  0  0
+  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  0  0
+  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1  0
+  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1
+  0  0  0  0  0  0  0  0  0  0  0  1  0  0  0  0  0  0  0  0  0
+  0  0  0  0  0  0  0  0  0  0  0  1  0  0  0  0  0  0  0  0  0
+  0 0 0 0 0 0 0 0 0 0 0 0  3 0 0 0 0 0 0 0 0 0 0 0
+# v47 p0..p11
+mul 46 0 12 12 24
+# v48 [ph0 ph1 ph2 st0 d9 nz sel isref f19 g0 g1 g3 g4 (0-12), p0..p11 (13-24)]
+concat 19 47
+# v49 [next, mem_op, addr, PC, LR, LP, At, Ap, AS, AR1, AC1, T0, T1]
+#  ph0 ph1 ph2 st0 d9 nz sel isr f19  g0  g1  g3  g4 | p0 p1 p2 p3 p4 p5 p6 p7 p8 p9 p10 p11
+dense 48 13 25
+  296 296 257 0 0 0 0 0 0  -280 -39  3 -39   0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0  0 0 1 0   0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0  0 0 0 0   1 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0  0 0 2 0   0 0 0 0 0 0 0 0 0 0 0 0
+  257 257 0 0 0 0 0 0 0  42 -257 -257 -257   0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0  1 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 3 0 0 0 0 0 0  0 4 0 3   0 1 1 1 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0  0 3 0 0   0 0 0 0 1 1 1 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0  0 0 0 0   0 0 0 0 0 0 0 1 0 0 0 0
+  0 0 0 0 0 0 0 0 0  0 0 0 0   0 0 0 0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 0 0 0 0  0 0 0 0   0 0 0 0 0 0 0 0 0 1 0 0
+  0 0 0 0 0 0 0 0 0  0 0 0 0   0 0 0 0 0 0 0 0 0 0 1 1
+  0 0 0 0 0 0 0 0 0  0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0
+# ---- output
+# v50 next, mem_op, addr
+slice 49 0 3
+# v51 value, io, io_arg, halt = 0
+dense 1 4 1
+  0
+  0
+  0
+  0
+  0 0 0 0
+# v52
+concat 50 51
+# v53 PC LR LP
+slice 49 3 6
+# v54
+concat 52 53
+# v55 words 10..12
+slice 0 11 14
+# v56
+concat 54 55
+# v57 A
+slice 49 6 8
+# v58
+concat 56 57
+# v59 words 15..18
+slice 0 16 20
+# v60
+concat 58 59
+# v61 AS AR1 AC1
+slice 49 8 11
+# v62
+concat 60 61
+# v63 words 22..28
+slice 0 23 30
+# v64
+concat 62 63
+# v65 T0 T1
+slice 49 11 13
+# v66
+concat 64 65
+# v67 words 31..63
+slice 0 32 65
+# v68
+concat 66 67

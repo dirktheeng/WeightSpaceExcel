@@ -1,0 +1,166 @@
+# func/logic/lg_sheet (id 303): SHEET (T2 = 480) and SHEETS (T2 = 481), ABI entry.
+# PC 0: SHEETS() reads SHEET_COUNT (0x0F) -> PC 1. SHEETS(reference) = 1. SHEET() = 1 (the
+#       evaluator is sheet 0 only). SHEET(tag 9 key) = FLOOR(K / 2^34) + 1. SHEET(tag 5 record)
+#       reads record word 0 (SHEET) -> PC 1 with T0 = 1. Error argument -> that error.
+#       Other argument: SHEET -> #N/A (sheet names not looked up), SHEETS -> #REF!.
+# PC 1: A = (1, read word + T0) -> FN_RET. Note: lg_sheet.md
+input 65
+# v1 [PC]
+slice 0 8 9
+# v2 [T2]
+slice 0 32 33
+# v3 [n]
+slice 0 28 29
+# v4 [Bt, Bp]
+slice 0 16 18
+# v5 [x0]
+slice 0 0 1
+# v6 [T0]
+slice 0 30 31
+# v7
+concat 1 2
+# v8
+concat 7 3
+# v9 [PC, T2, n, Bt, Bp]
+concat 8 4
+# v10 PC >= 1; T2 >= 481; n >= 1; Bt >= 4, 5, 6, 9, 10
+dense 9 8 5
+  1 0 0 0 0
+  0 1 0 0 0
+  0 0 1 0 0
+  0 0 0 1 0
+  0 0 0 1 0
+  0 0 0 1 0
+  0 0 0 1 0
+  0 0 0 1 0
+  -0.5 -480.5 -0.5 -3.5 -4.5 -5.5 -8.5 -9.5
+# v11
+step 10
+# v12 [ph0, ph1, fS, nz, t4, t5, t9]
+dense 11 7 8
+  -1 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0
+  0 -1 0 0 0 0 0 0
+  0 0 1 0 0 0 0 0
+  0 0 0 1 -1 0 0 0
+  0 0 0 0 1 -1 0 0
+  0 0 0 0 0 0 1 -1
+  1 0 1 0 0 0 0
+# v13 gates before step: c_cnt c_one1 c_one2 c_k c_rec c_e4 c_na c_ref
+#  ph0 ph1 fS nz t4 t5 t9
+dense 12 8 7
+  1 0 -1 -1 0 0 0
+  1 0 -1 1 0 1 1
+  1 0 1 -1 0 0 0
+  1 0 1 1 0 0 1
+  1 0 1 1 0 1 0
+  1 0 0 1 1 0 0
+  1 0 1 1 -1 -1 -1
+  1 0 -1 1 -1 -1 -1
+  -0.5 -2.5 -1.5 -3.5 -3.5 -2.5 -2.5 -1.5
+# v14
+step 13
+# ---- sheet of a packed key: FLOOR(K 2^-34)
+# v15 [K]
+slice 4 1 2
+# v16
+dense 15 1 1
+  0.0000000000582076609134674072265625
+  6755399441055744
+# v17 r
+dense 16 1 1
+  1
+  -6755399441055744
+# v18 x
+dense 15 1 1
+  0.0000000000582076609134674072265625
+  0
+# v19
+concat 17 18
+# v20
+dense 19 1 2
+  1 -1
+  0
+# v21
+step 20
+# v22
+concat 19 21
+# v23 FLOOR + 1
+dense 22 1 3
+  1 0 -1
+  1
+# v24 [fl + 1, Bp]
+concat 23 15
+# v25 [x0, T0]
+concat 5 6
+# v26
+concat 24 25
+# v27 values [fl + 1, Bp, Bp, x0 + T0]
+dense 26 4 4
+  1 0 0 0
+  0 1 0 0
+  0 1 0 0
+  0 0 1 1
+  0 0 0 0
+# v28 [c_cnt c_one1 c_one2 c_k c_rec c_e4 c_na c_ref, ph0 ph1 fS nz t4 t5 t9]
+concat 14 12
+# v29 gates [c_k, c_e4, c_rec, ph1]
+dense 28 4 15
+  0 0 0 1 0 0 0 0  0 0 0 0 0 0 0
+  0 0 0 0 0 1 0 0  0 0 0 0 0 0 0
+  0 0 0 0 1 0 0 0  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0  0 1 0 0 0 0 0
+  0 0 0 0
+# v30
+concat 29 27
+# v31 [pk, pe, pr, p1]
+mul 30 0 4 4 8
+# v32 + products (15..18)
+concat 28 31
+# v33 [next, mem_op, addr, PC, T0, At, Ap]
+#  cnt one1 one2 k rec e4 na ref | ph0 ph1 fS nz t4 t5 t9 | pk pe pr p1
+dense 32 7 19
+  303 257 257 257 303 257 257 257  0 257 0 0 0 0 0  0 0 0 0
+  1 0 0 0 1 0 0 0  0 0 0 0 0 0 0  0 0 0 0
+  15 0 0 0 0 0 0 0  0 0 0 0 0 0 0  0 0 1 0
+  1 0 0 0 1 0 0 0  0 0 0 0 0 0 0  0 0 0 0
+  0 0 0 0 1 0 0 0  0 0 0 0 0 0 0  0 0 0 0
+  0 1 1 1 0 4 4 4  0 1 0 0 0 0 0  0 0 0 0
+  0 1 1 0 0 0 7 4  0 0 0 0 0 0 0  1 1 0 1
+  0 0 0 0 0 0 0
+# ---- output
+# v34 next mem_op addr
+slice 33 0 3
+# v35 value io io_arg halt = 0
+dense 4 4 2
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0 0 0
+# v36
+concat 34 35
+# v37 PC
+slice 33 3 4
+# v38
+concat 36 37
+# v39 words 8..12
+slice 0 9 14
+# v40
+concat 38 39
+# v41 A
+slice 33 5 7
+# v42
+concat 40 41
+# v43 words 15..28
+slice 0 16 30
+# v44
+concat 42 43
+# v45 T0
+slice 33 4 5
+# v46
+concat 44 45
+# v47 words 30..63
+slice 0 31 65
+# v48
+concat 46 47

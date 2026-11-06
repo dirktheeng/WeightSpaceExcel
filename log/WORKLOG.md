@@ -502,3 +502,37 @@
 ### Requests for other owners
 - ABI owner: wrappers must not leave a read result above 2^23 in word 0 if any callee uses relu muxes on x0 (my cores are safe: covered by tests); worth stating in functions.md as a general rule.
 - Coordinator: checklist items with core-level tests passing (no formula-level test yet, so not "done" end to end): LEN, LENB (same core), CODE (ASCII and BMP; not the Windows-1252 reverse), UPPER, LOWER (Latin-1 only), EXACT, MID, LEFT, RIGHT (with wrappers), CHAR, UNICHAR, UNICODE (BMP), T.
+
+### FM2 (DECISION): reuse ev_pow2 by copying it with numbering-preserving edits
+- Decided: fm_pw1 copies ev_pow2 (eval agent) and changes five layers in place (v1, v2, v135, v137, v138) so a mode word forces LN = 1 exactly; EXP, LN, LOG10, POWER, SQRT and SQRTPI then share one LN/EXP pass, preceded by fm_pw0 for domain rules.
+- Alternatives: call ev_pow2 (not possible: it returns to ev_disp with TP += 2); EXP(x) as e^x through ev_pow2 (loses about |x| ulps); retype and renumber the EXP half (hundreds of SRC edits).
+- Why: no renumbering, no added rounding for EXP, one shared core for six functions.
+- Affects: if the eval agent fixes ev_pow2, fm_pw1 must be updated by hand the same way. Results within 2^-51 of an integer are snapped (POWER, EXP, LOG10, SQRT), see weights/func/math/fm_pow.md.
+- Id note: math agent holds 264..289; proposes 290..295 for the ABI agent's SUM networks (FT_INIT currently maps SUM, fid 441, to 264 = fm_unary, which must change).
+
+## 2026-11-06, Stage 3: logical and information functions (func-logic agent; details in log/func-logic-agent.md)
+
+### LG1 (DECISION): two leaf cores selected by T0, wrapped by ABI entries
+- Decided: lg_info (296) computes 18 unary functions in one pass and lg_fold (297) is an AND/OR/XOR accumulator; ABI entries lg_un (299), lg_arg (300) and lg_sheet (303) call them with LR = 257, LP = 0 so the leaf returns straight into FN_RET (no extra step).
+- Alternatives: one network per fid (16 ids are not enough for 30 functions); a generator (overkill for one family of one-pass functions).
+- Why: the unary functions share every feature (tag one-hot, payload tests), so one wide pass is cheaper than many networks.
+- Affects: FUNC_TABLE entries (listed in weights/func/logic/README.md, to be written by FT_INIT).
+
+### LG2 (DECISION): argument streamer with B written to memory
+- Decided: lg_arg writes B to [SP, SP + 1] at entry, so argument i is always at SP - 2 (n - i); each argument is fetched by one 2-word block read into a 67-input consumer (lg_cfold 301, lg_csel 302). References are dereferenced by CELL_GET and written back over their slot (T5 = 1 marks "came from a reference").
+- Alternatives: a block read of all n - 1 stored arguments (the consumer input length would vary with n); two single reads per argument (2 steps and twice the phases).
+- Why: one fixed consumer width serves any n; the written words are above the stack top and FN_RET drops them.
+- Affects: nothing outside weights/func/logic. Relies on functions.md sections 2 and 6 (SP, FN_RET dropping arguments).
+
+### LG3 (DECISION): IF family is selection among eagerly evaluated arguments
+- Decided: follows F4. Only arguments needed for the decision are inspected and dereferenced; the selected branch is returned as it is (a tag 9 reference stays a reference); unselected errors never propagate. IF without else gives FALSE, an omitted branch gives 0.
+- Affects: when OPC 12/13 lazy jumps are emitted, lg_csel's role logic stays valid; only the evaluator skips work.
+
+### LG4 (DECISION): lg_fold counters in T3, T4 (not N0, N1)
+- Decided: N0 = n is in the ABI preserve set and N1 is the streamer's argument index.
+
+### Open questions recorded by this entry
+- Q-LG1: Excel's ISEVEN / ISODD limit for very large numbers (here |x| > 2^50 gives #NUM!).
+- Q-LG2: TYPE of a multi-cell reference (16 here) and ISFORMULA of a non-reference (#VALUE! here).
+- Q-LG3: SWITCH text matching needs a case-insensitive string compare (handle equality only for now).
+- Result: 7 networks, 8260 dense parameters; tests/output/func_logic 217 pass.

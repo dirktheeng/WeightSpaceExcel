@@ -1,0 +1,185 @@
+# func/logic/lg_cfold (id 301): block consumer (67 inputs; argument N1 at inputs 65, 66) for
+# AND (T2 = 76), OR (412), XOR (578). Routes, in one step:
+#  N1 > n (all arguments seen): lg_fold (297) finish (T0 = 4 AND, 5 OR, 6 XOR), LR = 257, LP = 0,
+#    so lg_fold returns into FN_RET.
+#  argument is a cell reference (tag 9): CELL_GET (16), LR = 300, LP = 2 (lg_arg writes the value
+#    back and refetches it with T5 = 1).
+#  otherwise: lg_fold add (T0 = 2 direct, 3 if T5 = 1), A = argument, LR = 300, LP = 1, N1 + 1, T5 = 0.
+# Note: lg_cfold.md
+input 67
+# v1 [at, ap]
+slice 0 65 67
+# v2 [n, i]
+slice 0 28 30
+# v3 [T2]
+slice 0 32 33
+# v4 [T5]
+slice 0 35 36
+# v5
+concat 1 2
+# v6
+concat 5 3
+# v7 cols at 0, ap 1, n 2, i 3, T2 4, T5 5
+concat 6 4
+# v8 [i > n, at >= 9, at >= 10, T2 >= 412, T2 >= 578]
+dense 7 5 6
+  0 0 -1 1 0 0
+  1 0 0 0 0 0
+  1 0 0 0 0 0
+  0 0 0 0 1 0
+  0 0 0 0 1 0
+  -0.5 -8.5 -9.5 -411.5 -577.5
+# v9
+step 8
+# v10 cols end 0, s1 1, s2 2, gO 3, gX 4, at 5, ap 6, n 7, i 8, T2 9, T5 10
+concat 9 7
+# v11 gD, gAdd, eO, eX, aT
+dense 10 5 11
+  -1 1 -1 0 0 0 0 0 0 0 0
+  -1 -1 1 0 0 0 0 0 0 0 0
+  1 0 0 1 0 0 0 0 0 0 0
+  1 0 0 0 1 0 0 0 0 0 0
+  -1 -1 1 0 0 0 0 0 0 0 1
+  -0.5 0.5 -1.5 -1.5 -0.5
+# v12
+step 11
+# v13 + gD 11, gAdd 12, eO 13, eX 14, aT 15
+concat 10 12
+# ---- unpack K (block retyped from lg_un v20..v39)
+# v14 [K]
+slice 1 1 2
+# v15
+dense 14 1 1
+  0.00006103515625
+  6755399441055744
+# v16 r1
+dense 15 1 1
+  1
+  -6755399441055744
+# v17 x1
+dense 14 1 1
+  0.00006103515625
+  0
+# v18
+concat 16 17
+# v19
+dense 18 1 2
+  1 -1
+  0
+# v20
+step 19
+# v21
+concat 18 20
+# v22 q1
+dense 21 1 3
+  1 0 -1
+  0
+# v23
+dense 22 1 1
+  0.00000095367431640625
+  6755399441055744
+# v24 r2
+dense 23 1 1
+  1
+  -6755399441055744
+# v25 x2
+dense 22 1 1
+  0.00000095367431640625
+  0
+# v26
+concat 24 25
+# v27
+dense 26 1 2
+  1 -1
+  0
+# v28
+step 27
+# v29
+concat 26 28
+# v30 SHEET
+dense 29 1 3
+  1 0 -1
+  0
+# v31
+concat 14 22
+# v32
+concat 31 30
+# v33 [SHEET, ROW, COL]
+dense 32 3 3
+  0 0 1
+  0 1 -1048576
+  1 -16384 0
+  0 0 0
+# v34 + SH 16, ROW 17, COL 18
+concat 13 33
+# v35 [next, PC, LR, LP, T0, N1, T5]
+#  end s1 s2 gO gX at ap n i T2 T5 gD gAdd eO eX aT SH RW CL
+dense 34 7 19
+  297 0 0 0 0 0 0 0 0 0 0  16 297 0 0 0  0 0 0
+  0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0  0 0 0
+  257 0 0 0 0 0 0 0 0 0 0  300 300 0 0 0  0 0 0
+  0 0 0 0 0 0 0 0 0 0 0  2 1 0 0 0  0 0 0
+  4 0 0 0 0 0 0 0 0 0 0  0 2 1 1 1  0 0 0
+  0 0 0 0 0 0 0 0 1 0 0  0 1 0 0 0  0 0 0
+  0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0  0 0 0
+  0 0 0 0 0 0 0
+# ---- output
+# v36 next
+slice 35 0 1
+# v37 mem_op addr value io io_arg halt = 0
+dense 1 6 2
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0 0 0 0 0
+# v38
+concat 36 37
+# v39 PC LR LP
+slice 35 1 4
+# v40
+concat 38 39
+# v41 words 10..12
+slice 0 11 14
+# v42
+concat 40 41
+# v43 A = argument
+concat 42 1
+# v44 words 15..18
+slice 0 16 20
+# v45
+concat 43 44
+# v46 AS AR1 AC1
+concat 45 33
+# v47 words 22..27
+slice 0 23 29
+# v48
+concat 46 47
+# v49 N1
+slice 35 5 6
+# v50
+concat 48 49
+# v51 T0
+slice 35 4 5
+# v52
+concat 50 51
+# v53 T1 = 0
+dense 1 1 2
+  0 0
+  0
+# v54
+concat 52 53
+# v55 words 31..33
+slice 0 32 35
+# v56
+concat 54 55
+# v57 T5
+slice 35 6 7
+# v58
+concat 56 57
+# v59 words 35..63
+slice 0 36 65
+# v60
+concat 58 59
