@@ -1,0 +1,67 @@
+# vba/ps_next (id 411): Next. Top block [2, top, info, slot], hidden step slot h + 1 = 8 + 2 CD.
+# Emit LOAD slot, LOAD h + 1, +, STORE info, JMP top (10 words); the loop JZ at top + 8 is
+# patched to BCP + 10 by ps_patch (PA = top + 9); pop the block, CD - 1. Output 146.
+# Note: weights/vba/parser.md
+input 143
+slice 0 66 67                     # v1 [BCP]
+slice 0 81 82                     # v2 [CD]
+slice 0 118 130                   # v3 [C0..C11]
+concat 1 2
+concat 4 3                        # v5 [BCP, CD, C0..C11]
+dense 5 34 14                     # v6 [fields, BCP', NX, CD', C0'..C11', PA, PV, payload x10]
+  0 0  0 0 0 0  0 0 0 0  0 0 0 0
+  0 0  0 0 0 0  0 0 0 0  0 0 0 0
+  1 0  0 0 0 0  0 0 0 0  0 0 0 0
+  0 0  0 0 0 0  0 0 0 0  0 0 0 0
+  0 0  0 0 0 0  0 0 0 0  0 0 0 0
+  0 0  0 0 0 0  0 0 0 0  0 0 0 0
+  0 0  0 0 0 0  0 0 0 0  0 0 0 0
+  1 0  0 0 0 0  0 0 0 0  0 0 0 0
+  0 0  0 0 0 0  0 0 0 0  0 0 0 0
+  0 1  0 0 0 0  0 0 0 0  0 0 0 0
+  0 0  0 0 0 0  1 0 0 0  0 0 0 0
+  0 0  0 0 0 0  0 1 0 0  0 0 0 0
+  0 0  0 0 0 0  0 0 1 0  0 0 0 0
+  0 0  0 0 0 0  0 0 0 1  0 0 0 0
+  0 0  0 0 0 0  0 0 0 0  1 0 0 0
+  0 0  0 0 0 0  0 0 0 0  0 1 0 0
+  0 0  0 0 0 0  0 0 0 0  0 0 1 0
+  0 0  0 0 0 0  0 0 0 0  0 0 0 1
+  0 0  0 0 0 0  0 0 0 0  0 0 0 0
+  0 0  0 0 0 0  0 0 0 0  0 0 0 0
+  0 0  0 0 0 0  0 0 0 0  0 0 0 0
+  0 0  0 0 0 0  0 0 0 0  0 0 0 0
+  0 0  0 1 0 0  0 0 0 0  0 0 0 0
+  1 0  0 0 0 0  0 0 0 0  0 0 0 0
+  0 0  0 0 0 0  0 0 0 0  0 0 0 0
+  0 0  0 0 0 1  0 0 0 0  0 0 0 0
+  0 0  0 0 0 0  0 0 0 0  0 0 0 0
+  0 2  0 0 0 0  0 0 0 0  0 0 0 0
+  0 0  0 0 0 0  0 0 0 0  0 0 0 0
+  0 0  0 0 0 0  0 0 0 0  0 0 0 0
+  0 0  0 0 0 0  0 0 0 0  0 0 0 0
+  0 0  0 0 1 0  0 0 0 0  0 0 0 0
+  0 0  0 0 0 0  0 0 0 0  0 0 0 0
+  0 0  0 1 0 0  0 0 0 0  0 0 0 0
+  402 3 0 142606346 0 0 0 10 417 -1 0 0 0 0 0 0 0 0 0 0 0 0 9 10 4 0 4 8 16 0 5 0 1 0
+slice 6 0 7                       # v7 fields
+slice 0 8 66                      # v8 words 7..64
+slice 6 7 9                       # v9 words 65, 66
+slice 0 68 81                     # v10 words 67..79
+slice 6 9 10                      # v11 word 80
+slice 0 82 118                    # v12 words 81..116
+slice 6 10 22                     # v13 words 117..128
+slice 0 130 131                   # v14 word 129
+slice 6 22 24                     # v15 words 130, 131
+slice 0 133 137                   # v16 words 132..135
+slice 6 24 34                     # v17 payload
+concat 7 8
+concat 18 9
+concat 19 10
+concat 20 11
+concat 21 12
+concat 22 13
+concat 23 14
+concat 24 15
+concat 25 16
+concat 26 17

@@ -1,0 +1,55 @@
+# vba/ps_sid (id 408): identifier at statement start, after ps_sym. Another procedure (PF):
+# emit [PUSH E, PUSH E, CALL PI, POP] (8 words) -> ps_read, NX ps_skip. Else assignment:
+# TGT = SI (slot + 4096 vt; 0 for the Function's own name), skip the identifier and '='
+# (TP + 4), CTX 1, AO 1, EMP 1 -> ps_expr. Output 144. Note: weights/vba/parser.md
+input 143
+slice 0 65 67                     # v1 [TP, BCP]
+slice 0 73 78                     # v2 [CURF, SIX, SI, PF, PI]
+concat 1 2                        # v3 (7)
+dense 3 2 7                       # v4 [PF, BCP - TP - 4]
+  0 0 0 0 0 1 0
+  -1 1 0 0 0 0 0
+  0 -4
+mul 4 0 1 1 2                     # v5 [pq]
+concat 3 5                        # v6 [TP, BCP, CURF, SIX, SI, PF, PI, pq]
+dense 6 22 8                      # v7 [fields, TP', BCP', NX', CTX', AO', TGT', EMP', payload x8]
+  0 0 0 0 0 -7 0 0
+  0 0 0 0 0 -1 0 0
+  1 0 0 0 0 0 0 1
+  0 0 0 0 0 2 0 0
+  0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0
+  1 0 0 0 0 -4 0 0
+  0 1 0 0 0 8 0 0
+  0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0
+  0 0 0 0 1 0 0 0
+  0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0
+  409 4 4 142606342 0 0 0 4 0 405 1 1 0 1 64 0 64 0 7 0 6 0
+slice 7 0 7                       # v8 fields
+slice 0 8 65                      # v9 words 7..63
+slice 7 7 10                      # v10 words 64..66
+slice 0 68 70                     # v11 words 67, 68
+slice 7 10 13                     # v12 words 69..71
+slice 0 73 79                     # v13 words 72..77
+slice 7 13 14                     # v14 word 78
+slice 0 80 137                    # v15 words 79..135
+slice 7 14 22                     # v16 payload
+concat 8 9
+concat 17 10
+concat 18 11
+concat 19 12
+concat 20 13
+concat 21 14
+concat 22 15
+concat 23 16

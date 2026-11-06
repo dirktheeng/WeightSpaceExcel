@@ -1,0 +1,54 @@
+# func/lookup/lk_fin (id 363): block consumer (65 + 14 inputs). Restores words 22..27 and 40..47,
+# RSP -= 14, STATUS = 0 found / 1 not found, returns to (T4, T5). T3 = res (index, 0-based).
+# found = res >= 0 and (M < 11 or eqRes). Note: weights/func/lookup/core.md (lk_fin).
+input 79
+slice 0 27 28                     # v1 [M]
+slice 0 33 36                     # v2 [res T4 T5]
+slice 0 38 39                     # v3 [eqRes]
+slice 0 11 12                     # v4 [RSP]
+concat 1 2                        # v5
+concat 5 3                        # v6
+concat 6 4                        # v7 (6): 0 M 1 res 2 T4 3 T5 4 eqRes 5 RSP
+dense 7 2 6                       # v8 [res + 0.5, M - 10.5]
+  0 1 0 0 0 0
+  1 0 0 0 0 0
+  0.5 -10.5
+step 8                            # v9 [hasRes exReq]
+concat 7 9                        # v10 (8)
+dense 10 1 8                      # v11 found pre
+  0 0 0 0 1 0 1 -1
+  -0.5
+step 11                           # v12 [found]
+concat 10 12                      # v13 (9): 8 found
+dense 13 8 9                      # v14 [next=T4 0 0 0 0 0 0 PC=T5]
+  0 0 1 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  0 0 0 1 0 0 0 0 0
+  0 0 0 0 0 0 0 0
+slice 0 9 11                      # v15 words 8, 9
+dense 13 1 9                      # v16 RSP - 14
+  0 0 0 0 0 1 0 0 0
+  -14
+slice 0 12 13                     # v17 word 11
+dense 13 1 9                      # v18 STATUS = 1 - found
+  0 0 0 0 0 0 0 0 -1
+  1
+slice 0 14 23                     # v19 words 13..21
+slice 0 65 71                     # v20 restored words 22..27
+slice 0 29 41                     # v21 words 28..39
+slice 0 71 79                     # v22 restored words 40..47
+slice 0 49 65                     # v23 words 48..63
+concat 14 15                      # v24
+concat 24 16                      # v25
+concat 25 17                      # v26
+concat 26 18                      # v27
+concat 27 19                      # v28
+concat 28 20                      # v29
+concat 29 21                      # v30
+concat 30 22                      # v31
+concat 31 23                      # v32 output (64)

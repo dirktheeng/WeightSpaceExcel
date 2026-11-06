@@ -133,6 +133,8 @@ The program entry: the parser writes a 4-instruction prologue at BC + 0: PUSH Em
 
 ## 6. Parser structures
 
+**As built (2026-11-06, decision VB10).** The operator stack (depth 6), the block stack (3 entries of 4 words), the local symbol table (8 keys and infos) and the procedure keys (8) are parser registers, not memory: the parser state is 136 words (block ops with K = 136) and every state network sees 3 tokens of lookahead. OSTK, SYMT and CSTK memory below stay reserved. Every procedure frame has 15 slots: slot 0, locals 1..8, hidden For slots 9..14 (h = 9 + 2 depth). Register map, networks and limits: weights/vba/parser.md. The design text below is the original plan; where it differs, parser.md is authoritative.
+
 **Operator stack** (OSTK, 1 word per entry): E = op + 64 prec, op the opcode (or 10 for '(' marker, 7 for a call marker with the callee in a separate block stack entry), prec 0 for markers. The top is cached in a register. Shunting-yard: a binary operator with precedence p pops and emits every stacked operator with precedence >= p (all VBA binary operators are left associative); unary minus (op 40, prec 13) and Not (op 41, prec 6) are pushed without popping. Precedences: ^ 14, unary - 13, * / 12, \ 11, Mod 10, + - 9, & 8, comparisons = <> < <= > >= Like Is 7, Not 6, And 5, Or 4, Xor 3, Eqv 2, Imp 1 (VBA's order).
 
 **Block stack** (CSTK, 4 words per entry): [kind, a, b, c].

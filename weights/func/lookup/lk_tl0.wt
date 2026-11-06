@@ -1,0 +1,20 @@
+# func/lookup/lk_tl0 (id 365): text compare, length of A arrived. L3 = len(A) = x0; read len(Y) at L1 -> lk_tl1.
+# Note: weights/func/lookup/core.md (text ordering compare).
+input 65
+slice 0 0 1                       # v1 [x0]
+slice 0 42 43                     # v2 [L1]
+concat 1 2                        # v3 [x0 L1]
+dense 3 7 2                       # v4 [next mem addr value io io_arg halt]
+  0 0
+  0 0
+  0 1
+  0 0
+  0 0
+  0 0
+  0 0
+  366 1 0 0 0 0 0
+slice 0 8 44                      # v5 words 7..42
+slice 0 45 65                     # v6 words 44..63
+concat 4 5                        # v7
+concat 7 1                        # v8 word 43 = len(A)
+concat 8 6                        # v9 output (64)

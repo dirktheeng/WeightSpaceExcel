@@ -1,0 +1,31 @@
+# vba/ps_start (id 400): parser entry (from vl_done with CHAIN = 1, or a test). Keeps words
+# 7..63 (VHT 43, XHT 23, CHAIN 38); TP = TOK 0x388000, BCP = BC + 8, PC = -1, other parser
+# registers 0; block read PROCT 32 words (8 records), K = 136 -> ps_pk (401).
+# Note: weights/vba/parser.md
+input 65
+slice 0 0 1                       # v1 x0 (zero weights only)
+dense 1 7 1                       # v2 fields
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  401 4 3768320 142606368 0 0 0
+slice 0 8 65                      # v3 words 7..63
+dense 1 72 1                      # v4 words 64..135
+  0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0
+  3702784 3735560 0 -1 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0
+concat 2 3
+concat 5 4

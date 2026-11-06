@@ -1,0 +1,18 @@
+# func/lookup/lk_ent (id 375): FUNC_TABLE entry of every lookup and reference function (ABI, encodings/functions.md).
+# Block read of 10 words at SP - 2 (n - 1) (stored arguments 1..5, words past argument n - 1 are ignored later)
+# -> lk_args (376). Everything else passes. Note: weights/func/lookup/README.md.
+input 65
+slice 0 28 29                     # v1 [n]
+slice 0 54 55                     # v2 [SP]
+concat 1 2                        # v3 [n SP]
+dense 3 7 2                       # v4 [next mem addr value io io_arg halt]
+  0 0
+  0 0
+  -2 1
+  0 0
+  0 0
+  0 0
+  0 0
+  376 4 2 67108874 0 0 0
+slice 0 8 65                      # v5 words 7..63
+concat 4 5                        # v6 output (64)

@@ -1,0 +1,99 @@
+# func/lookup/lk_cmp (id 362): compare the probed cell value A with Y (Y = B at PC 0, C at PC 1).
+# Hand-written. Note: weights/func/lookup/core.md (lk_cmp). Register map: core.md section 2.
+# Number/boolean of the same class: c = sign(pA - pY). Different classes: c = sign(class A - class Y),
+# class = number 0, text 1, boolean 2, error 3, blank 4. s = same class and class in {number, text, boolean}.
+# Text of the same class: wildcard path (W = 1 and PC = 0) -> read len(A) -> lk_un2 (372),
+# otherwise ordering path -> read len(A) -> lk_tl0 (365). Else T6 = c, T9 = s -> lk_upd (364).
+input 65
+slice 0 8 9                       # v1 [PC]
+slice 0 14 20                     # v2 [tA pA tB pB tC pC]
+slice 0 37 38                     # v3 [W]
+concat 1 2                        # v4
+concat 4 3                        # v5 (8): 0 PC 1 tA 2 pA 3 tB 4 pB 5 tC 6 pC 7 W
+dense 5 8 8                       # v6 [q q 1-q 1-q tC pC tB pB]
+  1 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0
+  -1 0 0 0 0 0 0 0
+  -1 0 0 0 0 0 0 0
+  0 0 0 0 0 1 0 0
+  0 0 0 0 0 0 1 0
+  0 0 0 1 0 0 0 0
+  0 0 0 0 1 0 0 0
+  0 0 1 1 0 0 0 0
+mul 6 0 4 4 8                     # v7 [q tC, q pC, (1-q) tB, (1-q) pB]
+dense 7 2 4                       # v8 [tY pY] (one term of each sum is exactly 0)
+  1 0 1 0
+  0 1 0 1
+  0 0
+concat 5 8                        # v9 (10): 8 tY 9 pY
+dense 9 7 10                      # v10 pre-steps
+  0 0 1 0 0 0 0 0 0 -1
+  0 0 -1 0 0 0 0 0 0 1
+  0 1 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 1 0
+  0 1 0 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0 0
+  0 0 -0.5 -0.5 -1.5 -2.5 -3.5
+step 10                           # v11 [gt lt nzA nzY a2 a3 a4]
+concat 9 11                       # v12 (17): 10 gt 11 lt 12 nzA 13 nzY 14 a2 15 a3 16 a4
+dense 12 3 17                     # v13 [dcls - 0.5, -dcls - 0.5, inS pre]
+  0 1 0 0 0 0 0 0 -1 0  0 0 -5 5 0 0 0
+  0 -1 0 0 0 0 0 0 1 0  0 0 5 -5 0 0 0
+  0 0 0 0 0 0 0 0 0 0  0 0 1 0 0 0 -1
+  -0.5 -0.5 -0.5
+step 13                           # v14 [dp dm inS]
+concat 12 14                      # v15 (20): 17 dp 18 dm 19 inS
+dense 15 3 20                     # v16 [s, sNum, sTxt] pre
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0  -1 -1 1
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 -1 1 0  -1 -1 1
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 1 -1 0  -1 -1 1
+  -0.5 -0.5 -1.5
+step 16                           # v17 [s sNum sTxt]
+concat 15 17                      # v18 (23): 20 s 21 sNum 22 sTxt
+dense 18 3 23                     # v19 [ng nl wild] pre
+  0 0 0 0 0 0 0 0 0 0  1 0 0 0 0 0 0  0 0 0  0 1 0
+  0 0 0 0 0 0 0 0 0 0  0 1 0 0 0 0 0  0 0 0  0 1 0
+  -1 0 0 0 0 0 0 1 0 0  0 0 0 0 0 0 0  0 0 0  0 0 1
+  -1.5 -1.5 -1.5
+step 19                           # v20 [ng nl wild]
+concat 18 20                      # v21 (26): 23 ng 24 nl 25 wild
+dense 21 2 26                     # v22 [sTxt, pA]
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0  0 0 0  0 0 1  0 0 0
+  0 0 1 0 0 0 0 0 0 0  0 0 0 0 0 0 0  0 0 0  0 0 0  0 0 0
+  0 0
+mul 22 0 1 1 2                    # v23 [addr = sTxt pA]
+dense 21 2 26                     # v24 [next, mem_op]
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0  0 0 0  0 0 1  0 0 7
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0  0 0 0  0 0 1  0 0 0
+  364 0
+dense 21 4 26                     # v25 [value io io_arg halt] = 0
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0  0 0 0  0 0 0  0 0 0
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0  0 0 0  0 0 0  0 0 0
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0  0 0 0  0 0 0  0 0 0
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0  0 0 0  0 0 0  0 0 0
+  0 0 0 0
+dense 21 1 26                     # v26 [c = ng - nl + dp - dm]
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0  1 -1 0  0 0 0  1 -1 0
+  0
+dense 21 1 26                     # v27 [s]
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0  0 0 0  1 0 0  0 0 0
+  0
+dense 21 3 26                     # v28 [L0 = pA, L1 = pY, L2 = 0]
+  0 0 1 0 0 0 0 0 0 0  0 0 0 0 0 0 0  0 0 0  0 0 0  0 0 0
+  0 0 0 0 0 0 0 0 0 1  0 0 0 0 0 0 0  0 0 0  0 0 0  0 0 0
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0  0 0 0  0 0 0  0 0 0
+  0 0 0
+concat 24 23                      # v29 [next mem addr]
+concat 29 25                      # v30 words 0..6
+slice 0 8 36                      # v31 words 7..34
+concat 30 31                      # v32
+concat 32 26                      # v33 word 35 T6 = c
+slice 0 37 39                     # v34 words 36, 37
+concat 33 34                      # v35
+concat 35 27                      # v36 word 38 T9 = s
+slice 0 40 41                     # v37 word 39
+concat 36 37                      # v38
+concat 38 28                      # v39 words 40..42
+slice 0 44 65                     # v40 words 43..63
+concat 39 40                      # v41 output (64)

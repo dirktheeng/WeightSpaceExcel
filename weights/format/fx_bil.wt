@@ -1,0 +1,16 @@
+# format/fx_bil (id 227): built-in strings loop head: block read of the 3-word descriptor
+# [F, start, end] at DP (AC1) into fx_bi2 (228). Note: fx_general.md (built-in formats).
+input 65
+slice 0 22 23                     # v1 = [DP]
+dense 1 8 1                       # v2 = [next 228, block read, DP, 64 * 2^20 + 3, 0, 0, 0, PC 0]
+   0
+   0
+   1
+   0
+   0
+   0
+   0
+   0
+   228 4 0 67108867 0 0 0 0
+slice 0 9 65                      # v3 = words 8..63
+concat 2 3                        # v4

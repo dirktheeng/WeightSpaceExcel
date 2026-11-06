@@ -210,7 +210,7 @@ def test_heap_top_advances():
 def general(x, W=0, h=None):
     h = h or f.harness()
     h.mem[1] = h.mem[1] or HEAP0
-    h.run(199, f.regs(LR=f.HALT_OK), max_steps=5)
+    h.run(199, f.regs(LR=f.HALT_OK), max_steps=5000)
     out = h.run(192, f.regs(APAY=x, ATAG=1, BPAY=W, T10=196, P1=FMT_BUF, LR=f.HALT_OK), max_steps=5000)
     return f.get_str(h, int(f.reg(out, "APAY")))
 
@@ -380,3 +380,59 @@ def test_text_value_shown_as_is():
     f.put_str(h, 0x302300, "abc")
     s, c, a, h = fmt(0x302300, "0.00", tag=2, h=h)
     assert (s, a) == ("abc", 1)
+
+
+# ---- '@' text executor (fx_text 208) and numbers in a text section (fx_sec 218)
+TEXTS = [("", '@"|"', "|"), ("a", '@"|"@', "a|a"), ("abcd", '@"|"@', "abcd|abcd"),
+         ("abcdefg", '"<"@">"', "<abcdefg>"), ("hello world, longer", "@", "hello world, longer"),
+         ("abc", '0;-0;0;"[" @ "]"', "[ abc ]")]
+
+
+@pytest.mark.parametrize("s,code,text", TEXTS)
+def test_text_at(s, code, text):
+    h = f.harness()
+    f.put_str(h, 0x302300, s)
+    out, c, a, h = fmt(0x302300, code, tag=2, h=h)
+    assert (out, a) == (text, 1)
+
+
+@pytest.mark.parametrize("x,code,text", [(-5, "@", "-5"), (1234.5, "@", "1234.5"), (1 / 3, "@", "0.333333333")])
+def test_number_in_text_format_is_general(x, code, text):
+    h = f.harness()
+    h.mem[1] = HEAP0
+    h.run(199, f.regs(LR=f.HALT_OK), max_steps=5000)
+    out, c, a, h = fmt(x, code, h=h)
+    assert (out, a) == (text, 3)
+
+
+# ---- built-in format code strings (fx_init 199 -> fx_bi 226..229), Excel en-US ids
+BUILTIN = {1: "0", 2: "0.00", 3: "#,##0", 4: "#,##0.00", 5: '"$"#,##0_);\\("$"#,##0\\)',
+           8: '"$"#,##0.00_);[Red]\\("$"#,##0.00\\)', 9: "0%", 10: "0.00%", 11: "0.00E+00",
+           12: "# ?/?", 13: "# ??/??", 14: "m/d/yyyy", 15: "d-mmm-yy", 18: "h:mm AM/PM",
+           22: "m/d/yyyy h:mm", 37: "#,##0_);\\(#,##0\\)", 40: "#,##0.00_);[Red]\\(#,##0.00\\)",
+           41: '_(* #,##0_);_(* \\(#,##0\\);_(* "-"_);_(@_)',
+           44: '_("$"* #,##0.00_);_("$"* \\(#,##0.00\\);_("$"* "-"??_);_(@_)',
+           45: "mm:ss", 46: "[h]:mm:ss", 47: "mmss.0", 48: "##0.0E+0", 49: "@"}
+
+
+def booted():
+    h = f.harness()
+    h.mem[1] = HEAP0
+    out = h.run(199, f.regs(LR=f.HALT_OK, LP=0), max_steps=5000)
+    return h, out
+
+
+def test_builtin_strings():
+    h, out = booted()
+    for F, code in BUILTIN.items():
+        assert f.get_str(h, int(h.mem[FT + 4 * F])) == code, F
+    assert h.mem[FT + 4 * 23] == 0 and h.mem[FT + 4 * 36] == 0 and h.mem[FT] == 0
+
+
+@pytest.mark.parametrize("x,F,text", [(1234.567, 4, "1,234.57"), (-1234, 5, "($1,234)"), (0.256, 10, "25.60%"),
+                                      (12345, 11, "1.23E+04"), (-3, 38, "(3)"), (1234.5, 1, "1235"),
+                                      (0, 41, " - "), (0, 44, " $-   "), (1234, 41, " 1,234 ")])
+def test_builtin_ids(x, F, text):
+    h, _ = booted()
+    out = h.run(198, f.regs(ATAG=1, APAY=x, BTAG=F, BPAY=0, LR=f.HALT_OK), max_steps=20000)
+    assert f.get_str(h, int(f.reg(out, "APAY"))) == text

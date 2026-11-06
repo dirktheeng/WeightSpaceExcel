@@ -1,0 +1,57 @@
+# func/lookup/lk_pt2 (id 370): wildcard pattern loader loop head. Note: weights/func/lookup/core.md (wildcards).
+# PC 0: read len(pattern) at L0 -> self PC 1. PC 1: T10 = pl = x0. PC 1, 2: if 3 i >= pl -> lk_nx (361),
+# else read packed word i at L0 + 2 + i -> lk_pt1 (369). PC' = 1 + [PC >= 1]... (2 after PC 1 or 2, 1 after PC 0).
+input 65
+slice 0 0 1                       # v1 [x0]
+slice 0 8 9                       # v2 [PC]
+slice 0 40 42                     # v3 [T10 L0]
+slice 0 43 44                     # v4 [i]
+concat 1 2                        # v5
+concat 5 3                        # v6
+concat 6 4                        # v7 (5): 0 x0 1 PC 2 pl 3 hb 4 i
+dense 7 2 5                       # v8 [PC - 0.5, PC - 1.5]
+  0 1 0 0 0
+  0 1 0 0 0
+  -0.5 -1.5
+step 8                            # v9 [s1 s2]: p0 = 1 - s1, p1 = s1 - s2
+concat 7 9                        # v10 (7): 5 s1 6 s2
+dense 10 2 7                      # v11 MUX_INT(p1; x0 - pl), 1 - p1 = 1 - s1 + s2
+  1 0 -1 0 0 8388608 -8388608
+  -1 0 1 0 0 8388608 -8388608
+  -8388608 -8388608
+relu 11                           # v12 [ma mb]
+concat 10 12                      # v13 (9): 7 ma 8 mb; pl' = pl + ma - mb
+dense 13 1 9                      # v14 3 i >= pl'
+  0 0 -1 0 3 0 0 -1 1
+  0.5
+step 14                           # v15 [ge]
+concat 13 15                      # v16 (10): 9 ge
+dense 16 1 10                     # v17 done = ge and PC >= 1
+  0 0 0 0 0 1 0 0 0 1
+  -1.5
+step 17                           # v18 [done]
+concat 16 18                      # v19 (11): 10 done
+dense 19 2 11                     # v20 addr parts: hb if PC 0; hb + 2 + i if reading a word
+  0 0 0 1 0 -8388608 0 0 0 0 0
+  0 0 0 1 1 8388608 0 0 0 0 -8388608
+  0 -8388606
+relu 20                           # v21
+concat 19 21                      # v22 (13): 11, 12 addr parts
+dense 22 8 13                     # v23 [next mem addr value io io_arg halt PC]
+  0 0 0 0 0 -1 0 0 0 0 -8 0 0
+  0 0 0 0 0 0 0 0 0 0 -1 0 0
+  0 0 0 0 0 0 0 0 0 0 0 1 1
+  0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 1 0 0 0 0 0 0 0
+  370 1 0 0 0 0 0 1
+dense 22 1 13                     # v24 T10 = pl'
+  0 0 1 0 0 0 0 1 -1 0 0 0 0
+  0
+slice 0 9 40                      # v25 words 8..38
+slice 0 41 65                     # v26 words 40..63
+concat 23 25                      # v27
+concat 27 24                      # v28 word 39
+concat 28 26                      # v29 output (64)

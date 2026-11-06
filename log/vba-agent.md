@@ -35,3 +35,27 @@
 ## 2026-11-06, status at hand-off
 - Done: encodings/vba.md; lexer; interpreter core with frames, calls, For, Print, MsgBox, CStr, &.
 - Not done: parser (ids 400..419, design in encodings/vba.md section 6); vi_div (/ \ Mod), vi_scmp (string comparison), ^, Like, bitwise And/Or on general integers, On Error.
+
+## 2026-11-06, coordinator follow-up (parser, division, the rest of scope)
+- Coordinator fixed numconv's gate (2^20, decision C2) and asked for the parser, an LR-returning hand copy of the prim div block, and the remaining language features.
+- Not started in this session: the working context of this agent is nearly used up, and a half-typed network would leave a broken manifest. Hand-off plan for the next session, in order:
+  1. Parser ids 400..419 per encodings/vba.md section 6: ps_start (prologue PUSH E, PUSH E, CALL 0, END at BC), ps_tok (block read 2 of the next token, consumer pattern as the lexer), ps_stmt (dispatch on the first token K), ps_expr (shunting-yard, operator stack OSTK with cached top, precedence from token V, unary minus 40 / Not 41 pushed without popping), ps_sym (linear scan of SYMT, then PROCT; implicit Variant slot), ps_patch (jump chain walk), ps_blk (CSTK push/pop for If/For/Do/While/Select/Sub). Bytecode emission one block write of 2 words per instruction.
+  2. vi_div (434): retype weights/prim/div.wt block v1..v338 by hand with a new tail returning through vi_bin's result write; \ and Mod as ROUND of operands, quotient trunc, exact remainder correction (cite weights/prim/div.md, idivmod.md).
+  3. vi_scmp (433): length, then unit loop by block reads of 8; Option Compare Binary.
+  4. Then ^, Like, bitwise And/Or (bit extraction stages), On Error, ByRef, arrays, &H/&O and type suffixes.
+
+## 2026-11-06, parser (ids 400..419), session 3
+- Read the brief (with Updates), encodings/vba.md, weights/vba notes and this log. Plan item 1 (parser) done; items 2..4 not started (context budget).
+- Design change (VB10): all parser stacks and tables live in registers. Reason: a pop from a memory stack needs a read after the emit write (two memory ops), and a symbol scan in memory is a loop; in registers both are one mul layer. State width 136 (K = 136 in block ops; the harness allows K up to the output length), words 7..63 passed through so VHT, XHT, CHAIN reach vi_start. Every state network reads 3 tokens at TP (VB11), so known tokens (`=` after a target, `.Print`, `As T`) are skipped by TP arithmetic.
+- Equality of 2^48-scale keys by triangles relu(d+1) - 2 relu(d) + relu(d-1) on the exact difference (VB12); ANDs of 0/1 flags by relu(a + b - 1); gated values by mul layers.
+- Typed Dim emits PUSH Empty + STORE with the type, so vi_store's coercion makes the initial value (Empty -> 0, "" ) (VB13).
+- Order of work: ps_read, ps_start, ps_pk, ps_stmt, ps_skip, ps_fin (ran "Option Explicit" through to the interpreter first time), ps_sym, ps_expr, ps_xid, ps_xend, ps_sid, ps_dim, ps_for, ps_next, ps_else, ps_end, ps_pend, ps_endif, ps_patch, ps_dimc.
+- Bugs: ps_xid header said 17 rows for 18 typed (caught by the loader). ps_xend referenced layer 25 where the numbering had 24 (one concat fewer than planned): fixed by an identity spacer layer. ps_expr never set SN, so an identifier inside an expression returned to the statement network: added an SN = 418 row by hand (Edit tool). Debug script substitution table had wrong ids for 415..419 (script only).
+- Another agent's weights/func/text/tx_sl.wt failed to load for a while (in progress); my scratch debug runner substitutes unloadable files; the tests use the real manifest and passed.
+- Results: 6 end-to-end tests from VBA source (precedence, Dim types with ',' lists, For/Next with Step and Step -1, nested For and If, If/Else/End If, unary minus, Not, Function value via its own name, Sub calls by Call and bare name before definition, MsgBox with &, Integer overflow ERR 6, bare Debug.Print, trailing ';'). 55 tests pass in tests/output/vba/test_vba.py.
+
+## 2026-11-06, hand-off plan (next session)
+1. vi_div (434): unchanged plan (retype weights/prim/div.wt block, LR tail into vi_bin's result write; \ and Mod). The parser already emits 19, 20, 21 (they trap with ERR 5 today, e.g. `4 / 2 ^ 2`).
+2. vi_scmp (433) unchanged.
+3. Parser extensions, each a separate network routed by next: parameters and arguments (ps_sym marks parameters at Sub header; call marker on OSTK with argument count; ps_xend ',' at depth of a call), ElseIf / single-line If (ps_xend CTX 4 with K1 != EOS), Do/Loop/While/Wend (block kind 3, 4 already in the encoding), Exit For/Sub (chains in block word c), print zones for ','. Then the item-4 language features (^ at run time, Like, Is, bitwise And/Or, On Error, ByRef, arrays, &H/&O, type suffixes).
+4. Test hint: the lexer test helper and run_src are in tests/output/vba/vbabb.py; /tmp scratch runner is not kept.

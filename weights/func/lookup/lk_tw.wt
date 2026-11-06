@@ -1,0 +1,76 @@
+# func/lookup/lk_tw (id 367): text compare, packed word i of A arrived (x0).
+# w = x0 if 3 i < len(A) else 0; L5 = KEY(w); read word i of Y at L1 + 2 + i -> lk_tv (368).
+# KEY(w) = 2^32 f(c0) + 2^16 f(c1) + f(c2), c0..c2 the UTF-16 units of w (UNPACK3 by two FLOORs),
+# f folds A..Z to a..z. Note: weights/func/lookup/core.md (text ordering compare, KEY block).
+input 65
+slice 0 0 1                       # v1 [x0]
+slice 0 41 46                     # v2 [L0 L1 i la ly]
+concat 1 2                        # v3 (6): 0 x0 1 L0 2 L1 3 i 4 la 5 ly
+dense 3 1 6                       # v4 3 i < la
+  0 0 0 -3 1 0
+  -0.5
+step 4                            # v5 [valid]
+concat 5 1                        # v6 [valid x0]
+mul 6 0 1 1 2                     # v7 [w]
+# ---- KEY block (in: v7 = [w], 0 <= w < 2^48; out: v24 = [key])
+dense 7 2 1                       # v8 [w 2^-16 + C, w 2^-16]
+  0.0000152587890625
+  0.0000152587890625
+  6755399441055744 0
+dense 8 2 2                       # v9 [r1 x1]
+  1 0
+  0 1
+  -6755399441055744 0
+dense 9 1 2                       # v10 r1 - x1
+  1 -1
+  0
+step 10                           # v11 [g1]
+concat 9 11                       # v12 [r1 x1 g1], f1 = r1 - g1
+dense 12 2 3                      # v13 [f1 2^-16 + C, f1 2^-16]
+  0.0000152587890625 0 -0.0000152587890625
+  0.0000152587890625 0 -0.0000152587890625
+  6755399441055744 0
+dense 13 2 2                      # v14 [r2 x2]
+  1 0
+  0 1
+  -6755399441055744 0
+dense 14 1 2                      # v15 r2 - x2
+  1 -1
+  0
+step 15                           # v16 [g2], f2 = r2 - g2
+concat 7 12                       # v17 [w r1 x1 g1]
+concat 17 14                      # v18
+concat 18 16                      # v19 (7): 0 w 1 r1 2 x1 3 g1 4 r2 5 x2 6 g2
+dense 19 3 7                      # v20 [c0 c1 c2]
+  1 -65536 0 65536 0 0 0
+  0 1 0 -1 -65536 0 65536
+  0 0 0 0 1 0 -1
+  0 0 0
+dense 20 6 3                      # v21 fold thresholds
+  1 0 0
+  1 0 0
+  0 1 0
+  0 1 0
+  0 0 1
+  0 0 1
+  -64.5 -90.5 -64.5 -90.5 -64.5 -90.5
+step 21                           # v22 [a0 b0 a1 b1 a2 b2]
+concat 20 22                      # v23 (9)
+dense 23 1 9                      # v24 [key]
+  4294967296 65536 1 137438953472 -137438953472 2097152 -2097152 32 -32
+  0
+# ---- end KEY block
+dense 3 7 6                       # v25 [next mem addr value io io_arg halt]
+  0 0 0 0 0 0
+  0 0 0 0 0 0
+  0 0 1 1 0 0
+  0 0 0 0 0 0
+  0 0 0 0 0 0
+  0 0 0 0 0 0
+  0 0 0 0 0 0
+  368 1 2 0 0 0 0
+slice 0 8 46                      # v26 words 7..44
+slice 0 47 65                     # v27 words 46..63
+concat 25 26                      # v28
+concat 28 24                      # v29 word 45 = L5 = key of A's word
+concat 29 27                      # v30 output (64)

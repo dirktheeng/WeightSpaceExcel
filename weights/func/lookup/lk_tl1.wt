@@ -1,0 +1,44 @@
+# func/lookup/lk_tl1 (id 366): text compare, length of Y arrived. L4 = len(Y) = x0.
+# max(la, ly) = 0: equal, T6 = 0 -> lk_upd (364). Else read word 0 of A at L0 + 2 -> lk_tw (367).
+# Note: weights/func/lookup/core.md (text ordering compare).
+input 65
+slice 0 0 1                       # v1 [ly]
+slice 0 41 45                     # v2 [L0 L1 i la]
+concat 1 2                        # v3 (5): 0 ly 1 L0 2 L1 3 i 4 la
+dense 3 1 5                       # v4 ly - la
+  1 0 0 0 -1
+  0
+relu 4                            # v5 [dl]
+concat 3 5                        # v6 (6): 5 dl
+dense 6 1 6                       # v7 max - 0.5
+  0 0 0 0 1 1
+  -0.5
+step 7                            # v8 [nz]
+concat 6 8                        # v9 (7): 6 nz
+dense 9 1 7                       # v10 addr pre: L0 + 2 if nz (MUX_INT, M = 2^23)
+  0 1 0 0 0 0 8388608
+  -8388606
+relu 10                           # v11 [addr]
+dense 9 2 7                       # v12 [next = 364 + 3 nz, mem = nz]
+  0 0 0 0 0 0 3
+  0 0 0 0 0 0 1
+  364 0
+dense 9 5 7                       # v13 [value io io_arg halt] = 0, then T6 = 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0
+slice 13 0 4                      # v14 [value io io_arg halt]
+slice 13 4 5                      # v15 [T6 = 0]
+slice 0 8 36                      # v16 words 7..34
+slice 0 37 45                     # v17 words 36..43
+slice 0 46 65                     # v18 words 45..63
+concat 12 11                      # v19
+concat 19 14                      # v20 words 0..6
+concat 20 16                      # v21
+concat 21 15                      # v22 word 35
+concat 22 17                      # v23
+concat 23 1                       # v24 word 44 = len(Y)
+concat 24 18                      # v25 output (64)

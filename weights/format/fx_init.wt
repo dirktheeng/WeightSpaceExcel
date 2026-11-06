@@ -1,18 +1,18 @@
 # format/fx_init (id 199): one block write of the two General token records at 0xC900 (fixed:
-# '0', conditional point, 10 '#' fraction digits) and 0xC910 (the same, then E+00), then returns
-# to (LR, LP). Run once at boot. Token word = arg + 65536 code + 2^20 next code. Note: fx_general.md.
+# '0', conditional point, 10 '#' fraction digits) and 0xC910 (the same, then E+00), then goes
+# to fx_bi (226, built-in format strings), which returns to (LR, LP). Run once at boot. Token word = arg + 65536 code + 2^20 next code. Note: fx_general.md.
 input 65
 slice 0 9 11                      # v1 = [LR, LP]
-dense 1 8 2                       # v2 = [next LR, block write, 0xC900, 64 * 2^20 + 32, 0, 0, 0, PC LP]
-   1 0
+dense 1 8 2                       # v2 = [next fx_bi 226, block write, 0xC900, 64 * 2^20 + 32, 0, 0, 0, PC 0]
    0 0
    0 0
    0 0
    0 0
    0 0
    0 0
-   0 1
-   0 3 51456 67108896 0 0 0 0
+   0 0
+   0 0
+   226 3 51456 67108896 0 0 0 0
 slice 0 9 65                      # v3 = words 8..63
 concat 2 3                        # v4
 dense 1 32 2                      # v5 = payload (biases are the token words)

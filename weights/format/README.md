@@ -1,6 +1,6 @@
-# weights/format: number format engine (ids 192..225 used of 192..255)
+# weights/format: number format engine (ids 192..230 used of 192..255)
 
-Hand-written. Not generated. Log: log/format-agent.md; decisions F1..F6 in log/WORKLOG.md ("2026-11-06 Stage 3 to 4: number format engine"). Notes: fx_dec.md (192), fx_rnd.md (193), fx_emit.md (194, 200..209), fx_general.md (196, 197, 199), fx_fin.md (212..215), fc_compile.md (220..225); fx_main, fx_tab, fx_sel, fx_sec, fx_go are described here.
+Hand-written. Not generated. Log: log/format-agent.md; decisions F1..F6 in log/WORKLOG.md ("2026-11-06 Stage 3 to 4: number format engine"). Notes: fx_dec.md (192), fx_rnd.md (193), fx_emit.md (194, 200..209), fx_general.md (196, 197, 199), fx_fin.md (212..215), fc_compile.md (220..225), built-in strings in fx_general.md (226..230), stage runner tests/output/format/test_stage_formats.py; fx_main, fx_tab, fx_sel, fx_sec, fx_go are described here.
 
 ## Calling the engine (until encodings/functions.md exists)
 
@@ -47,26 +47,28 @@ AS s (sign), AR1 e, AC1 m then M (digit stream, next digit = floor(M / 1e14)), A
 | 198 | fx_main | entry (above): General, table read, or immediate return | 286 |
 | 216 | fx_tab | compiled? block read of the record header into fx_sel : read the code handle and compile | 59 |
 | 217 | fx_sel | block consumer: section choice (sign, zero, conditions, text), minus flag, block read of the section header into fx_sec | 2685 |
-| 218 | fx_sec | block consumer: loads k, nint, TH, scale, sci, nexp, NC0, color, alignment; number -> fx_dec, text -> fx_go | 287 |
+| 218 | fx_sec | block consumer: loads k, nint, TH, scale, sci, nexp, NC0, color, alignment; number -> fx_dec, text -> fx_go; a number in a text section ("@") -> General | 323 |
 | 219 | fx_go | writes '-' when T7, then fx_fetch | 29 |
 
 fx_sel: comparisons x < v and x > v are R2 sign tests (exact); x = v is their complement. Section rules are in the header comment of fx_sel.wt. All selections are MUX_INT on addresses (< 2^23).
 
 ## Totals and cost
 
-29 networks, 23,017 dense parameters (zeros included). Steps (harness steps, measured in tests): General 1/3 -> "0.333333333" 49, 123456789012 -> "1.23457E+11" 56, 42 -> 38; "#,##0.00" 1234567.891 -> "1,234,567.89" 72 including the one-time compile, 5 -> "5.00" 33 once compiled. Each displayed unit costs 2 steps (token read and write) plus about 1 step per unit to pack.
+35 networks, 26,145 dense parameters (zeros included). Steps (harness steps, measured in tests): General 1/3 -> "0.333333333" 49, 123456789012 -> "1.23457E+11" 56, 42 -> 38; "#,##0.00" 1234567.891 -> "1,234,567.89" 72 including the one-time compile, 5 -> "5.00" 33 once compiled. Each displayed unit costs 2 steps (token read and write) plus about 1 step per unit to pack.
 
 ## Limits (open items)
 
-- Dates and times (y m d h s AM/PM, [h] [m] [s]) are not interpreted: date letters are literals and the value is formatted as a number. Fractions (# ?/?) are not interpreted ('/' is a literal). '@' (TEXT token, code 8, executor id 208) is compiled but its executor is not written, so text sections with '@' fault (TRAP). Engineering exponents ("##0.0E+0") use X = e - nint + 1, not a multiple of nint.
+- Dates and times (y m d h s AM/PM, [h] [m] [s]) are not interpreted: date letters are literals and the value is formatted as a number. Fractions (# ?/?) are not interpreted ('/' is a literal). Engineering exponents ("##0.0E+0") use X = e - nint + 1, not a multiple of nint.
 - Brackets: colors, [ColorN] and conditions with integer values (negative allowed) are done; decimal points in condition values are ignored; [$-409] and other locale brackets are skipped, so a currency symbol inside [$...] is lost; [h] [m] [s] are ignored.
 - Conditional formats show the minus sign for every negative value (Excel's exact rule here is unverified).
 - General's width is in characters (W, max 11); Excel fits by pixels (open question). Values below 1e-304 display as 0.
-- Booleans and errors are returned unformatted (STATUS = 1).
+- Booleans and errors are returned unformatted (STATUS = 1, C.PAY = 2 centre), which is Excel's behaviour: no number format section applies to them (TEXT(TRUE, "0") is "TRUE").
 
 ## Changes needed elsewhere (not made: files not mine)
 
 1. encodings/memory-map.md section 2 and 7: FORMAT_STORE 0x8000..0xFFFF holds 2048 style records; this engine uses 0xC000..0xFFFF. Proposed: style records 0..1023 at 0x8000..0xBFFF, number format region 0xC000..0xFFFF as above, and a note that style word 0 holds a format id F (FMT_TABLE index) rather than a string handle (0 still means General).
 2. weights/kernel/boot.wt: call fx_init (199) once (leaf call, returns to LR/LP).
 3. weights/ui cell renderer: call fx_main (198) with F = the cell style's format id and W = column width in characters (64 px column = 8.43 chars; until pixel fitting exists use W = 10 for the default column) instead of ui/fnum (131), then copy the heap string.
-4. Text agent (TEXT function): see "Calling the engine". Built-in format ids 1..49 have no code strings yet; the boot or file loader must write them (e.g. 1 "0", 2 "0.00", 3 "#,##0", 4 "#,##0.00", 9 "0%", 10 "0.00%", 11 "0.00E+00", 37..40 accounting styles, 49 "@").
+4. Text agent (TEXT function): see "Calling the engine". Built-in ids 1..22 and 37..49 are loaded at boot by fx_init (fx_general.md); the file loader maps an xlsx numFmtId below 50 straight to F and custom numFmts to free ids 50..511.
+5. Boot (weights/kernel): set HEAP_TOP before calling fx_init; fx_init now takes about 1,900 steps (once).
+6. encodings/memory-map.md change 1 above is applied (authorized 2026-11-06).

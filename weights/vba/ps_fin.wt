@@ -1,0 +1,21 @@
+# vba/ps_fin (id 404): end of parse. Block write BCLEN = BCP - BC at VGLOB + 6 with K = 64;
+# CHAIN (38) = 1 -> interpreter vi_start (420), else halt. Output 65. Note: weights/vba/parser.md
+input 143
+slice 0 39 40                     # v1 [CHAIN]
+slice 0 66 67                     # v2 [BCP]
+concat 1 2                        # v3
+dense 3 8 2                       # v4 [fields, BCLEN]
+  420 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  -1 0
+  0 1
+  0 3 3670022 67108865 0 0 1 -3735552
+slice 4 0 7                       # v5 fields
+slice 0 8 65                      # v6 words 7..63
+slice 4 7 8                       # v7 payload
+concat 5 6
+concat 8 7

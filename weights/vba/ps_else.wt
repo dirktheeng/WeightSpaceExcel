@@ -1,0 +1,40 @@
+# vba/ps_else (id 412): Else of a block If (top block [1, a, 0, 0]): emit JMP 0 at BCP; the
+# pending JZ at a is patched to BCP + 2 by ps_patch (PA = a + 1, PV = BCP + 2); a = BCP (the
+# JMP, patched at End If). Output 138. Note: weights/vba/parser.md
+input 143
+slice 0 65 67                     # v1 [TP, BCP]
+slice 0 119 120                   # v2 [C1 = a]
+concat 1 2                        # v3 [TP, BCP, a]
+dense 3 14 3                      # v4 [fields, BCP', NX, C1', PA, PV, payload x2]
+  0 0 0
+  0 0 0
+  0 1 0
+  0 0 0
+  0 0 0
+  0 0 0
+  0 0 0
+  0 1 0
+  0 0 0
+  0 1 0
+  0 0 1
+  0 1 0
+  0 0 0
+  0 0 0
+  402 3 0 142606338 0 0 0 2 417 0 1 2 1 0
+slice 4 0 7                       # v5 fields
+slice 0 8 66                      # v6 words 7..64
+slice 4 7 9                       # v7 words 65, 66
+slice 0 68 119                    # v8 words 67..117
+slice 4 9 10                      # v9 word 118
+slice 0 120 131                   # v10 words 119..129
+slice 4 10 12                     # v11 words 130, 131
+slice 0 133 137                   # v12 words 132..135
+slice 4 12 14                     # v13 payload
+concat 5 6
+concat 14 7
+concat 15 8
+concat 16 9
+concat 17 10
+concat 18 11
+concat 19 12
+concat 20 13

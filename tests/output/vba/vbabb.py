@@ -59,3 +59,20 @@ def run(prog, procs, strings=(), max_steps=50000):
     dbg = "".join(chr(int(c)) for c in m[DOUT:DOUT + d])
     msg = "".join(chr(int(c)) for c in m[MOUT:MOUT + k])
     return h, dbg, msg, int(m[VGLOB + 2])
+
+
+def run_src(src, max_steps=400000):
+    """VBA source end to end: lexer (CHAIN = 1) -> parser -> interpreter. Procedure 0 runs."""
+    h = Harness(bb.manifest_paths())
+    m = h.mem
+    m[SRC] = len(src)
+    for i, c in enumerate(src):
+        m[SRC + 1 + i] = ord(c)
+    x = np.zeros(65)
+    x[1 + 38] = 1            # CHAIN: lexer -> parser (400) -> interpreter (420)
+    x[1 + 23] = 0x302002     # XHT: TEXT_HEAP top for ev_totext
+    h.run(LEX_ENTRY, x, max_steps=max_steps)
+    d, k = int(m[VGLOB]), int(m[VGLOB + 1])
+    dbg = "".join(chr(int(c)) for c in m[DOUT:DOUT + d])
+    msg = "".join(chr(int(c)) for c in m[MOUT:MOUT + k])
+    return h, dbg, msg, int(m[VGLOB + 2])

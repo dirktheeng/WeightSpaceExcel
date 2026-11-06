@@ -2,7 +2,9 @@
 # scale sci nexp NC0] at 65..73; SH = previous addr field, input 3). Loads the emitter registers:
 # AC2 k, N0 nint, N1 sci, T1 TH, T2 scale, T3 nexp, T4 kind, T8 NC0, P0 = SH + 9, P1 = FMT_BUF,
 # T5 = 0, C.TAG = color, C.PAY = 1 (text section) or 3. Number sections go to fx_dec (192) with
-# T10 = fx_rnd (193), T9 = fx_go (219); text sections go straight to fx_go. Note: README.md.
+# T10 = fx_rnd (193), T9 = fx_go (219); text sections go straight to fx_go. A number value whose
+# section is a text section (format "@") is shown as General: fx_dec with T10 = fx_gen (196),
+# C.PAY = 3 (gate g = text section and TAG = 1). Note: README.md.
 input 74
 slice 0 65 74                     # v1 = header (9)
 slice 0 3 4                       # v2 = SH
@@ -12,54 +14,61 @@ dense 3 1 10                      # v4 = kind - 1.5
    -1.5
 step 4                            # v5 = text section
 concat 3 5                        # v6 (11: tx 10)
+slice 0 14 15                     # v7 = A.TAG
+concat 6 7                        # v8 (12: TAG 11)
+dense 8 1 12                      # v9 = tx - TAG + 0.5
+   0 0 0 0 0 0 0 0 0 0 1 -1
+   0.5
+step 9                            # v10 = g (number value in a text section)
+concat 6 10                       # v11 (12: g 11)
 # rows: next mem_op addr value io arg halt PC | C.TAG C.PAY AC2 P0 P1 N0 N1 T1 T2 T3 T4 T5 T8 T9 T10
-dense 6 23 11                     # v7
-   0 0 0 0 0 0 0 0 0 0 27
-   0 0 0 0 0 0 0 0 0 0 0
-   0 0 0 0 0 0 0 0 0 0 0
-   0 0 0 0 0 0 0 0 0 0 0
-   0 0 0 0 0 0 0 0 0 0 0
-   0 0 0 0 0 0 0 0 0 0 0
-   0 0 0 0 0 0 0 0 0 0 0
-   0 0 0 0 0 0 0 0 0 0 0
-   0 1 0 0 0 0 0 0 0 0 0
-   0 0 0 0 0 0 0 0 0 0 -2
-   0 0 1 0 0 0 0 0 0 0 0
-   0 0 0 0 0 0 0 0 0 1 0
-   0 0 0 0 0 0 0 0 0 0 0
-   0 0 0 1 0 0 0 0 0 0 0
-   0 0 0 0 0 0 1 0 0 0 0
-   0 0 0 0 1 0 0 0 0 0 0
-   0 0 0 0 0 1 0 0 0 0 0
-   0 0 0 0 0 0 0 1 0 0 0
-   1 0 0 0 0 0 0 0 0 0 0
-   0 0 0 0 0 0 0 0 0 0 0
-   0 0 0 0 0 0 0 0 1 0 0
-   0 0 0 0 0 0 0 0 0 0 0
-   0 0 0 0 0 0 0 0 0 0 0
+dense 11 23 12                    # v12
+   0 0 0 0 0 0 0 0 0 0 27 -27
+   0 0 0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0 0 0
+   0 1 0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0 -2 2
+   0 0 1 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 1 0 0
+   0 0 0 0 0 0 0 0 0 0 0 0
+   0 0 0 1 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 1 0 0 0 0 0
+   0 0 0 0 1 0 0 0 0 0 0 0
+   0 0 0 0 0 1 0 0 0 0 0 0
+   0 0 0 0 0 0 0 1 0 0 0 0
+   1 0 0 0 0 0 0 0 0 0 0 -2
+   0 0 0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 1 0 0 0
+   0 0 0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0 0 3
    192 0 0 0 0 0 0 0 0 3 0 9 51200 0 0 0 0 0 0 0 0 219 193
-slice 7 0 8                       # v8 = words 0..7
-slice 0 9 18                      # v9 = words 8..16
-concat 8 9                        # v10
-slice 7 8 10                      # v11 = [C.TAG, C.PAY]
-concat 10 11                      # v12 (17, 18)
-slice 0 20 24                     # v13 = words 19..22
-concat 12 13                      # v14
-slice 7 10 11                     # v15 = AC2
-concat 14 15                      # v16 (23)
-slice 0 25 26                     # v17 = word 24
-concat 16 17                      # v18
-slice 7 11 15                     # v19 = [P0 P1 N0 N1]
-concat 18 19                      # v20 (25..28)
-slice 0 30 31                     # v21 = word 29
-concat 20 21                      # v22
-slice 7 15 20                     # v23 = [T1 T2 T3 T4 T5]
-concat 22 23                      # v24 (30..34)
-slice 0 36 37                     # v25 = word 35
-concat 24 25                      # v26
-slice 0 37 38                     # v27 = word 36 (T7 minus)
-concat 26 27                      # v28
-slice 7 20 23                     # v29 = [T8 T9 T10]
-concat 28 29                      # v30 (37..39)
-slice 0 41 65                     # v31 = words 40..63
-concat 30 31                      # v32
+slice 12 0 8                      # v13 = words 0..7
+slice 0 9 18                      # v14 = words 8..16
+concat 13 14                      # v15
+slice 12 8 10                     # v16 = [C.TAG, C.PAY]
+concat 15 16                      # v17 (17, 18)
+slice 0 20 24                     # v18 = words 19..22
+concat 17 18                      # v19
+slice 12 10 11                    # v20 = AC2
+concat 19 20                      # v21 (23)
+slice 0 25 26                     # v22 = word 24
+concat 21 22                      # v23
+slice 12 11 15                    # v24 = [P0 P1 N0 N1]
+concat 23 24                      # v25 (25..28)
+slice 0 30 31                     # v26 = word 29
+concat 25 26                      # v27
+slice 12 15 20                    # v28 = [T1 T2 T3 T4 T5]
+concat 27 28                      # v29 (30..34)
+slice 0 36 37                     # v30 = word 35
+concat 29 30                      # v31
+slice 0 37 38                     # v32 = word 36 (T7 minus)
+concat 31 32                      # v33
+slice 12 20 23                    # v34 = [T8 T9 T10]
+concat 33 34                      # v35 (37..39)
+slice 0 41 65                     # v36 = words 40..63
+concat 35 36                      # v37

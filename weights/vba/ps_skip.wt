@@ -1,0 +1,34 @@
+# vba/ps_skip (id 405): skip tokens to the end of the statement. EOS: consume -> ps_stmt;
+# EOF: keep -> ps_stmt; else consume -> ps_skip. Note: weights/vba/parser.md
+input 143
+slice 0 137 138                   # v1 [K0]
+dense 1 4 1                       # v2 K + 1, K, K - 1, K - 2
+  1
+  1
+  1
+  1
+  1 0 -1 -2
+relu 2                            # v3
+dense 3 2 4                       # v4 [eos, eof]
+  0 1 -2 1
+  1 -2 1 0
+  0 0
+slice 0 65 66                     # v5 [TP]
+concat 4 5                        # v6 [eos, eof, TP]
+dense 6 8 3                       # v7 [fields, TP']
+  -2 -2 0
+  0 0 0
+  0 -2 1
+  0 0 0
+  0 0 0
+  0 0 0
+  0 0 0
+  0 -2 1
+  405 4 2 142606342 0 0 0 2
+slice 7 0 7                       # v8 fields
+slice 0 8 65                      # v9 words 7..63
+slice 7 7 8                       # v10 TP'
+slice 0 66 137                    # v11 words 65..135
+concat 8 9
+concat 12 10
+concat 13 11

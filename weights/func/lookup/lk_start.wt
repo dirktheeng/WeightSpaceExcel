@@ -1,0 +1,93 @@
+# func/lookup/lk_start (id 360): search core entry. Note: weights/func/lookup/core.md (lk_start).
+# In: B lookup value, AS sheet, AR1 = R0, AC1 = C0 (first cell of the vector), N1 = n (length >= 1),
+#     T2 = dir (0 vertical, 1 horizontal), T3 = M (mode 1..12), T7 = W (wildcards), LR/LP return link.
+# Spills words 22..27 and 40..47 (14 words) to RET_STACK by one block write, RSP += 14.
+# Sets AR2 = R0, AC2 = C0, AS2 = dir, P1 = M, N0 = lo = 0, N1 = hi = n - 1, T2 = 0, T3 = res = -1,
+# T4/T5 = caller link, T8 = eqRes = 0, T10 = 0, L0 = B.PAY, L2 = L3 = 0.
+# next = lk_nx (361), or lk_pt2 (370) PC 0 when W = 1 and B is text (pattern tokenizing first).
+input 65
+slice 0 9 12                      # v1 [LR LP RSP]
+slice 0 16 18                     # v2 [tB pB]
+slice 0 21 23                     # v3 [R0 C0]
+slice 0 29 30                     # v4 [n]
+slice 0 32 34                     # v5 [dir M]
+slice 0 37 38                     # v6 [W]
+concat 1 2                        # v7
+concat 7 3                        # v8
+concat 8 4                        # v9
+concat 9 5                        # v10
+concat 10 6                       # v11 (11): 0 LR 1 LP 2 RSP 3 tB 4 pB 5 R0 6 C0 7 n 8 dir 9 M 10 W
+dense 11 2 11                     # v12 [tB - 1.5, tB - 2.5]
+  0 0 0 1 0 0 0 0 0 0 0
+  0 0 0 1 0 0 0 0 0 0 0
+  -1.5 -2.5
+step 12                           # v13
+concat 11 13                      # v14 (13): 11 a 12 b
+dense 14 1 13                     # v15 wp = text and W
+  0 0 0 0 0 0 0 0 0 0 1 1 -1
+  -1.5
+step 15                           # v16 [wp]
+concat 14 16                      # v17 (14): 13 wp
+dense 17 8 14                     # v18 [next mem addr value io io_arg halt PC]
+  0 0 0 0 0 0 0 0 0 0 0 0 0 9
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 1 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  361 3 0 67108878 0 0 0 0
+slice 0 9 11                      # v19 words 8, 9
+dense 17 1 14                     # v20 RSP + 14
+  0 0 1 0 0 0 0 0 0 0 0 0 0 0
+  14
+slice 0 12 23                     # v21 words 11..21
+dense 17 7 14                     # v22 words 22..28: R0 C0 dir 0 M 0 n-1
+  0 0 0 0 0 1 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 1 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 1 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 1 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 1 0 0 0 0 0 0
+  0 0 0 0 0 0 -1
+slice 0 30 32                     # v23 words 29, 30
+dense 17 4 14                     # v24 words 31..34: 0 -1 LR LP
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0 0 0 0 0 0
+  0 -1 0 0
+slice 0 36 38                     # v25 words 35, 36
+dense 17 1 14                     # v26 word 37 = 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0
+slice 0 39 40                     # v27 word 38
+dense 17 2 14                     # v28 words 39, 40: 0, pB
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 1 0 0 0 0 0 0 0 0 0
+  0 0
+slice 0 42 43                     # v29 word 41
+dense 17 2 14                     # v30 words 42, 43 = 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0
+slice 0 45 65                     # v31 words 44..63
+slice 0 23 29                     # v32 payload: input words 22..27
+slice 0 41 49                     # v33 payload: input words 40..47
+concat 18 19                      # v34
+concat 34 20                      # v35
+concat 35 21                      # v36
+concat 36 22                      # v37
+concat 37 23                      # v38
+concat 38 24                      # v39
+concat 39 25                      # v40
+concat 40 26                      # v41
+concat 41 27                      # v42
+concat 42 28                      # v43
+concat 43 29                      # v44
+concat 44 30                      # v45
+concat 45 31                      # v46 state (64)
+concat 46 32                      # v47
+concat 47 33                      # v48 output (78) = state + 14 payload words

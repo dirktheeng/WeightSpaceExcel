@@ -1,0 +1,19 @@
+# format/fx_bi3 (id 229): return point of the pack loop for a built-in string: A = (2, h);
+# writes FMT_TABLE[F] word 0 (0xC000 + 4 F, F in AR1) = h, then fx_bil (227).
+# Note: fx_general.md (built-in formats).
+input 65
+slice 0 15 16                     # v1 = [h]
+slice 0 21 22                     # v2 = [F]
+concat 1 2                        # v3 = [h, F]
+dense 3 8 2                       # v4 = [next 227, write, 0xC000 + 4 F, h, 0, 0, 0, PC 0]
+   0 0
+   0 0
+   0 4
+   1 0
+   0 0
+   0 0
+   0 0
+   0 0
+   227 2 49152 0 0 0 0 0
+slice 0 9 65                      # v5 = words 8..63
+concat 4 5                        # v6

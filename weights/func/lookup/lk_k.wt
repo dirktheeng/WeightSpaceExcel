@@ -1,0 +1,83 @@
+# func/lookup/lk_k (id 380): continuation for the wrappers. Note: weights/func/lookup/README.md (lk_k).
+# PC 0: the search core returned -> block read of the 8-word frame at 0x0BEF00 -> lk_hc (381).
+# PC 1: CELL_GET (or the kernel pair read 18, 19) returned A -> next = FN_RET (257), PC 0.
+# PC 2: AREAS walk, A = left child of a union node: tag 10 -> T3 += 1, P0 = PAY - 1, read [PAY] -> 18, LR 380 LP 2;
+#       else A = (1, T3 + 1) -> FN_RET.
+# PC 3: read the value pair at P0 + 1 (TAG; cs_ltag 18 then reads P0 + 2) -> 18, LR 380, LP 1 (CHOOSE beyond slot 6).
+input 65
+slice 0 8 9                       # v1 [PC]
+slice 0 14 16                     # v2 [tA pA]
+slice 0 33 34                     # v3 [T3]
+slice 0 26 27                     # v4 [P0]
+concat 1 2                        # v5
+concat 5 3                        # v6
+concat 6 4                        # v7 (5): 0 PC 1 tA 2 pA 3 T3 4 P0
+dense 7 5 5                       # v8 [PC - 0.5, PC - 1.5, PC - 2.5, tA - 9.5, tA - 10.5]
+  1 0 0 0 0
+  1 0 0 0 0
+  1 0 0 0 0
+  0 1 0 0 0
+  0 1 0 0 0
+  -0.5 -1.5 -2.5 -9.5 -10.5
+step 8                            # v9 [s1 s2 s3 a b]: p0 = 1 - s1, p1 = s1 - s2, p2 = s2 - s3, p3 = s3, is10 = a - b
+concat 7 9                        # v10 (10): 5 s1 6 s2 7 s3 8 a 9 b
+dense 10 2 10                     # v11 [c = p2 and is10, d = p2 and not is10] pre
+  0 0 0 0 0 0 1 -1 1 -1
+  0 0 0 0 0 0 1 -1 -1 1
+  -1.5 -0.5
+step 11                           # v12 [c d]
+concat 10 12                      # v13 (12): 10 c 11 d
+dense 13 6 12                     # v14 gates [c d d], values [pA pA tA]
+  0 0 0 0 0 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 0 0 0 0 1
+  0 0 0 0 0 0 0 0 0 0 0 1
+  0 0 1 0 0 0 0 0 0 0 0 0
+  0 0 1 0 0 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0
+mul 14 0 3 3 6                    # v15 [c pA, d pA, d tA]
+concat 13 15                      # v16 (15): 12 c pA 13 d pA 14 d tA
+dense 16 3 15                     # v17 relu pre: d (T3 + 1), p3 (P0 + 1), c P0 (MUX_INT, M = 2^23)
+  0 0 0 1 0 0 0 0 0 0 0 8388608 0 0 0
+  0 0 0 0 1 0 0 8388608 0 0 0 0 0 0 0
+  0 0 0 0 1 0 0 0 0 0 8388608 0 0 0 0
+  -8388607 -8388607 -8388608
+relu 17                           # v18
+concat 16 18                      # v19 (18): 15 d (T3 + 1) 16 p3 (P0 + 1) 17 c P0
+# v20 [next mem addr value io io_arg halt PC LR LP]
+# next = 381 p0 + 257 p1 + 18 c + 257 d + 18 p3 = 381 - 124 s1 - 257 s2 + 18 s3 + 18 c + 257 d
+dense 19 10 18
+  0 0 0 0 0 -124 -257 18 0 0 18 257 0 0 0 0 0 0
+  0 0 0 0 0 -4 0 1 0 0 1 0 0 0 0 0 0 0
+  0 0 0 0 0 -782080 0 0 0 0 0 0 1 0 0 0 1 0
+  0 0 0 0 0 -67108872 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 -1 0 0 0 0 0 0 0 0 0 0
+  381 4 782080 67108872 0 0 0 0 380 2
+slice 0 11 14                     # v21 words 10..12
+dense 19 2 18                     # v22 [A.tag, A.pay]: d -> (1, T3 + 1), else A
+  0 1 0 0 0 0 0 0 0 0 0 1 0 0 -1 0 0 0
+  0 0 1 0 0 0 0 0 0 0 0 0 0 -1 0 1 0 0
+  0 0
+slice 0 16 25                     # v23 words 15..23
+slice 0 25 26                     # v24 word 24
+dense 19 1 18                     # v25 [P0' = P0 - c P0 + c pA - c]
+  0 0 0 0 1 0 0 0 0 0 -1 0 1 0 0 0 0 -1
+  0
+slice 0 27 33                     # v26 words 26..31
+dense 19 1 18                     # v27 [T3 + c]
+  0 0 0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 0
+  0
+slice 0 34 65                     # v28 words 33..63
+concat 20 21                      # v29
+concat 29 22                      # v30 words 13, 14
+concat 30 23                      # v31
+concat 31 24                      # v32
+concat 32 25                      # v33 word 25
+concat 33 26                      # v34
+concat 34 27                      # v35 word 32
+concat 35 28                      # v36 output (64)

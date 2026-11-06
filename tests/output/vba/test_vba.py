@@ -148,3 +148,50 @@ def test_function_call_returns_value():
     body = main + [(0, 0)] * ((sq - (B + 8)) // 2 - len(main)) + [(4, 1), (4, 1), (18, 0), (5, 0), RET]
     h, dbg, msg, err = vb.run(PRO + body, [(0, B + 8, 1, 0), (0, sq, 2, 1)])
     assert dbg == " 49 \n" and err == 0
+
+
+# ---------- end to end: VBA source -> lexer -> parser -> interpreter
+def src(*lines):
+    return "\n".join(lines) + "\n"
+
+
+def test_src_precedence_assign_print():
+    h, dbg, msg, err = vb.run_src(src("Sub Main()", "  x = 1 + 2 * 3", "  Debug.Print x", "End Sub"))
+    assert dbg == " 7 \n" and err == 0                  # * binds tighter than +
+    assert h.mem[vb.VGLOB + 6] == 2 * 13                # BCLEN: prologue 4 + 9 instructions
+
+
+def test_src_for_next_dim_types():
+    h, dbg, msg, err = vb.run_src(src("Sub Main()", " Dim i As Integer, s As Long", " For i = 1 To 3",
+                                      "  s = s + i", " Next i", " Debug.Print s; i", "End Sub"))
+    assert dbg == " 6  4 \n"                            # i is 4 after the loop; ';' joins items
+
+
+def test_src_if_else_unary_not():
+    h, dbg, msg, err = vb.run_src(src("Sub Main()", " x = 5", " If x > 3 Then", '  Debug.Print "big"',
+                                      " Else", '  Debug.Print "small"', " End If", " If x < 3 Then",
+                                      '  Debug.Print "no"', " End If",
+                                      " Debug.Print -(2 + 3) * 2; Not True", "End Sub"))
+    assert dbg == "big\n-10 False\n"                    # unary minus binds tighter than *
+
+
+def test_src_function_sub_calls_msgbox():
+    h, dbg, msg, err = vb.run_src(src("Sub Main()", ' MsgBox "x = " & Sq()', " Call Hi", " Hi", "End Sub",
+                                      "Function Sq()", " Sq = 7 * 7", "End Function",
+                                      "Sub Hi()", ' Debug.Print "hi"', "End Sub"))
+    assert msg == "x = 49\n" and dbg == "hi\nhi\n"     # calls may precede definitions
+
+
+def test_src_nested_for_if_step():
+    h, dbg, msg, err = vb.run_src(src("Sub Main()", " For i = 1 To 2", "  For j = 1 To 2 Step 1",
+                                      "   If i = j Then", "    Debug.Print i * 10 + j", "   End If",
+                                      "  Next j", " Next i", " Dim s As String", ' Debug.Print s & "|"',
+                                      " For k = 3 To 1 Step -1", "  Debug.Print k;", " Next",
+                                      " Debug.Print", "End Sub"))
+    assert dbg == " 11 \n 22 \n|\n 3  2  1 \n"         # String Dim starts as ""; bare Print ends the line
+
+
+def test_src_integer_overflow():
+    h, dbg, msg, err = vb.run_src(src("Sub Main()", " Dim n As Integer", " n = 30000 + 30000",
+                                      " Debug.Print n", "End Sub"))
+    assert err == 6 and dbg == ""                       # Integer + Integer overflows: error 6

@@ -1,0 +1,46 @@
+# vba/ps_pk (id 401): PROCT keys of records 0..7 (block words 0, 4, ..., 28) -> PK0..PK7
+# (words 81..88); NX = ps_stmt (403); block write the prologue [PUSH E, PUSH E, CALL 0, END]
+# (8 words) at BC -> ps_read (402). Output 144. Note: weights/vba/parser.md
+input 169
+slice 0 137 169                   # v1 PROCT block (32 words)
+dense 1 8 32                      # v2 PK0..PK7
+  1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 0 0 0
+slice 0 0 1                       # v3 x0 (zero weights only)
+dense 3 16 1                      # v4 [fields 0..6, NX, payload x8]
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  402 3 3735552 142606344 0 0 0 403 64 0 64 0 7 0 0 0
+slice 4 0 7                       # v5 fields
+slice 0 8 67                      # v6 words 7..65
+slice 4 7 8                       # v7 [NX]
+slice 0 68 82                     # v8 words 67..80
+slice 0 90 137                    # v9 words 89..135
+slice 4 8 16                      # v10 payload
+concat 5 6
+concat 11 7
+concat 12 8
+concat 13 2
+concat 14 9
+concat 15 10

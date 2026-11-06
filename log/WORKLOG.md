@@ -697,3 +697,31 @@
 ### Results (ABI agent, 2026-11-06)
 - Stage 1 SUM cases 14 of 14 pass through the real manifest (rng01..rng16, cir07); tests/output/func: 525 names, 14 function cases, all pass. Stage 1 overall: all except ref12, coe21 (known before).
 - Zero page 0x16 TZ_OFFSET reserved for NOW and TODAY (date agent request); ids 30 to 41 recorded in control.md.
+
+## 2026-11-06, Stage 4: lookup and reference functions (func-lookup agent; details in log/func-lookup-agent.md)
+
+### LK1 (DECISION): one shared search core for every match-type function
+- Decided: MATCH, VLOOKUP, HLOOKUP, LOOKUP, XMATCH and XLOOKUP all call one core (ids 360..374, weights/func/lookup/core.md) that searches a one-dimensional run of cells with a mode M (linear forward or reverse with exact / next smaller / next larger; binary "last <= v", "last >= v", "first >= v", "first <= v", and the two exact binary forms) and a wildcard flag. Text order and equality use a packed-word compare (3 units per step pair); wildcards tokenize the pattern once into PATBUF and unpack each candidate into TXTBUF, then run the single-backtrack matcher 2 steps per iteration.
+- Alternatives: one network per function (6 copies of compare and search logic, over the 24-id budget); a linear scan for approximate modes (correct on sorted data but O(n) where Excel is O(log n), and different from Excel on unsorted data).
+- Why: 15 networks, 8219 parameters cover every match mode; binary search gives Excel's duplicate and mixed-type behaviour (last of equals, numbers before text, trailing blanks skipped).
+- Affects: EVAL_SCRATCH 0x0BEF00..0x0BFFFF is used by the lookup family (frame and the two text buffers), memory-map owner please record it; the core spills 14 words on RET_STACK.
+
+### LK2 (DECISION): ABI wrappers share an argument normaliser and a dereference loop
+- Decided: FUNC_TABLE maps every lookup/reference fid to 375 (block read of the stored arguments), 376 puts a1..a6 into B, C, T3..T10 (missing = tag 8), 377 dereferences the scalar arguments of each function (fid mask) with CELL_GET and dispatches. Reference functions are computed in one network (378), lookup functions are set up in one (379), with small continuations (380, 381).
+- Alternatives: per-function entry networks (id budget); dereferencing every argument (breaks ROW, INDEX, OFFSET, which need references).
+- Why: 24 ids for 17 functions; all argument plumbing written once.
+- Affects: a step whose output is wider than 64 words must always do a block operation (N = 0 if nothing is to be written) so its successor gets 65 inputs. ADDRESS (382) and INDIRECT (383) are routed but not built.
+
+## 2026-11-06, VBA parser (VBA agent, ids 400..419)
+- VB10: parser stacks (operators depth 6, blocks depth 3), the local symbol table (8) and procedure keys (8) are registers in a 136-word parser state (block ops with K = 136); OSTK/SYMT/CSTK memory stays reserved. Reason: memory stacks need a read after each emit write and loops for lookup. Cost: fixed limits, documented in weights/vba/parser.md.
+- VB11: parser state networks read 3 tokens of lookahead per block read and skip fixed tokens by TP arithmetic.
+- VB12: key equality by triangles on exact differences below 2^53; flag ANDs by relu(a + b - 1).
+- VB13: Dim x As T compiles to PUSH Empty, STORE (slot, T); every frame gets 15 slots (hidden For slots 9..14).
+- Result: VBA source runs end to end (lexer -> parser -> interpreter); 6 new black-box tests, 55 in tests/output/vba pass.
+
+## 2026-11-06, Stage 3 to 4: number format engine, session 2 (format agent)
+- F7: '@' executor fx_text (208) copies the text value with UNPACK3 (retyped from parse/unpack), 4 steps per 3 units; a number whose chosen section is a text section is shown as General (fx_sec gate), as Excel does for "@".
+- F8: built-in format codes (en-US ids 1..22, 37..49) are loaded at boot by a chain off fx_init (fx_bi 226..fx_bi4 230): units staged by one block write at 0xCA00, each string packed into the heap by the existing finisher networks, handles stored in FMT_TABLE, staging zeroed afterwards because compiled records are allocated there and the compiler expects zeroed memory. Constants come from a dense layer with 0 input columns (bias only).
+- F9: FORMAT_STORE split applied to encodings/memory-map.md (style records 0x8000..0xBFFF, number format region 0xC000..0xFFFF, section 7a), authorized by the coordinator.
+- F10: booleans and errors ignore number formats (returned as their own text, centred), matching TEXT(TRUE, "0") = "TRUE".
+- Result: tests/output/format 158 passed, 2 xfailed; stage 3 + 4 format cases run directly on fx_main: 87 of 132 pass (2 formula cases skipped). Not done: dates and times, fractions, decimal condition values, [$...] symbols, engineering exponents (log/format-agent.md hand-off).

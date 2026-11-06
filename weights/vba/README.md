@@ -2,8 +2,8 @@
 
 Hand-written. Not generated. Encoding: encodings/vba.md. Log: log/vba-agent.md; decisions VB1..VB9 in log/WORKLOG.md ("2026-11-06, Stage 9 groundwork"). Tests: tests/output/vba/test_vba.py (49 cases, black box).
 
-Notes: lexer.md (384..399), interp.md (420..429, 431, 435, 446), vi_bin.md (427), output.md (430, 436..438, 441, 442), strings.md (432, 439, 440, 443..445).
+Notes: lexer.md (384..399), parser.md (400..419), interp.md (420..429, 431, 435, 446), vi_bin.md (427), output.md (430, 436..438, 441, 442), strings.md (432, 439, 440, 443..445).
 
-**Status.** Lexer complete for the groundwork token set. Interpreter executes bytecode with Integer, Long, Double, String, Boolean, Date (as a number) values, frames, calls and For loops, Debug.Print and MsgBox. **The parser (ids 400..419) is not built yet**: tests run hand-assembled bytecode; its design is in encodings/vba.md section 6. Not yet: / \ Mod (vi_div 434 is routed to but absent, so those opcodes trap), string comparison (vi_scmp 433), ^, Like, Is, objects (vi_obj 446 is the hook, ERR 438).
+**Status.** Lexer complete for the groundwork token set. Interpreter executes bytecode with Integer, Long, Double, String, Boolean, Date (as a number) values, frames, calls and For loops, Debug.Print and MsgBox. Parser (ids 400..419) built: VBA source runs end to end (lexer CHAIN 1 -> parser -> interpreter); limits in parser.md. Not yet: / \ Mod (vi_div 434 is routed to but absent, so those opcodes trap), string comparison (vi_scmp 433), ^, Like, Is, objects (vi_obj 446 is the hook, ERR 438).
 
 **Shared conventions.** Every network whose output has a payload (more than 64 words) uses a block operation on every step (a block read of 0 words when nothing is needed), because the harness forwards the whole output after a non-block step (decision VB6). MUX_INT uses M = 2^23 for addresses, 1024 for network ids, 2^17 for characters; doubles are gated with mul layers only.

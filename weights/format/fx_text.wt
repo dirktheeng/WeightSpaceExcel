@@ -1,0 +1,172 @@
+# format/fx_text (id 208): '@' token (code 8): copies the text value's units (A.PAY = handle H,
+# packed 3 units per word at H + 2) to the unit buffer at BP. PC 0 (from fx_fetch, x0 = token):
+# T8 = NC, j = 0, WA = H + 2, read LEN at H. PC 1 (R): L = x0 when j = 0 (first R) else T3;
+# T3 = L; done (j >= L) -> fx_fetch 194; else read WA, WA + 1. PC 2: UNPACK3 of x0, write c0,
+# keep c1 in T1, c2 in T6. PC 3: write T1. PC 4: write T6, then PC 1. j += 1 per write; after a
+# write, j >= LEN -> fx_fetch. Registers: T3 LEN, T5 j, AS2 WA, T1 and T6 pending units (text
+# sections use none of them). UNPACK3 retyped from weights/parse/unpack.wt. Note: fx_emit.md.
+# B = 2^23 = 8388608, Bb = 2^50 = 1125899906842624 (gates on words that may be up to 2^48)
+input 65
+slice 0 0 1                       # v1 = [w]
+dense 1 1 1                       # v2 = y = w 2^-16 (exact)
+   0.0000152587890625
+   0
+dense 2 1 1                       # v3 = y + C
+   1
+   6755399441055744
+dense 3 1 1                       # v4 = r = round(y)
+   1
+   -6755399441055744
+concat 4 2                        # v5 = [r, y]
+dense 5 1 2                       # v6 = r - y
+   1 -1
+   0
+step 6                            # v7
+concat 5 7                        # v8 = [r, y, b]
+dense 8 1 3                       # v9 = f = floor(y)
+   1 0 -1
+   0
+concat 1 9                        # v10 = [w, f]
+dense 9 1 1                       # v11 = y2 = f 2^-16
+   0.0000152587890625
+   0
+dense 11 1 1                      # v12
+   1
+   6755399441055744
+dense 12 1 1                      # v13 = r2
+   1
+   -6755399441055744
+concat 13 11                      # v14 = [r2, y2]
+dense 14 1 2                      # v15
+   1 -1
+   0
+step 15                           # v16
+concat 14 16                      # v17
+dense 17 1 3                      # v18 = g = floor(y2)
+   1 0 -1
+   0
+concat 10 18                      # v19 = [w, f, g]
+dense 19 3 3                      # v20 = [c0, c1, c2]
+   1 -65536 0
+   0 1 -65536
+   0 0 1
+   0 0 0
+dense 1 1 1                       # v21 = w 2^-20 - 0.4999995 (nc of the token, as fx_lit)
+   9.5367431640625e-07
+   -0.4999995
+dense 21 1 1                      # v22
+   1
+   6755399441055744
+dense 22 1 1                      # v23 = nc
+   1
+   -6755399441055744
+slice 0 8 9                       # v24 = PC
+dense 24 4 1                      # v25
+   1
+   1
+   1
+   1
+   -0.5 -1.5 -2.5 -3.5
+step 25                           # v26 = [s1 s2 s3 s4]
+slice 0 15 16                     # v27 = H
+slice 0 25 28                     # v28 = [WA, TP, BP]
+slice 0 31 39                     # v29 = [X2 (T1), T2, LEN (T3), T4, j (T5), X3 (T6), T7, T8]
+concat 26 1                       # v30
+concat 30 20                      # v31
+concat 31 23                      # v32
+concat 32 27                      # v33
+concat 33 28                      # v34
+concat 34 29                      # v35 = Z (21): s1 s2 s3 s4 w c0 c1 c2 nc H WA TP BP X2 T2 LEN T4 j X3 T7 T8
+dense 35 1 21                     # v36 = 0.5 - j
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1 0 0 0
+   0.5
+step 36                           # v37 = f (first R: j = 0)
+concat 35 37                      # v38 (22: f 21)
+dense 38 2 22                     # v39 = [Lw, Ll] pre
+# s1 s2 s3 s4 w c0 c1 c2 nc H WA TP BP X2 T2 LEN T4 j X3 T7 T8 f
+   0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1125899906842624
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 -1125899906842624
+   -1125899906842624 0
+relu 39                           # v40
+concat 38 40                      # v41 (24: Lw 22, Ll 23)
+dense 41 2 24                     # v42 = [dR, dW] pre
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 -1 -1
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1 0 1 0 0 0 0 0 0
+   0.5 1.5
+step 42                           # v43
+concat 41 43                      # v44 (26: dR 24, dW 25)
+dense 44 3 26                     # v45 = [gRd, gRr, gWd] pre
+   1 -1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0
+   1 -1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1 0
+   0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1
+   -1.5 -0.5 -1.5
+step 45                           # v46
+concat 44 46                      # v47 (29: gRd 26, gRr 27, gWd 28)
+dense 47 17 29                    # v48 = MUX pre qa..qq
+# s1 s2 s3 s4 w c0 c1 c2 nc H WA TP BP X2 T2 LEN T4 j X3 T7 T8 f Lw Ll dR dW gRd gRr gWd
+   0 8388608 -8388608 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0           # qa c0 p2
+   0 0 8388608 -8388608 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0           # qb X2 p3
+   0 0 0 8388608 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0                  # qc X3 p4
+   0 8388608 -8388608 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0           # qd c1 p2
+   0 -8388608 8388608 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0           # qe X2 keep
+   0 8388608 -8388608 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0           # qf c2 p2
+   0 -8388608 8388608 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0           # qg X3 keep
+   -1125899906842624 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0        # qh nc p0
+   8388608 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0                  # qi T8 keep
+   -8388608 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0                 # qj H + 2 p0
+   8388608 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0                  # qk WA not p0
+   -8388608 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0                 # ql H p0
+   0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 8388608 0                  # qm WA gRr
+   0 8388608 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0                  # qn BP s2
+   8388608 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0                  # qo j not p0
+   1125899906842624 -1125899906842624 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0   # qp L p1
+   -1125899906842624 1125899906842624 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0   # qq LEN keep
+# biases qa..qq
+   -8388608 -8388608 -8388608 -8388608 0 -8388608 0 0 -8388608 2 -8388608 0 -8388608 -8388608 -8388608 -1125899906842624 0
+relu 48                           # v49
+concat 47 49                      # v50 (46: qa 29 qb 30 qc 31 qd 32 qe 33 qf 34 qg 35 qh 36 qi 37 qj 38 qk 39 ql 40 qm 41 qn 42 qo 43 qp 44 qq 45)
+dense 50 15 46                    # v51
+# s1 s2 s3 s4 w c0 c1 c2 nc H WA TP BP X2 T2 LEN T4 j X3 T7 T8 f Lw Ll dR dW gRd gRr gWd | qa qb qc qd qe qf qg qh qi qj qk ql qm qn qo qp qq
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -14 0 -14   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0   # next
+  -1 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0       0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0   # mem_op
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0       0 0 0 0 0 0 0 0 0 0 0 1 1 1 0 0 0   # addr
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0       1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0   # value
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0       0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0   # io
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0       0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0   # io_arg
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0       0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0   # halt
+   1 1 1 -3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0      0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0   # PC
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0       0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0   # WA'
+   0 1 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0       0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0   # BP'
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0       0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0   # X2'
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0       0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1   # T3'
+   0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0       0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0   # j'
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0       0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0   # X3'
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0       0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0   # T8'
+   208 1 0 0 0 0 0 1 0 0 0 0 0 0 0
+slice 51 0 8                      # v52 = words 0..7
+slice 0 9 25                      # v53 = words 8..23
+concat 52 53                      # v54
+slice 51 8 9                      # v55 = WA' (word 24)
+concat 54 55                      # v56
+slice 0 26 27                     # v57 = TP (word 25)
+concat 56 57                      # v58
+slice 51 9 10                     # v59 = BP' (word 26)
+concat 58 59                      # v60
+slice 0 28 31                     # v61 = words 27..29
+concat 60 61                      # v62
+slice 51 10 11                    # v63 = X2' (word 30, T1)
+concat 62 63                      # v64
+slice 0 32 33                     # v65 = word 31 (T2)
+concat 64 65                      # v66
+slice 51 11 12                    # v67 = T3' (word 32)
+concat 66 67                      # v68
+slice 0 34 35                     # v69 = word 33 (T4)
+concat 68 69                      # v70
+slice 51 12 14                    # v71 = j', X3' (words 34, 35)
+concat 70 71                      # v72
+slice 0 37 38                     # v73 = word 36 (T7)
+concat 72 73                      # v74
+slice 51 14 15                    # v75 = T8' (word 37)
+concat 74 75                      # v76
+slice 0 39 65                     # v77 = words 38..63
+concat 76 77                      # v78 = output (64)

@@ -1,0 +1,62 @@
+# format/fx_bi2 (id 228): block consumer (65 + 3 inputs: descriptor [F, start, end]). F = 0: done,
+# LR and LP restored, next fx_bi4 (230: clears the staging, returns to AR2, AC2). Else sets up the pack loop as fx_fin
+# does with the staged units as the buffer: P0 = start, P1 = end, T0 = end - start, T1 = 0,
+# T6 = NF = 0, T7 = 0, T8 = FIL = 0, AR1 = F, DP += 3, LR = fx_bi3 (229), LP = 0, reads
+# HEAP_TOP (zero page 1) into fx_fin2 (214). Note: fx_general.md (built-in formats).
+# B = 2^23 = 8388608
+input 68
+slice 0 65 68                     # v1 = [F, start, end]
+slice 0 22 25                     # v2 = [DP, LRb, LPb]
+concat 1 2                        # v3 (6)
+dense 3 1 6                       # v4 = 0.5 - F
+   -1 0 0 0 0 0
+   0.5
+step 4                            # v5 = dn
+concat 3 5                        # v6 (7: dn 6)
+dense 6 2 7                       # v7 = MUX pre [q1 LRb, q2 LPb] when dn
+   0 0 0 0 1 0 8388608
+   0 0 0 0 0 1 8388608
+   -8388608 -8388608
+relu 7                            # v8
+concat 6 8                        # v9 = [F st en DP LRb LPb dn q1 q2]
+dense 9 19 9                      # v10
+# F st en DP LRb LPb dn q1 q2
+   0 0 0 0 0 0 16 0 0             # next = 214, or fx_bi4 230 when done
+   0 0 0 0 0 0 -1 0 0             # mem_op read unless done
+   0 0 0 0 0 0 0 0 0              # addr 1 (HEAP_TOP)
+   0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0              # PC = 0
+   0 0 0 0 0 0 -229 1 0           # LR = 229 or LRb
+   0 0 0 0 0 0 0 0 1              # LP
+   1 0 0 0 0 0 0 0 0              # AR1 = F
+   0 0 0 1 0 0 0 0 0              # AC1 = DP + 3
+   0 1 0 0 0 0 0 0 0              # P0 = start
+   0 0 1 0 0 0 0 0 0              # P1 = end
+   0 -1 1 0 0 0 0 0 0             # T0 = len
+   0 0 0 0 0 0 0 0 0              # T1 = 0
+   0 0 0 0 0 0 0 0 0              # T6 = 0
+   0 0 0 0 0 0 0 0 0              # T7 = 0
+   0 0 0 0 0 0 0 0 0              # T8 = 0
+   214 1 1 0 0 0 0 0 229 0 0 3 0 0 0 0 0 0 0
+slice 10 0 10                     # v11 = words 0..9
+slice 0 11 21                     # v12 = words 10..19
+concat 11 12                      # v13
+slice 10 10 12                    # v14 = words 20, 21
+concat 13 14                      # v15
+slice 0 23 26                     # v16 = words 22..24
+concat 15 16                      # v17
+slice 10 12 14                    # v18 = words 25, 26
+concat 17 18                      # v19
+slice 0 28 30                     # v20 = words 27, 28
+concat 19 20                      # v21
+slice 10 14 16                    # v22 = words 29, 30
+concat 21 22                      # v23
+slice 0 32 36                     # v24 = words 31..34
+concat 23 24                      # v25
+slice 10 16 19                    # v26 = words 35..37
+concat 25 26                      # v27
+slice 0 39 65                     # v28 = words 38..63
+concat 27 28                      # v29 (64)

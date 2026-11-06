@@ -1,0 +1,24 @@
+# vba/ps_patch (id 417): block write [PV] (word 131) at PA (word 130) -> ps_read, NX ps_skip.
+# Output 137. Note: weights/vba/parser.md
+input 143
+slice 0 131 133                   # v1 [PA, PV]
+dense 1 9 2                       # v2 [fields, NX, payload]
+  0 0
+  0 0
+  1 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 1
+  402 3 0 142606337 0 0 0 405 0
+slice 2 0 7                       # v3 fields
+slice 0 8 67                      # v4 words 7..65
+slice 2 7 8                       # v5 NX word 66
+slice 0 68 137                    # v6 words 67..135
+slice 2 8 9                       # v7 payload
+concat 3 4
+concat 8 5
+concat 9 6
+concat 10 7

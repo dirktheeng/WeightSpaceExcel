@@ -1,0 +1,15 @@
+# vba/ps_read (id 402): parser re-read. Block read 6 words (tokens TP, TP + 2, TP + 4) at TP,
+# K = 136 (parser state width), next = NX (word 66). Note: weights/vba/parser.md
+input 137
+slice 0 65 68                     # v1 [TP, BCP, NX]
+dense 1 7 3                       # v2 fields
+  0 0 1
+  0 0 0
+  1 0 0
+  0 0 0
+  0 0 0
+  0 0 0
+  0 0 0
+  0 4 0 142606342 0 0 0
+slice 0 8 137                     # v3 words 7..135
+concat 2 3
