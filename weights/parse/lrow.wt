@@ -1,0 +1,36 @@
+# parse/lrow (id 120): one step. From lnum at ':' after integer digits M (formula mode): seed lword in the
+# row-digits state: KEY 0, KLEN 100, COL 0, ROW M, RS 6, FLAGS 0, OPND1 0, CSn 0; re-read char I (':')
+# and go to lword (68) with RDOK 1. Note: weights/parse/lrow.md
+input 65
+slice 0 30 31                     # v1 = [I]
+slice 0 57 58                     # v2 = [M] (lnum X0)
+concat 1 2                        # v3 = [I M]
+dense 3 8 2                       # v4 = words 0..7
+   0 0
+   0 0
+   1 0
+   0 0
+   0 0
+   0 0
+   0 0
+   0 0
+   68 1 10240 0 0 0 0 1
+dense 3 8 2                       # v5 = X0..X7 for lword
+   0 0
+   0 0
+   0 0
+   0 1
+   0 0
+   0 0
+   0 0
+   0 0
+   0 100 0 0 6 0 0 0
+dense 3 1 2                       # v6 = RDOK
+   0 0
+   1
+slice 0 9 32                      # v7 words 8..30
+concat 4 7                        # v8 (31)
+concat 8 6                        # v9 (32)
+slice 0 33 57                     # v10 words 32..55
+concat 9 10                       # v11 (56)
+concat 11 5                       # v12 = output

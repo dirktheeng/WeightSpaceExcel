@@ -1,6 +1,6 @@
 # parse/numconv (id 75): one-step decimal to double. value = M 10^E10, E10 = DROP - FRAC + (1 - 2 ESGN) EXPV.
 # E10 >= 0: one IEEE multiply by the exact 10^k. E10 < 0: q0 = M fl(10^-k), exact residual
-# r = M - q0 10^k by Dekker TwoProduct, q = q0 + r fl(10^-k). |E10| > 22: TK = 11 (out of range).
+# r = M - q0 10^k by Dekker TwoProduct, q = q0 + r fl(10^-k). |E10| > 22: TK = 11 and next = 123 (numbig).
 # Result in TV (word 54); returns to (X6, X7). Note: weights/parse/numconv.md
 input 65
 slice 0 57 65                     # v1 = [M SIG FRAC DROP EXPV ESGN RID RPC]
@@ -176,4 +176,16 @@ slice 0 54 55                     # v59 = TO
 concat 58 59                      # v60 (54)
 concat 60 48                      # v61 (55) TV
 slice 0 56 65                     # v62 = words 55..63
-concat 61 62                      # v63 = output
+concat 61 62                      # v63 (64)
+slice 1 6 7                       # v64 = [RID]
+concat 64 51                      # v65 = [RID, OOR]
+dense 65 1 2                      # v66 = RID - 128 OOR
+   1 -128
+   0
+relu 66                           # v67 = RID when in range, else 0
+concat 67 51                      # v68 = [RIDg, OOR]
+dense 68 1 2                      # v69 = next = RIDg + 123 OOR (numbig handles |E10| > 22)
+   1 123
+   0
+slice 63 1 64                     # v70 = words 1..63
+concat 69 70                      # v71 = output

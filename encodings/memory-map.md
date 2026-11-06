@@ -16,6 +16,8 @@ All addresses are word addresses. Total memory is 0x400000 words (harness MEM_SI
 
 The harness overwrites these on I/O requests, so networks treat them as volatile: read what they need into their own regions before issuing the next request of the same kind. 0x301041 to 0x301FFF is left unused as a guard so no table straddles the entropy block.
 
+**Block operations (harness v2, decision H2).** mem_op 3 writes a run of N consecutive words starting at addr and mem_op 4 reads such a run into the next input (harness/FORMAT.md, encodings/control.md section 1). The harness checks only that the run lies inside 0 to 0x3FFFFF; it does not know the regions below, so a run that crosses a region boundary is the writing network's error, exactly as for a single write. Intended uses: framebuffer scanlines (a 1280-pixel row of the 1280 x 800 framebuffer is one block write at 0x100000 + 1280 y), register spills to RET_STACK, copying strings and token streams, and writing memory-form networks into WEIGHT_STAGING. Runs are limited to 2^20 - 1 words by the field encoding and in practice by the payload height of the writing network.
+
 ## 2. Network regions
 
 Free memory is 0x000000 to 0x0FFFFF (1,048,576 words) and 0x302000 to 0x3FFFFF (1,040,384 words). About 2.09 million words in all, which is the binding resource for workbook size (open question Q-M1).
@@ -171,16 +173,21 @@ Generators write memory-form networks (harness/FORMAT.md) here, then request io 
 - WORK_STACK is shared by recalculation, sort and search; these never run nested (recalculation does not call sort; sort runs only from a command or a function such as SORT, which uses OPER_STACK and EVAL_SCRATCH, not WORK_STACK). The owner holds WORK_STACK until it returns to the main loop. Crosstalk test: a SORT function result feeding a recalculation chain (stage 10).
 - Multi-role words inside records (CALC, NEXTOCC, packed style words) are covered in their sections above.
 
-## 13. Parser output as built (weights/parse, 2026-11-06, decision P1 to P5 in log/WORKLOG.md)
+## 13. Parser output as built (weights/parse, 2026-11-06, decisions P1 to P5 and P6 to P10 in log/WORKLOG.md)
 
 The compiled token stream follows section 6 exactly, with these stated choices and deviations:
 - Formula record word 2 (token count) counts tokens **excluding** the end token (OPC 0); the end token is always written. FORMULA_TOP is advanced past the end token.
 - Words 3 to 7 of the record are not written (flags 0 by fresh memory; volatile and INDIRECT flags not set yet).
-- Range references are OPC 6 then OPC 7 (corner order as typed, not normalised; the evaluator normalises).
+- Range references are OPC 6 then OPC 7 (corner order as typed, not normalised; the evaluator normalises, decision P9: it resolves both corners to absolute rows and columns anyway, where min and max are one compare each, while the parser would have to unpack OPND1 and swap the flags with the fields).
+- Whole columns and rows use the same pair (address.md section 5): A:A is corner 1 = row absolute 0, corner 2 = row absolute 1048575 (FLAGS bit 0 set, the column part as typed); 3:3 is corner 1 = column absolute 0, corner 2 = column absolute 16383 (FLAGS bit 1 set, the row part as typed). The evaluator cannot tell A:A from A$1:A$1048576; the formula text keeps the typed form for display.
 - A bare name that is not a reference, boolean or function is compiled as **error literal #NAME? (OPC 4, 5)**, not OPC 9, because no defined names exist yet. To be replaced by OPC 9 when the name table exists.
 - A function call is OPC 64 + fid with fid = the checklist FN number (CHECKLIST.csv), operand = argument count. Unknown function names compile to fid 0 (OPC 64), which FUNC_TABLE should map to a #NAME? network.
 - Missing arguments are OPC 11, including a leading one (IF(,1,2)) and a middle one (IF(1,,2)). F() with nothing inside has argument count 0 and no OPC 11.
 - Unary minus 16, unary plus 17, percent 18 (postfix, emitted directly); ^ is left associative; unary binds tighter than ^ (=-2^2 is 2 u- 2 ^).
 - Text literals are new heap strings (reference count word left 0); "" uses TEXT_EMPTY.
-- Not yet produced: OPC 8 (sheet prefix), 9, 10, 31 to 35 (range, union, intersection, @, # operators).
-- PARSE_STACK is split: 0x2000 to 0x27FF operator stack (1 word = kind + 4096 argc), 0x2800 to 0x2FFF the unpacked character buffer (one UTF-16 unit per word, at most 2047 per entry).
+- Union is opcode 32 (comma at operand level inside a plain parenthesis, (A1,C1)) and intersection 33 (one or more spaces between an operand and a following letter, '$', apostrophe or '('). Both are operator tokens with operand 0. Precedence: intersection above every other operator (so =-A1 B1 is A1 B1 33 16); union pops only at a comma, ')' or the end, so inside its parentheses it binds loosest (decision P7; with reference operands the two readings give the same result).
+- Sheet prefix: OPC 8 with operand SHEET (the sheet table index) immediately before the reference token (OPC 5, or the OPC 6 / 7 pair) it applies to. The name is matched against the sheet records' name strings (section 5 word 0, SHEET_COUNT at 0x0F) with ASCII case folding; quoted names may contain spaces and '' for a quote. A name that matches no sheet rejects the entry (decision P10). 3D prefixes (SHEET + 2^16 SHEET2) are not produced yet.
+- Number literals: |decimal exponent| <= 22 in numconv, beyond in numbig (correctly rounded in every case tried, argued not proven). A value above the largest double is rejected in a formula (text as an entry); a value below 2^-1022 becomes 0 (decision P8).
+- Not yet produced: OPC 9, 10, 31 (':' between general references), 34, 35.
+- PARSE_STACK is split: 0x2000 to 0x27EF operator stack (1 word = kind + 4096 argc), 0x27F0 to 0x27FF the sheet key buffer (a folded sheet name packed 3 units per word, at most 31 units), 0x2800 to 0x2FFF the unpacked character buffer (one UTF-16 unit per word, at most 2047 per entry).
+- Parser network ids: 64 to 79 and 120 to 123 (lrow, shpack, shlook, numbig); 124 to 127 are reserved for the parser. The evaluator uses 80 upward.

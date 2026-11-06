@@ -344,3 +344,40 @@
 - weights/kernel/ev_next.wt: in v8 (words 0..7), the next row is `0 0 3 0` with bias 4 (next = 4 + 3 c). Change it to weight -146 on c and bias 153, so next = 153 - 146 c (7 when another event remains, 153 when the batch is done). The incremental frame ends by routing to 4 with MODE 1.
 - No active-cell hook is needed: the UI reads L2/L3 and keeps its own copy at 0x40, 0x41.
 - Cost after the hooks: every event batch costs about 30k steps on harness v1, and boot about 1.1M steps (about 65 s), until the harness v2 block writes are used.
+
+## 2026-11-06, Stage 1: parser extension (parse agent, session 2; details in log/parse-agent.md)
+
+### P6 (DECISION): parser ids 120 to 123, reserve 124 to 127
+- Decided: lrow 120, shpack 121, shlook 122, numbig 123 (weights/MANIFEST.txt); 124 to 127 reserved for the parser.
+- Alternatives: ids just above 79 (the evaluator agent already uses 80 to 94 and is growing upward).
+- Why: the top of the formula engine block (control.md section 5) cannot collide with the evaluator's sequential ids.
+- Affects: encodings/memory-map.md section 13, weights/parse/README.md.
+
+### P7 (DECISION): union and intersection as operator tokens 32 and 33; intersection found by idle
+- Decided: idle keeps SPC (word 28) = "a space was skipped while E = 0"; at a letter, '$', apostrophe or '(' with SPC and E = 0 it hands parse the binary operator 33 without consuming the character. A comma whose stack top is a plain '(' is a binary push of 32. Intersection has the highest precedence; union pops only at a comma, ')' or the end.
+- Alternatives: detect intersection in parse when an operand arrives with E = 0 (the pop it triggers would land after a sheet prefix token already emitted by shlook, splitting OPC 8 from its reference); give union precedence 8 above unary (needs a T >= 32 threshold and two more indicator columns; only changes results for non-reference operands, which are #VALUE! either way).
+- Why: the lexer sees the space before the next operand is lexed, so the operator reaches the parser in source order.
+- Affects: idle, parse. A digit after a space is never an intersection (=A:A 3:3 rejects, =1 2 still rejects).
+
+### P8 (DECISION): number literals beyond 10^22 by a double-double loop; overflow rejects, subnormals flush to 0
+- Decided: numconv routes |E10| > 22 to numbig, which builds 10^k 2^-512 as a double-double by exact factors (10^22, then 10^rem) with Dekker TwoProduct, then multiplies by M (positive) or forms the residual-corrected quotient (negative), then scales by 2^512 or 2^-512 exactly. Overflow is decided from the 15-digit mantissa and decimal exponent (e = 308 and M15 >= 179769313486232, or e >= 309) and rejects the formula (an entry stays text); values below 2^-1022 (e = -308 and M15 <= 222507385850720, or e <= -309) become 0.
+- Alternatives: two-stage scale M 10^22 10^(k-22) (value.md section 4 plan; off by one ulp in places); a ROM of double-double powers (hundreds of hand-computed low parts); keeping subnormals (double rounding in the final scaling).
+- Why: exact factors need no hand-computed constants; the only constants are 10^j (exact), fl(10^-j) and 2^(+-512) built by squaring in the pass.
+- Affects: numconv, numbig. Excel's own behaviour below 2.2250738585072E-308 is unverified (open question Q-P4).
+
+### P9 (DECISION): range corners stay as typed; the evaluator normalises
+- Decided: the parser does not swap corners (=B5:A1 compiles as typed).
+- Alternatives: normalise in wordend (needs a FLOOR unpack of OPND1 and a flag-aware swap of two packed fields).
+- Why: the evaluator resolves both corners to absolute rows and columns anyway; min and max there cost one compare each.
+- Affects: evaluator (weights/eval) must normalise every OPC 6 / 7 pair, including whole columns and rows.
+
+### P10 (DECISION): sheet prefix by a packed, folded key and a linear scan; a missing sheet rejects
+- Decided: shpack packs the case-folded name (3 units per word) into 0x27F0..0x27FF; shlook compares lengths, then folded heap words, sheet by sheet, emits [8, SHEET] and resumes lword with KLEN 100 and KEY 0 so only a reference can follow. A name that matches no sheet rejects the entry.
+- Alternatives: compare unit by unit against the character buffer (4 steps per 3 characters per sheet, and '' escapes would not line up); compile a missing sheet to #REF! (Excel instead asks for an external workbook, which has no meaning here yet).
+- Why: 2 steps per 3 characters per candidate sheet; the escapes are resolved once in shpack.
+- Affects: memory-map section 13 (operator stack now ends at 0x27EF), README. Open: Unicode case folding, 3D prefixes, external references.
+
+### Open questions recorded by this entry
+- Q-P4: Excel's handling of typed numbers below 2.2250738585072E-308 (0, subnormal, or rejection).
+- Q-P5: whether Excel accepts "=1 A1" or "=SUM (A1)"; both now parse as intersections.
+- Result: 20 networks, 25,735 dense parameters. tests/output/parse: 179 passed (91 old unchanged, 88 new in test_parse_ext.py).

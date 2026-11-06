@@ -1,0 +1,179 @@
+# parse/shpack (id 121): pack a sheet name, case-folded (a..z -> A..Z), 3 units per word, into the sheet
+# key buffer 0x27F0 + SW (encodings/memory-map.md section 13). X0 J (next char index), X1 END (unquoted
+# end = index of '!'), X2 MODE (0 unquoted, 1 quoted), X3 SACC, X4 SK, X5 SW, X6 N (length), X7 QS
+# (quoted: a quote was just read). PC 0 (from lword at '!'): J = TV, END = I, read char J. PC 1: one
+# char per step (RDOK 0: fetch char J). Quoted: '' is a quote, a quote then '!' ends, anything else
+# after a closing quote, or end of text, rejects. Finish: write the last word, I = J + 1, -> shlook 122
+# PC 0 with X0 = 0, X2 = N. N = 0 or N > 31 rejects. Note: weights/parse/shpack.md
+input 65
+slice 0 0 1                       # v1 = [c]
+slice 0 8 9                       # v2 = [PC]
+slice 0 30 33                     # v3 = [I LEN RDOK]
+slice 0 55 56                     # v4 = [TV]
+slice 0 57 65                     # v5 = [J END MODE SACC SK SW N QS]
+concat 1 2                        # v6
+concat 6 3                        # v7
+concat 7 4                        # v8
+concat 8 5                        # v9 (14) c PC I LEN RDOK TV J END MODE SACC SK SW N QS
+slice 0 13 14                     # v10 = [STATUS]
+concat 9 10                       # v11 = R (15), ST at 14
+dense 11 13 15                    # v12 thresholds
+#c  PC I LEN RD TV J  END MD SACC SK SW N  QS ST
+  0  1  0  0  0  0  0  0   0  0    0  0  0  0  0    # ph1
+  1  0  0  0  0  0  0  0   0  0    0  0  0  0  0    # t1 c >= 33
+  1  0  0  0  0  0  0  0   0  0    0  0  0  0  0    # t2 c >= 34
+  1  0  0  0  0  0  0  0   0  0    0  0  0  0  0    # t3 c >= 39
+  1  0  0  0  0  0  0  0   0  0    0  0  0  0  0    # t4 c >= 40
+  1  0  0  0  0  0  0  0   0  0    0  0  0  0  0    # t5 c >= 97
+  1  0  0  0  0  0  0  0   0  0    0  0  0  0  0    # t6 c >= 123
+  0  0  0  0  0  0  1 -1   0  0    0  0  0  0  0    # jE J >= END
+  0  0  0 -1  0  0  1  0   0  0    0  0  0  0  0    # jL J >= LEN
+  0  0  0  0  0  0  0  0   0  0    1  0  0  0  0    # sk1
+  0  0  0  0  0  0  0  0   0  0    1  0  0  0  0    # sk2
+  0  0  0  0  0  0  0  0   0  0    0  0  1  0  0    # n31 N >= 31
+  0  0  0  0  0  0  0  0   0  0    0  0  1  0  0    # n1 N >= 1
+  -0.5 -32.5 -33.5 -38.5 -39.5 -96.5 -122.5 0.5 0.5 -0.5 -1.5 -30.5 -0.5
+step 12                           # v13 (13)
+slice 11 4 5                      # v14 = [RDOK]
+slice 11 8 9                      # v15 = [MODE]
+slice 11 13 14                    # v16 = [QS]
+concat 13 14                      # v17
+concat 17 15                      # v18
+concat 18 16                      # v19 (16) ph1 t1..t6 jE jL sk1 sk2 n31 n1 RD MD QS
+dense 19 9 16                     # v20 layer-1 gates (ph1 weight 1 + 2^23: in PC 0 MODE and QS hold lword's COL, CSn)
+#ph1 t1 t2 t3 t4 t5 t6 jE jL sk1 sk2 n31 n1 RD MD QS
+  8388609 0  0  0  0  0  0  0  0  0   0   0   0  -1  0  0    # FETCH
+  8388609 0  0  0  0  0  0 -1  0  0   0   0   0   1 -1  0    # U_AP unquoted append
+  8388609 0  0  0  0  0  0  1  0  0   0   0   0   1 -1  0    # U_F unquoted finish (char is '!')
+  8388609 0  0  0  0  0  0  0  1  0   0   0   0   1  1  0    # QE quoted, end of text
+  8388609 0  0  1 -1  0  0  0 -1  0   0   0   0   1  1 -1    # Q1 quoted, quote: remember it
+  8388609 0  0 -1  1  0  0  0 -1  0   0   0   0   1  1 -1    # Q2 quoted, other char: append
+  8388609 0  0  1 -1  0  0  0 -1  0   0   0   0   1  1  1    # Q3 quoted, '' : append a quote
+  8388609 1 -1  0  0  0  0  0 -1  0   0   0   0   1  1  1    # Q4 quoted, closing quote then '!': finish
+  8388609 -1 1 -1  1  0  0  0 -1  0   0   0   0   1  1  1    # Q5 quoted, closing quote then other: reject
+  -8388608.5 -8388609.5 -8388610.5 -8388611.5 -8388611.5 -8388610.5 -8388612.5 -8388612.5 -8388611.5
+step 20                           # v21 = [FETCH U_AP U_F QE Q1 Q2 Q3 Q4 Q5]
+concat 21 13                      # v22 (22)
+dense 22 6 22                     # v23 layer-2 gates
+#FE UA UF QE Q1 Q2 Q3 Q4 Q5 | ph1 t1 t2 t3 t4 t5 t6 jE jL sk1 sk2 n31 n1
+  0  1  0  0  0  1  1  0  0    0   0  0  0  0  0  0  0  0  0   1  -1   0    # APW append, word full: write it
+  0  1  0  0  0  1  1  0  0    0   0  0  0  0  0  0  0  0  0  -1  -1   0    # APR append, read the next char
+  0  0  1  0  0  0  0  1  0    0   0  0  0  0  0  0  0  0  0   0   0   1    # FOK finish, N >= 1
+  0  1  0  0  0  1  1  0  0    0   0  0  0  0  0  0  0  0  0   0   1   0    # REJ1 name longer than 31
+  0  0  1  0  0  0  0  1  0    0   0  0  0  0  0  0  0  0  0   0   0  -1    # REJ2 empty name
+  0  0  0  0  0  0  0  0  0   -1   0  0  0  0  0  0  0  0  0   0   0   0    # P0 init (PC 0)
+  -1.5 -0.5 -1.5 -1.5 -0.5 0.5
+step 23                           # v24 = [APW APR FOK REJ1 REJ2 P0]
+concat 21 24                      # v25 = G (15) FE UA UF QE Q1 Q2 Q3 Q4 Q5 APW APR FOK REJ1 REJ2 P0
+slice 11 0 1                      # v26 = [c]
+concat 26 13                      # v27 (14) c ph1 t1..t6 jE jL sk1 sk2 n31 n1
+dense 27 2 14                     # v28 = [fc = c - 32 [a..z], scale = 2^(16 SK)]
+  1 0 0 0 0 0 -32 32 0 0 0     0          0 0
+  0 0 0 0 0 0  0  0  0 0 65535 4294901760 0 0
+  0 1
+mul 28 0 1 1 2                    # v29 = fc scale (exact, below 2^48)
+slice 11 9 10                     # v30 = [SACC]
+concat 29 30                      # v31
+dense 31 1 2                      # v32 = newacc = SACC + fc scale
+   1 1
+   0
+dense 25 4 15                     # v33 = gates [APR, FETCH + Q1, APW, FOK]
+#FE UA UF QE Q1 Q2 Q3 Q4 Q5 APW APR FOK R1 R2 P0
+  0  0  0  0  0  0  0  0  0  0   1   0   0  0  0
+  1  0  0  0  1  0  0  0  0  0   0   0   0  0  0
+  0  0  0  0  0  0  0  0  0  1   0   0   0  0  0
+  0  0  0  0  0  0  0  0  0  0   0   1   0  0  0
+  0 0 0 0
+concat 32 30                      # v34 = [newacc SACC]
+dense 34 4 2                      # v35 = [newacc SACC newacc SACC]
+  1 0
+  0 1
+  1 0
+  0 1
+  0 0 0 0
+concat 33 35                      # v36 (8)
+mul 36 0 4 4 8                    # v37 = [APR na, keep SACC, APW na, FOK SACC]
+dense 37 2 4                      # v38 = [X3 SACC', value]
+  1 1 0 0
+  0 0 1 1
+  0 0
+concat 25 11                      # v39 = W (30) gates 0..14, c PC I LEN RD TV J END MD SACC SK SW N QS ST
+dense 39 17 30                    # v40 MUX_INT pre (M = 2^23)
+#FE      UA UF QE Q1      Q2 Q3 Q4 Q5 APW     APR     FOK      R1 R2 P0       | c PC I  LEN RD TV J  END MD SACC SK SW N  QS ST
+  0       0  0  0  0       0  0  0  0  0       0       0        0  0  8388608    0 0  0  0   0  1  0  0   0  0    0  0  0  0  0    # a0 TV on P0
+  8388608 0  0  0  0       0  0  0  0  0       0       0        0  0  0          0 0  0  0   0  0  1  0   0  0    0  0  0  0  0    # a1 J on FETCH
+  0       0  0  0  8388608 0  0  0  0  8388608 8388608 0        0  0  0          0 0  0  0   0  0  1  0   0  0    0  0  0  0  0    # a2 J on Q1 APR APW (then + 1)
+  0       0  0  0  0       0  0  0  0  8388608 0       8388608  0  0  0          0 0  0  0   0  0  0  0   0  0    0  1  0  0  0    # a3 SW on APW FOK
+  0       0  0  0  0       0  0  0  0  0       0       0        0  0  8388608    0 0  1  0   0  0  0  0   0  0    0  0  0  0  0    # a4 I on P0 (END)
+  0       0  0  0  0       0  0  0  0  0       0       0        0  0  -8388608   0 0  0  0   0  0  0  1   0  0    0  0  0  0  0    # a5 END keep
+  0       0  0  0  0       0  0  0  0  0       0       -8388608 0  0  -8388608   0 0  0  0   0  0  0  0   1  0    0  0  0  0  0    # a6 MODE keep
+  0       0  0  0  0       0  0  0  0  0       0       8388608  0  0  0          0 0  0  0   0  0  0  0   0  0    0  0  1  0  0    # a7 N on FOK (to X2)
+  8388608 0  0  0  8388608 0  0  0  0  0       0       0        0  0  0          0 0  0  0   0  0  0  0   0  0    1  0  0  0  0    # a8 SK keep
+  0       0  0  0  0       0  0  0  0  0       8388608 0        0  0  0          0 0  0  0   0  0  0  0   0  0    1  0  0  0  0    # a9 SK on APR (then + 1)
+  8388608 0  0  0  8388608 0  0  0  0  0       8388608 0        0  0  0          0 0  0  0   0  0  0  0   0  0    0  1  0  0  0    # a10 SW keep
+  0       0  0  0  0       0  0  0  0  8388608 0       0        0  0  0          0 0  0  0   0  0  0  0   0  0    0  1  0  0  0    # a11 SW on APW (then + 1)
+  8388608 0  0  0  8388608 0  0  0  0  0       0       0        0  0  0          0 0  0  0   0  0  0  0   0  0    0  0  1  0  0    # a12 N keep
+  0       0  0  0  0       0  0  0  0  8388608 8388608 0        0  0  0          0 0  0  0   0  0  0  0   0  0    0  0  1  0  0    # a13 N on append (then + 1)
+  8388608 0  0  0  0       0  0  0  0  0       0       0        0  0  0          0 0  0  0   0  0  0  0   0  0    0  0  0  1  0    # a14 QS keep
+  0       0  0  0  0       0  0  0  0  0       0       -8388608 0  0  0          0 0  1  0   0  0  0  0   0  0    0  0  0  0  0    # a15 I keep
+  0       0  0  0  0       0  0  0  0  0       0       8388608  0  0  0          0 0  0  0   0  0  1  0   0  0    0  0  0  0  0    # a16 J on FOK (I = J + 1)
+  -8388608 -8388608 -8388608 -8388608 -8388608 0 0 -8388608 -8388608 -8388608 -8388608 -8388608 -8388608 -8388608 -8388608 0 -8388608
+relu 40                           # v41 = a0..a16
+concat 39 41                      # v42 (47)
+concat 42 38                      # v43 (49) X3v 47, VAL 48
+dense 25 5 15                     # v44 = mul gates for J and N (exact for any value; in PC 0 they hold lword's KEY, OPND1)
+#FE UA UF QE Q1 Q2 Q3 Q4 Q5 APW APR FOK R1 R2 P0
+  1  0  0  0  1  0  0  0  0  0   1   0   0  0  0    # JA: J for the read address
+  1  0  0  0  1  0  0  0  0  1   1   0   0  0  0    # JX: J for X0
+  0  0  0  0  0  0  0  0  0  0   0   1   0  0  0    # JF: J for I on finish
+  1  0  0  0  1  0  0  0  0  1   1   0   0  0  0    # NX: N for X6
+  0  0  0  0  0  0  0  0  0  0   0   1   0  0  0    # NF: N for X2 on finish
+  0 0 0 0 0
+slice 11 6 7                      # v45 = [J]
+slice 11 12 13                    # v46 = [N]
+concat 45 45                      # v47
+concat 47 45                      # v48 = [J J J]
+concat 48 46                      # v49
+concat 49 46                      # v50 = [J J J N N]
+concat 44 50                      # v51 (10)
+mul 51 0 5 5 10                   # v52 = [JAv JXv JFv NXv NFv]
+concat 43 52                      # v53 (54)
+dense 53 19 54                    # v54 = D
+#FE  UA UF QE Q1    Q2 Q3 Q4 Q5 APW   APR   FOK   R1 R2 P0    | c PC I LEN RD TV J END MD SACC SK SW N QS ST | a0 a1 a2 a3 a4 a5 a6 a7 a8 a9 a10 a11 a12 a13 a14 a15 a16 | X3v VAL | JA JX JF NX NF
+ 121  0  0  79 121   0  0  0  79 121   121   122   79 79 121     0 0  0 0   0  0  0 0   0  0    0  0  0 0  0    0  0  0  0  0  0  0  0  0  0  0   0   0   0   0   0   0    0   0     0  0  0  0  0   # next
+ 1    0  0  0  1     0  0  0  0  2     1     2     0  0  1       0 0  0 0   0  0  0 0   0  0    0  0  0 0  0    0  0  0  0  0  0  0  0  0  0  0   0   0   0   0   0   0    0   0     0  0  0  0  0   # mem_op
+ 10240 0 0  0  10241 0  0  0  0  10224 10241 10224 0  0  10240   0 0  0 0   0  0  0 0   0  0    0  0  0 0  0    1  0  0  1  0  0  0  0  0  0  0   0   0   0   0   0   0    0   0     1  0  0  0  0   # addr
+ 0    0  0  0  0     0  0  0  0  0     0     0     0  0  0       0 0  0 0   0  0  0 0   0  0    0  0  0 0  0    0  0  0  0  0  0  0  0  0  0  0   0   0   0   0   0   0    0   1     0  0  0  0  0   # value
+ 0    0  0  0  0     0  0  0  0  0     0     0     0  0  0       0 0  0 0   0  0  0 0   0  0    0  0  0 0  0    0  0  0  0  0  0  0  0  0  0  0   0   0   0   0   0   0    0   0     0  0  0  0  0
+ 0    0  0  0  0     0  0  0  0  0     0     0     0  0  0       0 0  0 0   0  0  0 0   0  0    0  0  0 0  0    0  0  0  0  0  0  0  0  0  0  0   0   0   0   0   0   0    0   0     0  0  0  0  0
+ 0    0  0  0  0     0  0  0  0  0     0     0     0  0  0       0 0  0 0   0  0  0 0   0  0    0  0  0 0  0    0  0  0  0  0  0  0  0  0  0  0   0   0   0   0   0   0    0   0     0  0  0  0  0
+ 1    0  0  0  1     0  0  0  0  1     1     0     0  0  1       0 0  0 0   0  0  0 0   0  0    0  0  0 0  0    0  0  0  0  0  0  0  0  0  0  0   0   0   0   0   0   0    0   0     0  0  0  0  0   # PC
+ 0    0  0  1  0     0  0  0  1  0     0     0     1  1  0       0 0  0 0   0  0  0 0   0  0    0  0  0 0  1    0  0  0  0  0  0  0  0  0  0  0   0   0   0   0   0   0    0   0     0  0  0  0  0   # STATUS
+ 0    0  0  0  0     0  0  0  0  0     0     1     0  0  0       0 0  0 0   0  0  0 0   0  0    0  0  0 0  0    0  0  0  0  0  0  0  0  0  0  0   0   0   0   0   1   0    0   0     0  0  1  0  0   # I
+ 1    0  0  0  1     0  0  0  0  0     1     0     0  0  1       0 0  0 0   0  0  0 0   0  0    0  0  0 0  0    0  0  0  0  0  0  0  0  0  0  0   0   0   0   0   0   0    0   0     0  0  0  0  0   # RDOK
+ 0    0  0  0  1     0  0  0  0  1     1     0     0  0  0       0 0  0 0   0  0  0 0   0  0    0  0  0 0  0    1  0  0  0  0  0  0  0  0  0  0   0   0   0   0   0   0    0   0     0  1  0  0  0   # X0 J
+ 0    0  0  0  0     0  0  0  0  0     0     0     0  0  0       0 0  0 0   0  0  0 0   0  0    0  0  0 0  0    0  0  0  0  1  1  0  0  0  0  0   0   0   0   0   0   0    0   0     0  0  0  0  0   # X1 END
+ 0    0  0  0  0     0  0  0  0  0     0     0     0  0  0       0 0  0 0   0  0  0 0   0  0    0  0  0 0  0    0  0  0  0  0  0  1  0  0  0  0   0   0   0   0   0   0    0   0     0  0  0  0  1   # X2 MODE (N on finish)
+ 0    0  0  0  0     0  0  0  0  0     0     0     0  0  0       0 0  0 0   0  0  0 0   0  0    0  0  0 0  0    0  0  0  0  0  0  0  0  0  0  0   0   0   0   0   0   0    1   0     0  0  0  0  0   # X3 SACC
+ 0    0  0  0  0     0  0  0  0  0     1     0     0  0  0       0 0  0 0   0  0  0 0   0  0    0  0  0 0  0    0  0  0  0  0  0  0  0  1  1  0   0   0   0   0   0   0    0   0     0  0  0  0  0   # X4 SK
+ 0    0  0  0  0     0  0  0  0  1     0     0     0  0  0       0 0  0 0   0  0  0 0   0  0    0  0  0 0  0    0  0  0  0  0  0  0  0  0  0  1   1   0   0   0   0   0    0   0     0  0  0  0  0   # X5 SW
+ 0    0  0  0  0     0  0  0  0  1     1     0     0  0  0       0 0  0 0   0  0  0 0   0  0    0  0  0 0  0    0  0  0  0  0  0  0  0  0  0  0   0   0   0   0   0   0    0   0     0  0  0  1  0   # X6 N
+ 0    0  0  0  1     0  0  0  0  0     0     0     0  0  0       0 0  0 0   0  0  0 0   0  0    0  0  0 0  0    0  0  0  0  0  0  0  0  0  0  0   0   0   0   1   0   0    0   0     0  0  0  0  0   # X7 QS
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+slice 54 0 8                      # v55 words 0..7
+slice 0 9 13                      # v56 words 8..11
+concat 55 56                      # v57
+slice 54 8 9                      # v58 STATUS
+concat 57 58                      # v59 (13)
+slice 0 14 30                     # v60 words 13..28
+concat 59 60                      # v61 (29)
+slice 54 9 10                     # v62 I
+concat 61 62                      # v63 (30)
+slice 0 31 32                     # v64 LEN
+concat 63 64                      # v65 (31)
+slice 54 10 11                    # v66 RDOK
+concat 65 66                      # v67 (32)
+slice 0 33 57                     # v68 words 32..55
+concat 67 68                      # v69 (56)
+slice 54 11 19                    # v70 X0..X7
+concat 69 70                      # v71 = output

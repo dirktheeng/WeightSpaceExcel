@@ -1,0 +1,224 @@
+# parse/shlook (id 122): find the sheet whose name equals the packed, case-folded key at 0x27F0 (from
+# shpack, length N in X2), emit token [8, SHEET] at OUTP and continue in lword at char I (after '!').
+# X0 s, X1 CNT, X2 N, X3 h (name handle), X4 w (word index), X5 HW (folded heap word).
+# PC 0 read SHEET_COUNT (0x0F) | 1, 2 s >= CNT -> reject, else read SHEET_TABLE + 16 s (name handle)
+# | 3 h = x0, read [h] (length) | 4 length != N -> s + 1, PC 2; else read [h + 2] | 5 HW = fold(x0),
+# read [0x27F0 + w] | 6 x0 != HW -> s + 1, PC 2; equal and 3 (w + 1) < N -> w + 1, read [h + 3 + w];
+# equal and done -> write 8 at OUTP | 7 write s at OUTP + 1, OUTP += 2, NT += 1 | 8 read char I ->
+# lword with RDOK 1, KEY 0, KLEN 100, other lword registers 0, TV = -1. Note: weights/parse/shlook.md
+input 65
+slice 0 0 1                       # v1 = [x0]
+slice 0 8 9                       # v2 = [PC]
+slice 0 57 63                     # v3 = [s CNT N h w HW]
+slice 0 30 31                     # v4 = [I]
+slice 0 38 40                     # v5 = [OUTP NT]
+slice 0 13 14                     # v6 = [STATUS]
+slice 0 55 56                     # v7 = [TV]
+dense 1 1 1                       # v8 = y = x0 2^-16 (UNPACK3, exact scaling)
+   0.0000152587890625
+   0
+dense 8 1 1                       # v9
+   1
+   6755399441055744
+dense 9 1 1                       # v10 = r = round(y)
+   1
+   -6755399441055744
+concat 10 8                       # v11 = [r y]
+dense 11 1 2                      # v12 = r - y
+   1 -1
+   0
+step 12                           # v13
+concat 11 13                      # v14 = [r y g]
+dense 14 1 3                      # v15 = f = floor(x0 / 2^16)
+   1 0 -1
+   0
+dense 15 1 1                      # v16 = y2 = f 2^-16
+   0.0000152587890625
+   0
+dense 16 1 1                      # v17
+   1
+   6755399441055744
+dense 17 1 1                      # v18 = r2
+   1
+   -6755399441055744
+concat 18 16                      # v19 = [r2 y2]
+dense 19 1 2                      # v20
+   1 -1
+   0
+step 20                           # v21
+concat 19 21                      # v22
+dense 22 1 3                      # v23 = c2 = floor(f / 2^16)
+   1 0 -1
+   0
+concat 1 15                       # v24 = [x0 f]
+concat 24 23                      # v25 = [x0 f c2]
+dense 25 3 3                      # v26 = [c0 c1 c2]
+   1 -65536 0
+   0 1 -65536
+   0 0 1
+   0 0 0
+dense 26 6 3                      # v27 = lower-case thresholds per unit
+   1 0 0
+   1 0 0
+   0 1 0
+   0 1 0
+   0 0 1
+   0 0 1
+   -96.5 -122.5 -96.5 -122.5 -96.5 -122.5
+step 27                           # v28
+concat 1 28                       # v29 = [x0, 6 thresholds]
+dense 29 1 7                      # v30 = HWv = x0 - 32 L0 - 2^21 L1 - 2^37 L2 (fold a..z)
+   1 -32 32 -2097152 2097152 -137438953472 137438953472
+   0
+dense 2 8 1                       # v31 = PC - k + 0.5
+   1
+   1
+   1
+   1
+   1
+   1
+   1
+   1
+   -0.5 -1.5 -2.5 -3.5 -4.5 -5.5 -6.5 -7.5
+step 31                           # v32 = s1..s8
+dense 32 9 8                      # v33 = ph0..ph8
+  -1  0  0  0  0  0  0  0
+   1 -1  0  0  0  0  0  0
+   0  1 -1  0  0  0  0  0
+   0  0  1 -1  0  0  0  0
+   0  0  0  1 -1  0  0  0
+   0  0  0  0  1 -1  0  0
+   0  0  0  0  0  1 -1  0
+   0  0  0  0  0  0  1 -1
+   0  0  0  0  0  0  0  1
+   1 0 0 0 0 0 0 0 0
+slice 33 1 2                      # v34 = [ph1]
+dense 34 2 1                      # v35 = [ph1, 1 - ph1]
+   1
+  -1
+   0 1
+concat 1 3                        # v36 (7) x0 s CNT N h w HW
+concat 36 4                       # v37 (8) + I
+concat 37 5                       # v38 (10) + OUTP NT
+concat 38 6                       # v39 (11) + ST
+concat 39 7                       # v40 = C (12) + TV
+slice 40 0 1                      # v41 = [x0]
+slice 40 2 3                      # v42 = [CNT]
+concat 41 42                      # v43
+concat 35 43                      # v44 = [ph1, 1 - ph1, x0, CNT]
+mul 44 0 2 2 4                    # v45
+dense 45 1 2                      # v46 = cntv (count just read in PC 1, else CNT)
+   1 1
+   0
+concat 40 46                      # v47 (13) cntv 12
+concat 47 30                      # v48 (14) HWv 13
+dense 48 6 14                     # v49 compares
+#x0 s  CNT N  h  w  HW I  OUTP NT ST TV cntv HWv
+  0  1  0   0  0  0  0  0  0    0  0  0  -1   0     # ge: s >= cntv
+  1  0  0  -1  0  0  0  0  0    0  0  0   0   0     # dl+: x0 > N
+ -1  0  0   1  0  0  0  0  0    0  0  0   0   0     # dl-: x0 < N
+  1  0  0   0  0  0 -1  0  0    0  0  0   0   0     # dw+: x0 > HW
+ -1  0  0   0  0  0  1  0  0    0  0  0   0   0     # dw-: x0 < HW
+  0  0  0  -1  0  3  0  0  0    0  0  0   0   0     # done: 3 w + 3 >= N
+  0.5 -0.5 -0.5 -0.5 -0.5 3.5
+step 49                           # v50
+concat 33 50                      # v51 (15) ph0..ph8 ge dl+ dl- dw+ dw- done
+dense 51 12 15                    # v52 action gates
+#p0 p1 p2 p3 p4 p5 p6 p7 p8 ge l+ l- w+ w- dn
+  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0    # P0g read SHEET_COUNT
+  0  1  1  0  0  0  0  0  0  1  0  0  0  0  0    # NOSH no more sheets: reject
+  0  1  1  0  0  0  0  0  0 -1  0  0  0  0  0    # SH read the name handle
+  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0    # P3 read the length
+  0  0  0  0  1  0  0  0  0  0  1  1  0  0  0    # LNE length differs
+  0  0  0  0  1  0  0  0  0  0 -1 -1  0  0  0    # LEQ length equal: read word 0
+  0  0  0  0  0  1  0  0  0  0  0  0  0  0  0    # P5 fold, read the key word
+  0  0  0  0  0  0  1  0  0  0  0  0  1  1  0    # NE word differs
+  0  0  0  0  0  0  1  0  0  0  0  0 -1 -1 -1    # EQN equal, more words
+  0  0  0  0  0  0  1  0  0  0  0  0 -1 -1  1    # EQD equal, done: write OPC 8
+  0  0  0  0  0  0  0  1  0  0  0  0  0  0  0    # P7 write SHEET
+  0  0  0  0  0  0  0  0  1  0  0  0  0  0  0    # P8 read char I, back to lword
+  -0.5 -1.5 -0.5 -0.5 -1.5 -0.5 -0.5 -1.5 -0.5 -1.5 -0.5 -0.5
+step 52                           # v53 = [P0g NOSH SH P3 LNE LEQ P5 NE EQN EQD P7 P8]
+dense 53 4 12                     # v54 = mul gates [P3, keep h, P5, keep HW]
+  0 0 0 1 0 0 0 0 0 0 0 0
+  0 0 0 -1 0 0 0 0 0 0 0 -1
+  0 0 0 0 0 0 1 0 0 0 0 0
+  0 0 0 0 0 0 -1 0 0 0 0 -1
+  0 1 0 1
+slice 40 4 5                      # v55 = [h]
+slice 40 6 7                      # v56 = [HW]
+concat 41 55                      # v57 = [x0 h]
+concat 57 30                      # v58 = [x0 h HWv]
+concat 58 56                      # v59 = [x0 h HWv HW]
+concat 54 59                      # v60 (8)
+mul 60 0 4 4 8                    # v61
+dense 61 2 4                      # v62 = [h', HW']
+  1 1 0 0
+  0 0 1 1
+  0 0
+concat 53 48                      # v63 = W (26) gates 0..11, x0 s CNT N h w HW I OUTP NT ST TV cntv HWv
+dense 63 14 26                    # v64 MUX_INT pre (M = 2^23; b13 uses 2^50 because x0 may be a packed word)
+#P0g NOSH     SH       P3                LNE      LEQ      P5       NE EQN      EQD      P7       P8       | x0 s  CNT N  h  w  HW I  OUTP NT ST TV cntv HWv
+  0   0        8388608  0                 0        0        0        0  0        0        0        0          0  16 0   0  0  0  0  0  0    0  0  0  0    0     # b0 16 s on SH
+  0   0        0        0                 0        8388608  0        0  8388608  0        0        0          0  0  0   0  1  0  0  0  0    0  0  0  0    0     # b1 h on LEQ EQN
+  0   0        0        0                 0        0        0        0  8388608  0        0        0          0  0  0   0  0  1  0  0  0    0  0  0  0    0     # b2 w on EQN
+  0   0        0        0                 0        0        8388608  0  0        0        0        0          0  0  0   0  0  1  0  0  0    0  0  0  0    0     # b3 w on P5
+  0   0        0        0                 0        0        0        0  0        0        0        8388608    0  0  0   0  0  0  0  1  0    0  0  0  0    0     # b4 I on P8
+  0   0        0        0                 0        0        0        0  0        8388608  8388608  0          0  0  0   0  0  0  0  0  1    0  0  0  0    0     # b5 OUTP on EQD P7
+  0   0        0        0                 0        0        0        0  0        0        8388608  0          0  1  0   0  0  0  0  0  0    0  0  0  0    0     # b6 s on P7 (value)
+ -8388608 0    0        0                 0        0        0        0  0        0        0        -8388608   0  1  0   0  0  0  0  0  0    0  0  0  0    0     # b7 s keep
+  0   8388608  8388608  0                 0        0        0        0  0        0        0        0          0  0  0   0  0  0  0  0  0    0  0  0  1    0     # b8 cntv on NOSH SH
+  0  -8388608 -8388608  0                 0        0        0        0  0        0        0        -8388608   0  0  1   0  0  0  0  0  0    0  0  0  0    0     # b9 CNT keep
+  0   0        0        0                 0        0        0        0  0        0        0        -8388608   0  0  0   1  0  0  0  0  0    0  0  0  0    0     # b10 N keep
+  0   0        0        0                 0       -8388608  0        0  0        0        0        -8388608   0  0  0   0  0  1  0  0  0    0  0  0  0    0     # b11 w keep
+  0   0        0        0                 0        0        0        0  0        0        0        -8388608   0  0  0   0  0  0  0  0  0    0  0  1  0    0     # b12 TV keep
+  0   0        0        1125899906842624  0        0        0        0  0        0        0        0          1  0  0   0  0  0  0  0  0    0  0  0  0    0     # b13 x0 on P3
+  -8388608 -8388608 -8388608 -8388608 -8388608 -8388608 -8388608 0 -8388608 0 0 0 0 -1125899906842624
+relu 64                           # v65 = b0..b13
+concat 63 65                      # v66 (40)
+concat 66 62                      # v67 (42) h' 40, HW' 41
+dense 67 21 42                    # v68 = D
+#P0g NOSH SH    P3 LNE LEQ P5    NE EQN EQD P7 P8    | x0 s CNT N h w HW I OUTP NT ST TV cntv HWv | b0 b1 b2 b3 b4 b5 b6 b7 b8 b9 b10 b11 b12 b13 | h' HW'
+ 122 79   122   122 122 122 122   122 122 122 122 68     0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0   # next
+ 1   0    1     1   0   1   1     0   1   2   2   1      0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0   # mem_op
+ 15  0    16384 0   0   2   10224 0   3   0   1   10240  0 0 0 0 0 0 0 0 0 0 0 0 0 0   1 1 1 1 1 1 0 0 0 0 0 0 0 1   0 0   # addr
+ 0   0    0     0   0   0   0     0   0   8   0   0      0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 1 0 0 0 0 0 0 0   0 0   # value
+ 0   0    0     0   0   0   0     0   0   0   0   0      0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0
+ 0   0    0     0   0   0   0     0   0   0   0   0      0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0
+ 0   0    0     0   0   0   0     0   0   0   0   0      0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0
+ 1   0    3     4   2   5   6     2   5   7   8   1      0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0   # PC
+ 0   1    0     0   0   0   0     0   0   0   0   0      0 0 0 0 0 0 0 0 0 0 1 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0   # STATUS
+ 0   0    0     0   0   0   0     0   0   0   0   1      0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0   # RDOK
+ 0   0    0     0   0   0   0     0   0   0   2   0      0 0 0 0 0 0 0 0 1 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0   # OUTP
+ 0   0    0     0   0   0   0     0   0   0   1   0      0 0 0 0 0 0 0 0 0 1 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0   # NT
+ 0   0    0     0   0   0   0     0   0   0   0   -1     0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0 1 0   0 0   # TV
+ 0   0    0     0   1   0   0     1   0   0   0   0      0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 1 0 0 0 0 0 0   0 0   # X0 s (KEY 0 on P8)
+ 0   0    0     0   0   0   0     0   0   0   0   100    0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 1 1 0 0 0 0   0 0   # X1 CNT (KLEN 100 on P8)
+ 0   0    0     0   0   0   0     0   0   0   0   0      0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0 1 0 0 0   0 0   # X2 N (COL 0 on P8)
+ 0   0    0     0   0   0   0     0   0   0   0   0      0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0 0 0   1 0   # X3 h (ROW 0 on P8)
+ 0   0    0     0   0   0   0     0   1   0   0   0      0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 1 0 0   0 0   # X4 w (RS 0 on P8)
+ 0   0    0     0   0   0   0     0   0   0   0   0      0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 1   # X5 HW (FLAGS 0 on P8)
+ 0   0    0     0   0   0   0     0   0   0   0   0      0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0   # X6 (OPND1 0)
+ 0   0    0     0   0   0   0     0   0   0   0   0      0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0   # X7 (CSn 0)
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+slice 68 0 8                      # v69 words 0..7
+slice 0 9 13                      # v70 words 8..11
+concat 69 70                      # v71
+slice 68 8 9                      # v72 STATUS
+concat 71 72                      # v73 (13)
+slice 0 14 32                     # v74 words 13..30
+concat 73 74                      # v75 (31)
+slice 68 9 10                     # v76 RDOK
+concat 75 76                      # v77 (32)
+slice 0 33 38                     # v78 words 32..36
+concat 77 78                      # v79 (37)
+slice 68 10 12                    # v80 OUTP NT
+concat 79 80                      # v81 (39)
+slice 0 40 55                     # v82 words 39..53
+concat 81 82                      # v83 (54)
+slice 68 12 13                    # v84 TV
+concat 83 84                      # v85 (55)
+slice 0 56 57                     # v86 word 55
+concat 85 86                      # v87 (56)
+slice 68 13 21                    # v88 X0..X7
+concat 87 88                      # v89 = output
