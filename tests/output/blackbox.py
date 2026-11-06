@@ -189,3 +189,82 @@ def value(h, a):
     if tag == 4:
         return {"error": ERRORS.get(int(pay), f"#?{pay}")}
     return {"tag": tag, "pay": pay}
+
+
+# ---- settings and formatting as keystrokes (tests-345-agent, 2026-11-06)
+# Input only: every hook below returns event words for the queue. Nothing pokes memory.
+ALT = 4
+VK_MENU, VK_TAB, VK_END, VK_DOWN = 0x12, 0x09, 0x23, 0x28
+VK_EQUALS, VK_1 = 0xBB, 0x31
+
+
+def keys(*letters):
+    """Ribbon KeyTips: tap Alt, then each letter as a plain key press (no character produced)."""
+    out = press(VK_MENU)
+    for ch in letters:
+        out += press(ord(ch.upper()))
+    return out
+
+
+def _options_advanced():
+    # File > Options (Alt, F, T), then the category list down to Advanced
+    # (General, Formulas, Data, Proofing, Save, Language, Accessibility, Advanced).
+    out = keys("F", "T")
+    for _ in range(7):
+        out += press(VK_DOWN)
+    return out
+
+
+def settings_events(name, addr=None):
+    """Keystroke sequences for workbook settings used by stage 3 to 5 cases.
+
+    autosum_keystroke: Alt+= in addr (inserts =SUM(...) of the run above), then Enter.
+    date1904 / precision_as_displayed: open Excel Options > Advanced and toggle the
+    checkbox ("Use 1904 date system" / "Set precision as displayed") by typing its access
+    key, then Enter to close (and Enter again to accept the precision warning).
+    The access-key letters are the en-US Excel ones as remembered (confidence low); if the
+    UI agent's Options dialog uses a different map, change only the letters here.
+    """
+    if name == "autosum_keystroke":
+        return goto(addr) + press(VK_EQUALS, ALT) + press(VK_ENTER)
+    if name == "date1904":
+        return _options_advanced() + press(ord("Y"), ALT) + press(VK_ENTER)
+    if name == "precision_as_displayed":
+        return _options_advanced() + press(ord("P"), ALT) + press(VK_ENTER) + press(VK_ENTER)
+    raise KeyError(name)
+
+
+def format_events(addr, code):
+    """Apply number format code to addr: Ctrl+1 (Format Cells, Number tab), Alt+C to the
+    Category list, End selects Custom (last entry), Alt+T to the Type box, Ctrl+A, type the
+    code, Enter."""
+    return (goto(addr) + press(VK_1, CTRL) + press(ord("C"), ALT) + press(VK_END)
+            + press(ord("T"), ALT) + press(ord("A"), CTRL) + type_text(code) + press(VK_ENTER))
+
+
+def width_events(addr, width):
+    """Column width of addr's column: Alt, H, O, W (Home > Format > Column Width), type, Enter."""
+    return goto(addr) + keys("H", "O", "W") + press(ord("A"), CTRL) + type_text(str(width)) + press(VK_ENTER)
+
+
+# Display observation. The format engine (weights/format, log/format-agent.md) packs its
+# result into a heap string, and ui/cells caches only (TAG, PAY) per visible cell at
+# 0x0F1000 + 40 r + 2 c; no memory word yet holds the display string of a cell. When the
+# format and UI agents document one (proposed: a per-visible-cell display-string handle
+# table in UI_STATE), set DISPLAY_TABLE to its base and DISPLAY_STRIDE_R/C to its strides.
+DISPLAY_TABLE = None
+DISPLAY_STRIDE_R, DISPLAY_STRIDE_C = 40, 2
+
+
+def display_available():
+    return DISPLAY_TABLE is not None
+
+
+def display(h, a):
+    """Formatted display text of visible cell a, read from the documented display-string
+    handle table (text heap layout, memory-map.md section 9)."""
+    if DISPLAY_TABLE is None:
+        raise NotImplementedError("no documented display-string location yet")
+    r, c = parse_a1(a)
+    handle = int(peek(h, DISPLAY_TABLE + DISPLAY_STRIDE_R * r + DISPLAY_STRIDE_C * c))
+    return text_at(h, handle) if handle else ""

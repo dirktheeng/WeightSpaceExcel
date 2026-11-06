@@ -14,3 +14,4 @@
 - YAML gotcha: requires: [TRUE] parsed as boolean; quoted as "TRUE"/"FALSE".
 - Validation (bookkeeping script, no expected values): all files load, no duplicate ids, every stage 3/4/5 function has >= 3 cases. pytest: 1938 collected, all skipped (no checklist item done yet).
 - Totals: stage3 692 function cases + 62 format cases; stage4 240 + 72; stage5 871. Low confidence: 28 cases (listed in report).
+- 21:40 Compliance fix: removed glob/os/open from stage3/runner_common.py (now merge() of parsed docs); test_stage3/4/5.py open each YAML via module-level static path constants. Added blackbox settings_events/format_events/width_events/display (DISPLAY_TABLE None until a display-string location is documented). WebFetch re-verification blocked: permission requests unanswered (PROVENANCE_REQUIRED); no expected values changed.
