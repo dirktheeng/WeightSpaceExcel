@@ -1,0 +1,158 @@
+# func/text/tx_rp (id 328): REPT driver. A = text, B = (1, count). count = TRUNC (clamped to +-2^23).
+# PC 0: read [A.PAY] (length L), PC 1. PC 1: count < 0 or L count > 32767 -> A = #VALUE! -> tx_fin (322);
+#   else AS = count, AR1 = L, output init at HT, PC 2.
+# PC 2: AS <= 0 -> tx_cpf (325); else one tx_cp piece of the whole text, AS -= 1, LR 328, LP 2.
+# Note: weights/func/text/tx_cp.md
+input 65
+slice 0 0 1                       # v1 x0
+slice 0 8 9                       # v2 PC
+slice 0 14 16                     # v3 [AT AP]
+slice 0 17 18                     # v4 BP
+slice 0 20 22                     # v5 [AS AR1]
+slice 0 24 25                     # v6 HT
+slice 0 31 32                     # v7 T1
+slice 0 34 38                     # v8 [WA ACC POS LEN]
+concat 1 2
+concat 9 3
+concat 10 4
+concat 11 5
+concat 12 6
+concat 13 7
+concat 14 8                       # v15 G (13): 0 x0 1 PC 2 AT 3 AP 4 BP 5 AS 6 AR1 7 HT 8 T1 9 WA 10 ACC 11 POS 12 LEN
+dense 4 1 1                       # v16 K - BP
+  -1
+  8388608
+relu 16                           # v17
+dense 17 1 1                      # v18
+  -1
+  16777216
+relu 18                           # v19 m2 = clamp + K
+dense 19 1 1                      # v20
+  1
+  6755399432667136
+dense 20 1 1                      # v21 r
+  1
+  -6755399441055744
+concat 21 19
+dense 22 1 2                      # v23 r - clamp
+  1 -1
+  8388608
+step 23                           # v24
+concat 21 24
+dense 25 1 2                      # v26 cnt
+  1 -1
+  0
+dense 15 3 13                     # v27
+  0 1 0 0 0 0 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 -1 0 0 0 0 0 0 0
+  -0.5 -1.5 0.5
+step 27                           # v28 [q1 q2 az]
+dense 28 1 3                      # v29 p1
+  1 -1 0
+  0
+concat 29 1
+mul 30 0 1 1 2                    # v31 x0g = p1 x0
+concat 31 26
+mul 32 0 1 1 2                    # v33 prod = L count (PC 1)
+concat 26 33
+dense 34 2 2                      # v35 [count < 0, prod > 32767]
+  -1 0
+  0 1
+  -0.5 -32767.5
+step 35                           # v36 [bneg bbig]
+concat 28 36                      # v37 [q1 q2 az bneg bbig]
+dense 37 4 5                      # v38 [e1 ok1 f2 c2]
+  1 -1 0 1 1
+  1 -1 0 -1 -1
+  0 1 1 0 0
+  0 1 -1 0 0
+  -1.5 -0.5 -1.5 -0.5
+step 38                           # v39 GT
+dense 39 12 4                     # v40 gates
+  -1 0 0 0
+  0 1 0 0
+  0 -1 0 0
+  0 1 0 0
+  0 -1 0 0
+  0 1 0 0
+  0 -1 0 0
+  0 1 0 0
+  0 -1 0 0
+  0 -1 0 0
+  0 -1 0 0
+  0 -1 0 0
+  1 0 1 0 1 0 1 0 1 1 1 1
+concat 15 26                      # v41 (14): cnt 13
+dense 41 12 14                    # v42 values [AP cnt AS x0 AR1 HT T1 HT WA ACC POS LEN]
+  0 0 0 1 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 1
+  0 0 0 0 0 1 0 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 1 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 1 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 1 0 0 0 0 0
+  0 0 0 0 0 0 0 1 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 1 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 1 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 0 0 0 0 0
+concat 40 42
+mul 43 0 12 12 24                 # v44 MV
+concat 28 39
+concat 45 44
+slice 15 2 4                      # v47 [AT AP]
+slice 15 6 7                      # v48 AR1
+concat 46 47
+concat 49 48                      # v50 Z (22): 0 q1 1 q2 2 az 3 e1 4 ok1 5 f2 6 c2 | 7..18 MV | 19 AT 20 AP 21 AR1
+dense 50 10 22                    # v51 words 0..9
+  0 0 0 -6 0 -3 -4  0 0 0 0 0 0 0 0 0 0 0 0  0 0 0
+  -1 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0  0 0 0
+  0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0  0 1 0
+  0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0  0 0 0
+  0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0  0 0 0
+  0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0  0 0 0
+  0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0  0 0 0
+  -1 0 0 0 2 0 0  0 0 0 0 0 0 0 0 0 0 0 0  0 0 0
+  0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0  0 0 0
+  0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0  0 0 0
+  328 1 0 0 0 0 0 1 328 2
+dense 50 2 22                     # v52 A
+  0 0 0 2 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0  1 0 0
+  0 0 0 3 0 0 0  1 0 0 0 0 0 0 0 0 0 0 0  0 0 0
+  0 0
+dense 50 2 22                     # v53 [AS AR1]
+  0 0 0 0 0 0 -1  0 1 1 0 0 0 0 0 0 0 0 0  0 0 0
+  0 0 0 0 0 0 0  0 0 0 1 1 0 0 0 0 0 0 0  0 0 0
+  0 0
+dense 50 1 22                     # v54 P0 = AP + 2
+  0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0  0 1 0
+  2
+dense 50 11 22                    # v55 [N0 N1 T0 T1 T2 T3 T4 T5 T6 T7 T8]
+  0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0  0 0 0
+  0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0  0 0 1
+  0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0  0 0 0
+  0 0 0 0 0 0 0  0 0 0 0 0 1 1 0 0 0 0 0  0 0 0
+  0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0  0 0 0
+  0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0  0 0 0
+  0 0 0 0 2 0 0  0 0 0 0 0 0 0 1 1 0 0 0  0 0 0
+  0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 1 0 0  0 0 0
+  0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 1 0  0 0 0
+  0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 1  0 0 0
+  0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0  0 0 0
+  0 0 0 0 0 0 0 0 0 0 0
+slice 0 11 14                     # v56 words 10..12
+slice 0 16 20                     # v57 words 15..18
+slice 0 22 26                     # v58 words 21..24
+slice 0 27 28                     # v59 word 26
+slice 0 39 65                     # v60 words 38..63
+concat 51 56
+concat 61 52
+concat 62 57
+concat 63 53
+concat 64 58
+concat 65 54
+concat 66 59
+concat 67 55
+concat 68 60                      # v69 output (64)

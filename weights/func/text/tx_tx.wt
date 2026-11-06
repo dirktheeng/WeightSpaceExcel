@@ -1,0 +1,118 @@
+# func/text/tx_tx (id 336): TEXT driver, calls the format engine (weights/format, fx_main 198).
+# A = value (raw kind), B = (2, code handle). Output 96 words; every phase is a block op.
+# PC 0: block write HT at HEAP_TOP (zero page 0x01; fx_pack allocates there), PC 1.
+# PC 1: block write [code handle, 0] at FMT_TABLE entry 511 (0xC7FC; compiled-record word 0, so the
+#   code is compiled on this call), PC 2.
+# PC 2: block write words 8..39 at RSP (spill: fx_main clobbers words 19..39 including GEN, CYC, T9,
+#   T10), RSP += 32, B = (511, 0) (format id 511, width 0 as TEXT), -> fx_main PC 0 with LR 336, LP 3.
+# PC 3 (fx_main returned A): block read [HEAP_TOP] -> tx_tx2 (337). Note: weights/func/text/tx_abi.md
+input 65
+slice 0 8 9                       # v1 PC
+slice 0 16 18                     # v2 [BT BP]
+slice 0 24 25                     # v3 HT
+slice 0 11 12                     # v4 RSP
+concat 1 2
+concat 5 3
+concat 6 4                        # v7 G: 0 PC 1 BT 2 BP 3 HT 4 RSP
+dense 7 3 5                       # v8
+  1 0 0 0 0
+  1 0 0 0 0
+  1 0 0 0 0
+  -0.5 -1.5 -2.5
+step 8                            # v9 [q1 q2 q3]
+dense 9 36 3                      # v10 gates: 32 x p2, p0, p1, 1 - q2, 1 - q2
+  0 1 -1
+  0 1 -1
+  0 1 -1
+  0 1 -1
+  0 1 -1
+  0 1 -1
+  0 1 -1
+  0 1 -1
+  0 1 -1
+  0 1 -1
+  0 1 -1
+  0 1 -1
+  0 1 -1
+  0 1 -1
+  0 1 -1
+  0 1 -1
+  0 1 -1
+  0 1 -1
+  0 1 -1
+  0 1 -1
+  0 1 -1
+  0 1 -1
+  0 1 -1
+  0 1 -1
+  0 1 -1
+  0 1 -1
+  0 1 -1
+  0 1 -1
+  0 1 -1
+  0 1 -1
+  0 1 -1
+  0 1 -1
+  -1 0 0
+  1 -1 0
+  0 -1 0
+  0 -1 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 1
+slice 0 9 41                      # v11 words 8..39
+slice 7 3 4                       # v12 HT
+slice 7 2 3                       # v13 BP
+slice 7 1 2                       # v14 BT
+concat 11 12
+concat 15 13
+concat 16 14
+concat 17 13                      # v18 values (36)
+concat 10 18
+mul 19 0 36 36 72                 # v20 M: 0..31 words, 32 mHT, 33 mBP, 34 mBT', 35 mBP'
+dense 20 1 36                     # v21 payload word 0
+  1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0
+  0
+slice 20 1 32                     # v22 payload words 1..31
+concat 7 9                        # v23 (8): 0 PC 1 BT 2 BP 3 HT 4 RSP 5 q1 6 q2 7 q3
+dense 23 1 8                      # v24 RSP - M (1 - p2)
+  0 0 0 0 1 0 8388608 -8388608
+  -8388608
+relu 24                           # v25 rR
+concat 23 25                      # v26 Z (9): 8 rR
+dense 26 11 9                     # v27 words 0..10
+  0 0 0 0 0 0 -138 139 0
+  0 0 0 0 0 0 0 1 0
+  0 0 0 0 0 51195 -51196 1 1
+  0 0 0 0 0 1 30 -31 0
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 1 -2 0 0
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 1 0 32 -32 0
+  336 3 1 67108865 0 0 0 1 336 3 0
+slice 0 12 16                     # v28 words 11..14
+concat 20 9                       # v29 (39): M 0..35, q1 36 q2 37 q3 38
+dense 29 2 39                     # v30 B = (511, 0) from PC 2 on
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0  0 511 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1  0 0 0
+  0 0
+slice 0 18 65                     # v31 words 17..63
+slice 0 14 15                     # v32 A.TAG
+dense 32 1 1                      # v33 blank?
+  -1
+  0.5
+step 33                           # v34 b (TEXT formats a blank argument as 0)
+concat 32 34
+dense 35 1 2                      # v36 A.TAG' = A.TAG + b (blank (0, 0) -> number (1, 0))
+  1 1
+  0
+slice 0 12 14                     # v37 words 11, 12
+slice 0 15 16                     # v38 word 14 (A.PAY)
+concat 27 37
+concat 39 36
+concat 40 38
+concat 41 30
+concat 42 31
+concat 43 21
+concat 44 22                      # v45 output (96)

@@ -1,0 +1,202 @@
+# func/text/tx_cp (id 324): unit copier with a filter, the shared engine of CLEAN, TRIM, PROPER,
+# CONCAT(ENATE), TEXTJOIN, REPT, REPLACE and SUBSTITUTE. One source unit per step, appended to the
+# output string being built (one write per emitted unit, ev_fmt_emit style), one read per 3 units.
+# Registers: P0 next source word address, N0 = SK units to skip first, N1 units left to consume
+# (skipped ones included), T0 mode (0 copy, 1 CLEAN, 2 TRIM, 3 PROPER), T2 SW current source word
+# (consumed units shifted out), T3 SWN units left in SW, T4 WA output word address, T5 ACC output
+# word being filled, T6 POS units in ACC (0..2), T7 LEN units emitted, T8 st filter state.
+# PC 0: N1 <= 0 -> return (LR, LP). SWN = 0 -> read [P0], P0 += 1, PC 1. Else one unit.
+# PC 1: SW = x0, SWN = 3, and one unit from it in the same step.
+# Unit: skip (SK > 0): consume, SK -= 1. Else filter: copy emits; CLEAN emits units >= 32; TRIM drops
+# spaces (U+0020) at the start and repeated ones, and holds one pending space (st 2) that is emitted
+# only before the next non-space (that step emits the space and does not consume); PROPER upper-cases
+# a letter after a non-letter and lower-cases a letter after a letter (st = previous was a letter).
+# Emit: ACC += v 2^(16 POS), write ACC at WA; POS 2 -> WA += 1, ACC = 0, POS = 0. LEN += 1.
+# Note: weights/func/text/tx_cp.md
+input 65
+slice 0 0 1                       # v1 x0
+slice 0 8 11                      # v2 [PC LR LP]
+slice 0 26 27                     # v3 P0
+slice 0 28 31                     # v4 [SK N1 mode]
+slice 0 32 39                     # v5 [SW SWN WA ACC POS LEN st]
+concat 1 2
+concat 6 3
+concat 7 4
+concat 8 5                        # v9 G: 0 x0 1 PC 2 LR 3 LP 4 P0 5 SK 6 N1 7 mode 8 SW 9 SWN 10 WA
+#                                   11 ACC 12 POS 13 LEN 14 st
+dense 9 11 15                     # v10
+  0 1 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 1 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 -1 0 0 0 0 0
+  0 0 0 0 0 1 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 1 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 1 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 1 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 1
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 1
+  0 0 0 0 0 0 0 0 0 0 0 0 1 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 1 0 0
+  -0.5 -0.5 0.5 -0.5 -0.5 -1.5 -2.5 -0.5 -1.5 -0.5 -1.5
+step 10                           # v11 S1: 0 load 1 has 2 swn0 3 skp 4 m1 5 m2 6 m3 7 s1 8 s2 9 pz1 10 pz2
+dense 11 2 11                     # v12 [load, 1 - load]
+  1 0 0 0 0 0 0 0 0 0 0
+  -1 0 0 0 0 0 0 0 0 0 0
+  0 1
+dense 9 2 15                      # v13 [x0 SW]
+  1 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 1 0 0 0 0 0 0
+  0 0
+concat 12 13
+mul 14 0 2 2 4                    # v15
+dense 15 1 2                      # v16 srcw = load ? x0 : SW (one term nonzero)
+  1 1
+  0
+dense 16 1 1                      # v17
+  0.0000152587890625
+  6755399441055744
+dense 17 1 1                      # v18 r
+  1
+  -6755399441055744
+concat 16 18
+dense 19 1 2                      # v20 r - y
+  -0.0000152587890625 1
+  0
+step 20                           # v21 s
+concat 19 21
+dense 22 2 3                      # v23 [rest u]
+  0 1 -1
+  1 -65536 65536
+  0 0
+slice 23 1 2                      # v24 u
+dense 24 15 1                     # v25 thresholds on u
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  -31.5 -32.5 -96.5 -122.5 -223.5 -246.5 -247.5 -254.5 -64.5 -90.5 -191.5 -214.5 -215.5 -222.5 -255.5
+step 25                           # v26 UT: 0 T31 1 T32 2 t96 3 t122 4 t223 5 t246 6 t247 7 t254
+#                                   8 t64 9 t90 10 t191 11 t214 12 t215 13 t222 14 t255
+dense 11 1 11                     # v27 rd = has, PC 0, SWN = 0
+  -1 1 1 0 0 0 0 0 0 0 0
+  -1.5
+step 27                           # v28 rd
+concat 11 26
+concat 29 28                      # v30 (27): S1 0..10, UT 11..25, rd 26
+dense 30 10 27                    # v31 [sku a1 a2 tp ta tb0 up dn pup pdn]
+  0 1 0 1 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  -1
+  0 1 0 -1 1 -1 0 0 0 0 0  -1 0 0 0 0 0 0 0 0 0 0 0 0 0 0  -1
+  0 1 0 -1 0 1 -1 0 0 0 0  1 -1 0 0 0 0 0 0 0 0 0 0 0 0 0  -1
+  0 1 0 -1 0 1 -1 0 1 0 0  -1 1 0 0 0 0 0 0 0 0 0 0 0 0 0  -1
+  0 1 0 -1 0 1 -1 1 -1 0 0  1 -1 0 0 0 0 0 0 0 0 0 0 0 0 0  -1
+  0 1 0 -1 0 1 -1 -1 0 0 0  -1 1 0 0 0 0 0 0 0 0 0 0 0 0 0  -1
+  0 1 0 -1 0 0 1 -1 0 0 0  0 0 1 -1 1 -1 1 -1 0 0 0 0 0 0 0  -1
+  0 1 0 -1 0 0 1 1 0 0 0  0 0 0 0 0 0 0 0 1 -1 1 -1 1 -1 0  -1
+  0 1 0 -1 0 0 1 -1 0 0 0  0 0 1 -1 0 -1 1 0 1 -1 1 -1 1 0 -1  -1
+  0 1 0 -1 0 0 1 1 0 0 0  0 0 -1 1 0 1 -1 0 -1 1 -1 1 -1 0 1  -1
+  -1.5 -1.5 -2.5 -2.5 -3.5 -1.5 -2.5 -3.5 -2.5 -2.5
+step 31                           # v32 F: 0 sku 1 a1 2 a2 3 tp 4 ta 5 tb0 6 up 7 dn 8 pup 9 pdn
+concat 30 32                      # v33 (37): F 27..36
+dense 33 1 37                     # v34 ep2 = e and POS = 2, e = has - rd - sku - a1 - a2
+  0 1 0 0 0 0 0 0 0 0 1  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  -1  -1 -1 -1 0 0 0 0 0 0 0
+  -1.5
+step 34                           # v35 ep2
+concat 33 35                      # v36 (38): ep2 37
+concat 24 32                      # v37 [u F]
+dense 37 1 11                     # v38 u - 2^17 tp
+  1 0 0 0 -131072 0 0 0 0 0 0
+  0
+relu 38                           # v39 ru
+concat 37 39
+dense 40 1 12                     # v41 v = emitted unit
+  0 0 0 0 32 0 0 -32 32 0 0 1
+  0
+slice 11 9 11                     # v42 [pz1 pz2]
+concat 41 42                      # v43 [v pz1 pz2]
+dense 43 3 3                      # v44 v 2^(16 POS) terms
+  1 -131072 0
+  65536 8589934592 -8589934592
+  4294967296 0 562949953421312
+  0 -8589934592 -562949953421312
+relu 44                           # v45
+concat 9 45
+dense 46 1 18                     # v47 ACC_new
+  0 0 0 0 0 0 0 0 0 0 0 1 0 0 0  1 1 1
+  0
+dense 36 4 38                     # v48 gates [1 - tp, tp, 1 - e, e and not POS 2]
+  0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0  0 0 0 -1 0 0 0 0 0 0  0
+  0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0  0 0 0 1 0 0 0 0 0 0  0
+  0 -1 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  1  1 1 1 0 0 0 0 0 0 0  0
+  0 1 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  -1  -1 -1 -1 0 0 0 0 0 0 0  -1
+  1 0 1 0
+slice 23 0 1                      # v49 rest
+concat 49 16                      # v50 [rest srcw]
+slice 9 11 12                     # v51 ACC
+concat 50 51
+concat 52 47                      # v53 values [rest srcw ACC ACC_new]
+concat 48 53
+mul 54 0 4 4 8                    # v55 [mR mS mA mN]
+concat 9 36                       # v56 (53): G 0..14 | S1 15..25 | UT 26..40 | rd 41 | F 42..51 | ep2 52
+dense 56 5 53                     # v57 MUX_INT relus, M = 2^23
+  0 0 1 0 0 0 0 0 0 0 0 0 0 0 0  0 -8388608 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0  0 0 0 0 0 0 0 0 0 0  0
+  0 0 0 1 0 0 0 0 0 0 0 0 0 0 0  0 -8388608 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0  0 0 0 0 0 0 0 0 0 0  0
+  0 0 0 0 1 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  8388608  0 0 0 0 0 0 0 0 0 0  0
+  0 0 0 0 0 0 0 0 0 0 1 0 0 0 0  0 8388608 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  -8388608  -8388608 -8388608 -8388608 0 0 0 0 0 0 0  0
+  0 0 0 0 0 0 0 0 0 1 0 0 0 0 0  -8388608 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0  0 0 0 0 0 0 0 0 0 0  0
+  0 0 -8388608 -8388608 0
+relu 57                           # v58 R: nx pc ard ae av
+slice 56 15 17                    # v59 [load has]
+slice 56 41 53                    # v60 [rd F ep2]
+concat 9 59
+concat 61 60
+concat 62 58
+concat 63 55
+concat 64 47                      # v65 Z (39): G 0..14 | 15 load 16 has | 17 rd | 18..27 F | 28 ep2 |
+#                                   29 nx 30 pc 31 ard 32 ae 33 av | 34 mR 35 mS 36 mA 37 mN | 38 AN
+dense 65 8 39                     # v66 words 0..7
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 324  0  0 0 0 0 0 0 0 0 0 0  0  1 0 0 0 0  0 0 0 0  0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 2  -1  -2 -2 -2 0 0 0 0 0 0 0  0  0 0 0 0 0  0 0 0 0  0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0  0  0 0 0 0 0 0 0 0 0 0  0  0 0 1 1 0  0 0 0 0  0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0  0  0 0 0 0 0 0 0 0 0 0  0  0 0 0 0 0  0 0 0 0  1
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0  0  0 0 0 0 0 0 0 0 0 0  0  0 0 0 0 0  0 0 0 0  0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0  0  0 0 0 0 0 0 0 0 0 0  0  0 0 0 0 0  0 0 0 0  0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0  0  0 0 0 0 0 0 0 0 0 0  0  0 0 0 0 0  0 0 0 0  0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0  1  0 0 0 0 0 0 0 0 0 0  0  0 1 0 0 0  0 0 0 0  0
+  0 0 0 0 0 0 0 0
+dense 65 1 39                     # v67 P0' = P0 + rd
+  0 0 0 0 1 0 0 0 0 0 0 0 0 0 0  0 0  1  0 0 0 0 0 0 0 0 0 0  0  0 0 0 0 0  0 0 0 0  0
+  0
+dense 65 2 39                     # v68 [SK' N1']
+  0 0 0 0 0 1 0 0 0 0 0 0 0 0 0  0 0  0  -1 0 0 0 0 0 0 0 0 0  0  0 0 0 0 0  0 0 0 0  0
+  0 0 0 0 0 0 1 0 0 0 0 0 0 0 0  0 -1  1  0 0 0 1 0 0 0 0 0 0  0  0 0 0 0 0  0 0 0 0  0
+  0 0
+dense 65 7 39                     # v69 [SW' SWN' WA' ACC' POS' LEN' st']
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0  0  0 0 0 0 0 0 0 0 0 0  0  0 0 0 0 0  1 1 0 0  0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  3 -1  1  0 0 0 1 0 0 0 0 0 0  0  0 0 0 0 1  0 0 0 0  0
+  0 0 0 0 0 0 0 0 0 0 1 0 0 0 0  0 0  0  0 0 0 0 0 0 0 0 0 0  1  0 0 0 0 0  0 0 0 0  0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0  0  0 0 0 0 0 0 0 0 0 0  0  0 0 0 0 0  0 0 1 1  0
+  0 0 0 0 0 0 0 0 0 0 0 0 1 0 0  0 1  -1  -1 -1 -1 0 0 0 0 0 0 0  -3  0 0 0 0 0  0 0 0 0  0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 1 0  0 1  -1  -1 -1 -1 0 0 0 0 0 0 0  0  0 0 0 0 0  0 0 0 0  0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 1  0 0  0  0 0 0 -1 1 1 0 0 1 -1  0  0 0 0 0 0  0 0 0 0  0
+  0 0 0 0 0 0 0
+slice 0 9 26                      # v70 words 8..24
+slice 0 27 28                     # v71 word 26
+slice 0 30 32                     # v72 words 29, 30
+slice 0 39 65                     # v73 words 38..63
+concat 66 70
+concat 74 67
+concat 75 71
+concat 76 68
+concat 77 72
+concat 78 69
+concat 79 73                      # v80 output (64)

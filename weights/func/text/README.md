@@ -2,19 +2,25 @@
 
 Hand-written. Not generated. Log: log/func-text-agent.md; decisions T1 to T4 in log/WORKLOG.md ("2026-11-06, Stage 3: Text function cores").
 
-encodings/functions.md (the function ABI) did not exist when these were written, so each network is a **core subroutine** with explicit register inputs and outputs, called with the encodings/control.md convention (LR, LP set by the caller; the last step returns to (LR, LP) with the result in A). ABI wrappers (argument fetch, coercion, FUNC_TABLE entry) are to be added once the ABI exists; until then nothing routes here and the cores are tested directly (tests/output/func_text/test_func_text.py).
+The seven cores (312 to 318) were written before encodings/functions.md existed, so each is a **core subroutine** with explicit register inputs and outputs, called with the encodings/control.md convention (LR, LP set by the caller; the last step returns to (LR, LP) with the result in A). The ABI layer (tx_abi.md) wraps them and the later drivers. Tests: tests/output/func_text/test_func_text.py (cores) and test_text_abi.py (ABI level and drivers).
 
-| Id | File | Function(s) | Inputs | Steps | Params |
-|---|---|---|---|---|---|
-| 312 | tx_len.wt | LEN | A | 2 | 208 |
-| 313 | tx_code.wt | CODE, UNICODE (first unit) | A | 3 | 302 |
-| 314 | tx_case.wt | UPPER (N0 = 0), LOWER (N0 = 1) | A, N0 | 3 + 2 ceil(L/3) | 1547 |
-| 315 | tx_exact.wt | EXACT | A, B | 3 + 2 ceil(L/3) when lengths match, else 3 | 1311 |
-| 316 | tx_mid.wt | MID, and LEFT / RIGHT through wrappers | A, B (start), C (count) | 4 + 2 ceil(n/3) | 2808 |
-| 317 | tx_char.wt | CHAR (N0 = 0), UNICHAR (N0 = 1) | A, N0 | 1 (one block write) | 758 |
-| 318 | tx_t.wt | T | A | 1 | 111 |
+| Id | File | Function(s) | Note |
+|---|---|---|---|
+| 312 | tx_len.wt | LEN core | tx_len.md |
+| 313 | tx_code.wt | CODE (Windows-1252) / UNICODE (surrogate pairs) core | tx_code.md |
+| 314 | tx_case.wt | UPPER / LOWER core | tx_case.md |
+| 315 | tx_exact.wt | EXACT core | tx_exact.md |
+| 316 | tx_mid.wt | MID core (LEFT, RIGHT) | tx_mid.md |
+| 317 | tx_char.wt | CHAR / UNICHAR core | tx_char.md |
+| 318 | tx_t.wt | T core | tx_t.md |
+| 319 to 323 | tx_w0, tx_av, tx_ld, tx_fin, tx_rgt | ABI entry, argument conversion, loader, return, RIGHT start | tx_abi.md |
+| 324 to 329 | tx_cp, tx_cpf, tx_f1, tx_cc, tx_rp, tx_rl | unit copier and CLEAN, TRIM, PROPER, CONCAT(ENATE), TEXTJOIN, REPT, REPLACE | tx_cp.md |
+| 330 to 334, 339 to 343 | tx_unp, tx_unw, tx_fs, tx_fm, tx_sb, tx_bc, tx_bw, tx_pk, tx_pkw, tx_sl | unpacking, FIND / SEARCH matcher, SUBSTITUTE | tx_match.md |
+| 335 to 338 | tx_val, tx_tx, tx_tx2, tx_tx3 | VALUE, TEXT (format engine) | tx_abi.md |
 
-Parameter counts are dense weights plus biases, zeros included, counted by hand from the layer shapes. Ids 319 to 343 are free for the remaining Text functions and the wrappers.
+Every id from 312 to 343 is used. 32 networks, 32,250 dense parameters (zeros included, counted from the layer headers). FUNC_TABLE: every Text fid listed in tx_abi.md maps to 319.
+
+
 
 ## Shared conventions (all cores)
 

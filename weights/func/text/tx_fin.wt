@@ -1,0 +1,23 @@
+# func/text/tx_fin (id 322): common return of the Text wrappers. Restores P1 from T9 and N0 = n from
+# T10 (preserve set, encodings/functions.md section 2), keeps the result in A, -> FN_RET (257) PC 0.
+# Note: weights/func/text/tx_abi.md
+input 65
+slice 0 39 41                     # v1 [T9 T10]
+dense 1 8 2                       # v2 words 0..7: next 257, PC 0, no memory op
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  257 0 0 0 0 0 0 0
+slice 0 9 27                      # v3 words 8..25
+slice 1 0 1                       # v4 P1' = T9 (word 26)
+slice 1 1 2                       # v5 N0' = T10 (word 27)
+slice 0 29 65                     # v6 words 28..63
+concat 2 3
+concat 7 4
+concat 8 5
+concat 9 6                        # v10 output (64)

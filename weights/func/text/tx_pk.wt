@@ -1,0 +1,57 @@
+# func/text/tx_pk (id 341): pack unpacked units (one per word) into a heap string, loop head.
+# Registers: P0 source, N1 units left, T6 WA (next packed word address), T1 OH (header), T7 LEN.
+# N1 > 0: block read 3 words at P0 -> tx_pkw (342). Else block write [LEN, 1] at OH, A = (2, OH),
+# HT = WA -> tx_fin (322). Output 66 words; mem_op 3 or 4. Note: weights/func/text/tx_match.md
+input 65
+slice 0 24 25                     # v1 HT
+slice 0 26 27                     # v2 P0
+slice 0 29 30                     # v3 N1
+slice 0 31 32                     # v4 OH (T1)
+slice 0 36 38                     # v5 [WA LEN] (T6 T7)
+concat 1 2
+concat 6 3
+concat 7 4
+concat 8 5                        # v9 G: 0 HT 1 P0 2 N1 3 OH 4 WA 5 LEN
+dense 9 1 6                       # v10 h = N1 > 0
+  0 0 1 0 0 0
+  -0.5
+step 10
+concat 9 11                       # v12 (7): h 6
+dense 12 4 7                      # v13 MUX_INT relus, M = 2^23: [P0 h, OH (1 - h), HT h, WA (1 - h)]
+  0 1 0 0 0 0 8388608
+  0 0 0 1 0 0 -8388608
+  1 0 0 0 0 0 8388608
+  0 0 0 0 1 0 -8388608
+  -8388608 0 -8388608 0
+relu 13
+concat 12 14                      # v15 (11): 7 aP 8 aO 9 hH 10 hW
+dense 15 8 11                     # v16 words 0..7
+  0 0 0 0 0 0 20 0 0 0 0
+  0 0 0 0 0 0 1 0 0 0 0
+  0 0 0 0 0 0 0 1 1 0 0
+  0 0 0 0 0 0 1 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0
+  322 3 0 67108866 0 0 0 0
+dense 15 2 11                     # v17 A = (2, OH)
+  0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 1 0 0 0 0 0 0 0
+  2 0
+dense 15 1 11                     # v18 HT' = h ? HT : WA
+  0 0 0 0 0 0 0 0 0 1 1
+  0
+dense 15 2 11                     # v19 payload [LEN, 1]
+  0 0 0 0 0 1 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0
+  0 1
+slice 0 9 14                      # v20 words 8..12
+slice 0 16 24                     # v21 words 15..22
+slice 0 25 65                     # v22 words 24..63
+concat 16 20
+concat 23 17
+concat 24 21
+concat 25 18
+concat 26 22
+concat 27 19                      # v28 output (66)

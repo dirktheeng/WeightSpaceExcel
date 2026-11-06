@@ -1,0 +1,53 @@
+# func/text/tx_pkw (id 342): pack loop body, block consumer (68 inputs: units u0 u1 u2 at 65..67).
+# Writes [T6] = u0 + 2^16 u1 [N1 >= 2] + 2^32 u2 [N1 >= 3]; T6 += 1, P0 += 3, N1 -= 3 -> tx_pk (341).
+# Note: weights/func/text/tx_match.md
+input 68
+slice 0 26 27                     # v1 P0
+slice 0 29 30                     # v2 N1
+slice 0 36 37                     # v3 T6
+slice 0 65 68                     # v4 [u0 u1 u2]
+concat 1 2
+concat 5 3
+concat 6 4                        # v7 G: 0 P0 1 N1 2 T6 3 u0 4 u1 5 u2
+dense 7 2 6                       # v8 [N1 >= 2, N1 >= 3]
+  0 1 0 0 0 0
+  0 1 0 0 0 0
+  -1.5 -2.5
+step 8
+concat 7 9                        # v10 (8): k2 6 k3 7
+dense 10 2 8                      # v11 masked units, M2 = 2^17
+  0 0 0 0 1 0 131072 0
+  0 0 0 0 0 1 0 131072
+  -131072 -131072
+relu 11
+concat 10 12                      # v13 (10): 8 m1 9 m2
+dense 13 8 10                     # v14 words 0..7
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  0 0 1 0 0 0 0 0 0 0
+  0 0 0 1 0 0 0 0 65536 4294967296
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  341 2 0 0 0 0 0 0
+dense 13 1 10                     # v15 P0 + 3
+  1 0 0 0 0 0 0 0 0 0
+  3
+dense 13 1 10                     # v16 N1 - 3
+  0 1 0 0 0 0 0 0 0 0
+  -3
+dense 13 1 10                     # v17 T6 + 1
+  0 0 1 0 0 0 0 0 0 0
+  1
+slice 0 9 26                      # v18 words 8..24
+slice 0 27 29                     # v19 words 26, 27
+slice 0 30 36                     # v20 words 29..34
+slice 0 37 65                     # v21 words 36..63
+concat 14 18
+concat 22 15
+concat 23 19
+concat 24 16
+concat 25 20
+concat 26 17
+concat 27 21                      # v28 output (64)

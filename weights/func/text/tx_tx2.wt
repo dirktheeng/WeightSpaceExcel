@@ -1,0 +1,25 @@
+# func/text/tx_tx2 (id 337): TEXT, block consumer of [HEAP_TOP] (66 inputs). HT = HEAP_TOP (the format
+# engine advanced it past the result), block read of the 32 spilled words at RSP - 32 -> tx_tx3 (338).
+# Note: weights/func/text/tx_abi.md
+input 66
+slice 0 11 12                     # v1 RSP
+slice 0 65 66                     # v2 HEAP_TOP
+concat 1 2                        # v3 [RSP x]
+dense 3 8 2                       # v4 words 0..7
+  0 0
+  0 0
+  1 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  338 4 -32 67108896 0 0 0 0
+dense 3 1 2                       # v5 HT
+  0 1
+  0
+slice 0 9 24                      # v6 words 8..22
+slice 0 25 65                     # v7 words 24..63
+concat 4 6
+concat 8 5
+concat 9 7                        # v10 output (64)

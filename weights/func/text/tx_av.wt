@@ -1,0 +1,227 @@
+# func/text/tx_av (id 320): argument classifier and converter, block consumer (67 inputs: the
+# argument value v = (input 65, input 66) read by tx_w0 PC 1). The kind of argument N1 is digit
+# N1 - 1 (base 4) of the kind map KM in T7 (0 text, 1 number, 2 raw; digit 0 beyond argument 4).
+# Tag 9 -> CELL_GET (16) with (AS, AR1, AC1) unpacked from K, LR 319, LP 3.
+# Text kind, number or boolean -> ev_totext (110), LR 319, LP 2. Number kind, text -> ev_t2n (109), LP 4.
+# Otherwise store the converted value over argument N1 (block write), N1 += 1 -> tx_w0 PC 1:
+# blank or missing -> "" or 0; boolean (number kind) -> (1, PAY); range, array, lambda, union ->
+# #VALUE! (no implicit intersection yet); raw kind keeps everything else unchanged.
+# Output 66 words, always mem_op 3 (N = 2 on store, 0 otherwise). Note: weights/func/text/tx_abi.md
+input 67
+slice 0 65 67                     # v1 [tv pv]
+slice 0 29 30                     # v2 N1
+slice 0 37 38                     # v3 T7 (KM)
+slice 0 40 41                     # v4 T10 (n)
+slice 0 54 55                     # v5 SP
+concat 1 2
+concat 6 3
+concat 7 4
+concat 8 5                        # v9 G: 0 tv 1 pv 2 N1 3 KM 4 T10 5 SP
+dense 9 16 6                      # v10
+  1 0 0 0 0 0
+  1 0 0 0 0 0
+  1 0 0 0 0 0
+  1 0 0 0 0 0
+  1 0 0 0 0 0
+  1 0 0 0 0 0
+  1 0 0 0 0 0
+  1 0 0 0 0 0
+  1 0 0 0 0 0
+  1 0 0 0 0 0
+  1 0 0 0 0 0
+  0 0 1 0 0 0
+  0 0 1 0 0 0
+  0 0 1 0 0 0
+  0 0 1 0 0 0
+  0 0 0 0 0 0
+  -0.5 -1.5 -2.5 -3.5 -4.5 -5.5 -6.5 -7.5 -8.5 -9.5 -10.5 -1.5 -2.5 -3.5 -4.5 -1
+step 10                           # v11 S: 0..10 u1..u11 (tag >= k), 11 n15 12 n25 13 n35 14 n45 (N1 >= 2..5), 15 zero
+# ---- base-4 digits of KM: q1 = FLOOR(KM / 4), q2 = FLOOR(q1 / 4), q3 = FLOOR(q2 / 4)
+slice 9 3 4                       # v12 KM
+dense 12 1 1                      # v13
+  0.25
+  6755399441055744
+dense 13 1 1                      # v14 r
+  1
+  -6755399441055744
+dense 12 1 1                      # v15 y
+  0.25
+  0
+concat 14 15
+dense 16 1 2                      # v17 r - y
+  1 -1
+  0
+step 17
+concat 14 18
+dense 19 1 2                      # v20 q1
+  1 -1
+  0
+dense 20 1 1                      # v21
+  0.25
+  6755399441055744
+dense 21 1 1                      # v22 r
+  1
+  -6755399441055744
+dense 20 1 1                      # v23 y
+  0.25
+  0
+concat 22 23
+dense 24 1 2                      # v25
+  1 -1
+  0
+step 25
+concat 22 26
+dense 27 1 2                      # v28 q2
+  1 -1
+  0
+dense 28 1 1                      # v29
+  0.25
+  6755399441055744
+dense 29 1 1                      # v30 r
+  1
+  -6755399441055744
+dense 28 1 1                      # v31 y
+  0.25
+  0
+concat 30 31
+dense 32 1 2                      # v33
+  1 -1
+  0
+step 33
+concat 30 34
+dense 35 1 2                      # v36 q3
+  1 -1
+  0
+concat 12 20
+concat 37 28
+concat 38 36                      # v39 [KM q1 q2 q3]
+concat 39 11                      # v40 (20): KM 0 q1 1 q2 2 q3 3, S 4..19 (n15 15 n25 16 n35 17 n45 18)
+dense 40 4 20                     # v41 digit k selected by position k: relu(d_k - 4 (1 - e_k))
+  1 -4 0 0  0 0 0 0 0 0 0 0 0 0 0 -4 0 0 0 0
+  0 1 -4 0  0 0 0 0 0 0 0 0 0 0 0 4 -4 0 0 0
+  0 0 1 -4  0 0 0 0 0 0 0 0 0 0 0 0 4 -4 0 0
+  0 0 0 1  0 0 0 0 0 0 0 0 0 0 0 0 0 4 -4 0
+  0 -4 -4 -4
+relu 41
+dense 42 2 4                      # v43 [kind - 0.5, kind - 1.5]
+  1 1 1 1
+  1 1 1 1
+  -0.5 -1.5
+step 43
+dense 44 3 2                      # v45 [kN 0 kR]
+  1 -1
+  0 0
+  0 1
+  0 0 0
+concat 11 45                      # v46 (19): S 0..15, kN 16, 0 17, kR 18
+dense 46 6 19                     # v47 [callTT callTN bad blT blN bN]
+  1 -1 1 -1 0 0 0 0 0 0 0  0 0 0 0 0  -1 -1 -1
+  0 1 -1 0 0 0 0 0 0 0 0  0 0 0 0 0  1 1 0
+  0 0 0 0 1 0 0 -1 0 1 0  0 0 0 0 0  0 0 -1
+  -1 0 0 0 0 0 0 1 -1 0 0  0 0 0 0 0  -1 -1 -1
+  -1 0 0 0 0 0 0 1 -1 0 0  0 0 0 0 0  1 1 0
+  0 0 1 -1 0 0 0 0 0 0 0  0 0 0 0 0  1 1 0
+  -0.5 -1.5 -0.5 0.5 -0.5 -1.5
+step 47                           # v48 AC
+# ---- unpack K = S 2^34 + R 2^14 + C (encodings/address.md section 3)
+slice 9 1 2                       # v49 pv
+dense 49 1 1                      # v50
+  5.82076609134674072265625e-11
+  6755399441055744
+dense 50 1 1                      # v51 r
+  1
+  -6755399441055744
+dense 49 1 1                      # v52 y1 = pv 2^-34
+  5.82076609134674072265625e-11
+  0
+concat 51 52
+dense 53 1 2                      # v54 r - y1
+  1 -1
+  0
+step 54                           # v55
+concat 51 55
+dense 56 1 2                      # v57 AS
+  1 -1
+  0
+concat 49 57
+dense 58 1 2                      # v59 rem = pv - 2^34 AS
+  1 -17179869184
+  0
+dense 59 1 1                      # v60
+  0.00006103515625
+  6755399441055744
+dense 60 1 1                      # v61 r2
+  1
+  -6755399441055744
+dense 59 1 1                      # v62 y2 = rem 2^-14
+  0.00006103515625
+  0
+concat 61 62
+dense 63 1 2                      # v64
+  1 -1
+  0
+step 64                           # v65
+concat 61 65
+dense 66 1 2                      # v67 AR1
+  1 -1
+  0
+concat 59 67
+dense 68 1 2                      # v69 AC1 = rem - 2^14 AR1
+  1 -16384
+  0
+concat 57 67
+concat 70 69                      # v71 [AS AR1 AC1]
+dense 48 1 6                      # v72 keep2 = 1 - bad - blT - blN
+  0 0 -1 -1 -1 0
+  1
+concat 72 49
+mul 73 0 1 1 2                    # v74 mP = keep2 pv
+concat 9 11
+concat 75 48
+concat 76 74                      # v77 (29): G 0..5 | S 6..21 | AC 22..27 | mP 28
+dense 77 1 29                     # v78
+  1 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 -8388608 -8388608 -8388608 -8388608  0
+  0
+relu 78                           # v79 rT
+concat 77 79                      # v80 (30): rT 29
+dense 80 10 30                    # v81 words 0..9
+  0 0 0 0 0 0  0 0 0 0 0 0 0 0 -303 303 0 0 0 0 0 0  -209 -210 0 0 0 0  0 0
+  0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0  0 0
+  0 0 2 0 -2 1  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0  0 0
+  0 0 0 0 0 0  0 0 0 0 0 0 0 0 -2 2 0 0 0 0 0 0  -2 -2 0 0 0 0  0 0
+  0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0  0 0
+  0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0  0 0
+  0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0  0 0
+  0 0 0 0 0 0  0 0 0 0 0 0 0 0 -1 1 0 0 0 0 0 0  -1 -1 0 0 0 0  0 0
+  0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0  0 0
+  0 0 0 0 0 0  0 0 0 0 0 0 0 0 3 -3 0 0 0 0 0 0  2 4 0 0 0 0  0 0
+  319 3 0 67108866 0 0 0 1 319 0
+dense 80 2 30                     # v82 A = v
+  1 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0  0 0
+  0 1 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0  0 0
+  0 0
+dense 80 1 30                     # v83 N1' = N1 + store
+  0 0 1 0 0 0  0 0 0 0 0 0 0 0 -1 1 0 0 0 0 0 0  -1 -1 0 0 0 0  0 0
+  1
+dense 80 1 30                     # v84 T1' = 0 (CELL_GET get)
+  0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0  0 0
+  0
+dense 80 2 30                     # v85 payload [TAG_w PAY_w]
+  0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 4 2 1 1  0 1
+  0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 3 3153920 0 0  1 0
+  0 0
+slice 0 11 14                     # v86 words 10..12
+slice 0 16 20                     # v87 words 15..18
+slice 0 23 29                     # v88 words 22..27
+slice 0 30 31                     # v89 word 29
+slice 0 32 65                     # v90 words 31..63
+concat 81 86
+concat 91 82
+concat 92 87
+concat 93 71
+concat 94 88
+concat 95 83
+concat 96 89
+concat 97 84
+concat 98 90
+concat 99 85                      # v100 output (66)

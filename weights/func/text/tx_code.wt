@@ -1,72 +1,184 @@
-# func/text/tx_code (id 313): CODE / UNICODE core. A = text or error. Result A = (1, first UTF-16 unit),
-# #VALUE! (4, 3) for "", or the error unchanged.
+# func/text/tx_code (id 313): CODE (N0 = 0) / UNICODE (N0 = 1) core. A = text or error.
+# CODE: Windows-1252 code of the first unit: units up to 255 unchanged, the 27 code points of
+# 128..159 mapped back (U+20AC -> 128 ...), any other unit above 255 -> 63 ("?").
+# UNICODE: the first code point; a high surrogate followed by a low surrogate gives the pair's value.
+# "" gives #VALUE! (4, 3); errors pass.
 # PC 0: error -> return; else read [h] (length), PC 1. PC 1: length 0 -> A = #VALUE!, return; else read
-# [h + 2] (first packed word), PC 2. PC 2: A = (1, word mod 2^16), return (LR, LP).
+# [h + 2] (first packed word), PC 2. PC 2: A = (1, result), return (LR, LP).
 # Note: weights/func/text/tx_code.md
 input 65
 slice 0 0 1                       # v1 x0
 slice 0 8 11                      # v2 [PC LR LP]
 slice 0 14 16                     # v3 [TAG PAY]
-concat 1 2                        # v4
-concat 4 3                        # v5 G: 0 x0 1 PC 2 LR 3 LP 4 TAG 5 PAY
-dense 5 5 6                       # v6 thresholds
-  0 1 0 0 0 0
-  0 1 0 0 0 0
-  0 0 0 0 1 0
-  0 0 0 0 1 0
-  -1 0 0 0 0 0
+slice 0 28 29                     # v4 mode = N0
+concat 1 2
+concat 5 3
+concat 6 4                        # v7 G: 0 x0 1 PC 2 LR 3 LP 4 TAG 5 PAY 6 mode
+dense 7 5 7                       # v8 thresholds
+  0 1 0 0 0 0 0
+  0 1 0 0 0 0 0
+  0 0 0 0 1 0 0
+  0 0 0 0 1 0 0
+  -1 0 0 0 0 0 0
   -0.5 -1.5 -3.5 -4.5 0.5
-step 6                            # v7 [q1 q2 t35 t45 z]
-dense 7 3 5                       # v8 [g0 g1 ez]
+step 8                            # v9 [q1 q2 t35 t45 z]
+dense 9 3 5                       # v10 [g0 g1 ez]
   -1 0 -1 1 0
   1 -1 0 0 -1
   1 -1 0 0 1
   0.5 -0.5 -1.5
-step 8                            # v9
-dense 1 1 1                       # v10 x0 2^-16 + C (ROUND, D5)
+step 10                           # v11
+# ---- units c0, c1 of x0 (two FLOOR(. 2^-16) stages)
+dense 1 1 1                       # v12
   0.0000152587890625
   6755399441055744
-dense 10 1 1                      # v11 r = ROUND(x0 2^-16)
+dense 12 1 1                      # v13 r
   1
   -6755399441055744
-concat 1 11                       # v12 [x0 r]
-dense 12 1 2                      # v13 r - y
+concat 1 13                       # v14 [x0 r]
+dense 14 1 2                      # v15 r - y
   -0.0000152587890625 1
   0
-step 13                           # v14 s = [r > y]
-concat 12 14                      # v15 [x0 r s]
-dense 15 1 3                      # v16 c0 = x0 - 65536 FLOOR(y)
+step 15                           # v16 s
+concat 14 16                      # v17 [x0 r s]
+dense 17 2 3                      # v18 [f1 c0]
+  0 1 -1
+  1 -65536 65536
+  0 0
+slice 18 0 1                      # v19 f1
+dense 19 1 1                      # v20
+  0.0000152587890625
+  6755399441055744
+dense 20 1 1                      # v21 r2
+  1
+  -6755399441055744
+concat 19 21                      # v22 [f1 r2]
+dense 22 1 2                      # v23 r2 - y2
+  -0.0000152587890625 1
+  0
+step 23                           # v24 s2
+concat 22 24                      # v25 [f1 r2 s2]
+dense 25 1 3                      # v26 c1
   1 -65536 65536
   0
-concat 7 9                        # v17 I: 0 q1 1 q2 2 t35 3 t45 4 z 5 g0 6 g1 7 ez
-slice 17 1 2                      # v18 q2
-concat 18 16                      # v19 [q2 c0]
-mul 19 0 1 1 2                    # v20 m = q2 c0
-concat 5 17                       # v21
-concat 21 20                      # v22 (15): 0..5 G, 6..13 I, 14 m
-dense 22 3 15                     # v23 MUX_INT relus, M = 2^23
-  0 0 1 0 0 0 0 0 0 0 0 -8388608 -8388608 0 0
-  0 0 0 1 0 0 0 0 0 0 0 -8388608 -8388608 0 0
-  0 0 0 0 0 1 0 -8388608 0 0 0 0 0 -8388608 0
-  0 0 0
-relu 23                           # v24 [a b c]
-concat 22 24                      # v25 (18): 15 a 16 b 17 c
-dense 25 8 18                     # v26 words 0..7
-  0 0 0 0 0 0 0 0 0 0 0 313 313 0 0 1 0 0
-  0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0
-  0 0 0 0 0 1 0 0 0 0 0 0 2 0 0 0 0 0
-  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-  0 0 0 0 0 0 0 0 0 0 0 1 2 0 0 0 1 0
-  0 0 0 0 0 0 0 0
-dense 25 2 18                     # v27 [A.TAG', A.PAY']
-  0 0 0 0 1 0 0 -1 0 0 0 0 0 2 0 0 0 0
-  0 0 0 0 0 0 0 0 0 0 0 0 0 3 1 0 0 1
+slice 18 1 2                      # v27 c0
+concat 27 26                      # v28 [c0 c1]
+# ---- thresholds: c0 > 255, c0 high surrogate, the Windows-1252 table, c1 low surrogate
+dense 28 48 2                     # v29
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  0 1
+  0 1
+  -255.5 -55295.5 -56319.5
+  -337.5 -338.5 -339.5 -351.5 -352.5 -353.5 -375.5 -376.5 -380.5 -381.5 -382.5
+  -401.5 -402.5 -709.5 -710.5 -731.5 -732.5 -8210.5 -8211.5 -8212.5
+  -8215.5 -8216.5 -8217.5 -8218.5 -8219.5 -8220.5 -8221.5 -8222.5
+  -8223.5 -8224.5 -8225.5 -8226.5 -8229.5 -8230.5 -8239.5 -8240.5
+  -8248.5 -8249.5 -8250.5 -8363.5 -8364.5 -8481.5 -8482.5
+  -56319.5 -57343.5
+step 29                           # v30 TT: 0 big 1 h1 2 h2 3..45 table 46 l1 47 l2
+concat 28 30                      # v31
+slice 7 6 7                       # v32 mode
+concat 31 32                      # v33 (51): 0 c0 1 c1 2 big 3 h1 4 h2 5..47 table 48 l1 49 l2 50 mode
+dense 33 1 51                     # v34 pair = high, low, UNICODE
+  0 0 0 1 -1  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  1 -1 1
+  -2.5
+step 34                           # v35 pair
+concat 33 35                      # v36 (52): pair 51
+dense 36 3 52                     # v37 [rc0 rcp ruc], M2 = 2^27
+  1 0 -131072 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0 0
+  1024 1 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0 134217728
+  1 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0 -134217728
+  0 -190831616 0
+relu 37                           # v38
+concat 36 38                      # v39 (55): 52 rc0 53 rcp 54 ruc
+# rc = CODE result: rc0 + 63 big + sum_k t_k (d_k - d_(k-1)), d = code - 63 on the table
+dense 39 2 55                     # v40 [rc ru]
+  0 0 63 0 0  77 16 -93 75 16 -91 96 -96 79 16 -95 68 -68 73 -73 89 -89 87 1 -88 82 1 -16 -67 84 1 -16 -69 71 1 14 -86 70 -70 74 -74 76 16 -92 65 -65 90 -90  0 0 0 0  1 0 0
+  0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0 0  0 1 1
   0 0
-slice 0 9 14                      # v28 words 8..12
-slice 0 16 65                     # v29 words 15..63
-concat 26 28
-concat 30 27
-concat 31 29                      # v32 output (64)
+concat 40 32                      # v41 [rc ru mode]
+dense 41 2 3                      # v42 mode select
+  1 0 -134217728
+  0 1 134217728
+  0 -134217728
+relu 42
+dense 43 1 2                      # v44 result
+  1 1
+  0
+slice 9 1 2                       # v45 q2
+concat 45 44
+mul 46 0 1 1 2                    # v47 m = q2 result
+concat 9 11                       # v48 I: 0 q1 1 q2 2 t35 3 t45 4 z 5 g0 6 g1 7 ez
+concat 7 48                       # v49 (15): G 0..6, I 7..14
+concat 49 47                      # v50 (16): m 15
+dense 50 3 16                     # v51 MUX_INT relus, M = 2^23
+  0 0 1 0 0 0 0  0 0 0 0 0 -8388608 -8388608 0  0
+  0 0 0 1 0 0 0  0 0 0 0 0 -8388608 -8388608 0  0
+  0 0 0 0 0 1 0  0 -8388608 0 0 0 0 0 -8388608  0
+  0 0 0
+relu 51                           # v52 [a b c]
+concat 50 52                      # v53 (19): 16 a 17 b 18 c
+dense 53 8 19                     # v54 words 0..7
+  0 0 0 0 0 0 0  0 0 0 0 0 313 313 0  0  1 0 0
+  0 0 0 0 0 0 0  0 0 0 0 0 1 1 0  0  0 0 0
+  0 0 0 0 0 1 0  0 0 0 0 0 0 2 0  0  0 0 0
+  0 0 0 0 0 0 0  0 0 0 0 0 0 0 0  0  0 0 0
+  0 0 0 0 0 0 0  0 0 0 0 0 0 0 0  0  0 0 0
+  0 0 0 0 0 0 0  0 0 0 0 0 0 0 0  0  0 0 0
+  0 0 0 0 0 0 0  0 0 0 0 0 0 0 0  0  0 0 0
+  0 0 0 0 0 0 0  0 0 0 0 0 1 2 0  0  0 1 0
+  0 0 0 0 0 0 0 0
+dense 53 2 19                     # v55 [A.TAG', A.PAY']
+  0 0 0 0 1 0 0  0 -1 0 0 0 0 0 2  0  0 0 0
+  0 0 0 0 0 0 0  0 0 0 0 0 0 0 3  1  0 0 1
+  0 0
+slice 0 9 14                      # v56 words 8..12
+slice 0 16 65                     # v57 words 15..63
+concat 54 56
+concat 58 55
+concat 59 57                      # v60 output (64)

@@ -1,0 +1,44 @@
+# func/text/tx_cpf (id 325): finish a string built by tx_cp. One step, block write [LEN, 1] at OH
+# (header: length, reference count 1), A = (2, OH), HT = WA + [POS > 0] (past the last word written),
+# -> tx_fin (322) PC 0. Output 66 words (mem_op 3, K = 64, N = 2). Note: weights/func/text/tx_cp.md
+input 65
+slice 0 31 32                     # v1 OH (T1)
+slice 0 34 35                     # v2 WA (T4)
+slice 0 36 38                     # v3 [POS LEN] (T6 T7)
+concat 1 2
+concat 4 3                        # v5 [OH WA POS LEN]
+dense 5 1 4                       # v6 POS - 0.5
+  0 0 1 0
+  -0.5
+step 6                            # v7 pp
+concat 5 7                        # v8 [OH WA POS LEN pp]
+dense 8 8 5                       # v9 words 0..7
+  0 0 0 0 0
+  0 0 0 0 0
+  1 0 0 0 0
+  0 0 0 0 0
+  0 0 0 0 0
+  0 0 0 0 0
+  0 0 0 0 0
+  0 0 0 0 0
+  322 3 0 67108866 0 0 0 0
+dense 8 2 5                       # v10 A = (2, OH)
+  0 0 0 0 0
+  1 0 0 0 0
+  2 0
+dense 8 1 5                       # v11 HT' = WA + pp
+  0 1 0 0 1
+  0
+dense 8 2 5                       # v12 payload [LEN, 1]
+  0 0 0 1 0
+  0 0 0 0 0
+  0 1
+slice 0 9 14                      # v13 words 8..12
+slice 0 16 24                     # v14 words 15..22
+slice 0 25 65                     # v15 words 24..63
+concat 9 13
+concat 16 10
+concat 17 14
+concat 18 11
+concat 19 15
+concat 20 12                      # v21 output (66)

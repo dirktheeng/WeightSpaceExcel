@@ -28,7 +28,7 @@ _paths = None
 def put(h, addr, s):
     if s == "":
         return TEXT_EMPTY
-    b = s.encode("utf-16-le")
+    b = s.encode("utf-16-le", "surrogatepass")
     u = [b[i] + 256 * b[i + 1] for i in range(0, len(b), 2)]
     h.mem[addr] = len(u)
     h.mem[addr + 1] = 1
@@ -98,7 +98,8 @@ def test_len_error_passes():
 
 # ---------------- CODE / UNICODE (first UTF-16 unit)
 @pytest.mark.parametrize("s,n", [("A", 65), ("abc", 97), ("Zebra", 90), (" ", 32), ("~x", 126),
-                                 ("été", 233), ("中", 20013)])
+                                 ("été", 233), ("中", 63), ("€uro", 128), ("™", 153), ("Ÿ", 159),
+                                 ("—", 151), ("Œ", 140), ("ž", 158), ("\U0001F600", 63), ("ÿ", 255)])
 def test_code(s, n):
     h, out = call("CODE", a=(2, "S1"), strings=[s])
     assert res(h, out) == n
@@ -260,3 +261,12 @@ def test_stale_x0_normal_paths(x0):
     assert res(h, out) == "bc"
     h, out = call("CASE", a=(2, "S1"), strings=["abcd"], regs={N0: 0}, x0=x0)
     assert res(h, out) == "ABCD"
+
+
+# ---------------- UNICODE (tx_code with N0 = 1)
+@pytest.mark.parametrize("s,n", [("A", 65), ("中x", 20013), ("€", 8364), ("\U0001F600", 128512),
+                                 ("\U00010000a", 65536), ("\U0010FFFF", 1114111), ("\ud800", 55296),
+                                 ("\ud800a", 55296)])
+def test_unicode(s, n):
+    h, out = call("CODE", a=(2, "S1"), strings=[s], regs={N0: 1})
+    assert res(h, out) == n

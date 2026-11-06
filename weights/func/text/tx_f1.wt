@@ -1,0 +1,60 @@
+# func/text/tx_f1 (id 326): CLEAN (N0 = 1), TRIM (N0 = 2), PROPER (N0 = 3) driver. A = text.
+# PC 0: read [A.PAY] (length), PC 1. PC 1: one tx_cp piece over the whole string, output at HT:
+# P0 = h + 2, N0 (skip) = 0, N1 = length, T0 = mode, T1 = OH = HT, T4 = WA = HT + 2, SW, SWN, ACC,
+# POS, LEN, st = 0; -> tx_cp (324) PC 0 with LR = 325 (tx_cpf), LP = 0. Note: weights/func/text/tx_cp.md
+input 65
+slice 0 0 1                       # v1 x0
+slice 0 8 9                       # v2 PC
+slice 0 15 16                     # v3 AP
+slice 0 28 29                     # v4 N0 (mode)
+slice 0 24 25                     # v5 HT
+concat 1 2
+concat 6 3
+concat 7 4
+concat 8 5                        # v9 G: 0 x0 1 PC 2 AP 3 N0 4 HT
+dense 9 1 5                       # v10 p1
+  0 1 0 0 0
+  -0.5
+step 10                           # v11
+concat 9 11                       # v12 (6): 5 p1
+dense 12 1 6                      # v13 N0 (1 - p1)
+  0 0 0 1 0 -8388608
+  0
+relu 13                           # v14
+concat 12 14                      # v15 (7): 6 rN0
+dense 15 10 7                     # v16 words 0..9
+  0 0 0 0 0 -2 0
+  0 0 0 0 0 -1 0
+  0 0 1 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 -1 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  326 1 0 0 0 0 0 1 325 0
+dense 15 1 7                      # v17 P0 = AP + 2
+  0 0 1 0 0 0 0
+  2
+dense 15 11 7                     # v18 [N0 N1 T0 T1 T2 T3 T4 T5 T6 T7 T8] (words 27..37)
+  0 0 0 0 0 0 1
+  1 0 0 0 0 0 0
+  0 0 0 1 0 0 0
+  0 0 0 0 1 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 1 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 2 0 0 0 0
+slice 0 11 26                     # v19 words 10..24
+slice 0 27 28                     # v20 word 26
+slice 0 39 65                     # v21 words 38..63
+concat 16 19
+concat 22 17
+concat 23 20
+concat 24 18
+concat 25 21                      # v26 output (64)

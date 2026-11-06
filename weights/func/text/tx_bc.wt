@@ -1,0 +1,32 @@
+# func/text/tx_bc (id 339): block copy loop head (unpacked units, one per word, used by SUBSTITUTE).
+# Registers: P0 source address, N1 words left, T6 destination address. N1 <= 0 -> return (LR, LP);
+# else block read 16 words at P0 -> tx_bw (340). Note: weights/func/text/tx_match.md
+input 65
+slice 0 9 11                      # v1 [LR LP]
+slice 0 26 27                     # v2 P0
+slice 0 29 30                     # v3 N1
+concat 1 2
+concat 4 3                        # v5 [LR LP P0 N1]
+dense 5 1 4                       # v6 has
+  0 0 0 1
+  -0.5
+step 6
+concat 5 7                        # v8 [LR LP P0 N1 has]
+dense 8 2 5                       # v9
+  1 0 0 0 -8388608
+  0 1 0 0 -8388608
+  0 0
+relu 9
+concat 8 10                       # v11 (7)
+dense 11 8 7                      # v12 words 0..7
+  0 0 0 0 340 1 0
+  0 0 0 0 4 0 0
+  0 0 1 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 1
+  0 0 0 67108880 0 0 0 0
+slice 0 9 65                      # v13 words 8..63
+concat 12 13                      # v14 output (64)

@@ -1,0 +1,39 @@
+# func/text/tx_unp (id 330): unpack loop head. Copies a packed string to one UTF-16 unit per word
+# (for the matchers). Registers: P0 next source word, N1 units left, T6 destination address, T7 fold
+# flag (1: upper-case a..z and U+00E0..U+00FE except U+00F7, as SEARCH compares). N1 <= 0 -> return
+# (LR, LP); else read [P0], P0 += 1 -> tx_unw (331). Note: weights/func/text/tx_match.md
+input 65
+slice 0 9 11                      # v1 [LR LP]
+slice 0 26 27                     # v2 P0
+slice 0 29 30                     # v3 N1
+concat 1 2
+concat 4 3                        # v5 [LR LP P0 N1]
+dense 5 1 4                       # v6 has
+  0 0 0 1
+  -0.5
+step 6
+concat 5 7                        # v8 [LR LP P0 N1 has]
+dense 8 2 5                       # v9 relus
+  1 0 0 0 -8388608
+  0 1 0 0 -8388608
+  0 0
+relu 9                            # v10 [a b]
+concat 8 10                       # v11 (7)
+dense 11 8 7                      # v12 words 0..7
+  0 0 0 0 331 1 0
+  0 0 0 0 1 0 0
+  0 0 1 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 1
+  0 0 0 0 0 0 0 0
+dense 11 1 7                      # v13 P0' = P0 + has
+  0 0 1 0 1 0 0
+  0
+slice 0 9 26                      # v14 words 8..24
+slice 0 27 65                     # v15 words 26..63
+concat 12 14
+concat 16 13
+concat 17 15                      # v18 output (64)

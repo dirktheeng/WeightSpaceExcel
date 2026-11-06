@@ -1,0 +1,27 @@
+# func/text/tx_tx3 (id 338): TEXT, block consumer of the 32 spilled words (97 inputs: state at 1..64,
+# saved words 8..39 at 65..96). Restores words 8..39 except A (13, 14, the result) and HT (23), keeps
+# 40..63, -> tx_fin (322) PC 0. Note: weights/func/text/tx_abi.md
+input 97
+slice 0 0 1                       # v1 x0 (0 after a block read)
+dense 1 8 1                       # v2 words 0..7
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  322 0 0 0 0 0 0 0
+slice 0 65 70                     # v3 saved words 8..12
+slice 0 14 16                     # v4 A
+slice 0 72 80                     # v5 saved words 15..22
+slice 0 24 25                     # v6 HT
+slice 0 81 97                     # v7 saved words 24..39
+slice 0 41 65                     # v8 words 40..63
+concat 2 3
+concat 9 4
+concat 10 5
+concat 11 6
+concat 12 7
+concat 13 8                       # v14 output (64)

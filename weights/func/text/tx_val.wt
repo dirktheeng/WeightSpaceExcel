@@ -1,0 +1,59 @@
+# func/text/tx_val (id 335): VALUE driver. A = the argument as given (raw kind: references already read).
+# PC 0: number or error -> returned; blank -> 0; text -> ev_t2n (109) with LR 335, LP 1; anything else
+#   (boolean, array, ...) -> #VALUE!. PC 1 (ev_t2n returned A): a number or an error is returned, anything
+#   else -> #VALUE!. Every exit goes to tx_fin (322). Note: weights/func/text/tx_abi.md
+input 65
+slice 0 8 9                       # v1 PC
+slice 0 14 16                     # v2 [AT AP]
+concat 1 2                        # v3 G: 0 PC 1 AT 2 AP
+dense 3 6 3                       # v4
+  1 0 0
+  0 1 0
+  0 1 0
+  0 1 0
+  0 1 0
+  0 1 0
+  -0.5 -0.5 -1.5 -2.5 -3.5 -4.5
+step 4                            # v5 [p1 s1 s2 s3 s4 s5]
+dense 5 4 6                       # v6 [call k0 blank0 keep1]
+  -1 0 1 -1 0 0
+  -1 1 -1 0 1 -1
+  -1 -1 0 0 0 0
+  1 1 -1 0 1 -1
+  -0.5 -0.5 0.5 -1.5
+step 6                            # v7
+concat 5 7                        # v8 (10): p1 0 s1 1 s2 2 s3 3 s4 4 s5 5 call 6 k0 7 blank0 8 keep1 9
+dense 8 1 10                      # v9 keep
+  0 0 0 0 0 0 1 1 0 1
+  0
+concat 9 2                        # v10 [keep AT AP]
+mul 10 0 1 2 3                    # v11 mP = keep AP
+concat 8 3                        # v12 (13): ... 10 PC 11 AT 12 AP
+dense 12 1 13                     # v13 AT - M (1 - keep)
+  0 0 0 0 0 0 8388608 8388608 0 8388608 0 1 0
+  -8388608
+relu 13                           # v14 rT
+concat 12 11
+concat 15 14                      # v16 (15): 13 mP 14 rT
+# bad = (1 - p1) - call - k0 - blank0 + (p1 - keep1) = 1 - call - k0 - blank0 - keep1
+dense 16 10 15                    # v17 words 0..9
+  0 0 0 0 0 0 -213 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  322 0 0 0 0 0 0 0 335 1
+dense 16 2 15                     # v18 [A.TAG A.PAY]
+  0 0 0 0 0 0 -4 -4 -3 -4 0 0 0 0 1
+  0 0 0 0 0 0 -3 -3 -3 -3 0 0 0 1 0
+  4 3
+slice 0 11 14                     # v19 words 10..12
+slice 0 16 65                     # v20 words 15..63
+concat 17 19
+concat 21 18
+concat 22 20                      # v23 output (64)

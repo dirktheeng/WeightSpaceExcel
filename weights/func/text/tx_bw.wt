@@ -1,0 +1,46 @@
+# func/text/tx_bw (id 340): block copy body, block consumer (81 inputs: 16 words at 65..80). Block writes
+# N = min(16, N1) of them at T6; T6 += N, P0 += 16, N1 -= 16 -> tx_bc (339). Output 80 words, mem_op 3.
+# Note: weights/func/text/tx_match.md
+input 81
+slice 0 26 27                     # v1 P0
+slice 0 29 30                     # v2 N1
+slice 0 36 37                     # v3 T6
+concat 1 2
+concat 4 3                        # v5 [P0 N1 T6]
+dense 5 1 3                       # v6 N1 - 16
+  0 1 0
+  -16
+relu 6                            # v7 excess
+concat 5 7                        # v8 [P0 N1 T6 ex]
+dense 8 8 4                       # v9 words 0..7, value = 2^26 + N1 - ex
+  0 0 0 0
+  0 0 0 0
+  0 0 1 0
+  0 1 0 -1
+  0 0 0 0
+  0 0 0 0
+  0 0 0 0
+  0 0 0 0
+  339 3 0 67108864 0 0 0 0
+dense 8 1 4                       # v10 P0 + 16
+  1 0 0 0
+  16
+dense 8 1 4                       # v11 N1 - 16
+  0 1 0 0
+  -16
+dense 8 1 4                       # v12 T6 + N
+  0 1 1 -1
+  0
+slice 0 9 26                      # v13 words 8..24
+slice 0 27 29                     # v14 words 26, 27
+slice 0 30 36                     # v15 words 29..34
+slice 0 37 65                     # v16 words 36..63
+slice 0 65 81                     # v17 payload (16)
+concat 9 13
+concat 18 10
+concat 19 14
+concat 20 11
+concat 21 15
+concat 22 12
+concat 23 16
+concat 24 17                      # v25 output (80)
