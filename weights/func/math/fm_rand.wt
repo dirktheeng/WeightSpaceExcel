@@ -1,0 +1,22 @@
+# func/math/fm_rand (id 280): RAND (T0 = 0), RANDBETWEEN (T0 = 1), step 1 of 2.
+# PC 0: io 5 (the harness refills the 64-byte entropy region at 0x301001), stay, PC 1.
+# PC 1: block read of 6 entropy words at 0x301001 (K = 64) -> fm_rnd (281).
+# Note: weights/func/math/fm_rand.md. Hand-written. Not generated.
+input 65
+slice 0 8 9                       # v1 [PC]
+dense 1 1 1                       # v2 PC - 0.5
+  1
+  -0.5
+step 2                            # v3 [ph]
+dense 3 8 1                       # v4 [next, mem_op, addr, value, io, io_arg, halt, PC]
+  1
+  4
+  3149825
+  67108870
+  -5
+  0
+  0
+  0
+  280 0 0 0 5 0 0 1
+slice 0 9 65                      # v5 words 8..63
+concat 4 5                        # v6

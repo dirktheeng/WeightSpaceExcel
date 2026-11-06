@@ -623,3 +623,43 @@
 - Alternatives: one entry network per fid (19 ids, the block has 16); a finish phase that restores N0 (one more step per call).
 - Affects: FUNC_TABLE[fid] = 351 for fids 112 113 116 117 118 147 150 213 270 307 315 335 413 467 474 502 503 515 516 (request to the ft_init owner); flags for those fids (MIN, MAX, volatile bit 1 for NOW 335 and TODAY 474) in fd_w0/fd_w1.
 - Result: tests/output/func_date 305 passed (26 through the ABI with the preserve set checked on each).
+
+### FM3 (DECISION): one ABI entry for all fixed-arity math functions
+- Decided: fm_ent / fm_arg / fm_go (277..279) stream and dereference arguments (CELL_GET, ev_t2n), then a one-hot over T2 = 64 + fid picks the core and selector; cores return straight into FN_RET (257).
+- Alternatives: one entry per family (more ids, the same dereference logic repeated); the logic agent's lg_arg (its consumers are logic-specific).
+- Why: 48 fids share three networks; cores keep their simple register contract (A, B, C, T0) and stay unit-testable.
+- Affects: FUNC_TABLE must map the 48 fids to 277 (ABI agent's ft_init). Aggregates (PRODUCT, SUMPRODUCT, SUMSQ and other variadic math) need the range scanning of the SUM networks (ids 30..35) and are not served by this entry.
+
+## 2026-11-06, Stage 3 to 4: number format engine (format agent; details in log/format-agent.md)
+
+### F1 (DECISION): one numeric core for General and custom codes
+- Decided: fx_dec gives (s, e, m) with m the 15-digit mantissa; fx_rnd rounds m half away from zero at the section's last shown digit with exact integer arithmetic and left-aligns a digit stream M; executors peel digits from M one per step. Scaling by '%' and commas is added to e, not multiplied into x.
+- Alternatives: rounding x * 10^k directly (fnum style; gives 1.00 for 1.005 where Excel shows 1.01); a DIGITS bank per format (15 divisions per value).
+- Why: Excel rounds the 15-digit decimal value; the decimal exponent route is exact apart from the first decomposition, and needs no N x N one-hot matrices (candidate and exact-complement gates, fx_dec.md).
+- Affects: weights/format only. Limits in weights/format/README.md.
+
+### F2 (DECISION): General width in characters
+- Decided: W = column width in characters, Wc = min(W, 11), W = 0 means 11 (TEXT). Fixed when it fits; scientific when fixed does not fit or shows fewer significant digits (ties stay fixed).
+- Alternatives: pixel fitting with the glyph advances (needs the renderer's font metrics inside the planner).
+- Affects: the renderer must pass a character width; pixel calibration is open question Q-F1.
+
+### F3 (DECISION): compiled format records and next-code token words
+- Decided: format codes are compiled once per format id into a record in 0xCA00..0xFFFF (README layout); a token word carries its successor's code so fx_fetch routes directly to a one-code executor (2 steps per displayed unit).
+- Alternatives: interpreting the code string at every display (the parse state machine would run per cell); a generic executor with all codes (one large network on every step).
+- Affects: FMT_TABLE at 0xC000 (proposed carve of FORMAT_STORE, below).
+
+### F4 (DECISION): left-indexed integer and exponent placeholders
+- Decided: INT and EXPD tokens store the index from the left; executors compute the index from the right as nint - 1 - jl and nexp - 1 - jl from registers N0 and T3.
+- Alternatives: a counting pre-pass or patching tokens after the integer part (extra steps per compile).
+- Affects: fx_int, fx_expd, General records.
+
+### F5 (REQUEST, not applied): memory map
+- encodings/memory-map.md: FORMAT_STORE 0x8000..0xFFFF is all style records today. The format engine uses 0xC000..0xFFFF (FMT_TABLE, FMT_BUF, General records, compiled records). Proposed: 1024 style records at 0x8000..0xBFFF and style word 0 = format id (FMT_TABLE index). Owner of memory-map.md to decide.
+
+### F6 (REQUEST, not applied): hooks
+- weights/kernel/boot.wt: one leaf call of fx_init (199) at boot. weights/ui: call fx_main (198) for cell text instead of ui/fnum (131). Text agent: TEXT via fx_main with W = 0. Built-in format id strings (1..49) to be written at boot or by the file loader.
+
+### Open questions recorded by this entry
+- Q-F1: Excel's pixel fitting rule for General (we use characters, max 11).
+- Q-F2: whether Excel shows the minus sign for negative values in conditional sections (we always do).
+- Result: 29 networks, 23,017 dense parameters. tests/output/format: 139 passed, 2 xfailed (fractions, engineering exponent).

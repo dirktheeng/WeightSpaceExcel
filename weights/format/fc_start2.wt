@@ -1,0 +1,29 @@
+# format/fc_start2 (id 224): x0 = COMPILE_TOP (0 = never used: base 0xCA00). CR = record base.
+# Reads the code length at SRC - 2. Next fc_start3 (225). Note: fc_compile.md.
+input 65
+slice 0 0 1                       # v1 = CTOP
+slice 0 26 27                     # v2 = SRC
+dense 1 1 1                       # v3 = 0.5 - CTOP
+   -1
+   0.5
+step 3                            # v4 = [CTOP = 0]
+concat 1 4                        # v5
+concat 5 2                        # v6 = [CTOP, z, SRC]
+dense 6 9 3                       # v7 = [next, read, addr, 0, 0, 0, 0, PC, CR]
+   0 0 0
+   0 0 0
+   0 0 1
+   0 0 0
+   0 0 0
+   0 0 0
+   0 0 0
+   0 0 0
+   1 51712 0
+   225 1 -2 0 0 0 0 0 0
+slice 7 0 8                       # v8
+slice 0 9 19                      # v9 = words 8..17
+concat 8 9                        # v10
+slice 7 8 9                       # v11 = CR
+concat 10 11                      # v12 (18)
+slice 0 20 65                     # v13 = words 19..63
+concat 12 13                      # v14

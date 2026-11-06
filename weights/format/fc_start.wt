@@ -1,0 +1,22 @@
+# format/fc_start (id 223): compiler entry, x0 = H (format code string handle). SRC = H + 2,
+# reads COMPILE_TOP (0xC003). Next fc_start2 (224). Note: fc_compile.md.
+input 65
+slice 0 0 1                       # v1 = H
+dense 1 9 1                       # v2 = [next, read, addr, 0, 0, 0, 0, PC, SRC]
+   0
+   0
+   0
+   0
+   0
+   0
+   0
+   0
+   1
+   224 1 49155 0 0 0 0 0 2
+slice 2 0 8                       # v3
+slice 0 9 26                      # v4 = words 8..24
+concat 3 4                        # v5
+slice 2 8 9                       # v6 = SRC
+concat 5 6                        # v7 (25)
+slice 0 27 65                     # v8 = words 26..63
+concat 7 8                        # v9

@@ -1,0 +1,16 @@
+# format/fx_end (id 200): END token (code 0). No memory operation; routes to the finisher
+# fx_fin (212) with PC 0. Note: fx_emit.md.
+input 65
+slice 0 8 9                       # v1 = [PC] (any finite word, weight 0)
+dense 1 8 1                       # v2 = [next = 212, 0 x 6, PC = 0]
+   0
+   0
+   0
+   0
+   0
+   0
+   0
+   0
+   212 0 0 0 0 0 0 0
+slice 0 9 65                      # v3 = words 8..63
+concat 2 3                        # v4

@@ -1,0 +1,85 @@
+# func/math/fm_arg (id 278): block consumer after fm_ent PC 1 (input 67: x65 = TAG, x66 = PAY of
+# argument N1). Tag 9 (cell reference, PAY = K): unpack K into (AS, AR1, AC1), T1 = 0 -> CELL_GET (16)
+# with LR 277, LP 2. Tag 2 (text): A = (2, handle) -> ev_t2n (109) with LR 277, LP 3. Otherwise
+# A = (TAG, PAY) -> fm_ent PC 3 (fix and advance). Note: weights/func/math/fm_abi.md. Hand-written.
+input 67
+slice 0 65 67                     # v1 [t, pay]
+dense 1 4 2                       # v2 [t - 1.5, t - 2.5, t - 8.5, t - 9.5]
+  1 0
+  1 0
+  1 0
+  1 0
+  -1.5 -2.5 -8.5 -9.5
+step 2                            # v3 [g2, g3, g9, g10]
+concat 3 1                        # v4 [g2, g3, g9, g10, t, pay]
+dense 4 2 6                       # v5 [is9, pay]
+  0 0 1 -1 0 0
+  0 0 0 0 0 1
+  0 0
+mul 5 0 1 1 2                     # v6 [Kg]
+dense 6 1 1                       # v7 Kg 2^-14 + C
+  6.103515625e-05
+  6755399441055744
+dense 7 1 1                       # v8 [r]
+  1
+  -6755399441055744
+concat 8 6                        # v9 [r, Kg]
+dense 9 1 2                       # v10 r - Kg 2^-14
+  1 -6.103515625e-05
+  0
+step 10                           # v11 [g]
+concat 9 11                       # v12 [r, Kg, g]
+dense 12 2 3                      # v13 [q = r - g, COL = Kg - 2^14 q]
+  1 0 -1
+  -16384 1 16384
+  0 0
+dense 13 1 2                      # v14 q 2^-20 + C
+  9.5367431640625e-07 0
+  6755399441055744
+dense 14 1 1                      # v15 [r2]
+  1
+  -6755399441055744
+concat 15 13                      # v16 [r2, q, COL]
+dense 16 1 3                      # v17 r2 - q 2^-20
+  1 -9.5367431640625e-07 0
+  0
+step 17                           # v18 [g2']
+concat 16 18                      # v19 [r2, q, COL, g2']
+dense 19 3 4                      # v20 [SHEET, ROW, COL]
+  1 0 0 -1
+  -1048576 1 0 1048576
+  0 0 1 0
+  0 0 0
+dense 4 4 6                       # v21 [next, PC, LR, LP]
+  -168 168 -261 261 0 0
+  -3 3 -3 3 0 0
+  0 0 0 0 0 0
+  0 0 -1 1 0 0
+  277 3 277 3
+slice 21 0 1                      # v22 word 0
+dense 1 6 2                       # v23 words 1..6 = 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0 0 0 0 0
+slice 21 1 4                      # v24 words 7..9
+slice 0 11 14                     # v25 words 10..12
+slice 1 0 2                       # v26 words 13, 14 = (t, pay)
+slice 0 16 20                     # v27 words 15..18
+slice 0 23 31                     # v28 words 22..29
+dense 1 1 2                       # v29 word 30 = T1 = 0 (get)
+  0 0
+  0
+slice 0 32 65                     # v30 words 31..63
+concat 22 23
+concat 31 24
+concat 32 25
+concat 33 26
+concat 34 27
+concat 35 20
+concat 36 28
+concat 37 29
+concat 38 30

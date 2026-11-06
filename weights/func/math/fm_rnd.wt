@@ -1,0 +1,158 @@
+# func/math/fm_rnd (id 281): block consumer after fm_rand PC 1 (input 71: x65..x70 = entropy bytes).
+# r = sum b_i 256^-(i+1), i = 0..5 (exact, 48-bit resolution, 0 <= r < 1). RAND: A = (1, r).
+# RANDBETWEEN(A, B): lo = CEIL(A), hi = FLOOR(B), cnt = hi - lo + 1; cnt < 1 or |A|, |B| >= 2^51
+# -> #NUM!; else A = (1, lo + FLOOR(r cnt)). First error A then B. Return to (LR, LP).
+# Note: weights/func/math/fm_rand.md. Hand-written. Not generated.
+input 71
+slice 0 65 71                     # v1 [b0..b5]
+dense 1 1 6                       # v2 [r]
+  0.00390625 1.52587890625e-05 5.9604644775390625e-08 2.3283064365386963e-10 9.094947017729282e-13 3.552713678800501e-15
+  0
+slice 0 14 18                     # v3 [tA, pA, tB, pB]
+slice 0 30 31                     # v4 [sel]
+dense 3 10 4                      # v5 tag - k + 0.5, k = 1..5 for A, B
+  1 0 0 0
+  1 0 0 0
+  1 0 0 0
+  1 0 0 0
+  1 0 0 0
+  0 0 1 0
+  0 0 1 0
+  0 0 1 0
+  0 0 1 0
+  0 0 1 0
+  -0.5 -1.5 -2.5 -3.5 -4.5 -0.5 -1.5 -2.5 -3.5 -4.5
+step 5                            # v6
+dense 4 1 1                       # v7 sel - 0.5
+  1
+  -0.5
+step 7                            # v8 [s1]
+concat 6 8                        # v9 (sA 0-4, sB 5-9, s1 10)
+concat 9 3                        # v10 (tA 11, pA 12, tB 13, pB 14)
+dense 10 4 15                     # v11 [isnumA, isnumB, pA, pB]
+  0 -1 1 -1 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 -1 1 -1 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 1 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 1
+  1 1 0 0
+mul 11 0 2 2 4                    # v12 [x, y]
+dense 12 4 2                      # v13 [x, -x, y, -y]
+  1 0
+  -1 0
+  0 1
+  0 -1
+  0 0 0 0
+relu 13                           # v14 [px, nx, py, ny]
+concat 14 12                      # v15 (px 0, nx 1, py 2, ny 3, x 4, y 5)
+dense 15 2 6                      # v16 [|x| - 2^51, |y| - 2^51]
+  1 1 0 0 0 0
+  0 0 1 1 0 0
+  -2251799813685248 -2251799813685248
+step 16                           # v17 [bx, by]
+concat 15 17                      # v18 (bx 6, by 7)
+dense 18 4 8                      # v19 gates [1 - bx, 1 - by], values [-x, y]
+  0 0 0 0 0 0 -1 0
+  0 0 0 0 0 0 0 -1
+  0 0 0 0 -1 0 0 0
+  0 0 0 0 0 1 0 0
+  1 1 0 0
+mul 19 0 2 2 4                    # v20 u = [-xg, yg]
+dense 20 2 2                      # v21 + C
+  1 0
+  0 1
+  6755399441055744 6755399441055744
+dense 21 2 2                      # v22 r
+  1 0
+  0 1
+  -6755399441055744 -6755399441055744
+concat 22 20                      # v23 [r1, r2, u1, u2]
+dense 23 2 4                      # v24 r - u
+  1 0 -1 0
+  0 1 0 -1
+  0 0
+step 24                           # v25 [g1, g2]
+concat 23 25                      # v26 (r1 0, r2 1, u1 2, u2 3, g1 4, g2 5)
+dense 26 2 6                      # v27 [lo = CEIL(x) = g1 - r1, cnt = FLOOR(y) - lo + 1]
+  -1 0 0 0 1 0
+  1 1 0 0 -1 -1
+  0 1
+concat 27 2                       # v28 [lo, cnt, r]
+dense 28 2 3                      # v29 [cnt, r]
+  0 1 0
+  0 0 1
+  0 0
+mul 29 0 1 1 2                    # v30 [rc = r cnt]
+dense 30 1 1                      # v31 rc + C
+  1
+  6755399441055744
+dense 31 1 1                      # v32 [rr]
+  1
+  -6755399441055744
+concat 32 30                      # v33 [rr, rc]
+dense 33 1 2                      # v34 rr - rc
+  1 -1
+  0
+step 34                           # v35 [g3]
+concat 28 33                      # v36 [lo, cnt, r, rr, rc]
+concat 36 35                      # v37 (g3 5)
+dense 37 1 6                      # v38 [val = lo + FLOOR(rc)]
+  1 0 0 1 0 -1
+  0
+concat 10 17                      # v39 (bx 15, by 16)
+concat 39 27                      # v40 (lo 17, cnt 18)
+dense 40 6 19                     # v41 [f1, f2, f3, f4, c0, okAll]
+# sA1 sA2 sA3 sA4 sA5 sB1 sB2 sB3 sB4 sB5 s1 tA pA tB pB bx by lo cnt
+  0   0   0   1   -1  0   0   0   0   0   1  0  0  0  0  0  0  0  0
+  0   1   -1  0   1   0   0   0   0   0   1  0  0  0  0  0  0  0  0
+  0   -1  1   -1  0   0   0   0   1   -1  1  0  0  0  0  0  0  0  0
+  0   -1  1   -1  0   0   1   -1  0   1   1  0  0  0  0  0  0  0  0
+  0   0   0   0   0   0   0   0   0   0   0  0  0  0  0  0  0  0  -1
+  0   -1  1   -1  0   0   -1  1   -1  0   1  0  0  0  0  0  0  0  0
+  -1.5 -1.5 -1.5 -1.5 0.5 -0.5
+step 41                           # v42
+concat 40 42                      # v43 (f1 19, f2 20, f3 21, f4 22, c0 23, okAll 24)
+dense 43 1 25                     # v44 dom = okAll and (bx or by or c0)
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 1 3
+  -3.5
+step 44                           # v45 [dom]
+concat 43 45                      # v46 (dom 25)
+concat 46 2                       # v47 (r 26)
+concat 47 38                      # v48 (val 27)
+dense 48 8 28                     # v49 gates [f1, f3, 1 - s1, okAll - dom], values [pA, pB, r, val]
+# 0-9                  10-19                  20-27
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 1    0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0    0 1 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0  -1 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0    0 0 0 0 1 -1 0 0
+  0 0 0 0 0 0 0 0 0 0  0 0 1 0 0 0 0 0 0 0    0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 1 0 0 0 0 0    0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0    0 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0    0 0 0 0 0 0 0 1
+  0 0 1 0 0 0 0 0
+mul 49 0 4 4 8                    # v50 [e1, e3, rr', vv]
+concat 48 50                      # v51 (e1 28, e3 29, rr' 30, vv 31)
+dense 51 2 32                     # v52 [TAG, PAY]
+# 0-9                  10-19                  20-29                30-31
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 3    3 3 3 0 0 3 0 0 0 0  0 0
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0    3 0 3 0 0 6 0 0 1 1  1 1
+  1 0
+slice 0 9 11                      # v53 [LR, LP]
+dense 53 8 2                      # v54 words 0..7
+  1 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 1
+  0 0 0 0 0 0 0 0
+slice 0 9 13                      # v55 words 8..11
+dense 53 1 2                      # v56 STATUS = 0
+  0 0
+  0
+slice 0 16 65                     # v57 words 15..63
+concat 54 55
+concat 58 56
+concat 59 52
+concat 60 57

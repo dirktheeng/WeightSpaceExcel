@@ -1,0 +1,30 @@
+# format/fx_go (id 219): start of emission. Writes '-' at BP when T7 = 1 (minus sign wanted),
+# BP + T7, SUB (T5) = 0, then fx_fetch (194). Note: README.md.
+input 65
+slice 0 37 38                     # v1 = T7
+slice 0 27 28                     # v2 = BP
+concat 1 2                        # v3
+dense 3 9 2                       # v4 = [next, write, addr BP, '-', 0, 0, 0, PC, BP']
+   0 0
+   2 0
+   0 1
+   0 0
+   0 0
+   0 0
+   0 0
+   0 0
+   1 1
+   194 0 0 45 0 0 0 0 0
+slice 4 0 8                       # v5
+slice 0 9 27                      # v6 = words 8..25
+concat 5 6                        # v7
+slice 4 8 9                       # v8 = BP'
+concat 7 8                        # v9 (26)
+slice 0 28 35                     # v10 = words 27..33
+concat 9 10                       # v11
+dense 1 1 1                       # v12 = 0 (SUB)
+   0
+   0
+concat 11 12                      # v13 (34)
+slice 0 36 65                     # v14 = words 35..63
+concat 13 14                      # v15

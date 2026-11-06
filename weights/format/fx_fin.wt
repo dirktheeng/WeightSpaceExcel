@@ -1,0 +1,86 @@
+# format/fx_fin (id 212): finisher entry. len = BP - FMT_BUF (0xC800); fill seen when N1 = 2;
+# numeric when kind T4 <= 1. ovf (numeric, W > 0, len without fill > W) -> W '#' characters.
+# nf = W - len (without fill) fill characters when a fill was seen and W > 0. Sets up the pack
+# loop (fx_pack 213): P0 = FMT_BUF, P1 = end (FMT_BUF on overflow), T6 = NF, T7 = fill char
+# ('#' on overflow), T8 = FIL, T1 = 0, T0 = output length; reads HEAP_TOP (zero page 1).
+# Next: fx_fin2 (214). Note: fx_fin.md.
+input 65
+slice 0 27 28                     # v1 = BP
+slice 0 29 30                     # v2 = N1
+slice 0 17 18                     # v3 = W
+slice 0 34 35                     # v4 = kind
+concat 1 2                        # v5
+concat 5 3                        # v6
+concat 6 4                        # v7 = [BP N1 W kind]
+dense 7 3 4                       # v8 = [N1 - 1.5, W - 0.5, 1.5 - kind]
+   0 1 0 0
+   0 0 1 0
+   0 0 0 -1
+   -1.5 -0.5 1.5
+step 8                            # v9 = [fillp, Wp, num]
+concat 7 9                        # v10 = [BP N1 W kind fillp Wp num]
+dense 10 1 7                      # v11 = lenx = BP - 0xC800 - fillp
+   1 0 0 0 -1 0 0
+   -51200
+concat 10 11                      # v12 (8: lenx 7)
+dense 12 1 8                      # v13 = lenx - W - 0.5
+   0 0 -1 0 0 0 0 1
+   -0.5
+step 13                           # v14 = [lenx > W]
+concat 12 14                      # v15 (9: gt 8)
+dense 15 1 9                      # v16 = ovf pre
+   0 0 0 0 0 1 1 0 1
+   -2.5
+step 16                           # v17 = ovf
+concat 15 17                      # v18 (10: ovf 9)
+dense 18 1 10                     # v19 = g = fillp AND Wp AND NOT ovf
+   0 0 0 0 1 1 0 0 0 -1
+   -1.5
+step 19                           # v20 = g
+concat 18 20                      # v21 (11: g 10)
+dense 21 5 11                     # v22 = MUX_INT pre: nf, ovf (W - lenx) +/-, ovf len, ovf W
+   0 0 1 0 0 0 0 -1 0 0 8388608
+   0 0 1 0 0 0 0 -1 0 8388608 0
+   0 0 -1 0 0 0 0 1 0 8388608 0
+   1 0 0 0 0 0 0 0 0 8388608 0
+   0 0 1 0 0 0 0 0 0 8388608 0
+   -8388608 -8388608 -8388608 -8439808 -8388608
+relu 22                           # v23 = [nf, dP, dN, ovf (BP - 0xC800), ovf W]
+concat 21 23                      # v24 (16)
+dense 24 9 16                     # v25 = [P0, P1, T0 outlen, T1, T6 NF, T7, T8 FIL, next, mem_op] etc
+   0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0
+   1 0 0 0 0 0 0 0 0 0  0 0 0 0 -1 0
+   0 0 0 0 0 0 0 1 0 0  0 1 1 -1 0 0
+   0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0  0 1 0 0 0 1
+   0 0 0 0 0 0 0 0 0 35  0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 1  0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0
+   51200 0 0 0 0 0 0 0 0
+dense 25 8 9                      # v26 = words 0..7: next 214, read, addr 1, PC 0
+   0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0
+   214 1 1 0 0 0 0 0
+slice 0 9 26                      # v27 = words 8..24
+concat 26 27                      # v28
+slice 25 0 2                      # v29 = [P0, P1]
+concat 28 29                      # v30 (25, 26)
+slice 0 28 30                     # v31 = words 27, 28
+concat 30 31                      # v32
+slice 25 2 4                      # v33 = [T0, T1]
+concat 32 33                      # v34 (29, 30)
+slice 0 32 35                     # v35 = words 31..33
+concat 34 35                      # v36
+slice 0 35 36                     # v37 = word 34
+concat 36 37                      # v38
+slice 25 4 7                      # v39 = [T6 T7 T8]
+concat 38 39                      # v40 (35..37)
+slice 0 39 65                     # v41 = words 38..63
+concat 40 41                      # v42

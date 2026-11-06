@@ -30,7 +30,7 @@ class Sheet:
     def __init__(self):
         self.h = Harness(bb.manifest_paths())
         self.h.trace = None
-        self.h.run(0, np.zeros(65), max_steps=100)   # BOOT, then halt on the empty queue
+        self.h.run(0, np.zeros(65), max_steps=200000)   # BOOT (function table init and first frame), then halt on the empty queue
         self.rec = REC_BASE
         self.str = STR_BASE
         self.steps = 0

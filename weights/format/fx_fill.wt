@@ -1,0 +1,43 @@
+# format/fx_fill (id 209): fill token (code 9, arg = unit c, from '*c'): writes the fill marker
+# 65536 + c at BP, BP + 1, sets N1 = 2 (fill seen, read by fx_fin), routes to fx_fetch.
+# Note: fx_emit.md.
+input 65
+slice 0 0 1                       # v1 = tok
+dense 1 1 1                       # v2
+   9.5367431640625e-07
+   -0.4999995
+dense 2 1 1                       # v3
+   1
+   6755399441055744
+dense 3 1 1                       # v4 = nc
+   1
+   -6755399441055744
+slice 0 27 28                     # v5 = BP
+concat 1 4                        # v6
+concat 6 5                        # v7 = [tok, nc, BP]
+dense 7 10 3                      # v8 = [next, mem_op, addr, value, io, arg, halt, PC, BP + 1, N1 = 2]
+   0 0 0
+   0 0 0
+   0 0 1
+   1 -1048576 0
+   0 0 0
+   0 0 0
+   0 0 0
+   0 0 0
+   0 0 1
+   0 0 0
+   194 2 0 -524288 0 0 0 0 1 2
+slice 8 0 8                       # v9
+slice 0 9 27                      # v10 = words 8..25
+concat 9 10                       # v11
+slice 8 8 9                       # v12 = BP + 1
+concat 11 12                      # v13 (26)
+slice 0 28 29                     # v14 = word 27
+concat 13 14                      # v15
+slice 8 9 10                      # v16 = N1 = 2
+concat 15 16                      # v17 (28)
+slice 0 30 38                     # v18 = words 29..36
+concat 17 18                      # v19
+concat 19 4                       # v20 (37 NC)
+slice 0 39 65                     # v21
+concat 20 21                      # v22

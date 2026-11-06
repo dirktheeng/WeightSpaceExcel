@@ -1,0 +1,9 @@
+# Weight block notes: fm_fact (274), fm_comb (275), fm_gcd (276)
+
+Hand-written. Not generated. Log: log/func-math-agent.md (2026-11-06).
+
+**fm_fact (274).** FACT (T0 = 0), FACTDOUBLE (1). PC 0: coercion, n = TRUNC(x) (FLOOR blocks, |x| <= 1000 gate), domain (FACT x < 0 or n > 170; FACTDOUBLE x < -1 or n > 301; |x| > 1000) -> #NUM!; init i = 2 (FACTDOUBLE 2 - odd(n)), acc = 1, L = n, step 1 or 2 in words 18..21. PC 1, one step per factor: c = [i <= L]; acc = acc (c i), i += step; return (1, acc) when c = 0. The multiplier is gated by c so the product is never formed past the end (V1: 170! 171 would overflow). Ascending order, one rounding per factor above 22!. Steps n + 1.
+**fm_comb (275).** COMBIN (0), COMBINA (1, n' = n + k - 1). kk = min(k, n' - k) = k - relu(2k - n'), base = n' - kk. Each iteration sends acc (base + j) / j to fm_dv1 (gQ) and comes back at PC 2 (exact while below 2^53; acc (base + j) is an exact multiple of j). Overflow is decided before multiplying: (acc 2^-600)((base + j) 2^-600) >= 2^-176 -> #NUM!. #NUM! for n < 0, k < 0, n < k (COMBIN), |n|, |k| >= 2^51. Steps about 2 kk + 1.
+**fm_gcd (276).** GCD (0), LCM (1), two arguments. Euclid through fm_dv1's MOD gate (gM): (a, b) -> (b, a mod b) until b = 0; LCM = (a0 / g) b0 with one exact quotient through fm_dv1 (gQ) and a final product, >= 2^53 -> #NUM!. Arguments truncated; negative or >= 2^51 -> #NUM!. Links are packed LR 2^16 + LP in word 25 and unpacked by FLOOR on return.
+
+**Limits.** GCD/LCM take two arguments (fm_go passes the first two; more are ignored, and a one-argument LCM gives 0). COMBINA(0, k > 0) gives #NUM! (Excel's result not pinned). MOD inside GCD gives #NUM! for quotients above 2^51 (GCD(2^52, 3)). **Parameters.** Not tallied yet. **Multi-role weights.** Words 18..21 hold loop state whose meaning is fixed per network. **Tests.** test_fact (23), test_combin (19), test_gcd (20), all pass.

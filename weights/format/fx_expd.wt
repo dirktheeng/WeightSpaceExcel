@@ -1,0 +1,137 @@
+# format/fx_expd (id 207): exponent digit placeholder (code 7, arg = 4 jl + type, jl from the left; j = nexp (T3) - 1 - jl).
+# Digits of |X| (XR of them remain, T6, set by fx_exp): XR > j + 1 emits extra digits (stay),
+# XR = j + 1 its own digit, XR <= j the placeholder ('0', nothing for '#', ' ' for '?').
+# Note: fx_emit.md.
+input 65
+slice 0 0 1                       # v1 = x0
+slice 0 8 9                       # v2 = PC
+slice 0 30 31                     # v3 = CUR
+dense 2 2 1                       # v4
+   1
+  -1
+   0 1
+concat 3 1                        # v5
+concat 4 5                        # v6
+mul 6 0 2 2 4                     # v7
+dense 7 1 2                       # v8 = tok
+   1 1
+   0
+dense 8 1 1                       # v9
+   9.5367431640625e-07
+   -0.4999995
+dense 9 1 1                       # v10
+   1
+   6755399441055744
+dense 10 1 1                      # v11 = nc
+   1
+   -6755399441055744
+concat 8 11                       # v12
+dense 12 1 2                      # v13 = arg = tok - 2^20 nc - 7 * 65536
+   1 -1048576
+   -458752
+dense 13 1 1                      # v14
+   0.25
+   -0.375
+dense 14 1 1                      # v15
+   1
+   6755399441055744
+dense 15 1 1                      # v16 = j
+   1
+   -6755399441055744
+slice 0 25 26                     # v17 = X
+slice 0 36 37                     # v18 = XR
+slice 0 33 34                     # v19 = nexp (T3)
+concat 13 16                      # v20 = [arg, jl]
+concat 20 19                      # v21 = [arg, jl, nexp]
+dense 21 2 3                      # v22 = [ty, j = nexp - 1 - jl]
+   1 -4 0
+   0 -1 1
+   0 -1
+concat 22 17                      # v23
+concat 23 18                      # v24 = [ty j X XR]
+dense 24 2 4                      # v25 = [X, -X]
+   0 0 1 0
+   0 0 -1 0
+   0 0
+relu 25                           # v26
+dense 26 3 2                      # v27 = [XA, XA/10 - 0.45, XA/100 - 0.495]
+   1 1
+   0.1 0.1
+   0.01 0.01
+   0 -0.45 -0.495
+dense 27 3 3                      # v28
+   1 0 0
+   0 1 0
+   0 0 1
+   0 6755399441055744 6755399441055744
+dense 28 3 3                      # v29 = [XA, f1 = floor(XA/10), f2 = floor(XA/100)]
+   1 0 0
+   0 1 0
+   0 0 1
+   0 -6755399441055744 -6755399441055744
+concat 24 29                      # v30 = [ty j X XR XA f1 f2] (7)
+dense 30 9 7                      # v31 = pre: A, A2, t0, t2, s1, s2, s3, d0, d1
+   0 -1 0 1 0 0 0
+   0 -1 0 1 0 0 0
+  -1 0 0 0 0 0 0
+   1 0 0 0 0 0 0
+   0 0 0 1 0 0 0
+   0 0 0 1 0 0 0
+   0 0 0 1 0 0 0
+   0 0 0 0 1 -10 0
+   0 0 0 0 0 1 -10
+   -0.5 -1.5 0.5 -1.5 -0.5 -1.5 -2.5 0 0
+step 31                           # v32 = [A, A2, t0, t2, s1, s2, s3, -, -]
+slice 31 7 9                      # v33 = [d0, d1]
+concat 32 33                      # v34
+concat 34 29                      # v35 = [A A2 t0 t2 s1 s2 s3 * * d0 d1 XA f1 f2] (14)
+dense 35 6 14                     # v36 = [g1, g2, g3, h0, h2, wr] pre
+   1 0 0 0 1 -1 0 0 0 0 0 0 0 0
+   1 0 0 0 0 1 -1 0 0 0 0 0 0 0
+   1 0 0 0 0 0 1 0 0 0 0 0 0 0
+  -1 0 1 0 0 0 0 0 0 0 0 0 0 0
+  -1 0 0 1 0 0 0 0 0 0 0 0 0 0
+   1 0 1 1 0 0 0 0 0 0 0 0 0 0
+   -1.5 -1.5 -1.5 -0.5 -0.5 -0.5
+step 36                           # v37 = [g1 g2 g3 h0 h2 wr]
+concat 35 37                      # v38 (20)
+dense 38 3 20                     # v39 = d_k - 10 + 10 g_k
+   0 0 0 0 0 0 0 0 0 1  0 0 0 0 10 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0  1 0 0 0 0 10 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0  0 0 0 1 0 0 10 0 0 0
+   -10 -10 -10
+relu 39                           # v40 = [g1 d0, g2 d1, g3 d2]
+concat 38 40                      # v41 (23)
+slice 0 27 28                     # v42 = BP
+slice 0 36 37                     # v43 = XR
+concat 41 42                      # v44 (23 BP)
+concat 44 43                      # v45 (24 XR)
+dense 45 10 25                    # v46 = [next mem_op addr value io arg halt PC BP' XR']
+   0 13 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 2  0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 1 0
+   48 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 48 32 0  1 1 1 0 0
+   0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0
+   0 1 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 1  0 0 0 1 0
+  -1 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 1
+   194 0 0 0 0 0 0 0 0 0
+slice 46 0 8                      # v47
+slice 0 9 27                      # v48 = words 8..25
+concat 47 48                      # v49
+slice 46 8 9                      # v50 = BP'
+concat 49 50                      # v51 (26)
+slice 0 28 30                     # v52
+concat 51 52                      # v53
+concat 53 8                       # v54 (29 CUR)
+slice 0 31 36                     # v55 = words 30..34
+concat 54 55                      # v56
+slice 46 9 10                     # v57 = XR'
+concat 56 57                      # v58 (35)
+slice 0 37 38                     # v59 = word 36
+concat 58 59                      # v60
+concat 60 11                      # v61 (37 NC)
+slice 0 39 65                     # v62
+concat 61 62                      # v63

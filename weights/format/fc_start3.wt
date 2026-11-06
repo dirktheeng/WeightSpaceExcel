@@ -1,0 +1,55 @@
+# format/fc_start3 (id 225): x0 = code length. Initialises the compiler state (LEFT = len, POS 3,
+# SH = CR + 9, OUT = CR + 18, everything else 0) and writes FMT_TABLE[F].compiled = CR
+# (0xC000 + 4 F + 1, F = B.TAG). Next fc_char (220). Note: fc_compile.md.
+input 65
+slice 0 0 1                       # v1 = len
+slice 0 16 17                     # v2 = F
+slice 0 19 20                     # v3 = CR
+concat 1 2                        # v4
+concat 4 3                        # v5 = [len, F, CR]
+dense 5 8 3                       # v6 = [next, write, addr, value CR, 0, 0, 0, PC]
+   0 0 0
+   0 0 0
+   0 4 0
+   0 0 1
+   0 0 0
+   0 0 0
+   0 0 0
+   0 0 0
+   220 2 49153 0 0 0 0 0
+dense 5 22 3                      # v7 = words 18..39: CR CR+9 0 0 0 0 3 SRC(kept) CR+18 len 0 ...
+   0 0 1
+   0 0 1
+   0 0 0
+   0 0 0
+   0 0 0
+   0 0 0
+   0 0 0
+   0 0 0
+   0 0 1
+   1 0 0
+   0 0 0
+   0 0 0
+   0 0 0
+   0 0 0
+   0 0 0
+   0 0 0
+   0 0 0
+   0 0 0
+   0 0 0
+   0 0 0
+   0 0 0
+   0 0 0
+   0 9 0 0 0 0 3 0 18 0 0 0 0 0 0 0 0 0 0 0 0 0
+slice 0 9 18                      # v8 = words 8..16
+concat 6 8                        # v9 (0..16)
+slice 0 18 19                     # v10 = word 17
+concat 9 10                       # v11
+slice 7 0 7                       # v12 = words 18..24 (CR SH SEC BK BV BD POS)
+concat 11 12                      # v13
+slice 0 26 27                     # v14 = SRC (word 25)
+concat 13 14                      # v15
+slice 7 8 22                      # v16 = words 26..39
+concat 15 16                      # v17
+slice 0 41 65                     # v18 = words 40..63
+concat 17 18                      # v19

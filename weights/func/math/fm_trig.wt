@@ -1,0 +1,272 @@
+# func/math/fm_trig (id 270): SIN (T0 = 0), COS (1), TAN (2), SEC (3), CSC (4), COT (5). One step.
+# x = A. |x| >= 2^27 -> #NUM! (Excel's limit). k = round(x 2/pi); r = ((x - k h1) - k h2) - k C2
+# with fl(pi/2) = h1 + h2 split by hand (k h1, k h2 exact for |k| < 2^27) and C2 = pi/2 - fl(pi/2).
+# sin r, cos r by Taylor polynomials (degree 17 / 16, |r| <= 0.79), quadrant q = k mod 4.
+# SIN, COS and errors: return to (LR, LP) with A = result. TAN, SEC, CSC, COT: A.PAY = numerator,
+# B.PAY = denominator, T1..T8 = 0, T9 = gQ = 1, next = fm_dv1 (267), which divides and returns to
+# (LR, LP). CSC(0), COT(0) -> #DIV/0!. Note: weights/func/math/fm_trig.md. Hand-written.
+input 65
+slice 0 14 16                     # v1 [tag, pay]
+slice 0 30 31                     # v2 [sel]
+slice 0 9 11                      # v3 [LR, LP]
+dense 1 5 2                       # v4 tag - k + 0.5, k = 1..5
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  -0.5 -1.5 -2.5 -3.5 -4.5
+step 4                            # v5 [s1..s5]
+dense 2 5 1                       # v6 sel - k + 0.5, k = 1..5
+  1
+  1
+  1
+  1
+  1
+  -0.5 -1.5 -2.5 -3.5 -4.5
+step 6                            # v7 [t1..t5]
+concat 5 7                        # v8
+concat 8 1                        # v9 (s 0-4, t 5-9, tag 10, pay 11)
+dense 9 2 12                      # v10 [isnum, pay]
+  0 -1 1 -1 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 1
+  1 0
+mul 10 0 1 1 2                    # v11 [x]
+dense 11 2 1                      # v12 [x, -x]
+  1
+  -1
+  0 0
+relu 12                           # v13 [px, nx]
+dense 13 1 2                      # v14 |x| - (2^27 - 2^-26): positive iff |x| >= 2^27
+  1 1
+  -134217727.99999998
+step 14                           # v15 [lim]
+concat 11 15                      # v16 [x, lim]
+dense 16 2 2                      # v17 [1 - lim, x]
+  0 -1
+  1 0
+  1 0
+mul 17 0 1 1 2                    # v18 [xg]
+dense 18 1 1                      # v19 xg 2/pi + C
+  0.6366197723675814
+  6755399441055744
+dense 19 1 1                      # v20 [k]
+  1
+  -6755399441055744
+concat 18 20                      # v21 [xg, k]
+dense 21 3 2                      # v22 [k h1, k h2, k C2]
+  0 1.570796310901641845703125
+  0 1.58932547122958567342720925807952880859375e-8
+  0 6.123233995736766e-17
+  0 0 0
+concat 21 22                      # v23 (xg 0, k 1, kh1 2, kh2 3, kc2 4)
+dense 23 1 5                      # v24 [r1 = xg - k h1] (exact, Sterbenz)
+  1 0 -1 0 0
+  0
+concat 24 23                      # v25 (r1 0, kh2 4, kc2 5)
+dense 25 1 6                      # v26 [r2 = r1 - k h2]
+  1 0 0 0 -1 0
+  0
+concat 26 25                      # v27 (r2 0, kc2 6)
+dense 27 1 7                      # v28 [r = r2 - k C2]
+  1 0 0 0 0 0 -1
+  0
+dense 20 1 1                      # v29 k/4 + C
+  0.25
+  6755399441055744
+dense 29 1 1                      # v30 [rq = round(k/4)]
+  1
+  -6755399441055744
+concat 30 20                      # v31 [rq, k]
+dense 31 1 2                      # v32 rq - k/4
+  1 -0.25
+  0
+step 32                           # v33 [gq]; FLOOR(k/4) = rq - gq
+concat 31 33                      # v34 [rq, k, gq]
+dense 34 3 3                      # v35 q - j + 0.5 for j = 1..3, q = k - 4 rq + 4 gq
+  -4 1 4
+  -4 1 4
+  -4 1 4
+  -0.5 -1.5 -2.5
+step 35                           # v36 [u1, u2, u3]
+concat 28 28                      # v37 [r, r]
+mul 37 0 1 1 2                    # v38 [z = r^2]
+dense 38 2 1                      # v39 [z/17! - 1/15!, z/16! - 1/14!]
+  2.8114572543455206e-15
+  4.779477332387385e-14
+  -7.647163731819816e-13 -1.1470745597729725e-11
+concat 38 38                      # v40 [z, z]
+concat 39 40                      # v41
+mul 41 0 2 2 4                    # v42
+dense 42 2 2                      # v43 + [1/13!, 1/12!]
+  1 0
+  0 1
+  1.6059043836821613e-10 2.08767569878681e-09
+concat 43 40                      # v44
+mul 44 0 2 2 4                    # v45
+dense 45 2 2                      # v46 + [-1/11!, -1/10!]
+  1 0
+  0 1
+  -2.505210838544172e-08 -2.755731922398589e-07
+concat 46 40                      # v47
+mul 47 0 2 2 4                    # v48
+dense 48 2 2                      # v49 + [1/9!, 1/8!]
+  1 0
+  0 1
+  2.755731922398589e-06 2.48015873015873e-05
+concat 49 40                      # v50
+mul 50 0 2 2 4                    # v51
+dense 51 2 2                      # v52 + [-1/7!, -1/6!]
+  1 0
+  0 1
+  -0.0001984126984126984 -0.001388888888888889
+concat 52 40                      # v53
+mul 53 0 2 2 4                    # v54
+dense 54 2 2                      # v55 + [1/5!, 1/4!]
+  1 0
+  0 1
+  0.008333333333333333 0.041666666666666664
+concat 55 40                      # v56
+mul 56 0 2 2 4                    # v57
+dense 57 2 2                      # v58 [Ps, Pc] + [-1/3!, -1/2!]
+  1 0
+  0 1
+  -0.16666666666666666 -0.5
+concat 28 38                      # v59 [r, z]
+mul 59 0 1 1 2                    # v60 [r z]
+concat 60 38                      # v61 [rz, z]
+concat 61 58                      # v62 [rz, z, Ps, Pc]
+mul 62 0 2 2 4                    # v63 [rz Ps, z Pc]
+concat 63 28                      # v64 [t, zc, r]
+dense 64 2 3                      # v65 [s = r + t, c = 1 + zc]
+  1 0 1
+  0 1 0
+  0 1
+concat 36 65                      # v66 [u1, u2, u3, s, c]
+dense 66 16 5                     # v67 gates [q0 q1 q2 q3 q0 q1 q2 q3], values [s c -s -c c -s -c s]
+  -1 0 0 0 0
+  1 -1 0 0 0
+  0 1 -1 0 0
+  0 0 1 0 0
+  -1 0 0 0 0
+  1 -1 0 0 0
+  0 1 -1 0 0
+  0 0 1 0 0
+  0 0 0 1 0
+  0 0 0 0 1
+  0 0 0 -1 0
+  0 0 0 0 -1
+  0 0 0 0 1
+  0 0 0 -1 0
+  0 0 0 0 -1
+  0 0 0 1 0
+  1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0
+mul 67 0 8 8 16                   # v68
+dense 68 2 8                      # v69 [sinx, cosx] (one nonzero term each)
+  1 1 1 1 0 0 0 0
+  0 0 0 0 1 1 1 1
+  0 0
+concat 9 15                       # v70 (s 0-4, t 5-9, tag 10, pay 11, lim 12)
+concat 70 69                      # v71 (sinx 13, cosx 14)
+dense 71 2 15                     # v72 [sinx, -sinx]
+  0 0 0 0 0 0 0 0 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 -1 0
+  0 0
+step 72                           # v73 [spos, sneg]
+concat 71 73                      # v74 (spos 15, sneg 16)
+dense 74 4 17                     # v75 [E, V, L, D0]
+# s1 s2 s3 s4 s5 t1 t2 t3 t4 t5 tag pay lim sinx cosx spos sneg
+  0  0  0  1  -1 0  0  0  0  0  0   0   0   0    0    0    0
+  0  1  -1 0  1  0  0  0  0  0  0   0   0   0    0    0    0
+  0  -1 1  -1 0  0  0  0  0  0  0   0   1   0    0    0    0
+  0  -1 1  -1 0  0  0  0  1  0  0   0   -1  0    0    -1   -1
+  -0.5 -0.5 -0.5 -0.5
+step 75                           # v76
+concat 74 76                      # v77 (E 17, V 18, L 19, D0 20)
+dense 77 3 21                     # v78 [dv, gS, gC]
+# s1 s2 s3 s4 s5 t1 t2 t3 t4 t5 tag pay lim sinx cosx spos sneg E  V  L  D0
+  0  -1 1  -1 0  0  1  0  0  0  0   0   -1  0    0    0    0    0  0  0  -1
+  0  0  0  0  0  -1 0  0  0  0  0   0   0   0    0    0    0    -1 -1 -1 -1
+  0  0  0  0  0  1  -1 0  0  0  0   0   0   0    0    0    0    -1 -1 -1 -1
+  -0.5 0.5 -0.5
+step 78                           # v79
+concat 77 79                      # v80 (dv 21, gS 22, gC 23)
+dense 80 14 24                    # v81 gates [gS, gC, ind2, ind5, ind23, ind45, E], values [sinx, cosx, sinx, cosx, cosx, sinx, pay]
+# s1 s2 s3 s4 s5 t1 t2 t3 t4 t5 tag pay lim sinx cosx spos sneg E  V  L  D0 dv gS gC
+  0  0  0  0  0  0  0  0  0  0  0   0   0   0    0    0    0    0  0  0  0  0  1  0
+  0  0  0  0  0  0  0  0  0  0  0   0   0   0    0    0    0    0  0  0  0  0  0  1
+  0  0  0  0  0  0  1  -1 0  0  0   0   0   0    0    0    0    0  0  0  0  0  0  0
+  0  0  0  0  0  0  0  0  0  1  0   0   0   0    0    0    0    0  0  0  0  0  0  0
+  0  0  0  0  0  0  1  0  -1 0  0   0   0   0    0    0    0    0  0  0  0  0  0  0
+  0  0  0  0  0  0  0  0  1  0  0   0   0   0    0    0    0    0  0  0  0  0  0  0
+  0  0  0  0  0  0  0  0  0  0  0   0   0   0    0    0    0    1  0  0  0  0  0  0
+  0  0  0  0  0  0  0  0  0  0  0   0   0   1    0    0    0    0  0  0  0  0  0  0
+  0  0  0  0  0  0  0  0  0  0  0   0   0   0    1    0    0    0  0  0  0  0  0  0
+  0  0  0  0  0  0  0  0  0  0  0   0   0   1    0    0    0    0  0  0  0  0  0  0
+  0  0  0  0  0  0  0  0  0  0  0   0   0   0    1    0    0    0  0  0  0  0  0  0
+  0  0  0  0  0  0  0  0  0  0  0   0   0   0    1    0    0    0  0  0  0  0  0  0
+  0  0  0  0  0  0  0  0  0  0  0   0   0   1    0    0    0    0  0  0  0  0  0  0
+  0  0  0  0  0  0  0  0  0  0  0   1   0   0    0    0    0    0  0  0  0  0  0  0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0
+mul 81 0 7 7 14                   # v82 [pS, pC, p2, p5, p23, p45, Epay]
+concat 80 82                      # v83 (pS 24, pC 25, p2 26, p5 27, p23 28, p45 29, Epay 30)
+dense 83 5 31                     # v84 [dv, num, den, direct, TAG]
+# s1 s2 s3 s4 s5 t1 t2 t3 t4 t5 tag pay lim sinx cosx spos sneg E  V  L  D0 dv gS gC pS pC p2 p5 p23 p45 Epay
+  0  0  0  0  0  0  0  0  0  0  0   0   0   0    0    0    0    0  0  0  0  1  0  0  0  0  0  0  0   0   0
+  0  0  0  0  0  0  0  1  0  -1 0   0   0   0    0    0    0    0  0  0  0  0  0  0  0  0  1  1  0   0   0
+  0  0  0  0  0  0  0  0  0  0  0   0   0   0    0    0    0    0  0  0  0  0  0  0  0  0  0  0  1   1   0
+  0  0  0  0  0  0  0  0  0  0  0   0   0   0    0    0    0    0  3  6  2  0  0  0  1  1  0  0  0   0   1
+  0  0  0  0  0  0  0  0  0  0  0   0   0   0    0    0    0    3  3  3  3  0  0  0  0  0  0  0  0   0   0
+  0 0 0 0 1
+mul 84 0 1 1 2                    # v85 [dv num]
+concat 84 85                      # v86 [dv, num, den, direct, TAG, dvnum]
+dense 86 3 6                      # v87 [TAG, word 14 = direct + dv num, den]
+  0 0 0 0 1 0
+  0 0 0 1 0 1
+  0 0 1 0 0 0
+  0 0 0
+concat 86 3                       # v88 (LR 6, LP 7)
+dense 88 2 8                      # v89 [dv, LR]
+  1 0 0 0 0 0 0 0
+  0 0 0 0 0 0 1 0
+  0 0
+mul 89 0 1 1 2                    # v90 [dv LR]
+concat 88 90                      # v91 (dvLR 8)
+dense 91 8 9                      # v92 words 0..7: next = LR + dv (267 - LR), PC = LP
+  267 0 0 0 0 0 1 0 -1
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 0
+slice 0 9 13                      # v93 words 8..11
+dense 3 1 2                       # v94 STATUS = 0
+  0 0
+  0
+slice 87 0 2                      # v95 [TAG, word 14]
+slice 0 16 17                     # v96 word 15
+slice 87 2 3                      # v97 word 16 = den
+slice 0 18 31                     # v98 words 17..29
+dense 3 9 2                       # v99 words 30..38 = [0 x 8, gQ = 1]
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0 0 0 0 0 0 0 1
+slice 0 40 65                     # v100 words 39..63
+concat 92 93
+concat 101 94
+concat 102 95
+concat 103 96
+concat 104 97
+concat 105 98
+concat 106 99
+concat 107 100

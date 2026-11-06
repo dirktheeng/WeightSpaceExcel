@@ -1,0 +1,210 @@
+# func/math/fm_go (id 279): block consumer after fm_ent's final read (input 71: x65..x70 = arguments
+# 1..3 as (TAG, PAY) pairs read from SP - 2 (n - 1)). Loads A = argument 1, B = argument 2, C =
+# argument 3 (absent ones = missing (8, 0); absent B = blank for TRUNC, GCD, LCM), looks up the core
+# network and selector from T2 = 64 + fid (one-hot over the 48 served fids), and calls the core with
+# PC 0, LR = 257 (FN_RET), LP = 0, T0 = selector. Note: weights/func/math/fm_abi.md. Hand-written.
+input 71
+slice 0 32 33                     # v1 [T2]
+dense 1 96 1                      # v2 T2 - v + 0.5, T2 - v - 0.5 for each served v = 64 + fid
+# 96 rows of one weight each (row 2i: T2 - v_i + 0.5, row 2i + 1: T2 - v_i - 0.5), typed by hand:
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  -64.5 -65.5 -481.5 -482.5 -314.5 -315.5 -425.5 -426.5 -220.5 -221.5 -405.5 -406.5 -191.5 -192.5 -443.5 -444.5
+  -463.5 -464.5 -465.5 -466.5 -464.5 -465.5 -545.5 -546.5
+  -442.5 -443.5 -374.5 -375.5 -379.5 -380.5 -115.5 -116.5 -242.5 -243.5 -117.5 -118.5 -332.5 -333.5 -244.5 -245.5 -116.5 -117.5 -243.5 -244.5
+  -222.5 -223.5 -346.5 -347.5 -348.5 -349.5 -430.5 -431.5 -491.5 -492.5 -492.5 -493.5
+  -347.5 -348.5
+  -482.5 -483.5 -145.5 -146.5 -515.5 -516.5 -474.5 -475.5 -164.5 -165.5 -147.5 -148.5
+  -82.5 -83.5 -83.5 -84.5 -69.5 -70.5 -80.5 -81.5 -67.5 -68.5
+  -226.5 -227.5 -227.5 -228.5 -135.5 -136.5 -136.5 -137.5 -265.5 -266.5 -339.5 -340.5
+  -444.5 -445.5 -446.5 -447.5
+step 2                            # v3 pairs; one-hot ind_f = first - second of each pair
+dense 3 3 96                      # v4 [core - 258, sel, blankB]
+# ABS SIGN INT PI EVEN ODD DEGREES RADIANS | ROUND ROUNDUP ROUNDDOWN TRUNC
+  6 -6 6 -6 6 -6 6 -6 6 -6 6 -6 6 -6 6 -6   7 -7 7 -7 7 -7 7 -7
+# QUOTIENT MOD MROUND CEILING FLOOR CEILING.PRECISE ISO.CEILING FLOOR.PRECISE CEILING.MATH FLOOR.MATH
+  8 -8 8 -8 8 -8 8 -8 8 -8 8 -8 8 -8 8 -8 8 -8 8 -8
+# EXP LN LOG10 POWER SQRT SQRTPI | LOG
+  10 -10 10 -10 10 -10 10 -10 10 -10 10 -10   15 -15
+# SIN COS TAN SEC CSC COT | ATAN ATAN2 ACOT ASIN ACOS
+  12 -12 12 -12 12 -12 12 -12 12 -12 12 -12   13 -13 13 -13 13 -13 13 -13 13 -13
+# FACT FACTDOUBLE COMBIN COMBINA GCD LCM
+  16 -16 16 -16 17 -17 17 -17 18 -18 18 -18
+# RAND RANDBETWEEN
+  22 -22 22 -22
+# selectors
+  0 0 1 -1 2 -2 4 -4 5 -5 6 -6 7 -7 8 -8   0 0 1 -1 2 -2 2 -2
+  0 0 1 -1 2 -2 3 -3 4 -4 5 -5 5 -5 6 -6 7 -7 8 -8
+  0 0 1 -1 2 -2 3 -3 4 -4 5 -5   0 0
+  0 0 1 -1 2 -2 3 -3 4 -4 5 -5   0 0 1 -1 2 -2 3 -3 4 -4
+  0 0 1 -1 0 0 1 -1 0 0 1 -1
+  0 0 1 -1
+# blank-B flags (TRUNC, GCD, LCM)
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 1 -1
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0   0 0
+  0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 1 -1 1 -1
+  0 0 0 0
+  0 0 0
+slice 0 28 29                     # v5 [n]
+dense 5 3 1                       # v6 [n - 0.5, n - 1.5, n - 2.5]
+  1
+  1
+  1
+  -0.5 -1.5 -2.5
+step 6                            # v7 [h1, h2, h3]
+slice 0 65 71                     # v8 [a1t, a1p, a2t, a2p, a3t, a3p]
+concat 7 4                        # v9 (h1 0, h2 1, h3 2, core' 3, sel 4, bl 5)
+concat 9 8                        # v10 (a1t 6 .. a3p 11)
+dense 10 12 12                    # v11 gates [h1 h1 h2 h2 h3 h3], values [a1t a1p a2t a2p a3t a3p]
+  1 0 0 0 0 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0 0 0 0
+  0 0 1 0 0 0 0 0 0 0 0 0
+  0 0 1 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 1 0 0 0 0 0
+  0 0 0 0 0 0 0 1 0 0 0 0
+  0 0 0 0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 0 0 0 0 1 0 0
+  0 0 0 0 0 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 0 0 0 0 1
+  0 0 0 0 0 0 0 0 0 0 0 0
+mul 11 0 6 6 12                   # v12 (m 0..5)
+concat 10 12                      # v13 (m 12..17)
+dense 13 1 18                     # v14 h2 + bl - 1.5
+  0 1 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0
+  -1.5
+step 14                           # v15 [hb]
+concat 13 15                      # v16 (hb 18)
+dense 16 11 19                    # v17 [next, PC, LR, LP, At, Ap, Bt, Bp, Ct, Cp, T0]
+# h1 h2 h3 c' sel bl a1t a1p a2t a2p a3t a3p m0 m1 m2 m3 m4 m5 hb
+  0  0  0  1  0   0  0   0   0   0   0   0   0  0  0  0  0  0  0
+  0  0  0  0  0   0  0   0   0   0   0   0   0  0  0  0  0  0  0
+  0  0  0  0  0   0  0   0   0   0   0   0   0  0  0  0  0  0  0
+  0  0  0  0  0   0  0   0   0   0   0   0   0  0  0  0  0  0  0
+  -8 0  0  0  0   0  0   0   0   0   0   0   1  0  0  0  0  0  0
+  0  0  0  0  0   0  0   0   0   0   0   0   0  1  0  0  0  0  0
+  0  -8 0  0  0   -8 0   0   0   0   0   0   0  0  1  0  0  0  8
+  0  0  0  0  0   0  0   0   0   0   0   0   0  0  0  1  0  0  0
+  0  0  -8 0  0   0  0   0   0   0   0   0   0  0  0  0  1  0  0
+  0  0  0  0  0   0  0   0   0   0   0   0   0  0  0  0  0  1  0
+  0  0  0  0  1   0  0   0   0   0   0   0   0  0  0  0  0  0  0
+  258 0 257 0 8 0 8 0 8 0 0
+slice 17 0 1                      # v18 word 0
+dense 1 6 1                       # v19 words 1..6 = 0
+  0
+  0
+  0
+  0
+  0
+  0
+  0 0 0 0 0 0
+slice 17 1 4                      # v20 words 7..9
+slice 0 11 14                     # v21 words 10..12
+slice 17 4 10                     # v22 words 13..18 = A, B, C
+slice 0 20 30                     # v23 words 19..28
+slice 17 10 11                    # v24 word 29 = T0
+slice 0 31 65                     # v25 words 30..63
+concat 18 19
+concat 26 20
+concat 27 21
+concat 28 22
+concat 29 23
+concat 30 24
+concat 31 25

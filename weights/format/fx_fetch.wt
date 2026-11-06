@@ -1,0 +1,24 @@
+# format/fx_fetch (id 194): reads the token at TP (P0), TP = TP + 1, PC = 0, and routes to the
+# executor of the token's code, next = 200 + NC (T8, set by the previous executor). Note: fx_emit.md.
+input 65
+slice 0 38 39                     # v1 = NC
+slice 0 26 27                     # v2 = TP
+concat 1 2                        # v3 = [NC, TP]
+dense 3 9 2                       # v4 = [next, mem_op, addr, value, io, io_arg, halt, PC, TP + 1]
+   1 0
+   0 0
+   0 1
+   0 0
+   0 0
+   0 0
+   0 0
+   0 0
+   0 1
+   200 1 0 0 0 0 0 0 1
+slice 4 0 8                       # v5 = words 0..7
+slice 0 9 26                      # v6 = words 8..24
+concat 5 6                        # v7
+slice 4 8 9                       # v8 = TP + 1
+concat 7 8                        # v9 (word 25)
+slice 0 27 65                     # v10 = words 26..63
+concat 9 10                       # v11

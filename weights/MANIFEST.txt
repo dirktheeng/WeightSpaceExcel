@@ -323,3 +323,16 @@
 351 weights/func/date/dt_abi.wt
 352 weights/func/date/dt_abi1.wt
 221 weights/format/fc_br.wt
+277 weights/func/math/fm_ent.wt
+278 weights/func/math/fm_arg.wt
+279 weights/func/math/fm_go.wt
+280 weights/func/math/fm_rand.wt
+281 weights/func/math/fm_rnd.wt
+327 weights/func/text/tx_cc.wt
+328 weights/func/text/tx_rp.wt
+329 weights/func/text/tx_rl.wt
+330 weights/func/text/tx_unp.wt
+331 weights/func/text/tx_unw.wt
+332 weights/func/text/tx_fs.wt
+333 weights/func/text/tx_fm.wt
+335 weights/func/text/tx_val.wt

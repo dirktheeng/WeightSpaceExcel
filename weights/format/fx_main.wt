@@ -1,0 +1,77 @@
+# format/fx_main (id 198): format engine entry. In: A = value, B.TAG = format id F (0 General),
+# B.PAY = W (column width in characters; 0 = no limit, as for TEXT), (LR, LP) = return.
+# Number, F = 0: General (fx_dec 192 with T10 = fx_gen 196). Number or text, F > 0: reads
+# FMT_TABLE[F].compiled (0xC000 + 4 F + 1) and goes to fx_tab (216). Text with F = 0, and blank,
+# boolean, error: returns at once with A unchanged and STATUS = 1 (displayed as their own text).
+# Out (at return): A = (2, display string), C.TAG = color, C.PAY = alignment (1 left, 2 centre,
+# 3 right). Note: README.md.  B = 2^23 = 8388608
+input 65
+slice 0 14 18                     # v1 = [TAG, PAY, F, W]
+slice 0 9 11                      # v2 = [LR, LP]
+concat 1 2                        # v3 = [TAG PAY F W LR LP]
+dense 3 5 6                       # v4 = [TAG >= 1, TAG <= 1, TAG >= 2, TAG <= 2, F = 0] pre
+   1 0 0 0 0 0
+  -1 0 0 0 0 0
+   1 0 0 0 0 0
+  -1 0 0 0 0 0
+   0 0 -1 0 0 0
+   -0.5 1.5 -1.5 2.5 0.5
+step 4                            # v5
+mul 5 0 1 1 2                     # v6 = tn
+mul 5 2 3 3 4                     # v7 = tt
+slice 5 4 5                       # v8 = fz
+concat 3 6                        # v9
+concat 9 7                        # v10
+concat 10 8                       # v11 = [TAG PAY F W LR LP tn tt fz]
+dense 11 2 9                      # v12 = [gen, tab] pre
+   0 0 0 0 0 0 1 0 1
+   0 0 0 0 0 0 1 1 -1
+   -1.5 -0.5
+step 12                           # v13 = [gen, tab]; the rest (rtt = 1 - gen - tab) returns at once
+concat 11 13                      # v14 (11: gen 9, tab 10)
+dense 14 3 11                     # v15 = MUX_INT pre: next = LR (+/-), PC = LP, when rtt
+   0 0 0 0 1 0 0 0 0 -8388608 -8388608
+   0 0 0 0 -1 0 0 0 0 -8388608 -8388608
+   0 0 0 0 0 1 0 0 0 -8388608 -8388608
+   0 0 0
+relu 15                           # v16
+concat 14 16                      # v17 (14: nP 11, nN 12, pc 13)
+# rows: next mem_op addr value io arg halt PC | STATUS C.TAG C.PAY P1 T10
+dense 17 13 14                    # v18
+   0 0 0 0 0 0 0 0 0 192 216 1 -1 0
+   0 0 0 0 0 0 0 0 0 0 1 0 0 0
+   0 0 4 0 0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0 0 0 0 1
+   0 0 0 0 0 0 0 0 0 -1 -1 0 0 0
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 1 -1 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   0 0 49153 0 0 0 0 0 1 0 2 51200 196
+slice 18 0 8                      # v19 = words 0..7
+slice 0 9 12                      # v20 = words 8..10 (LR LP RSP)
+concat 19 20                      # v21
+slice 0 12 13                     # v22 = word 11 (MODE)
+concat 21 22                      # v23
+slice 18 8 9                      # v24 = STATUS
+concat 23 24                      # v25 (12)
+slice 0 14 18                     # v26 = words 13..16 (A, B)
+concat 25 26                      # v27
+slice 18 9 11                     # v28 = [C.TAG, C.PAY]
+concat 27 28                      # v29 (17, 18)
+slice 0 20 27                     # v30 = words 19..25
+concat 29 30                      # v31
+slice 18 11 12                    # v32 = P1
+concat 31 32                      # v33 (26)
+slice 0 28 39                     # v34 = words 27..37
+concat 33 34                      # v35
+slice 0 39 40                     # v36 = word 38
+concat 35 36                      # v37
+slice 18 12 13                    # v38 = T10
+concat 37 38                      # v39 (39)
+slice 0 41 65                     # v40 = words 40..63
+concat 39 40                      # v41

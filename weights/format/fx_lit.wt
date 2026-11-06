@@ -1,0 +1,37 @@
+# format/fx_lit (id 201): literal token (code 1, arg = UTF-16 unit): writes arg at BP, BP + 1,
+# NC = next code, routes to fx_fetch (194). Note: fx_emit.md.
+input 65
+slice 0 0 1                       # v1 = tok (just fetched)
+dense 1 1 1                       # v2 = tok 2^-20 - 0.4999995
+   9.5367431640625e-07
+   -0.4999995
+dense 2 1 1                       # v3
+   1
+   6755399441055744
+dense 3 1 1                       # v4 = nc
+   1
+   -6755399441055744
+slice 0 27 28                     # v5 = BP
+concat 1 4                        # v6 = [tok, nc]
+concat 6 5                        # v7 = [tok, nc, BP]
+dense 7 9 3                       # v8 = [next, mem_op, addr, value, io, io_arg, halt, PC, BP + 1]
+   0 0 0
+   0 0 0
+   0 0 1
+   1 -1048576 0
+   0 0 0
+   0 0 0
+   0 0 0
+   0 0 0
+   0 0 1
+   194 2 0 -65536 0 0 0 0 1
+slice 8 0 8                       # v9 = words 0..7
+slice 0 9 27                      # v10 = words 8..25
+concat 9 10                       # v11
+slice 8 8 9                       # v12 = BP + 1
+concat 11 12                      # v13 (word 26)
+slice 0 28 38                     # v14 = words 27..36
+concat 13 14                      # v15
+concat 15 4                       # v16 (word 37 NC)
+slice 0 39 65                     # v17 = words 38..63
+concat 16 17                      # v18

@@ -1,0 +1,31 @@
+# format/fx_tab (id 216): x0 = compiled record CR of format F (0 = not compiled yet).
+# CR > 0: block read of the 9 record header words at CR into fx_sel (217).
+# CR = 0: reads the code handle FMT_TABLE[F] (0xC000 + 4 F) and compiles (fc_start 223), which
+# returns to fx_main (198). Note: README.md.
+input 65
+slice 0 0 1                       # v1 = CR
+slice 0 16 17                     # v2 = F
+concat 1 2                        # v3
+dense 3 1 2                       # v4 = CR - 0.5
+   1 0
+   -0.5
+step 4                            # v5 = has
+concat 3 5                        # v6 = [CR, F, has]
+dense 6 2 3                       # v7 = MUX_INT pre: CR when has, 0xC000 + 4 F when not
+   1 0 8388608
+   0 4 -8388608
+   -8388608 49152
+relu 7                            # v8 = [crh, fh]
+concat 6 8                        # v9 = [CR F has crh fh]
+dense 9 8 5                       # v10 = [next, mem_op, addr, value, 0, 0, 0, PC]
+   0 0 -6 0 0
+   0 0 3 0 0
+   0 0 0 1 1
+   0 0 67108873 0 0
+   0 0 0 0 0
+   0 0 0 0 0
+   0 0 0 0 0
+   0 0 0 0 0
+   223 1 0 0 0 0 0 0
+slice 0 9 65                      # v11 = words 8..63
+concat 10 11                      # v12

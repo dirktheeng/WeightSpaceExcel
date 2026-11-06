@@ -1,0 +1,29 @@
+# format/fx_fin2 (id 214): x0 = h = HEAP_TOP. Writes the string header mem[h] = T0 (length);
+# T2 = h, T5 = HW = h + 2 (first packed word). Next: fx_fin3 (215). Note: fx_fin.md.
+input 65
+slice 0 0 1                       # v1 = h
+slice 0 30 31                     # v2 = T0 (length)
+concat 1 2                        # v3 = [h, len]
+dense 3 10 2                      # v4 = [next, write, addr h, value len, 0, 0, 0, PC, T2, T5]
+   0 0
+   0 0
+   1 0
+   0 1
+   0 0
+   0 0
+   0 0
+   0 0
+   1 0
+   1 0
+   215 2 0 0 0 0 0 0 0 2
+slice 4 0 8                       # v5
+slice 0 9 32                      # v6 = words 8..30
+concat 5 6                        # v7
+slice 4 8 9                       # v8 = T2
+concat 7 8                        # v9 (31)
+slice 0 33 35                     # v10 = words 32, 33
+concat 9 10                       # v11
+slice 4 9 10                      # v12 = T5
+concat 11 12                      # v13 (34)
+slice 0 36 65                     # v14 = words 35..63
+concat 13 14                      # v15
