@@ -184,7 +184,9 @@ def test_text_entry_via_goto():
     assert bb.value(h, "C2") == "abcdefg"
     assert h.mem[0] == 0 and h.mem[0x0C] == 3
     s = bb.slot_of(h, "C2")
-    assert h.mem[k.CELL_BASE + 8 * s + 6] == 1   # dirty
+    # CALC word is 4*CALC_GEN + 1 (address.md); with recalculation hooked in,
+    # CALC_GEN advances past 0, so check the dirty bit, not the whole word.
+    assert h.mem[k.CELL_BASE + 8 * s + 6] % 4 == 1   # dirty
 
 
 def test_strings_are_contiguous_in_heap():

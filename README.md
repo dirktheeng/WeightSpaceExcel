@@ -30,8 +30,8 @@ flowchart LR
     classDef todo fill:#f3f3f3,stroke:#999,color:#555;
     class ML,ED,CM,CS done;
     class P done;
-    class CALC wip;
-    class R todo;
+    class CALC done;
+    class R wip;
 ```
 
 <sub>Green: built and tested. Yellow: in progress. Grey: not started.</sub>
@@ -77,7 +77,7 @@ gantt
 | Measure | Now |
 |---|---|
 | Parity checklist items passing | 0 of 1,220 |
-| Stage 1 conformance cases passing | 28 of 273 run (14 skipped until `SUM` exists); formula cases wait on the evaluator |
+| Stage 1 conformance cases passing | 252 of 273 run (14 skipped until `SUM` exists) |
 | Hand-written networks in the manifest | 33 |
 | Kernel parameters | about 5,100 |
 | Compliance, kernel, primitive and parser tests | 291 of 291 passing |
@@ -89,7 +89,9 @@ gantt
 - **Kernel** ([weights/kernel/](weights/kernel/), 30 networks): boot, call and return, fault trap, the main event loop, keystroke decoding with Ctrl+G Go To, text entry straight into the heap, Enter and Delete, and a hash-table cell store with collision handling. Typing `hello` into B3 takes 60 steps from start to finish.
 - **Building-block library** ([weights/prim/](weights/prim/), 13 primitives, 172 tests): integer equality and one-hot, real compare, select (two forms), floor, ceiling, truncate and both rounding modes (including Excel's half away from zero), mod 2^k, divide by a constant, 15-digit extraction, overflow-guarded add and multiply, the cell-address hash, integer division by a variable divisor, and correctly rounded floating-point division.
 - **Parser** ([weights/parse/](weights/parse/), 16 networks, about 18,100 parameters, 91 tests): hooked into the kernel. Typed constants (numbers with decimals, exponents, percent, currency and thousands separators, booleans, error literals, text) parse with Excel's 15-digit truncation and exact decimal conversion. Formulas compile to postfix token records with Excel's precedence, references in every `$` form, ranges, and calls to 14 functions; bad syntax is rejected. Entering `=1+2*3` takes 83 steps. Not yet: whole-row and whole-column references, sheet prefixes, union and intersection operators, defined names.
-- **Evaluator and recalculation** ([weights/eval/](weights/eval/), started): operators, coercion, error propagation, dependency tracking and circular reference detection.
+- **Evaluator and recalculation** ([weights/eval/](weights/eval/), 34 networks, about 32,400 parameters, 91 tests): every Stage 1 operator, Excel's coercion and comparison rules, error propagation, overflow to `#NUM!`, number-to-text with 15 significant digits, dependency tracking, recalculation in dependency order and circular reference detection. Entering `=1+2` takes 62 steps. Not yet: text-to-number coercion (`"1"+1`), non-integer powers, functions.
+- **Minimal UI** ([weights/ui/](weights/ui/), in progress): title bar, ribbon tabs, name box, formula bar, headers, gridlines, cell text in a hand-designed font, and the active cell outline. Waiting on harness block writes for speed.
+- **Harness v2** (in progress, approved): block memory writes and reads, and a faster forward-pass engine.
 
 ### Checklist by category
 

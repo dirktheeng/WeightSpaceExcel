@@ -1,0 +1,105 @@
+# eval/ev_push (id 97): x0 = OPND, T2 = OPC 1..6. Literal (1..4): A = (OPC, OPND). Reference (5):
+# A = (9, K) with K = ROW 2^14 + COL resolved against (HR, HC), or #REF! if out of the grid. Range
+# (6): A = #VALUE! (ranges as values not supported in stage 1). Writes B.TAG at SP -> ev_push2 PC 1.
+input 65
+slice 0 0 1                       # v1 x0
+dense 1 4 1                       # v2
+  0.0000000000145519152283668518066406250
+  0.000030517578125
+  0.0000000000145519152283668518066406250
+  0.000030517578125
+  6755399441055744 6755399441055744 0 0
+dense 2 4 4                       # v3
+  1 0 0 0
+  0 1 0 0
+  0 0 1 0
+  0 0 0 1
+  -6755399441055744 -6755399441055744 0 0
+dense 3 2 4                       # v4
+  1 0 -1 0
+  0 1 0 -1
+  0 0
+step 4                            # v5
+concat 3 5
+concat 1 6                        # v7
+dense 7 3 7                       # v8 [F, RF, CF]
+  0 1 0 0 0 -1 0
+  0 -2097152 1 0 0 2097152 -1
+  1 0 -32768 0 0 0 32768
+  0 0 0
+dense 8 3 3                       # v9
+  1 0 0
+  1 0 0
+  1 0 0
+  -0.5 -1.5 -2.5
+step 9                            # v10
+slice 0 55 57                     # v11 [HR, HC]
+concat 8 10
+concat 12 11                      # v13
+dense 13 2 8                      # v14
+  0 0 0 -8388608 8388608 -8388608 -1 0
+  0 0 0 0 -8388608 0 0 -1
+  1048576 16384
+relu 14
+concat 13 15                      # v16
+dense 16 2 10                     # v17 [ROW, COL]
+  0 1 0 0 0 0 0 0 -1 0
+  0 0 1 0 0 0 0 0 0 -1
+  0 0
+dense 17 4 2                      # v18
+  -1 0
+  1 0
+  0 -1
+  0 1
+  -0.5 -1048575.5 -0.5 -16383.5
+step 18
+dense 19 1 4
+  1 1 1 1
+  -0.5
+step 20                           # v21 [bad]
+slice 0 32 33                     # v22 [T2]
+dense 22 2 1                      # v23
+  1
+  1
+  -4.5 -5.5
+step 23                           # v24 [s45, s55]: isref = s45 - s55, isrng = s55
+concat 24 21                      # v25 [s45, s55, bad]
+dense 25 1 3                      # v26 rb = isref AND bad
+  1 -1 1
+  -1.5
+step 26                           # v27 [rb]
+concat 25 27                      # v28 [s45, s55, bad, rb]
+concat 28 17                      # v29 + ROW, COL
+concat 29 1                       # v30 + x0 (7)
+dense 30 4 7                      # v31 [1 - s45, s45 - s55 - rb, x0, K]
+  -1 0 0 0 0 0 0
+  1 -1 0 -1 0 0 0
+  0 0 0 0 0 0 1
+  0 0 0 0 16384 1 0
+  1 0 0 0
+mul 31 0 2 2 4                    # v32 [px, pk]
+concat 28 32                      # v33 [s45, s55, bad, rb, px, pk]
+concat 33 22                      # v34 + T2
+slice 0 54 55                     # v35 SP
+slice 0 16 17                     # v36 B.TAG
+concat 34 35
+concat 37 36                      # v38 [s45 s55 bad rb px pk T2 SP BT]
+dense 38 8 9                      # v39
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 0 1
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0
+  98 2 0 0 0 0 0 1
+dense 38 2 9                      # v40 [A.TAG, A.PAY]
+  4 -6 0 -5 0 0 1 0 0
+  0 3 0 4 1 1 0 0 0
+  0 0
+slice 0 9 14                      # v41 words 8..12
+slice 0 16 65                     # v42 words 15..63
+concat 39 41
+concat 43 40
+concat 44 42

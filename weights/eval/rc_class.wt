@@ -1,0 +1,120 @@
+# eval/rc_class (id 92): PC 0: x0 = CALC of precedent P: done -> skip, visiting -> read P+2 (rc_back),
+# stale -> read P+3 (PC 1). PC 1: x0 = FORMULA f: 0 -> skip; else enter: root (LOW < 0) writes CALC
+# visiting itself (rc_enter PC 1); inside, push frame CS + 2^20 CE + 2^40 LOW + 2^51 CYC at
+# WORK_STACK + DEPTH (rc_enter PC 0). skip: root -> rc_next, else rc_loop. Note: recalc.md
+input 65
+slice 0 0 1                       # v1 x0
+slice 0 8 9                       # v2 PC
+slice 0 23 24                     # v3 GEN
+slice 0 62 63                     # v4 LOW
+concat 1 2
+concat 5 3
+concat 6 4                        # v7 [x0, PC, GEN, LOW]
+dense 7 6 4                       # v8
+  1 0 -4 0
+  1 0 -4 0
+  1 0 -4 0
+  1 0 0 0
+  0 1 0 0
+  0 0 0 -1
+  -1.5 -2.5 -3.5 -0.5 -0.5 -0.5
+step 8                            # v9 [a15, a25, a35, x05, ph1, root]
+dense 9 5 6                       # v10
+  0 1 -1 0 -1 0
+  1 -1 0 0 -1 0
+  -1 0 1 0 -1 0
+  0 0 0 -1 1 0
+  0 0 0 1 1 0
+  -0.5 -0.5 0.5 -0.5 -1.5
+step 10                           # v11 [q1 done, q2 vis, q3 stale, q4 fz, q5 enter]
+slice 9 5 6                       # v12 root
+concat 11 12                      # v13 [q1..q5, root]
+dense 13 2 6                      # v14
+  1 0 0 1 0 1
+  0 0 0 0 1 1
+  -1.5 -1.5
+step 14                           # v15 [sr, er]
+concat 13 15                      # v16 [q1..q5, root, sr, er]
+slice 0 33 34                     # v17 P
+slice 0 29 30                     # v18 CE
+slice 0 58 60                     # v19 CS DEPTH
+slice 0 25 26                     # v20 CYC
+slice 0 27 28                     # v21 P1
+concat 16 17
+concat 22 18
+concat 23 19
+concat 24 20
+concat 25 21
+concat 26 7                       # v27 G: 0 q1 1 q2 2 q3 3 q4 4 q5 5 root 6 sr 7 er 8 P 9 CE 10 CS
+                                  #   11 DEPTH 12 CYC 13 P1 14 x0 15 PC 16 GEN 17 LOW
+dense 27 11 18                    # v28 relu args z0..z10
+  0 8388608 8388608 0 0 0 0 8388608 1 0 0 0 0 0 0 0 0 0
+  0 0 0 0 8388608 0 0 -8388608 0 0 0 1 0 0 0 0 0 0
+  0 0 0 0 0 0 0 8388608 0 0 0 0 0 0 0 0 4 0
+  0 0 0 0 8388608 0 0 0 1 0 0 0 0 0 0 0 0 0
+  0 0 0 0 -8388608 0 0 0 0 0 1 0 0 0 0 0 0 0
+  0 0 0 0 8388608 0 0 0 0 0 0 0 0 0 1 0 0 0
+  0 0 0 0 -8388608 0 0 0 0 0 0 0 0 1 0 0 0 0
+  0 0 0 0 -8388608 0 0 0 0 0 0 0 1 0 0 0 0 0
+  0 0 0 0 8388608 0 0 -8388608 0 0 0 1 0 0 0 0 0 0
+  0 0 0 0 -8388608 0 0 0 0 0 0 0 0 0 0 0 0 1
+  0 0 0 0 -8388608 0 0 0 0 0 0 0 0 0 0 0 0 -1
+  -8388608 -8388608 -8388606 -8388608 0 -8388608 0 0 -8388607 0 0
+relu 28                           # v29 z0..z10
+dense 27 2 18                     # v30 [ep, frame]
+  0 0 0 0 1 0 0 -1 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 1048576 1 0 2251799813685248 0 0 0 0 1099511627776
+  0 0
+mul 30 0 1 1 2                    # v31 [ep frame]
+concat 27 29                      # v32
+concat 32 31                      # v33 cols 0..17 G, 18..28 z0..z10, 29 epf
+dense 33 8 30                     # v34 words 0..7
+  90 93 92 90 89 0 -4 0 0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0 0 0
+  0 1 1 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0 0 0
+  0 2 3 0 12288 0 0 -12282 0 0 0 0 0 0 0 0 0 0
+   1 1 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   0 0 1 0 0 0 0 0 0 0 0 1
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 1 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0
+dense 33 1 30                     # v35 CYC' = z7
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 1 0 0 0 0
+  0
+dense 33 1 30                     # v36 P1' = z5 + z6
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 1 1 0 0 0 0 0
+  0
+dense 33 2 30                     # v37 CS' = z3 + z4, DEPTH' = DEPTH + ep
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   0 0 0 1 1 0 0 0 0 0 0 0
+  0 0 0 0 1 0 0 -1 0 0 0 1 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0 0 0
+  0 0
+dense 33 1 30                     # v38 LOW' = z8 + z9 - z10
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 1 1 -1 0
+  0
+slice 0 9 25                      # v39 words 8..23
+slice 0 26 27                     # v40 word 25
+slice 0 28 58                     # v41 words 27..56
+slice 0 60 62                     # v42 words 59, 60
+slice 0 63 65                     # v43 words 62, 63
+concat 34 39
+concat 44 35
+concat 45 40
+concat 46 36
+concat 47 41
+concat 48 37
+concat 49 42
+concat 50 38
+concat 51 43

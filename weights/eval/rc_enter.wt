@@ -1,0 +1,35 @@
+# eval/rc_enter (id 89): PC 0 write 4 GEN + 2 (visiting) at CS+6; PC 1 write DEPTH at CS+2 (stack
+# index, read back by rc_back); PC 2 read P1+6 (precedent list head) -> rc_loop PC 1.
+input 65
+slice 0 8 9
+dense 1 2 1
+  1
+  1
+  -0.5 -1.5
+step 2                            # v3 [t1, t2]
+slice 0 23 24                     # v4 GEN
+slice 0 27 28                     # v5 P1
+slice 0 58 60                     # v6 CS DEPTH
+concat 3 4
+concat 7 5
+concat 8 6                        # v9 [t1, t2, GEN, P1, CS, DEPTH]
+dense 9 4 6                       # v10
+  0 -8388608 0 0 1 0
+  0 8388608 0 1 0 0
+  -8388608 0 4 0 0 0
+  8388608 -8388608 0 0 0 1
+  0 -8388608 2 -8388608
+relu 10                           # v11 [a, b, c, d]
+concat 9 11                       # v12
+dense 12 8 10                     # v13
+  0 1 0 0 0 0 0 0 0 0
+  0 -1 0 0 0 0 0 0 0 0
+  -4 4 0 0 0 0 1 1 0 0
+  0 0 0 0 0 0 0 0 1 1
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0
+  1 -1 0 0 0 0 0 0 0 0
+  89 2 6 0 0 0 0 1
+slice 0 9 65
+concat 13 14

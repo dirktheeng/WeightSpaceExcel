@@ -1,0 +1,56 @@
+# eval/rc_loop (id 90): CE = (PC 1 ? x0 : N1). CE != 0: read [CE] -> rc_edge PC 1. CE == 0 (all
+# precedents done): CYC -> write 1 (TAG number) at CS+1 -> rc_done PC 0; else read KEY at CS ->
+# ev_start (95). N1 = CE.
+input 65
+slice 0 8 9
+dense 1 1 1
+  1
+  -0.5
+step 2                            # v3 [m1]
+slice 0 0 1                       # v4 x0
+slice 0 29 30                     # v5 N1
+concat 3 4
+concat 6 5                        # v7 [m1, x0, N1]
+dense 7 2 3                       # v8
+  8388608 1 0
+  -8388608 0 1
+  -8388608 0
+relu 8
+dense 9 1 2                       # v10 [CE]
+  1 1
+  0
+dense 10 1 1                      # v11
+  1
+  -0.5
+step 11                           # v12 [nz]
+slice 0 25 26                     # v13 CYC
+slice 0 58 59                     # v14 CS
+concat 12 13                      # v15 [nz, CYC]
+dense 15 1 2                      # v16
+  -1 1
+  -0.5
+step 16                           # v17 [fc]
+concat 15 17
+concat 18 10
+concat 19 14                      # v20 [nz, CYC, fc, CE, CS]
+dense 20 2 5                      # v21
+  8388608 0 0 1 0
+  -8388608 0 0 0 1
+  -8388608 0
+relu 21                           # v22 [ra, rb]
+concat 20 22                      # v23
+dense 23 8 7                      # v24
+  -4 0 -1 0 0 0 0
+  0 0 1 0 0 0 0
+  0 0 1 0 0 1 1
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  1 0 0 0 0 0 0
+  95 1 0 1 0 0 0 0
+slice 0 9 29                      # v25 words 8..27
+slice 0 30 65                     # v26 words 29..63
+concat 24 25
+concat 27 10
+concat 28 26

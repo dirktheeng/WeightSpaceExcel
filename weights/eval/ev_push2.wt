@@ -1,0 +1,56 @@
+# eval/ev_push2 (id 98): PC 0 write B.TAG at SP | PC 1 write B.PAY at SP+1, SP += 2, TP += 2,
+# B = A (new top of stack) -> ev_disp PC 1.
+input 65
+slice 0 8 9
+dense 1 1 1
+  1
+  -0.5
+step 2                            # v3 [m1]
+slice 0 14 18                     # v4 [AT, AP, BT, BP]
+concat 3 4                        # v5
+dense 5 12 5                      # v6 gates, values
+  -1 0 0 0 0
+  1 0 0 0 0
+  1 0 0 0 0
+  -1 0 0 0 0
+  1 0 0 0 0
+  -1 0 0 0 0
+  0 0 0 1 0
+  0 0 0 0 1
+  0 1 0 0 0
+  0 0 0 1 0
+  0 0 1 0 0
+  0 0 0 0 1
+  1 0 0 1 0 1 0 0 0 0 0 0
+mul 6 0 6 6 12                    # v7
+slice 0 54 55                     # v8 SP
+concat 3 8
+concat 9 7                        # v10 [m1, SP, p0..p5]
+dense 10 8 8                      # v11
+  -2 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0
+  1 1 0 0 0 0 0 0
+  0 0 1 1 0 0 0 0
+  0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0
+  98 2 0 0 0 0 0 1
+dense 10 2 8                      # v12 [BT', BP']
+  0 0 0 0 1 1 0 0
+  0 0 0 0 0 0 1 1
+  0 0
+slice 0 53 55                     # v13 [TP, SP]
+concat 3 13
+dense 14 2 3                      # v15 [TP', SP']
+  2 1 0
+  2 0 1
+  0 0
+slice 0 9 16                      # v16 words 8..14
+slice 0 18 53                     # v17 words 17..51
+slice 0 55 65                     # v18 words 54..63
+concat 11 16
+concat 19 12
+concat 20 17
+concat 21 15
+concat 22 18

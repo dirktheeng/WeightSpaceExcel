@@ -269,3 +269,78 @@
 - Decided: weights/kernel/c_parse.wt now calls 78 instead of 27 (coordinator authorization). Documented in weights/kernel/commit.md.
 - Result (parse agent): 16 networks in weights/parse (ids 64..79), 18,132 dense parameters, all hand-typed. tests/output/parse/test_parse.py: 91 passed. Stage 1 suite: 28 passed with the evaluator still missing (was 3 with parse_stub). Token deviations recorded in encodings/memory-map.md section 13.
 - Rule slip, recorded and undone: a shell loop briefly printed 23 repeated thermometer rows into a /tmp scratch file. It was deleted unused and the layer was typed by hand (log/parse-agent.md).
+
+## 2026-11-06, Stage 1: evaluator and recalculation (eval agent; details in log/eval-agent.md)
+
+- Built weights/eval/: hook entries (80, 81), recalculation (82..94), evaluator (95..107, 109, 116), number to text and & (110..113), power (114, 117). 34 networks, 32437 parameters (ev_div 10541 of them, a copy of weights/prim/div.wt with a new tail). Notes: weights/eval/README.md and the five notes beside it. MANIFEST.txt lines appended.
+- tests/output/eval/test_eval.py: 91 passed. With the two kernel biases changed (in a /tmp copy, debug only), the stage 1 suite gives 249 of 273 non-SUM cases passing; the failures are 17 text coercion cases (stub), ari05 (2^0.5), rng09..11 (parser has no intersection yet), ref12 (parser choice), and cir05, cir06, cir09, where CIRC_FLAG = 0 is right but tests/output/test_stage1.py checks `circ in []` for `circular: []`, which can never pass (test bug to fix by the tests owner: treat an empty list as "expect 0").
+
+### E1 (DECISION): precedent lists on the formula record, not dependents lists on cells
+- Decided: when a formula is committed its cell references become edge nodes [precedent slot, next] in DEP_POOL, headed at formula record word 6. memory-map.md section 8 (dependents lists headed at the cell DEPS word, range edges) is not used yet.
+- Alternatives: dependents lists (need unlinking from every old precedent when a formula changes, plus dirty propagation); walking token streams during recalculation (a hash lookup per reference per recalculation).
+- Why: a replaced formula gets a new record, so old edges simply stop being reachable (rec12 needs no removal code); DFS reads slots directly.
+- Affects: DEPS word unused; DEP_FREE unused (leak until a compaction pass); range precedents not recorded (stage 3 with SUM).
+
+### E2 (DECISION): every precedent gets a cell slot
+- Decided: a reference to an empty cell creates a blank cell (CELL_SET with TAG 0) at record time.
+- Why: edges hold slot bases, never keys, so recalculation needs no hashing. Observable cells stay blank (TAG 0).
+- Affects: CELL_COUNT counts these cells; file save must skip TAG 0 cells with FORMULA 0.
+
+### E3 (DECISION): full recalculation in dependency order by an iterative DFS, every commit
+- Decided: a formula list at CALC_CHAIN (count in zero page 0x15, FL_COUNT, taken from the stage 1 reserved range) holds every formula cell slot; each commit increments CALC_GEN (all cells stale) and visits the list with a DFS on WORK_STACK, evaluating a cell after its precedents. CALC states 2 (visiting) and 3 (done) per memory-map.md section 4.
+- Alternatives: dirty marking through dependents (needs E1's alternative); demand-driven recursive evaluation (needs a re-entrant evaluator and stack frames for operand stacks).
+- Why: smallest correct design; cost is linear in formula cells per commit.
+- Affects: large sheets recalc slowly; a dirty-only pass is a later optimisation on the same DFS.
+
+### E4 (DECISION): cycles by a Tarjan low link; cycle cells are 0
+- Decided: frames carry LOW and CYC; a back edge to a visiting cell (its stack index is kept in its PAY word while visiting) lowers LOW and sets CYC; on pop a child whose LOW reaches its parent's depth propagates. CYC cells are written (1, 0) without evaluation; their dependents evaluate normally. CIRC_FLAG = K + 1 of the first back-edge target, reset each recalculation.
+- Alternatives: zero everything on the stack at a back edge (zeroes non-cycle ancestors, wrong for cir10 orderings).
+- Affects: iterative calculation (ITER_ON) will replace the "0" rule later.
+
+### E5 (DECISION): hook point and return ids
+- Decided: two entries, hk_commit (80, returns to 14) and hk_delete (81, returns to 8). Kernel owner must change weights/kernel/c_set.wt LR bias 14 -> 80 and weights/kernel/ev_decode.wt LR bias (biases line, 9th value) 8 -> 81. rc_fin rewrites HEAP_TOP; on the Delete path it also moves L8, L9 past strings the evaluator allocated.
+
+### E6 (DECISION): lazy references on the operand stack (value tag 9)
+- Decided: a cell reference token pushes (9, K); operators dereference with CELL_GET (left operand first) when they need values. Tag 9 is from the cell engine range 9..15 of encodings/value.md.
+- Why: intersection and reference-taking functions need the reference, not the value; references cost nothing until used.
+
+### E7 (DECISION): General number to text, first version
+- Decided: 15 significant digits, fixed notation for exponents -9..14, otherwise d.dddE+xx; exponent from a 31-threshold bank (1e-10 to 1e20); one correctly selected power of ten by an exact one-hot ROM; digits emitted most significant first by DIVMOD_K(10^14). Text conversion builds a new heap string.
+- Alternatives: DIGITS block plus trailing-zero count (larger); a 617-threshold bank (too much hand typing).
+- Affects: numbers outside [1e-10, 1e21) give wrong text (documented); the cell renderer (stage 2) can reuse ev_fmt0/ev_fmt_emit with a different destination.
+
+## 2026-11-06, Stage 2: minimal UI (ui agent; details in log/ui-agent.md)
+
+### U1 (DECISION): screen layout, metrics and colours (Excel 2016 to 2021 "Colorful" theme, 100 percent zoom)
+- Decided: 1280 x 800. Title bar and tab strip y 0..54 #217346; selected Home tab #F3F3F3; ribbon body y 55..146 #F3F3F3; ribbon border y 147 #D4D4D4; formula band y 148..175 white; name box x 3..104 and formula box x 160..1276, y 151..172, borders #C6C6C6, white interiors; "fx" label at x 136. Column header row y 176..195 and row header column x 0..30, fill #EFEFEF with separators #D4D4D4 (the last header pixel row and column are the separators); header text #444444, centred. Grid origin (31, 196). Column width 64 px (8.43 characters) and row height 20 px (15 pt), each including its right or bottom gridline; gridlines #E1E1E1; 20 columns A..T (T partial) and 28 rows visible. Sheet tab bar line y 756 #D4D4D4, bar and status bar y 757..799 #F3F3F3, "Sheet1" tab x 60..129 white with green text and 2 px underline, "Ready" at x 8. Cell text: glyph top at row + 5 (baseline 5 px above the gridline), left text ink from x + 2, right text ink ending at x + 59 or 60, booleans and errors centred, clip at x + 61. Active outline 2 px #217346 straddling the cell boundary (top/left on the neighbour's gridline, clamped to stay off the headers), plus a 5 x 5 fill handle at (x + 61, y + 17).
+- Alternatives: the Microsoft 365 2023+ light title bar (newer, but the rest of the default chrome is less settled); D4D4D4 gridlines (older Excel).
+- Why: one consistent, well-known era of Excel's look. Exact RGB values from real screenshots remain open question Q-G1 (glyph.md); every value is one ROM entry or bias to retune.
+- Affects: weights/ui/scene.wt ROM, fill.wt pattern constants (31, 64, 196, 20), ce5/ce7, olR, fbar biases.
+
+### U2 (DECISION): UI as single-step networks, a scene command ROM, and a displayed-value cache as the dirty scheme
+- Decided: ids 128..169 as listed in weights/MANIFEST.txt. Each network does one step kind and routes by `next` (as kernel K1). Leaves return by (LR, LP). Mid-level loops (headers, cells, outline, formula bar) return to (L22, L23), which the scene sets to (152, PC + 1). The frame program is a ROM in scene.wt. Dirty tracking: each frame compares every visible cell's value with a cache of what was drawn (UI_STATE 0x0F1000 + 2 (20 r + c)) and repaints only changed cells. The outline is erased by repainting exactly its own rectangles with the grid pattern, using the previous active cell at UI zero page 0x40, 0x41.
+- Alternatives: a dirty list appended by kernel hooks on every commit (needs two more kernel edits and misses recalculated formula cells); phase-dispatch networks with ONEHOT(PC) per subsystem (larger and harder to type).
+- Why: no per-commit hooks; recalculation changes are caught for free; about 6 steps per visible cell per frame.
+- Affects: UI_STATE use: BUF 0x0F0100..0x0F01FF (text buffer, one unit per word), cache 0x0F1000..0x0F145F; zero page 0x40 UI_AROW, 0x41 UI_ACOL. memory-map.md sections 2 and 3 should record these (owner: coordinator).
+
+### U3 (DECISION): UI register use and the callee-saved exception
+- Decided: the UI uses L12..L18 and L22, L23 as its locals without spilling them, and never touches L0..L11 (it reads L2/L3 for the active cell). Leaf arguments: fill N0, N1, T0..T8; glyph P0, T0..T8; aligned text B, C, AR2, AC2, AS2, N0, N1.
+- Alternatives: spill L12..L23 on entry as the parser does (24 extra steps per frame).
+- Why: the only callers are boot and the main loop, which do not use L12..L23 (main_loop.md), and the parser saves and restores its own. This is an exception to the callee-saved rule (control.md section 4). If the main loop ever uses L12..L23, add a spill network at 153 and 152 PC 0.
+
+### U4 (DECISION): font as visual decimal-digit rows, 12 rows, one size
+- Decided: weights/ui/glyph.wt v32 is a 96 x 13 ROM. Each glyph row is a decimal number whose digits are the pixels; ADV times 10^12 is in the last column. Cap height 9, x height 7, descender 3, digit advance 7, blank left bearing column. Pixels are extracted by repeated ROUND(r/10). This is an original design, not taken from any font file.
+- Alternatives: binary row integers (they need binary-to-decimal conversion by hand for every row and cannot be read visually); per-pixel 0/1 dense (strided in row-major files).
+- Why: the bitmap is legible and editable in the weight file, and digits 0/1 make the divide-by-10 extraction exact.
+- Affects: bold, italic and other sizes are later variants (glyph.md D18 planned per-variant pages). Anti-aliasing could use digits 2..4 as coverage levels (still exact, since ROUND(r/10) holds for digits up to 4).
+
+### U5 (DECISION): simplest General number display
+- Decided: at most 11 characters including the sign and point; k = max(0, 10 - integer digits - sign) decimals, rounded, trailing zeros stripped (fnum.md).
+- Alternatives: full Excel General with width-dependent rounding and scientific notation (stage 3 number format work).
+- Affects: |x| >= 1e11 and nonzero |x| < 5e-10 display wrongly (documented in fnum.md); no shortening for narrow columns.
+
+### U6 (HOOK REQUEST, not applied; weights/kernel is not mine to edit)
+- weights/kernel/boot.wt: in the `next` row of the PC-step output dense (line 37, "next: main loop (4) at PC 9"), change the weight 4 on the PC-9 one-hot to 152. Boot then draws the first full frame and the scene returns to main_poll (4) itself, with PC 0 and MODE 1 as before.
+- weights/kernel/ev_next.wt: in v8 (words 0..7), the next row is `0 0 3 0` with bias 4 (next = 4 + 3 c). Change it to weight -146 on c and bias 153, so next = 153 - 146 c (7 when another event remains, 153 when the batch is done). The incremental frame ends by routing to 4 with MODE 1.
+- No active-cell hook is needed: the UI reads L2/L3 and keeps its own copy at 0x40, 0x41.
+- Cost after the hooks: every event batch costs about 30k steps on harness v1, and boot about 1.1M steps (about 65 s), until the harness v2 block writes are used.

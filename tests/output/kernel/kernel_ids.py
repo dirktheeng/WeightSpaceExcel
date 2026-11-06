@@ -26,10 +26,19 @@ NAMES = {
 }
 
 
-def paths(n=80, override=None):
-    """Kernel ids 0..n-1; unused ids are TRAP. override: {id: path} for other agents' networks."""
+def paths(n=118, override=None):
+    """Kernel ids 0..n-1; unused ids are TRAP. override: {id: path} for other agents' networks.
+
+    Ids 80..117 (the evaluator and recalculation hooks the kernel now calls after
+    CELL_SET and Delete) are taken from weights/MANIFEST.txt, paths only."""
+    sys.path.insert(0, os.path.dirname(HERE))
+    import blackbox as bb
+    man = bb.manifest_paths()
     out = []
     for i in range(n):
+        if 80 <= i <= 117 and i < len(man):
+            out.append(man[i])
+            continue
         f = os.path.join(K, NAMES.get(i, "trap") + ".wt")
         out.append(f if os.path.exists(f) else os.path.join(K, "trap.wt"))
     for i, p in (override or {}).items():

@@ -1,0 +1,37 @@
+# eval/hk_delete (id 81): recalc hook after the Delete CELL_SET in ev_decode. RET = 8 (ev_next).
+# Saves home row/col (AR1, AC1) to HR, HC, slot P0 to CS, P1 to T6. P1 != 0: read FL_COUNT (0x15),
+# rc_chain PC 0 (record precedents). P1 == 0: read CALC_GEN (8), rc_chain PC 7. Note: weights/eval/hook.md
+input 65
+slice 0 27 28                     # v1 = [P1]
+dense 1 1 1                       # v2 = P1 - 0.5
+  1
+  -0.5
+step 2                            # v3 = nz
+dense 3 8 1                       # v4 = words 0..7
+  0
+  0
+  13
+  0
+  0
+  0
+  0
+  -7
+# biases: next 82, read, addr 8 + 13 nz, ..., PC 7 - 7 nz
+  82 1 8 0 0 0 0 7
+slice 0 9 36                      # v5 = words 8..34
+slice 0 37 55                     # v6 = words 36..53
+slice 0 21 23                     # v7 = words 54,55 = AR1, AC1
+slice 0 57 58                     # v8 = word 56
+slice 0 26 27                     # v9 = word 57 = P0
+slice 0 59 64                     # v10 = words 58..62
+dense 1 1 1                       # v11 = RET 14
+  0
+  8
+concat 4 5
+concat 12 1                       # word 35 = T6 = P1
+concat 13 6
+concat 14 7
+concat 15 8
+concat 16 9
+concat 17 10
+concat 18 11

@@ -1,0 +1,56 @@
+# eval/rc_back (id 93): back edge to a visiting cell P. PC 0: x0 = its stack index; LOW = min(LOW,
+# x0), CYC = 1; CIRCV == 0: read KEY at P -> PC 1; else -> rc_loop. PC 1: CIRCV = x0 -> rc_loop.
+input 65
+slice 0 8 9                       # v1 PC
+slice 0 63 64                     # v2 CIRCV
+slice 0 0 1                       # v3 x0
+slice 0 62 63                     # v4 LOW
+slice 0 33 34                     # v5 P
+concat 1 2                        # v6
+dense 6 2 2                       # v7
+  1 0
+  0 1
+  -0.5 -0.5
+step 7                            # v8 [m1, cnz]
+dense 8 1 2                       # v9
+  -1 -1
+  0.5
+step 9                            # v10 [rk]
+concat 8 10
+concat 11 3
+concat 12 4
+concat 13 5
+concat 14 2                       # v15 [m1, cnz, rk, x0, LOW, P, CIRCV]
+dense 15 4 7                      # v16
+  0 0 8388608 0 0 1 0
+  -8388608 0 0 -1 1 0 0
+  1099511627776 0 0 1 0 0 0
+  -1099511627776 0 0 0 0 0 1
+  -8388608 0 -1099511627776 0
+relu 16                           # v17 [a, b, c, d]
+concat 15 17                      # v18
+dense 18 8 11                     # v19
+  0 0 3 0 0 0 0 0 0 0 0
+  0 0 1 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0
+  0 0 1 0 0 0 0 0 0 0 0
+  90 0 0 0 0 0 0 0
+slice 0 9 25                      # v20 words 8..23
+dense 18 1 11                     # v21 CYC = 1
+  0 0 0 0 0 0 0 0 0 0 0
+  1
+slice 0 26 62                     # v22 words 25..60
+dense 18 2 11                     # v23 LOW', CIRCV'
+  0 0 0 0 1 0 0 0 -1 0 0
+  0 0 0 0 0 0 0 0 0 1 1
+  0 0
+slice 0 64 65                     # v24 word 63
+concat 19 20
+concat 25 21
+concat 26 22
+concat 27 23
+concat 28 24

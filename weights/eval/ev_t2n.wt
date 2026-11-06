@@ -1,0 +1,23 @@
+# eval/ev_t2n (id 109): text to number coercion hook. Stub: returns A = #VALUE! to (LR, LP).
+# Contract: A = (2, handle) in; A = number or anything else (ev_dref turns non-numbers into #VALUE!).
+input 65
+slice 0 9 11                      # v1 [LR, LP]
+dense 1 8 2
+  1 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 1
+  0 0 0 0 0 0 0 0
+slice 0 9 14                      # v3 words 8..12
+dense 1 2 2                       # v4 A = (4, 3)
+  0 0
+  0 0
+  4 3
+slice 0 16 65                     # v5 words 15..63
+concat 2 3
+concat 6 4
+concat 7 5

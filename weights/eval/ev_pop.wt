@@ -1,0 +1,26 @@
+# eval/ev_pop (id 100): x0 = left operand TAG (read by ev_disp at SP-2): C.TAG = x0, read SP-1,
+# SP -= 2 -> ev_dref PC 2 (which stores C.PAY).
+input 65
+slice 0 54 55                     # v1 SP
+dense 1 8 1
+  0
+  0
+  1
+  0
+  0
+  0
+  0
+  0
+  101 1 -1 0 0 0 0 2
+slice 0 9 18                      # v3 words 8..16
+slice 0 0 1                       # v4 C.TAG = x0
+slice 0 19 54                     # v5 words 18..52
+dense 1 1 1                       # v6 SP - 2
+  1
+  -2
+slice 0 55 65                     # v7 words 54..63
+concat 2 3
+concat 8 4
+concat 9 5
+concat 10 6
+concat 11 7

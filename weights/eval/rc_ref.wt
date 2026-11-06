@@ -1,0 +1,88 @@
+# eval/rc_ref (id 84): x0 = reference OPND. Resolve to (ROW, COL) against home (HR, HC); write HEAD
+# at DT+1; in range: CELL_GET (16) with LR 85; out of range: rc_scan PC 1. Note: weights/eval/recalc.md
+input 65
+slice 0 0 1                       # v1 x0
+dense 1 4 1                       # v2
+  0.0000000000145519152283668518066406250
+  0.000030517578125
+  0.0000000000145519152283668518066406250
+  0.000030517578125
+  6755399441055744 6755399441055744 0 0
+dense 2 4 4                       # v3 [r36, r15, s36, s15]
+  1 0 0 0
+  0 1 0 0
+  0 0 1 0
+  0 0 0 1
+  -6755399441055744 -6755399441055744 0 0
+dense 3 2 4                       # v4
+  1 0 -1 0
+  0 1 0 -1
+  0 0
+step 4                            # v5 [g36, g15]
+concat 3 5                        # v6
+concat 1 6                        # v7 [x0, r36, r15, s36, s15, g36, g15]
+dense 7 3 7                       # v8 [F, RF, CF]
+  0 1 0 0 0 -1 0
+  0 -2097152 1 0 0 2097152 -1
+  1 0 -32768 0 0 0 32768
+  0 0 0
+dense 8 3 3                       # v9
+  1 0 0
+  1 0 0
+  1 0 0
+  -0.5 -1.5 -2.5
+step 9                            # v10 [u1, u2, u3]
+slice 0 55 57                     # v11 [HR, HC]
+concat 8 10                       # v12
+concat 12 11                      # v13 [F, RF, CF, u1, u2, u3, HR, HC]
+dense 13 2 8                      # v14
+  0 0 0 -8388608 8388608 -8388608 -1 0
+  0 0 0 0 -8388608 0 0 -1
+  1048576 16384
+relu 14                           # v15
+concat 13 15                      # v16
+dense 16 2 10                     # v17 [ROW, COL]
+  0 1 0 0 0 0 0 0 -1 0
+  0 0 1 0 0 0 0 0 0 -1
+  0 0
+dense 17 4 2                      # v18
+  -1 0
+  1 0
+  0 -1
+  0 1
+  -0.5 -1048575.5 -0.5 -16383.5
+step 18                           # v19
+dense 19 1 4                      # v20
+  1 1 1 1
+  -0.5
+step 20                           # v21 [bad]
+slice 0 34 36                     # v22 [T4, T5]
+concat 21 22                      # v23 [bad, T4, T5]
+dense 23 10 3                     # v24 words 0..9
+  67 0 0
+  0 0 0
+  0 1 0
+  0 0 1
+  0 0 0
+  0 0 0
+  0 0 0
+  1 0 0
+  0 0 0
+  0 0 0
+  16 2 1 0 0 0 0 0 85 0
+slice 0 11 20                     # v25 words 10..18
+dense 17 3 2                      # v26 [AS, AR1, AC1]
+  0 0
+  1 0
+  0 1
+  0 0 0
+slice 0 23 31                     # v27 words 22..29
+dense 17 1 2                      # v28 T1 = 0
+  0 0
+  0
+slice 0 32 65                     # v29 words 31..63
+concat 24 25
+concat 30 26
+concat 31 27
+concat 32 28
+concat 33 29

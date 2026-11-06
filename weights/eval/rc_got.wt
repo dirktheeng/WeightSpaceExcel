@@ -1,0 +1,59 @@
+# eval/rc_got (id 85): return from CELL_GET/SET of a precedent. STATUS 0: write P0 at DT, HEAD = DT,
+# DT += 2, P1 = T6, rc_scan PC 1. STATUS 1 (absent): CELL_SET blank (A 0, P1 0, T1 1, LR 85).
+input 65
+slice 0 13 14                     # v1 [STATUS]
+dense 1 1 1                       # v2
+  -1
+  0.5
+step 2                            # v3 [f]
+slice 0 26 27                     # v4 [P0]
+slice 0 34 37                     # v5 [T4, T5, T6]
+concat 3 4                        # v6
+concat 6 5                        # v7 [f, P0, T4, T5, T6]
+dense 7 3 5                       # v8
+  8388608 0 1 0 0
+  -8388608 0 0 1 0
+  8388608 0 0 0 1
+  -8388608 0 -8388608
+relu 8                            # v9 [rT4, rT5, rT6]
+concat 7 9                        # v10 [f, P0, T4, T5, T6, rT4, rT5, rT6]
+dense 10 10 8                     # v11 words 0..9
+  67 0 0 0 0 0 0 0
+  2 0 0 0 0 0 0 0
+  0 0 0 0 0 1 0 0
+  0 1 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0
+  16 0 0 0 0 0 0 0 85 0
+slice 0 11 14                     # v12 words 10..12
+dense 10 2 8                      # v13 A = (0, 0)
+  0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0
+  0 0
+slice 0 16 27                     # v14 words 15..25
+dense 10 1 8                      # v15 P1' = rT6
+  0 0 0 0 0 0 0 1
+  0
+slice 0 28 31                     # v16 words 27..29
+dense 10 1 8                      # v17 T1 = 1 - f
+  -1 0 0 0 0 0 0 0
+  1
+slice 0 32 34                     # v18 words 31, 32
+dense 10 2 8                      # v19 T4' = T4 + 2f, T5' = rT4 + rT5
+  2 0 1 0 0 0 0 0
+  0 0 0 0 0 1 1 0
+  0 0
+slice 0 36 65                     # v20 words 35..63
+concat 11 12
+concat 21 13
+concat 22 14
+concat 23 15
+concat 24 16
+concat 25 17
+concat 26 18
+concat 27 19
+concat 28 20

@@ -1,0 +1,3 @@
+# Weight block notes: ev_div (id 103)
+
+Copy of weights/prim/div.wt (hand-written by the prim agent, note weights/prim/div.md): layers v1..v338 retyped unchanged (same value numbering). Only the tail is new (hand-written by the eval agent, log/eval-agent.md): ovn = step(ov - dz - 0.5); B.TAG = 1 + 3 dz + 3 ovn; B.PAY = q + 2 dz + 6 ovn (q is already 0 when dz or ov); TP += 2; read next OPC -> ev_disp. Inputs a = A.PAY, b = B.PAY from ev_arith or ev_pow1 (1 / r). Parameters 10541 (10470 block + 71 tail). Limits: as div.md (subnormal double rounding Q-P1b). **Multi-role weights.** None. **Tests.** division and percent cases in test_eval.py.

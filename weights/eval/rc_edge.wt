@@ -1,0 +1,58 @@
+# eval/rc_edge (id 91): PC 0 (x0 = slot from CALC_CHAIN): P = x0, FLI += 1, read P+6 -> rc_class.
+# PC 1 (x0 = edge word 0): P = x0, read CE+1 -> PC 2. PC 2 (x0 = next edge): CE = x0, read P+6
+# -> rc_class. P = T3 (word 32), CE = N1 (word 28). Note: weights/eval/recalc.md
+input 65
+slice 0 8 9                       # v1
+dense 1 2 1                       # v2
+  1
+  1
+  -0.5 -1.5
+step 2                            # v3 [t1, t2]
+slice 0 0 1                       # v4 x0
+slice 0 29 30                     # v5 CE
+slice 0 33 34                     # v6 P
+slice 0 60 61                     # v7 FLI
+concat 3 4
+concat 8 5
+concat 9 6
+concat 10 7                       # v11 [t1, t2, x0, CE, P, FLI]
+dense 11 6 6                      # v12
+  0 -8388608 1 0 0 0
+  0 8388608 0 0 1 0
+  0 8388608 1 0 0 0
+  0 -8388608 0 1 0 0
+  -8388608 0 1 0 0 0
+  8388608 -8388608 0 1 0 0
+  0 -8388608 -8388608 0 0 -8388608
+relu 12                           # v13 [a, b, c, d, e, g]
+concat 11 13                      # v14
+dense 14 8 12                     # v15
+  -1 1 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0
+  -5 5 0 0 0 0 0 1 0 0 1 1
+  0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0
+  2 -2 0 0 0 0 0 0 0 0 0 0
+  92 1 6 0 0 0 0 0
+dense 14 1 12                     # v16 CE'
+  0 0 0 0 0 0 0 0 1 1 0 0
+  0
+dense 14 1 12                     # v17 P'
+  0 0 0 0 0 0 1 1 0 0 0 0
+  0
+dense 14 1 12                     # v18 FLI'
+  -1 0 0 0 0 1 0 0 0 0 0 0
+  1
+slice 0 9 29                      # v19 words 8..27
+slice 0 30 33                     # v20 words 29..31
+slice 0 34 60                     # v21 words 33..58
+slice 0 61 65                     # v22 words 60..63
+concat 15 19
+concat 23 16
+concat 24 20
+concat 25 17
+concat 26 21
+concat 27 18
+concat 28 22

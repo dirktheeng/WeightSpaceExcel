@@ -1,0 +1,62 @@
+# eval/ev_func (id 116): function call dispatch point. x0 = argument count n, T2 = 64 + fid.
+# Stage 1 stub: every function returns #NAME?. n >= 1: drop n - 1 stack entries, TOS = #NAME?, TP
+# += 2, read next OPC. n = 0: push #NAME? via ev_push2 PC 1. Later: read FUNC_TABLE + fid and route.
+input 65
+slice 0 0 1                       # v1 n
+dense 1 2 1                       # v2
+  -1
+  1
+  0.5 -1
+step 2                            # v3 (unused)
+relu 2                            # v4 [relu(0.5 - n) unused, relu(n - 1)]
+dense 1 1 1                       # v5 n - 0.5
+  1
+  -0.5
+step 5                            # v6 [nz]
+slice 0 53 55                     # v7 [TP, SP]
+slice 0 16 18                     # v8 [BT, BP]
+concat 6 4                        # v9 [nz, r0, rn1]
+concat 9 7                        # v10 [nz, r0, rn1, TP, SP]
+concat 10 8                       # v11 + BT, BP (7)
+dense 11 2 7                      # v12
+  -8388608 0 0 0 1 0 0
+  8388608 0 0 1 0 0 0
+  0 -8388606
+relu 12                           # v13 [aSP, aTP]
+dense 11 4 7                      # v14 mul [1 - nz, 1 - nz, BT, BP]
+  -1 0 0 0 0 0 0
+  -1 0 0 0 0 0 0
+  0 0 0 0 0 1 0
+  0 0 0 0 0 0 1
+  1 1 0 0
+mul 14 0 2 2 4                    # v15 [kBT, kBP]
+concat 11 13
+concat 16 15                      # v17 [nz r0 rn1 TP SP BT BP aSP aTP kBT kBP]
+dense 17 8 11
+  -2 0 0 0 0 0 0 0 0 0 0
+  -1 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 1 1 0 0
+  0 0 0 0 0 1 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0
+  -1 0 0 0 0 0 0 0 0 0 0
+  98 2 0 0 0 0 0 1
+dense 17 4 11                     # v19 [A.TAG, A.PAY, B.TAG', B.PAY']
+  0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0
+  4 0 0 0 0 0 0 0 0 1 0
+  5 0 0 0 0 0 0 0 0 0 1
+  4 5 0 0
+dense 17 2 11                     # v20 [TP', SP']
+  2 0 0 1 0 0 0 0 0 0 0
+  0 0 -2 0 1 0 0 0 0 0 0
+  0 0
+slice 0 9 14                      # v21 words 8..12
+slice 0 18 53                     # v22 words 17..51
+slice 0 55 65                     # v23 words 54..63
+concat 18 21
+concat 24 19
+concat 25 22
+concat 26 20
+concat 27 23

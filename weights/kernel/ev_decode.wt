@@ -149,8 +149,8 @@ dense 26 29 62                    # v27 = output rows (see note for the row list
    0  0   0  0  0     0           0  0  0  0  0  0  0   0   0    0  0  0  0  0  0   0   0  0     0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0     0  0  0  0   0   0   0 0  0  0  0  0  0  0   0   0  1  0  0     # L9 = HS
    0  0   0  0  0     0           1  1  0  0  0  0  0   0   0    0  0  0  0  0  0   0   0  0     0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0     0  0  0  0   0   0   0 0  0  0  0  0  0  0   0   0  0  0  0     # L10 = r4 + r5
    0  0   0  0  0     0           0  0  1  1  0  0  0   0   0    0  0  0  0  0  0   0   0  0     0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0     0  0  0  0   0   0   0 0  0  0  0  0  0  0   0   0  0  0  0     # L11 = r6 + r7
-# biases (29)
-   8 0 0 0 0 0 0 0 8 0   0 0   0 0 0   0   1   0 0 0 0 0 0 0 0 0 0 0 0
+# biases (29)   word 8 (LR) is 81: Delete returns through hk_delete, which recalculates dependents and returns to 8 (decision E4)
+   8 0 0 0 0 0 0 0 81 0  0 0   0 0 0   0   1   0 0 0 0 0 0 0 0 0 0 0 0
 slice 27 0 10                     # v28 = words 0..9
 slice 0 11 14                     # v29 = words 10..12 pass
 slice 27 10 12                    # v30 = words 13, 14

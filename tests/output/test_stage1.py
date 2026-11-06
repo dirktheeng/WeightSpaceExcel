@@ -46,7 +46,9 @@ def test_case(case):
         got = bb.value(h, addr)
         assert _same(got, exp), f"{case['id']} {addr}: expected {exp!r}, got {got!r}"
     circ = bb.peek(h, bb.CIRC_FLAG)
-    if "circular" in case:
+    if case.get("circular") == []:
+        assert circ == 0, circ
+    elif "circular" in case:
         assert circ in [bb.key_of(a) + 1 for a in case["circular"]], circ
     else:
         assert circ == 0
