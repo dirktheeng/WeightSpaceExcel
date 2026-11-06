@@ -1,6 +1,6 @@
-# func/math/fs_cell (id 266): CELL_GET returned A = (TAG, PAY) of a referenced cell. Number:
+# func/core/fs_cell (id 32): CELL_GET returned A = (TAG, PAY) of a referenced cell. Number:
 # ACC += 2^-8 PAY -> fs_sum PC 1 (#NUM! on overflow -> FN_RET); error: A = the error -> FN_RET;
-# text, boolean, blank: ignored -> fs_sum PC 1. Note: weights/func/math/sum.md. Hand-written.
+# text, boolean, blank: ignored -> fs_sum PC 1. Note: weights/func/core/sum.md. Hand-written.
 input 65
 slice 0 14 15                     # v1 [t]
 slice 0 15 16                     # v2 [PAY]
@@ -40,7 +40,7 @@ concat 15 17                      # v18 (e1 0, e4 1, sa 2, sb 3, ovf 4)
 slice 7 1 2                       # v19 [vErr]
 concat 18 19                      # v20 (vErr 5)
 dense 20 8 6                      # v21 words 0..7
-  0 -7 0 0 -7 0
+  0 227 0 0 227 0
   0 0 0 0 0 0
   0 0 0 0 0 0
   0 0 0 0 0 0
@@ -48,7 +48,7 @@ dense 20 8 6                      # v21 words 0..7
   0 0 0 0 0 0
   0 0 0 0 0 0
   0 -1 0 0 -1 0
-  264 0 0 0 0 0 0 1
+  30 0 0 0 0 0 0 1
 dense 20 2 6                      # v22 [A.TAG, A.PAY]
   0 0 0 0 0 0
   0 0 0 0 6 1

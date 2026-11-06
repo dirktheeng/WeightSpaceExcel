@@ -1,0 +1,20 @@
+# func/core/fn_key0 (id 262, FN_KEY0): parser side of function-name lookup. Entered from wordend
+# (69) for a name followed by '(' with I = index after '(' (word 29) and KLEN = name length (word
+# 57). Block-read 16 characters from the character buffer at 0x2800 + I - 1 - KLEN (the name start)
+# -> fn_key1 (263). Note: weights/func/core/README.md. Hand-written.
+input 65
+slice 0 30 31                     # v1 [I]
+slice 0 58 59                     # v2 [KLEN]
+concat 1 2                        # v3
+dense 3 8 2                       # v4 words 0..7: next 263, block read 16 at 0x2800 + I - 1 - KLEN
+  0 0
+  0 0
+  1 -1
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  263 4 10239 67108880 0 0 0 0
+slice 0 9 65                      # v5 words 8..63
+concat 4 5

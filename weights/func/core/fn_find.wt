@@ -1,0 +1,160 @@
+# func/core/fn_find (id 38, FN_FIND): binary search of the name directory (encodings/functions.md
+# section 3) for (K1, K2) in words 56, 58; search interval [lo, hi) in 59, 60, probe mid in 61.
+# PC 0: x0 = K1[mid]; PC 1: x0 = K2[mid]; PC 2: x0 = FF[mid] = fid + 1024 F. Less or greater
+# moves lo or hi; an empty interval gives fid 0. Equal K1 reads K2[mid] (PC 1); equal K2 reads
+# FF[mid] (PC 2). Exit: TO (word 53) = 64 + fid -> parse (73) PC 0. Hand-written.
+input 65
+slice 0 0 1                       # v1 [x0]
+slice 0 8 9                       # v2 [PC]
+slice 0 57 58                     # v3 [K1]
+slice 0 59 63                     # v4 [K2, lo, hi, mid]
+concat 1 2                        # v5
+concat 5 3                        # v6
+concat 6 4                        # v7 (x0 0, PC 1, K1 2, K2 3, lo 4, hi 5, mid 6)
+dense 7 6 7                       # v8 compares and phase thresholds
+  -1 0 1 0 0 0 0
+  1 0 -1 0 0 0 0
+  -1 0 0 1 0 0 0
+  1 0 0 -1 0 0 0
+  0 1 0 0 0 0 0
+  0 1 0 0 0 0 0
+  -0.5 -0.5 -0.5 -0.5 -0.5 -1.5
+step 8                            # v9 [gt1, lt1, gt2, lt2, p1, p2]
+dense 9 6 6                       # v10 [GTa, GTb, LTa, LTb, EQA, EQB]
+  1 0 0 0 -1 0
+  0 0 1 0 1 -1
+  0 1 0 0 -1 0
+  0 0 0 1 1 -1
+  -1 -1 0 0 -1 0
+  0 0 -1 -1 1 -1
+  -0.5 -1.5 -0.5 -1.5 0.5 -0.5
+step 10                           # v11
+concat 7 11                       # v12 (GTa 7, GTb 8, LTa 9, LTb 10, EQA 11, EQB 12)
+concat 12 9                       # v13 (gt1 13, lt1 14, gt2 15, lt2 16, p1 17, p2 18)
+dense 13 4 19                     # v14 MUX_INT pre (M = 2^23)
+  0 0 0 0 1 0 0 -8388608 -8388608 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 1 8388608 8388608 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 1 0 0 0 -8388608 -8388608 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 1 0 0 8388608 8388608 0 0 0 0 0 0 0 0
+  0 -8388607 0 -8388608
+relu 14                           # v15 [loA, loB, hiA, hiB]
+dense 15 2 4                      # v16 [lo', hi']
+  1 1 0 0
+  0 0 1 1
+  0 0
+concat 13 16                      # v17 (lo' 19, hi' 20)
+dense 17 1 21                     # v18 empty pre = lo' - hi' + 0.5
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 -1
+  0.5
+step 18                           # v19 [empty]
+concat 17 19                      # v20 (empty 21)
+dense 20 1 22                     # v21 nf pre = GT + LT + empty - 1.5
+  0 0 0 0 0 0 0 1 1 1 1 0 0 0 0 0 0 0 0 0 0 1
+  -1.5
+step 21                           # v22 [nf]
+concat 20 22                      # v23 (nf 22)
+dense 16 1 2                      # v24 [h = (lo' + hi') / 2]
+  0.5 0.5
+  0
+dense 24 1 1                      # v25
+  1
+  6755399441055744
+dense 25 1 1                      # v26 [r = ROUND(h)]
+  1
+  -6755399441055744
+concat 26 24                      # v27
+dense 27 1 2                      # v28
+  1 -1
+  0
+step 28                           # v29
+concat 26 29                      # v30
+dense 30 1 2                      # v31 [mid' = FLOOR(h)]
+  1 -1
+  0
+concat 23 31                      # v32 (mid' 23)
+dense 1 1 1                       # v33 fl(x0 2^-10 + 1.5 2^52)
+  0.0009765625
+  6755399441055744
+dense 33 1 1                      # v34 [r]
+  1
+  -6755399441055744
+concat 34 1                       # v35 [r, x0]
+dense 35 1 2                      # v36
+  1 -0.0009765625
+  0
+step 36                           # v37
+concat 34 37                      # v38
+dense 38 1 2                      # v39 [q = FLOOR(x0 / 1024)]
+  1 -1
+  0
+concat 1 39                       # v40 [x0, q]
+dense 40 1 2                      # v41 [fid = x0 - 1024 q]
+  1 -1024
+  0
+concat 32 41                      # v42 (fid 24)
+slice 0 54 55                     # v43 [TO]
+concat 42 43                      # v44 (TO 25)
+dense 44 7 26                     # v45 MUX_INT pre [aK1, aK2, aFF, mA, mB, tF, tK]
+  0 0 0 0 0 0 0 8388608 8388608 8388608 8388608 0 0 0 0 0 0 0 0 0 0 0 -8388608 1 0 0
+  0 0 0 0 0 0 1 0 0 0 0 8388608 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 1 0 0 0 0 0 8388608 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 8388608 8388608 8388608 8388608 0 0 0 0 0 0 0 0 0 0 0 -8388608 1 0 0
+  0 0 0 0 0 0 1 -8388608 -8388608 -8388608 -8388608 0 0 0 0 0 0 0 0 0 0 0 8388608 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 8388608 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -8388608 0 0 0 -8388608 0 0 1
+  -8358912 -8357888 -8356864 -8388608 0 -8388544 0
+relu 45                           # v46
+concat 44 46                      # v47 (aK1 26, aK2 27, aFF 28, mA 29, mB 30, tF 31, tK 32)
+dense 47 8 33                     # v48 words 0..7
+  0 0 0 0 0 0 0 -35 -35 -35 -35 -35 -35 0 0 0 0 0 0 0 0 0 35 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 -1 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 1 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  73 0 0 0 0 0 0 0
+dense 47 4 33                     # v49 [lo', hi', mid'', TO']
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 64 0 0 0 0 0 0 0 0 1 1
+  0 0 0 0
+slice 49 3 4                      # v50 [TO']
+slice 49 0 3                      # v51 [lo', hi', mid'']
+slice 0 9 54                      # v52 words 8..52
+slice 0 55 60                     # v53 words 54..58
+slice 0 63 65                     # v54 words 62, 63
+slice 0 63 64                     # v55 [rv] (fn_key1: the name is also a cell reference)
+slice 23 22 23                    # v56 [nf]
+concat 56 55                      # v57
+dense 57 1 2                      # v58 nfR pre = nf AND rv
+  1 1
+  -1.5
+step 58                           # v59 [nfR]: not a function and a reference followed by '(': reject
+concat 48 59                      # v60
+dense 60 8 9                      # v61 words 0..7, next 73 + 6 nfR = 79 (restore, rejected)
+  1 0 0 0 0 0 0 0 6
+  0 1 0 0 0 0 0 0 0
+  0 0 1 0 0 0 0 0 0
+  0 0 0 1 0 0 0 0 0
+  0 0 0 0 1 0 0 0 0
+  0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 0 1 0 0
+  0 0 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 0
+slice 0 9 13                      # v62 words 8..11
+slice 0 13 14                     # v63 [STATUS]
+concat 63 59                      # v64
+dense 64 1 2                      # v65 [STATUS + nfR]
+  1 1
+  0
+slice 0 14 54                     # v66 words 13..52
+concat 61 62
+concat 67 65
+concat 68 66
+concat 69 50
+concat 70 53
+concat 71 51
+concat 72 54

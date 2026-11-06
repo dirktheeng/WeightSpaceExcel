@@ -32,7 +32,7 @@ Free memory is 0x000000 to 0x0FFFFF (1,048,576 words) and 0x302000 to 0x3FFFFF (
 | SHEET_TABLE | 0x004000 to 0x004FFF | 4096 | 256 sheet records of 16 words (section 5) |
 | NAME_TABLE | 0x005000 to 0x006FFF | 8192 | defined names: 1024 records of 8 words [name handle, scope sheet + 1 or 0, formula record pointer, flags, hidden, comment handle, 2 spare] |
 | FUNC_TABLE | 0x007000 to 0x007FFF | 4096 | function dispatch: 0x7000 + fid = network id implementing fid; 0x7400 + j, 0x7800 + j, 0x7C00 + j = name directory entry j (K1, K2, fid + 1024 flags); layout in encodings/functions.md section 3 (decision F3) |
-| FORMAT_STORE | 0x008000 to 0x00FFFF | 32768 | 2048 style records of 16 words (section 7) |
+| FORMAT_STORE | 0x008000 to 0x00FFFF | 32768 | 1024 style records of 16 words at 0x8000..0xBFFF (section 7); number format region 0xC000..0xFFFF (section 7a) |
 | CELL_STORE | 0x010000 to 0x08FFFF | 524288 | hash table, 2^16 slots of 8 words (section 4) |
 | FORMULA_STORE | 0x090000 to 0x0AFFFF | 131072 | formula records and RPN token streams (section 6) |
 | EVAL_SCRATCH | 0x0B0000 to 0x0BFFFF | 65536 | reference, array and lambda records made during evaluation; reset by bump pointer after each top-level evaluation, except spilled arrays which are copied into cells |
@@ -139,7 +139,18 @@ The function id fid is the row index of the function in FUNC_TABLE, which maps i
 
 ## 7. Style record (16 words, FORMAT_STORE + 16 * style id)
 
-0 number format code (string handle, 0 for General), 1 font name handle, 2 font size in points times 4, 3 font flags (1 bold, 2 italic, 4 underline single, 8 underline double, 16 strike, 32 superscript, 64 subscript), 4 font color (0xRRGGBB), 5 fill color, 6 pattern type, 7 pattern color, 8 to 11 borders left, right, top, bottom (style code * 2^24 + color), 12 horizontal align * 16 + vertical align, 13 indent * 256 + rotation, 14 flags (wrap, shrink, merged, locked, hidden), 15 conditional format list pointer. Style 0 is Normal (Aptos Narrow 11, black, no fill). Distinct styles are interned: the cell writer searches for an identical record before allocating one (a network loop; open question on cost).
+0 number format id F (an index into FMT_TABLE, section 7a; 0 for General), 1 font name handle, 2 font size in points times 4, 3 font flags (1 bold, 2 italic, 4 underline single, 8 underline double, 16 strike, 32 superscript, 64 subscript), 4 font color (0xRRGGBB), 5 fill color, 6 pattern type, 7 pattern color, 8 to 11 borders left, right, top, bottom (style code * 2^24 + color), 12 horizontal align * 16 + vertical align, 13 indent * 256 + rotation, 14 flags (wrap, shrink, merged, locked, hidden), 15 conditional format list pointer. Style 0 is Normal (Aptos Narrow 11, black, no fill). Distinct styles are interned: the cell writer searches for an identical record before allocating one (a network loop; open question on cost).
+
+Style ids are 0..1023 (records at 0x8000..0xBFFF).
+
+## 7a. Number format region (0xC000..0xFFFF, owner weights/format, README.md there)
+
+| Range | Use |
+|---|---|
+| 0xC000..0xC7FF | FMT_TABLE: 512 entries of 4 words [code string handle, compiled record address (0 = not compiled yet), 0, 0], entry F at 0xC000 + 4 F. Ids 0..49 are reserved for Excel's built-in formats (0 General); their code strings are written at boot (open item, weights/format/README.md). Word 0xC003 (entry 0, word 3) is COMPILE_TOP (0 = never used, base 0xCA00) |
+| 0xC800..0xC8FF | FMT_BUF: emitted units (one per word) before packing |
+| 0xC900..0xC9FF | General token records (0xC900..0xC91F, written by fx_init); the rest reserved for the format engine |
+| 0xCA00..0xFFFF | compiled format records, bump allocated from COMPILE_TOP |
 
 The packed words (8 to 14) keep each subfield in disjoint integer ranges and are unpacked with FLOOR; no field exceeds its range so the roles do not overlap.
 

@@ -58,8 +58,16 @@ def pack_string(m, addr, s):
     return addr + 2 + (len(units) + 2) // 3
 
 
+def init_func_table(h):
+    """Boot-time FUNC_TABLE and name directory (FT_INIT 259 chain, encodings/functions.md), as boot does."""
+    x = np.zeros(65)
+    x[1 + 8] = 3          # LR = HALT_OK
+    h.run(259, x, max_steps=100)
+
+
 def run(text, home=(0, 0), sheets=SHEET_NAMES):
     h = Harness(PATHS)
+    init_func_table(h)
     m = h.mem
     for k, name in enumerate(sheets):
         m[0x4000 + 16 * k] = NAME_BASE + 64 * k

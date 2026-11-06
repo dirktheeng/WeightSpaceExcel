@@ -1,6 +1,6 @@
 # Encoding: FUNCTIONS (function ids, FUNC_TABLE, calling convention for worksheet functions)
 
-Status: design, stage 3 (written 2026-11-06 by the ABI agent; log/abi-agent.md, decisions F1 to F8 in log/WORKLOG.md). Related: encodings/control.md (registers, ids), encodings/value.md (tags), encodings/memory-map.md (FUNC_TABLE, token stream, section 13), weights/eval/evaluator.md (operand stack), weights/func/core/README.md (the core networks named here).
+Status: built, stage 3 (written 2026-11-06 by the ABI agent; log/abi-agent.md, decisions F1 to F10 in log/WORKLOG.md). Working end to end: FUNC_TABLE initialised at boot (boot PC 9 -> FT_INIT 259 -> 260 -> 261 -> UI), every function name parses to its fid, dispatch through ev_func 116 -> FN_CALL 256, return through FN_RET 257, SUM (fid 441) as the reference function. Related: encodings/control.md (registers, ids), encodings/value.md (tags), encodings/memory-map.md (FUNC_TABLE, token stream, section 13), weights/eval/evaluator.md (operand stack), weights/func/core/README.md (the core networks named here).
 
 Every worksheet function is a network (or a short chain of networks) that the evaluator enters through FUNC_TABLE and that returns through one fixed network, FN_RET. This document fixes what a function network may assume on entry, what it must leave on exit, and how ids are assigned. Function writers need sections 2 to 7; section 9 is the fid table.
 
@@ -31,6 +31,8 @@ The evaluator meets token OPC = 64 + fid with OPND = n (argument count, 0 to 255
 Argument order in memory is left to right at increasing addresses: argument 1 is the deepest, at SP - 2 (n - 1). Reading argument i costs one read of TAG and one of PAY, or one block read (mem_op 4) of all n - 1 stored arguments: addr = SP - 2 (n - 1), N = 2 (n - 1).
 
 **Preserve set.** A function must return with these words exactly as it found them: 10 and 11 (RSP balanced, MODE), 22 (GEN), 24 (CYC), 26 (P1), 27 (N0 = n), 40 to 63 (kernel locals L0 to L11 and the evaluator registers TP, SP, HR, HC, CS, DEPTH, FLI, FLN, LOW, CIRCV, RET), except that it advances 56 (SCR) and 23 (HT) when it allocates. **Free to clobber:** 8 and 9 (LR, LP), 12 (STATUS), 13 to 21 (A, B, C, address register), 25 (P0), 28 to 39 (N1, T0 to T10). A function that needs more working words spills L words to RET_STACK (one block write) and restores them before returning, or uses EVAL_SCRATCH above SCR as a private frame (it is reset after each top-level evaluation).
+
+**Scratch above SP.** Words at and above SP in OPER_STACK (0x1000 to 0x1FFF) are free scratch for the running function: it may write [SP, SP + 1] (for example to store argument n so that all n arguments sit at SP - 2 (n - i), as SUM does) and use more above as a work list. The evaluator overwrites them after FN_RET. Keep below 0x2000.
 
 **Sub-calls.** LR and LP are free for the function's own calls (CELL_GET, coercion helpers) because the return to the evaluator never uses them (section 6). A function that calls a subroutine which itself needs LR follows control.md section 4 (push the link on RET_STACK).
 
@@ -68,6 +70,10 @@ Every argument is a value (TAG, PAY), encodings/value.md. The kinds a function c
 
 **Reference record (tag 5)** (eval decision E9, as built by ev_rng 88): 6 words in EVAL_SCRATCH [S, R1, C1, R2, C2, S], normalised (R1 <= R2, C1 <= C2, 0-based absolute). Whole column R1 = 0, R2 = 1048575; whole row C1 = 0, C2 = 16383.
 **Union (tag 10)**: PAY points to a node [left TAG, left PAY, right TAG, right PAY]; children may be tags 9, 5 or 10 (nested unions). A function walks it left first.
+
+**Missing argument (tag 8)** is pushed by ev_disp for OPC 11 (decision F8): SUM(1,,2) has three arguments, the second (8, 0).
+
+**Text coercion of a direct argument.** Call ev_t2n (109) with A = (2, handle) and LR, LP (it saves and restores words 8 to 39 around the parser's constant entry); it returns A = the number, or a non-number value or #VALUE! when the text is not a number. SUM uses it through fs_txt (37).
 
 **References are never pre-dereferenced (E6).** Every function receives references as references (tag 9 or 5) and decides what to do. Helpers do the common cases (weights/func/core/README.md and the library networks of each family):
 - **Scalar argument** (ABS(x), LEFT(t, n)): tag 9 is read with CELL_GET; tag 5 with one cell is the same; tag 5 with more cells is implicit intersection with (HR, HC) for now (legacy behaviour; dynamic-array lifting is stage 4 and will change this row only).
@@ -107,11 +113,16 @@ A result is always one value. Arrays are returned as tag 6 (record in EVAL_SCRAT
 | 256 | FN_CALL: next = x0 (the FUNC_TABLE word ev_func read), copy the state |
 | 257 | FN_RET: section 6 |
 | 258 | FN_NAME: returns #NAME? (fid 0 and every not yet implemented fid) |
-| 259 | FT_INIT: boot-time FUNC_TABLE initialisation chain (fills 0x7000 + fid with 258 and writes the implemented entries), then the directory writers, then returns to (LR, LP) |
+| 259 | FT_INIT: boot-time FUNC_TABLE initialisation, one block write of the typed table FUNC_TABLE[0..525], then the directory writers, which return to (LR, LP) |
 | 260, 261 | FD_W0, FD_W1: name directory writers (block writes of hand-typed keys) |
-| 262 | FN_KEY: parser side, builds (K1, K2) of the word just lexed (block read of the character buffer) |
-| 263 | FN_FIND: parser side, binary search of the directory, returns the fid |
-| 264 to 295 | math and trigonometry (including the shared range scanner and SUM) |
+| 262 | FN_KEY0: parser side, block read of the name's 16 characters (from wordend 69) |
+| 263 | FN_KEY1: builds (K1, K2) and the reference-shaped flag, starts FN_FIND (38) |
+| 30 to 35 | SUM: fs_sum (driver), fs_item (one argument), fs_cell (after CELL_GET), fs_rng (range record), fs_blk (cell store scan, the shared range scanner), fs_uni (union work list); weights/func/core/sum.md |
+| 36 | rc_rng (weights/eval): range precedents in the record phase |
+| 37 | fs_txt: SUM's direct text argument after ev_t2n |
+| 38 | FN_FIND: name directory binary search (parser side) |
+| 39 to 41 | free (function plumbing) |
+| 264 to 295 | math and trigonometry |
 | 296 to 311 | logical and information |
 | 312 to 343 | text |
 | 344 to 359 | date and time |
@@ -119,6 +130,14 @@ A result is always one value. Arrays are returned as tag 6 (record in EVAL_SCRAT
 | 512 and up | generated networks (Block G in section 9, and any overflow of the hand-written blocks: 80 math functions share 32 ids, so one network serves several fids by T2, for example a unary-math network for ABS, SIGN, INT, and families such as the trigonometric functions come from a generator): families too large for the hand-written budget (statistical distributions, financial, engineering, database, compatibility aliases, cube, web) are written by hand-written generator networks per RULES.md rule 3, which take ids from the allocator (control.md section 5) and write FUNC_TABLE entries for their fids at construction time |
 
 A generator that builds function networks writes FUNC_TABLE[fid] = new id for each fid it serves (and the F part of that fid's directory entry FF[j] if it changes it), after loading the network (io 7).
+
+## 8a. Name recognition (parser side, decision F9)
+
+wordend (69) sends every name followed by '(' (including reference-shaped ones like LOG10, ATAN2) to FN_KEY0 (262), which block-reads the name's first 16 characters (start = I - 1 - KLEN). FN_KEY1 (263) builds K1, K2 (section 3) with ASCII case folding and FN_FIND (38) binary-searches the 525 sorted entries (at most 10 probes, 1 to 3 reads each; about 15 to 25 steps per function name). Found: TO = 64 + fid. Not found: fid 0 (#NAME? at evaluation), except that a name that is also a valid cell reference (=A1(1)) rejects the entry like Excel. The flags F of the entry are available to FN_FIND (q in its v39) for a later argument-count check; not used yet.
+
+## 8b. Shared range scanner (decision F10)
+
+fs_rng (33) + fs_blk (34) scan the whole cell store for one range record: enter fs_rng with a block read of the 6-word record (mem_op 4, addr = record, value = 64 2^20 + 6, next = 33) and LR, LP = where to resume. Registers on return to (LR, LP): ACC (word 36) += 2^-8 times the sum of the numbers in the range (exact-rounded pairwise tree), N1 (28) += count of numbers, T8 (37) += count of nonzero numbers, T9 (38) += count of booleans, T10 (39) += count of TRUE values. The caller zeroes these before the first range. An error in the range goes straight to FN_RET with A = that error (first error by lowest store lane; not row-major, documented limit); an ACC overflow goes to FN_RET with #NUM!. Words 17 to 21 are clobbered. Cost: 8192 steps per range (8 slots per block read), whatever the range's area. AND, OR and XOR can use the counts (AND: no error, numbers all nonzero and booleans all TRUE: NNZ = NCNT and BTRUE = BCNT).
 
 ## 9. fid table
 

@@ -64,7 +64,7 @@ class Abi:
         paths = list(bb.manifest_paths())
         paths[FN_RET] = HALT
         self.h = Harness(paths)
-        self.h.run(0, np.zeros(65), max_steps=200)
+        self.h.run(0, np.zeros(65), max_steps=200_000)
 
     def state(self, **regs):
         x = [0.0] * 65

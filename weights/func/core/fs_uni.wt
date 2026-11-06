@@ -1,6 +1,6 @@
-# func/math/fs_uni (id 269): union node [C.TAG, C.PAY, B.TAG, B.PAY] block-read by fs_item (input
+# func/core/fs_uni (id 35): union node [C.TAG, C.PAY, B.TAG, B.PAY] block-read by fs_item (input
 # 69). Push both children on the SUM worklist at W: block write [B.TAG, B.PAY, C.TAG, C.PAY] (left
-# child on top, popped first), W += 4 -> fs_sum (264) PC 1. Note: weights/func/math/sum.md.
+# child on top, popped first), W += 4 -> fs_sum (30) PC 1. Note: weights/func/core/sum.md.
 input 69
 slice 0 35 36                     # v1 [W]
 dense 1 8 1                       # v2 words 0..7
@@ -12,7 +12,7 @@ dense 1 8 1                       # v2 words 0..7
   0
   0
   0
-  264 3 0 67108868 0 0 0 1
+  30 3 0 67108868 0 0 0 1
 dense 1 1 1                       # v3 [W + 4]
   1
   4

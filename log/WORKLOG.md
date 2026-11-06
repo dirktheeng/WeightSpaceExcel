@@ -675,3 +675,25 @@
 - U12 (header highlight, edit echo). The active row and column headers are drawn #D2D2D2 with a #217346 label and a green line on the grid side. While typing, the edit text is echoed left-aligned in the active cell (clipped to it) and in the formula bar. The echo invalidates the cell's cache entry so the committed value repaints its row.
 - U13 (planned, not built: object-id plane, from SynapseWrite's idea). A full-resolution parallel id plane does not fit: no free region of 1,024,000 words remains (free memory is about 2.09M words in total, and the framebuffer region holds exactly one plane). Proposal: an id plane at quarter resolution (320 x 200 = 64,000 words, one id per 4 x 4 block) in UI_STATE's upper half is not possible either (UI_STATE is 65,536 words and holds the cache, display table and ROM). Recommended: carve 64,000 words from EVAL_SCRATCH or VBA_STATE with a memory-map decision; ids: 0 background, 1..20 column headers, 32..59 row headers, 64 + 20 r + c cells, 1024+ ribbon controls, 2048+ sheet tabs. Fills would block-write the id row alongside the colour row (second block write, one extra step per scanline), so hit testing is one read.
 - U14 (planned: glyph cache). Blitting a cached glyph row costs a block read plus a block write (2 steps) against 1 step now, so it does not reduce steps; it would reduce wall time (two small networks of about 10 layers against the 112-layer glyph row network, about 20 us against 105 us per row). Worth doing for repeated digits and header labels if boot wall time matters.
+
+### F7 (DECISION, ABI agent): range precedents expanded to cell edges up to 64 cells (rc_rng 36)
+- Decided: rc_scan routes OPC 6 to rc_rng, which records one cell precedent per cell of a range of at most 64 cells, reusing rc_got through rc_scan PC 1 (TP held at TPr - 2, marker 2 TPr + 1 in T10). Larger ranges record none.
+- Alternatives: range edges on the sheet record (memory-map section 8; needs recalc to scan them for every cell); expanding every range (A:A is a million edges).
+- Why: makes cycles and order inside small ranges right (cir07, SUM over formula cells) with no change to the DFS.
+- Affects: weights/eval/rc_scan.wt, rc_rng.wt, recalc.md. Open: large ranges.
+
+### F8 (DECISION, ABI agent): OPC 11 pushes the missing value (8, 0)
+- Affects: weights/eval/ev_disp.wt (new class ms, write B.TAG at SP -> ev_push2 PC 1, TP held).
+
+### F9 (DECISION, ABI agent): every function name through the directory
+- Decided: wordend sends both function cases (fn2 now also for reference-shaped names) to FN_KEY0 262 -> FN_KEY1 263 -> FN_FIND 38 -> parse 73; not found gives fid 0, or rejects a name that is also a cell reference. The directory is part of boot (FT_INIT 259 -> FD_W0 260 -> FD_W1 261).
+- Why: one mechanism for 525 names; the 14-key base-39 match could not grow (10 characters, hand multiplication).
+- Affects: parser-only test drivers must run 259 first (tests/output/parse updated). About 9 steps per function name.
+
+### F10 (DECISION, ABI agent): shared range scanner returns counts
+- Decided: fs_rng 33 + fs_blk 34 return to (LR, LP) with ACC += sum (2^-8 scale), N1 += numbers, T8 += nonzero numbers, T9 += booleans, T10 += TRUE values; errors go to FN_RET. Documented in functions.md section 8b.
+- Open: a value-stream mode (compact list of the selected values in EVAL_SCRATCH) for MIN, MAX, PRODUCT, statistics; not built.
+
+### Results (ABI agent, 2026-11-06)
+- Stage 1 SUM cases 14 of 14 pass through the real manifest (rng01..rng16, cir07); tests/output/func: 525 names, 14 function cases, all pass. Stage 1 overall: all except ref12, coe21 (known before).
+- Zero page 0x16 TZ_OFFSET reserved for NOW and TODAY (date agent request); ids 30 to 41 recorded in control.md.

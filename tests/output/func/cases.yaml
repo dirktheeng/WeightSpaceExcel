@@ -1,0 +1,16 @@
+# Function ABI and SUM cases (expected values from Excel's documented behaviour, typed by hand).
+cases:
+- {id: sum01, cells: {A1: "=SUM(1,,2)"}, expect: {A1: 3}, note: "missing argument counts 0"}
+- {id: sum02, cells: {A1: "=SUM(TRUE,2)"}, expect: {A1: 3}, note: "direct boolean counts"}
+- {id: sum03, cells: {A1: "=SUM(\"3\",1)"}, expect: {A1: 4}, note: "direct text coerced"}
+- {id: sum04, cells: {A1: "=SUM(\"a\",1)"}, expect: {A1: {error: "#VALUE!"}}}
+- {id: sum05, cells: {A1: "TRUE", B1: "=SUM(A1,2)"}, expect: {B1: 2}, note: "referenced boolean ignored"}
+- {id: sum06, cells: {A1: "3", B1: "=SUM(A1,2)"}, expect: {B1: 5}}
+- {id: sum07, cells: {A1: "=SUM(1E308,1E308)"}, expect: {A1: {error: "#NUM!"}}}
+- {id: sum08, cells: {A1: "=SUM(#N/A,1/0)"}, expect: {A1: {error: "#N/A"}}, note: "first error left to right"}
+- {id: sum09, cells: {A1: "=SUM(1.5)*2"}, expect: {A1: 3}}
+- {id: sum10, cells: {A1: "1", A2: "2", B1: "=SUM(A1:A2)", A3: "=B1"}, expect: {A3: 3}}
+- {id: sum11, cells: {B1: "=SUM(A1:A2)", A1: "=5", A2: "=A1*2"}, expect: {B1: 15}, note: "formula cells in range recalc first"}
+- {id: sum12, cells: {A1: "=SUM(0.1,0.2)"}, expect: {A1: 0.30000000000000004}}
+- {id: fn01, cells: {A1: "=FOO(1)"}, expect: {A1: {error: "#NAME?"}}}
+- {id: fn02, cells: {A1: "=SUM(SUM(1,2),3)"}, expect: {A1: 6}, note: "nested call"}

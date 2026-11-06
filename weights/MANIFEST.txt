@@ -336,3 +336,8 @@
 332 weights/func/text/tx_fs.wt
 333 weights/func/text/tx_fm.wt
 335 weights/func/text/tx_val.wt
+336 weights/func/text/tx_tx.wt
+337 weights/func/text/tx_tx2.wt
+338 weights/func/text/tx_tx3.wt
+378 weights/func/lookup/lk_hr.wt
+208 weights/format/fx_text.wt

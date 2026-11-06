@@ -1,9 +1,9 @@
-# func/math/fs_item (id 265): one SUM item, block-read by fs_sum (input 67): x65 = TAG, x66 = PAY.
+# func/core/fs_item (id 31): one SUM item, block-read by fs_sum (input 67): x65 = TAG, x66 = PAY.
 # 1 number, 3 boolean: ACC += 2^-8 PAY -> fs_sum PC 1, or #NUM! -> FN_RET on overflow. 0 blank,
 # 8 missing: -> fs_sum PC 1. 4 error: A = the error -> FN_RET. 9 cell reference: unpack K into
-# (AS, AR1, AC1), T1 = 0, LR = 266, LP = 0 -> CELL_GET (16). 5 range: block-read the 6-word record
-# -> fs_rng (267). 10 union: block-read the 4-word node -> fs_uni (269). 2 text, 6, 7, >= 11:
-# #VALUE! -> FN_RET (text coercion not yet wired). Note: weights/func/math/sum.md. Hand-written.
+# (AS, AR1, AC1), T1 = 0, LR = 32, LP = 0 -> CELL_GET (16). 5 range: block-read the 6-word record
+# -> fs_rng (33). 10 union: block-read the 4-word node -> fs_uni (35). 2 text, 6, 7, >= 11:
+# #VALUE! -> FN_RET (text coercion not yet wired). Note: weights/func/core/sum.md. Hand-written.
 input 67
 slice 0 65 66                     # v1 [t]
 slice 0 66 67                     # v2 [PAY]
@@ -21,25 +21,26 @@ dense 1 11 1                      # v3 [t - k + 0.5], k = 1..11
   1
   -0.5 -1.5 -2.5 -3.5 -4.5 -5.5 -6.5 -7.5 -8.5 -9.5 -10.5
 step 3                            # v4 [s1..s11]
-dense 4 7 11                      # v5 [add, skip, e4, bad, e5, e9, e10]
+dense 4 8 11                      # v5 [add, skip, e4, e2, e5, e9, e10, bad]
   1 -1 1 -1 0 0 0 0 0 0 0
   -1 0 0 0 0 0 0 1 -1 0 0
   0 0 0 1 -1 0 0 0 0 0 0
-  0 1 -1 0 0 1 0 -1 0 0 1
+  0 1 -1 0 0 0 0 0 0 0 0
   0 0 0 0 1 -1 0 0 0 0 0
   0 0 0 0 0 0 0 0 1 -1 0
   0 0 0 0 0 0 0 0 0 1 -1
-  0 1 0 0 0 0 0
-concat 5 2                        # v6 (add 0, skip 1, e4 2, bad 3, e5 4, e9 5, e10 6, PAY 7)
-dense 6 8 8                       # v7 [add, e4, e5 + e10, e9, PAY, PAY, PAY, PAY]
-  1 0 0 0 0 0 0 0
-  0 0 1 0 0 0 0 0
-  0 0 0 0 1 0 1 0
-  0 0 0 0 0 1 0 0
-  0 0 0 0 0 0 0 1
-  0 0 0 0 0 0 0 1
-  0 0 0 0 0 0 0 1
-  0 0 0 0 0 0 0 1
+  0 0 0 0 0 1 0 -1 0 0 1
+  0 1 0 0 0 0 0 0
+concat 5 2                        # v6 (add 0, skip 1, e4 2, e2 3, e5 4, e9 5, e10 6, bad 7, PAY 8)
+dense 6 8 9                       # v7 [add, e4 + e2, e5 + e10, e9, PAY, PAY, PAY, PAY]
+  1 0 0 0 0 0 0 0 0
+  0 0 1 1 0 0 0 0 0
+  0 0 0 0 1 0 1 0 0
+  0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 0 0 0 1
+  0 0 0 0 0 0 0 0 1
+  0 0 0 0 0 0 0 0 1
+  0 0 0 0 0 0 0 0 1
   0 0 0 0 0 0 0 0
 mul 7 0 4 4 8                     # v8 [vAdd, vErr, vAddr, Kc]
 slice 0 37 38                     # v9 [ACC]
@@ -91,39 +92,39 @@ dense 31 3 3                      # v32 [AS, AR1, AC1] = [S, f1 - 2^20 S, Kc - 2
   -1048576 1 0
   0 -16384 1
   0 0 0
-concat 6 14                       # v33 (sa 8, sb 9)
-dense 33 1 10                     # v34 okp pre
-  0 0 0 0 0 0 0 0 1 1
+concat 6 14                       # v33 (sa 9, sb 10)
+dense 33 1 11                     # v34 okp pre
+  0 0 0 0 0 0 0 0 0 1 1
   -1.5
 step 34                           # v35 [okp]
-concat 33 35                      # v36 (okp 10)
-dense 36 2 11                     # v37 [addok, ovfA] pre
-  1 0 0 0 0 0 0 0 0 0 1
-  1 0 0 0 0 0 0 0 0 0 -1
+concat 33 35                      # v36 (okp 11)
+dense 36 2 12                     # v37 [addok, ovfA] pre
+  1 0 0 0 0 0 0 0 0 0 0 1
+  1 0 0 0 0 0 0 0 0 0 0 -1
   -1.5 -0.5
 step 37                           # v38 [addok, ovfA]
-concat 36 38                      # v39 (addok 11, ovfA 12)
-slice 8 1 3                       # v40 [vErr, vAddr]
-concat 39 40                      # v41 (vErr 13, vAddr 14)
-dense 41 8 15                     # v42 words 0..7
-  0 264 257 257 267 16 269 0 0 0 0 264 257 0 0
-  0 0 0 0 4 0 4 0 0 0 0 0 0 0 0
-  0 0 0 0 0 0 0 0 0 0 0 0 0 0 1
-  0 0 0 0 67108870 0 67108868 0 0 0 0 0 0 0 0
-  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-  0 1 0 0 0 0 0 0 0 0 0 1 0 0 0
+concat 36 38                      # v39 (addok 12, ovfA 13)
+slice 8 1 3                       # v40 [vEA, vAddr]
+concat 39 40                      # v41 (vEA 14, vAddr 15)
+dense 41 8 16                     # v42 words 0..7 (e2 text -> ev_t2n 109 PC 0)
+  0 30 257 109 33 16 35 257 0 0 0 0 30 257 0 0
+  0 0 0 0 4 0 4 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1
+  0 0 0 0 67108870 0 67108868 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0 0 0 0 1 0 0 0
   0 0 0 0 0 0 0 0
-dense 41 2 15                     # v43 [A.TAG, A.PAY] = (4, vErr + 3 bad + 6 ovfA)
-  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-  0 0 0 3 0 0 0 0 0 0 0 0 6 1 0
+dense 41 2 16                     # v43 [A.TAG, A.PAY] = (4 - 2 e2, vEA + 3 bad + 6 ovfA)
+  0 0 0 -2 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 3 0 0 0 0 0 6 1 0
   4 0
-dense 41 3 15                     # v44 [LR, LP, T1] = (266, 0, 0)
-  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-  266 0 0
+dense 41 3 16                     # v44 [LR, LP, T1] = (32 + 5 e2 - 2 e5, e5, 0): fs_cell 32, fs_txt 37, range scan returns to fs_sum (30) PC 1
+  0 0 0 5 -2 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  32 0 0
 slice 44 0 2                      # v45 [LR, LP]
 slice 44 2 3                      # v46 [T1]
 slice 0 11 14                     # v47 words 10..12

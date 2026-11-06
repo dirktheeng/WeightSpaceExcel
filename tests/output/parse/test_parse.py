@@ -32,8 +32,16 @@ CA1 = 171798691840     # $A1: FLAGS 2 * 2^36 + 2^20 * 2^15
 RA1 = 68719493120      # A$1: FLAGS 1 * 2^36 + 2^14
 
 
+def init_func_table(h):
+    """Boot-time FUNC_TABLE and name directory (FT_INIT 259 chain, encodings/functions.md), as boot does."""
+    x = np.zeros(65)
+    x[1 + 8] = 3          # LR = HALT_OK
+    h.run(259, x, max_steps=100)
+
+
 def run(text, locals_=None):
     h = Harness(PATHS)
+    init_func_table(h)
     m = h.mem
     units = [ord(c) for c in text]
     m[HS] = len(units)

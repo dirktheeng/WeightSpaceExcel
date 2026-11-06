@@ -1,10 +1,10 @@
-# func/math/fs_blk (id 268): one block of 8 cell slots (64 words, block-read; input 129), slot i
+# func/core/fs_blk (id 34): one block of 8 cell slots (64 words, block-read; input 129), slot i
 # word w at input 65 + 8 i + w (KEY, TAG, PAY, ...). Registers: lo 17, hi 18, C1 19, C2 20, BA 21
 # (block address), ACC 36. A slot is in the range iff lo <= KEY <= hi (sheet and row band, KEY =
 # K + 1) and C1 <= COL <= C2 with COL = (KEY - 1) mod 2^14. Selected numbers are added (scaled
 # 2^-8, pairwise tree); the first selected error (lowest lane) ends the scan. Routes: error ->
 # FN_RET with A = error; overflow -> FN_RET with #NUM!; last block (BA = 0x08FFC0) -> fs_sum PC 1;
-# else block-read the next 8 slots -> self. Note: weights/func/math/sum.md. Hand-written.
+# else block-read the next 8 slots -> self. Note: weights/func/core/sum.md. Hand-written.
 input 129
 slice 0 65 66                     # v1 K0 (KEY words)
 slice 0 73 74                     # v2 K1
@@ -154,7 +154,23 @@ mul 61 0 8 8 16                   # v63 row band
 mul 62 0 8 8 16                   # v64 column band
 concat 63 64                      # v65
 mul 65 0 8 8 16                   # v66 sel
-dense 30 32 8                     # v67 [T - 0.5, 1.5 - T, T - 3.5, 4.5 - T] per lane
+dense 30 48 8                     # v67 [T - 0.5, 1.5 - T, T - 3.5, 4.5 - T, T - 2.5, 3.5 - T] per lane
+  1 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0
+  0 0 1 0 0 0 0 0
+  0 0 0 1 0 0 0 0
+  0 0 0 0 1 0 0 0
+  0 0 0 0 0 1 0 0
+  0 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 1
+  -1 0 0 0 0 0 0 0
+  0 -1 0 0 0 0 0 0
+  0 0 -1 0 0 0 0 0
+  0 0 0 -1 0 0 0 0
+  0 0 0 0 -1 0 0 0
+  0 0 0 0 0 -1 0 0
+  0 0 0 0 0 0 -1 0
+  0 0 0 0 0 0 0 -1
   1 0 0 0 0 0 0 0
   0 1 0 0 0 0 0 0
   0 0 1 0 0 0 0 0
@@ -191,6 +207,8 @@ dense 30 32 8                     # v67 [T - 0.5, 1.5 - T, T - 3.5, 4.5 - T] per
   1.5 1.5 1.5 1.5 1.5 1.5 1.5 1.5
   -3.5 -3.5 -3.5 -3.5 -3.5 -3.5 -3.5 -3.5
   4.5 4.5 4.5 4.5 4.5 4.5 4.5 4.5
+  -2.5 -2.5 -2.5 -2.5 -2.5 -2.5 -2.5 -2.5
+  3.5 3.5 3.5 3.5 3.5 3.5 3.5 3.5
 step 67                           # v68
 mul 68 0 8 8 16                   # v69 num = [T == 1]
 mul 68 16 24 24 32                # v70 err = [T == 4]
@@ -269,7 +287,7 @@ relu 104                          # v105 [aBA]
 concat 103 105                    # v106 (aBA 8)
 concat 106 81                     # v107 (code 9)
 dense 107 8 10                    # v108 words 0..7
-  0 0 -11 0 0 0 -11 -4 0 0
+  0 0 223 0 0 0 223 -4 0 0
   0 0 -4 0 0 0 -4 -4 0 0
   0 0 0 0 0 0 0 0 1 0
   0 0 -67108928 0 0 0 -67108928 -67108928 0 0
@@ -277,7 +295,7 @@ dense 107 8 10                    # v108 words 0..7
   0 0 0 0 0 0 0 0 0 0
   0 0 0 0 0 0 0 0 0 0
   0 0 0 0 0 0 0 1 0 0
-  268 4 0 67108928 0 0 0 0
+  34 4 0 67108928 0 0 0 0
 dense 107 2 10                    # v109 [A.TAG, A.PAY] = (4, code + 6 gO)
   0 0 0 0 0 0 0 0 0 0
   0 0 0 0 0 0 6 0 0 1
@@ -285,14 +303,95 @@ dense 107 2 10                    # v109 [A.TAG, A.PAY] = (4, code + 6 gO)
 dense 107 1 10                    # v110 [BA + 64]
   0 0 0 0 1 0 0 0 0 0
   64
-slice 0 9 14                      # v111 words 8..12
-slice 0 16 22                     # v112 words 15..20
-slice 0 23 37                     # v113 words 22..35
-slice 0 38 65                     # v114 words 37..63
-concat 108 111
-concat 115 109
-concat 116 112
-concat 117 110
-concat 118 113
-concat 119 89
-concat 120 114
+dense 45 16 8                     # v111 [P, -P] per lane (shared scanner counts, decision F10)
+  1 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0
+  0 0 1 0 0 0 0 0
+  0 0 0 1 0 0 0 0
+  0 0 0 0 1 0 0 0
+  0 0 0 0 0 1 0 0
+  0 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 1
+  -1 0 0 0 0 0 0 0
+  0 -1 0 0 0 0 0 0
+  0 0 -1 0 0 0 0 0
+  0 0 0 -1 0 0 0 0
+  0 0 0 0 -1 0 0 0
+  0 0 0 0 0 -1 0 0
+  0 0 0 0 0 0 -1 0
+  0 0 0 0 0 0 0 -1
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+step 111                          # v112
+dense 112 8 16                    # v113 [PAY != 0]
+  1 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0 1 0 0 0 0 0 0
+  0 0 1 0 0 0 0 0 0 0 1 0 0 0 0 0
+  0 0 0 1 0 0 0 0 0 0 0 1 0 0 0 0
+  0 0 0 0 1 0 0 0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 1 0 0 0 0 0 0 0 1 0 0
+  0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1
+  0 0 0 0 0 0 0 0
+concat 72 113                     # v114
+mul 114 0 8 8 16                  # v115 mnz = selected nonzero numbers
+mul 68 32 40 40 48                # v116 bool = [T == 3]
+concat 66 116                     # v117
+mul 117 0 8 8 16                  # v118 mb = selected booleans
+concat 118 45                     # v119
+mul 119 0 8 8 16                  # v120 tr = selected TRUE
+concat 72 115                     # v121
+concat 121 118                    # v122
+concat 122 120                    # v123 [mn, mnz, mb, tr] (32)
+dense 123 4 32                    # v124 block counts
+  1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1
+  0 0 0 0
+slice 0 29 30                     # v125 [NCNT] (word 28)
+slice 0 38 41                     # v126 [NNZ, BCNT, BTRUE] (words 37..39)
+concat 125 126                    # v127
+concat 127 124                    # v128
+dense 128 4 8                     # v129 counts += block counts
+  1 0 0 0 1 0 0 0
+  0 1 0 0 0 1 0 0
+  0 0 1 0 0 0 1 0
+  0 0 0 1 0 0 0 1
+  0 0 0 0
+slice 0 9 11                      # v130 [LR, LP]
+slice 102 1 2                     # v131 [gL]
+concat 131 130                    # v132 [gL, LR, LP]
+dense 132 2 3                     # v133 MUX_INT pre [gL LR, gL LP]
+  8388608 1 0
+  8388608 0 1
+  -8388608 -8388608
+relu 133                          # v134
+concat 108 131                    # v135 (words 0..7, gL 8)
+concat 135 134                    # v136 (gLR 9, gLP 10)
+dense 136 8 11                    # v137 words 0..7: last block returns to (LR, LP) instead of fs_sum PC 1
+  1 0 0 0 0 0 0 0 -30 1 0
+  0 1 0 0 0 0 0 0 0 0 0
+  0 0 1 0 0 0 0 0 0 0 0
+  0 0 0 1 0 0 0 0 0 0 0
+  0 0 0 0 1 0 0 0 0 0 0
+  0 0 0 0 0 1 0 0 0 0 0
+  0 0 0 0 0 0 1 0 0 0 0
+  0 0 0 0 0 0 0 1 -1 0 1
+  0 0 0 0 0 0 0 0
+slice 0 9 14                      # v138 words 8..12
+slice 0 16 22                     # v139 words 15..20
+slice 0 23 29                     # v140 words 22..27
+slice 0 30 37                     # v141 words 29..35
+slice 0 41 65                     # v142 words 40..63
+slice 129 0 1                     # v143 [NCNT]
+slice 129 1 4                     # v144 [NNZ, BCNT, BTRUE]
+concat 137 138
+concat 145 109
+concat 146 139
+concat 147 110
+concat 148 140
+concat 149 143
+concat 150 141
+concat 151 89
+concat 152 144
+concat 153 142

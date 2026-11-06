@@ -72,7 +72,7 @@ Network ids are positions in the harness network list. The launcher (an output t
 | 2 | RET: return trampoline (section 4) |
 | 3 | HALT_OK: clean halt |
 | 4 to 15 | main loop, event dispatch, network id allocator, generator driver |
-| 16 to 63 | memory utilities: cell lookup and write, heap allocation, string operations, dependency edges |
+| 16 to 63 | memory utilities: cell lookup and write, heap allocation, string operations, dependency edges; 30 to 41 assigned to function plumbing (ABI agent: SUM 30 to 35, rc_rng 36, fs_txt 37, FN_FIND 38; 39 to 41 free), encodings/functions.md section 8 |
 | 64 to 127 | formula engine: lexer, parser, evaluator, operators, coercion, recalculation |
 | 128 to 191 | rendering: grid, headers, formula bar, glyph pages (encodings/glyph.md) |
 | 192 to 255 | formatting: number format interpreter, styles |

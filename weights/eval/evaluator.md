@@ -21,7 +21,7 @@ Hand-written. Not generated. Log: log/eval-agent.md; decisions E5, E6, E8..E12 i
 | 107 | ev_end | blank -> 0, range -> #VALUE!; write TAG, PAY at CS + 1, CS + 2 -> rc_done PC 1 | 97 |
 | 109 | ev_t2n | text to number: PC 0 block-writes HT to HEAP_TOP; PC 1 block-writes words 8..39 to RET_STACK and calls the parser's constant entry 78 (LR 109, LP 2); PC 2 block-reads them -> ev_t2nb. All phases are block ops (output 96 words) | 183 |
 | 115 | ev_t2nb | block consumer (97 inputs): restores words 8..12, 15..39, keeps 40..63, A = parser result or #VALUE! when rejected, returns to the saved link | 42 |
-| 116 | ev_func | function call dispatch point: stub #NAME?, drops argc - 1 entries | 222 |
+| 116 | ev_func | (installed by the ABI agent, F2) read FUNC_TABLE + fid (addr T2 + 28608), N0 = n -> FN_CALL (256); the function returns through FN_RET (257), encodings/functions.md | 26 |
 
 **Excel behaviours covered.** Left-to-right error precedence per operand; TRUE/FALSE/blank coercion; text to number coercion with Excel's entry rules (spaces, sign, '(4)', '$', thousands commas, exponent, '%'; text TRUE, dates and other text give #VALUE!); overflow #NUM!; #DIV/0!; comparisons without coercion and with type ordering; case-insensitive text compare; trailing spaces significant; ranges with corners in any order, whole rows and columns; intersection operator (#NULL! when empty); union (a value use gives #VALUE!); legacy implicit intersection of a range used as a value; Sheet!A1 and Sheet!A1:B2.
 

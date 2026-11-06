@@ -92,7 +92,7 @@ dense 12 6 11                     # v14 = layer B cases
    1   0  0  0    0    1  0  0  0    0   -1    # rng (cell colon only)
    1   0  0  0    0   -1 -1  0  0    0    0    # ref
    0   1  0  0    0   -1  1  1  0    0    0    # fn1 known function
-  -1  -1  0  0    0   -1  1  1  0    0    0    # fn2 unknown name with (
+   0  -1  0  0    0   -1  1  1  0    0    0    # fn2 other name with ( (reference-shaped too, ABI F9: LOG10, ATAN2)
   -1   0  1  0    0   -1 -1  0  0    0    0    # bool
   -1   0 -1  0    0   -1 -1  1  0    0    0    # name
    -1.5 -0.5 -2.5 -1.5 -0.5 -0.5
@@ -144,7 +144,7 @@ mul 38 0 4 4 8                    # v39 = [m1 m2 m3 m4]
 concat 31 39                      # v40 = W2 (42)
 dense 40 15 42                    # v41 = D
 #rng ref fn1 fn2 bool name | refv fm bt ra ca CS LP nm colv rowv c2 fid KEY KLEN COL ROW RS FL OP CSn LPF HR HC I ST eqT rr rc rf rrR OPc OPr | m1 m2 m3 m4
- -6 -6 -6 -6 -6 -6    0 0 0 0 0 0 0 0 -6 -6 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0   # next = 79 - 6 (cases)
+ -6 -6 183 183 -6 -6    0 0 0 0 0 0 0 0 -6 -6 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0   # next = 79 - 6 (cases); functions 79 + 183 = 262 (FN_KEY0, name directory lookup)
   0  0  0  0  0  0    0 0 0 0 0 0 0 0  0  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0
   0  0  0  0  0  0    0 0 0 0 0 0 0 0  0  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0
   0  0  0  0  0  0    0 0 0 0 0 0 0 0  0  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0

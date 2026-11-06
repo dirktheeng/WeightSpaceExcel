@@ -1,4 +1,4 @@
-# weights/eval: formula evaluator and recalculation (ids 80..117)
+# weights/eval: formula evaluator and recalculation (ids 80..117, plus 36 rc_rng by the ABI agent)
 
 Hand-written. Not generated. Log: log/eval-agent.md; decisions E1..E7 in log/WORKLOG.md ("2026-11-06 Stage 1: evaluator and recalculation"). Notes: hook.md (80, 81), recalc.md (82..94), evaluator.md (88, 95..109, 115, 116), format.md (110..113), ev_div.md (103), pow.md (99, 114, 117). Ids 80..117 are all in use after session 2.
 
