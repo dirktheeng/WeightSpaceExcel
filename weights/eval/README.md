@@ -1,6 +1,6 @@
 # weights/eval: formula evaluator and recalculation (ids 80..117)
 
-Hand-written. Not generated. Log: log/eval-agent.md; decisions E1..E7 in log/WORKLOG.md ("2026-11-06 Stage 1: evaluator and recalculation"). Notes: hook.md (80, 81), recalc.md (82..94), evaluator.md (95..109, 116), format.md (110..113), ev_div.md (103), pow.md (114, 117).
+Hand-written. Not generated. Log: log/eval-agent.md; decisions E1..E7 in log/WORKLOG.md ("2026-11-06 Stage 1: evaluator and recalculation"). Notes: hook.md (80, 81), recalc.md (82..94), evaluator.md (88, 95..109, 115, 116), format.md (110..113), ev_div.md (103), pow.md (99, 114, 117). Ids 80..117 are all in use after session 2.
 
 ## Register use (encodings/control.md section 2)
 
@@ -35,3 +35,8 @@ Kernel locals L0..L11 (words 40..51) pass through every network unchanged, excep
 - Cell slot PAY word holds the frame index while the cell is being visited (state 2).
 - OPER_STACK 0x1000 (2 words per value below TOS), EVAL_SCRATCH 0xB0000 (reset per evaluation; unused so far), TEXT_HEAP from HEAP_TOP for & results.
 - Value tag 9 (reserved for the cell engine, encodings/value.md): unresolved cell reference on the operand stack, PAY = K (sheet 0).
+
+## Session 2 additions
+- T2 (word 31) during a push carries mode + 4096 SHEET (ev_push); T3..T8 hold range corners between ev_push and ev_rng, and the left area of an intersection between ev_ref1 PC 2 and PC 3; T7 (word 36) holds the prefix sheet in the recalc token walk (rc_scan, rc_ref); T7 also carries b into ev_pow2.
+- EVAL_SCRATCH (SCR) now holds 6-word range records and union nodes (reset per evaluation).
+- Value tags used: 9 cell reference, 5 range reference, 10 union reference (reserved cell-engine range 9..15, encodings/value.md).

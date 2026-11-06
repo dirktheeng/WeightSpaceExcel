@@ -1,0 +1,41 @@
+# eval/ev_t2nb (id 115): block consumer after ev_t2n PC 2. Input 97: index 0 = 0, 1..64 = state
+# after the parser returned, 65 + i = saved word 8 + i (i = 0..31). Restores words 8..12 and 15..39
+# from the save, keeps 40..63 (parser restored its L12..L23), and sets A from the parser result:
+# STATUS 1 (rejected) -> #VALUE! (4, 3), else the parser's A (ev_dref turns non-numbers into
+# #VALUE!). Returns to the saved (LR, LP). Note: weights/eval/evaluator.md. Hand-written.
+input 97
+slice 0 13 14                     # v1 [st]
+slice 0 14 16                     # v2 [AT, AP]
+concat 1 2                        # v3 [st, AT, AP]
+dense 3 2 3                       # v4 [AT - 64 st, 1 - st]
+  -64 1 0
+  -1 0 0
+  0 1
+relu 4                            # v5 [ATk, keep]
+slice 2 1 2                       # v6 [AP]
+concat 5 6                        # v7 [ATk, keep, AP]
+mul 7 1 2 2 3                     # v8 [keep AP]
+concat 1 5                        # v9 [st, ATk, keep]
+concat 9 8                        # v10 [st, ATk, keep, kAP]
+dense 10 2 4                      # v11 [A.TAG', A.PAY']
+  4 1 0 0
+  3 0 0 1
+  0 0
+slice 0 65 67                     # v12 [sLR, sLP]
+dense 12 8 2                      # v13 words 0..7
+  1 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 1
+  0 0 0 0 0 0 0 0
+slice 0 65 70                     # v14 words 8..12 (saved)
+slice 0 72 97                     # v15 words 15..39 (saved)
+slice 0 41 65                     # v16 words 40..63 (current)
+concat 13 14
+concat 17 11
+concat 18 15
+concat 19 16

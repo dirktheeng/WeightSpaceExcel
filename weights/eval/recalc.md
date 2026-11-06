@@ -5,8 +5,8 @@ Hand-written. Not generated. Log: log/eval-agent.md; decisions E1..E4 in log/WOR
 | Id | File | Step(s) | Params |
 |---|---|---|---|
 | 82 | rc_chain | p0 x0 = FL_COUNT n: T3 = n, write CS at CALC_CHAIN + n; p1 write n + 1 at 0x15; p2 read DEP_TOP; p3 T4 = DT, read P1 + 1; p4 TP = x0, T5 = HEAD = 0, read [TP] -> rc_scan; p5 write DT at DEP_TOP; p6 read CALC_GEN; p7 GEN = x0 + 1, write it; p8 read FL_COUNT; p9 FLN = x0, FLI = CIRCV = DEPTH = 0, read HEAP_TOP; p10 HT = x0 -> rc_next | 1100 |
-| 83 | rc_scan | token walk: OPC 0 -> write HEAD at T6 + 6 (record word 6), rc_chain p5; OPC 5 -> read OPND, rc_ref; else TP += 2, read next OPC. PC 1 = advance after an edge | 106 |
-| 84 | rc_ref | resolve OPND (FLOOR on 2^-36, 2^-15 scalings, flags by thermometer, relative rows by relu, range check by 4 step units); write HEAD at DT + 1; CELL_GET (LR 85) or skip if outside the grid | 183 |
+| 83 | rc_scan | token walk: OPC 0 -> write HEAD at T6 + 6 (record word 6), rc_chain p5; OPC 5 -> read OPND, rc_ref PC 0 with T7 = sheet if entered at PC 2 (right after a prefix) else 0; OPC 8 -> read OPND, TP += 2, rc_ref PC 1; else TP += 2, read next OPC. PC 1 = advance after an edge | 270 |
+| 84 | rc_ref | PC 0: resolve OPND (FLOOR on 2^-36, 2^-15 scalings, flags by thermometer, relative rows by relu, range check by 4 step units); write HEAD at DT + 1; CELL_GET on sheet T7 (LR 85) or skip if outside the grid. PC 1: T7 = sheet operand, read [TP] -> rc_scan PC 2 | 330 |
 | 85 | rc_got | found: write P0 at DT, HEAD = DT, DT += 2, P1 = T6; absent: CELL_SET a blank cell (so every precedent has a slot), back to itself | 164 |
 | 86 | rc_next | FLI < FLN: read CALC_CHAIN[FLI] -> rc_edge PC 0; else write CIRCV to CIRC_FLAG -> rc_fin. LOW = -1 marks "at root" | 61 |
 | 87 | rc_fin | write HT to HEAP_TOP, next = RET; Delete path also L8 = HT + 2, L9 = HT | 126 |

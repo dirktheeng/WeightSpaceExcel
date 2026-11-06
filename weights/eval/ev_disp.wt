@@ -1,13 +1,16 @@
-# eval/ev_disp (id 96): PC 1: read [TP] -> PC 0. PC 0: x0 = OPC. 0 end -> ev_dref PC 3 | 1..6
-# literal, reference, range: read OPND -> ev_push (T2 = OPC; range also TP += 2) | 16 unary minus:
-# C = (1, 0), T2 = 23 -> ev_dref PC 3 | 18 percent: C = B, B = (1, 100), T2 = 21 -> ev_dref PC 3 |
-# 19..30, 33 binary: read [SP-2] -> ev_pop | >= 64 function: read OPND -> ev_func (116) | other
-# (7..15, 17, 31, 32, 34..63): skip, TP += 2, read next OPC. Note: weights/eval/evaluator.md
+# eval/ev_disp (id 96): PC 1: read [TP] -> PC 0. PC 0: x0 = OPC. 0 end -> ev_dref PC 3 | 1..6, 8
+# literal, reference, range, sheet prefix: read OPND -> ev_push (T2 = OPC; range also TP += 2) |
+# 16 unary minus: C = (1, 0), T2 = 23 -> ev_dref PC 3 | 18 percent: C = B, B = (1, 100), T2 = 21
+# -> ev_dref PC 3 | 19..30, 32, 33 binary: read [SP-2] -> ev_pop | >= 64 function: read OPND ->
+# ev_func (116) | other (7, 9..15, 17, 31, 34..63): skip, TP += 2, read next OPC.
+# Note: weights/eval/evaluator.md. Hand-written.
 input 65
 slice 0 0 1                       # v1 x0
 slice 0 8 9                       # v2 PC
 concat 1 2                        # v3
-dense 3 12 2                      # v4 thresholds
+dense 3 14 2                      # v4 thresholds
+  1 0
+  1 0
   1 0
   1 0
   1 0
@@ -20,45 +23,45 @@ dense 3 12 2                      # v4 thresholds
   1 0
   1 0
   0 1
-  -0.5 -5.5 -6.5 -15.5 -16.5 -17.5 -18.5 -30.5 -32.5 -33.5 -63.5 -0.5
-step 4                            # v5 [g1 g6 g7 g16 g17 g18 g19 g31 g33 g34 g64 m1]
-dense 5 7 12                      # v6 gated classes
-  -1 0 0 0 0 0 0 0 0 0 0 -1
-  1 0 -1 0 0 0 0 0 0 0 0 -1
-  0 1 -1 0 0 0 0 0 0 0 0 -1
-  0 0 0 1 -1 0 0 0 0 0 0 -1
-  0 0 0 0 0 1 -1 0 0 0 0 -1
-  0 0 0 0 0 0 1 -1 1 -1 0 -1
-  0 0 0 0 0 0 0 0 0 0 1 -1
+  -0.5 -5.5 -6.5 -7.5 -8.5 -15.5 -16.5 -17.5 -18.5 -30.5 -31.5 -33.5 -63.5 -0.5
+step 4                            # v5 [g1 g6 g7 g8 g9 g16 g17 g18 g19 g31 g32 g34 g64 m1]
+dense 5 7 14                      # v6 gated classes
+  -1 0 0 0 0 0 0 0 0 0 0 0 0 -1
+  1 0 -1 1 -1 0 0 0 0 0 0 0 0 -1
+  0 1 -1 0 0 0 0 0 0 0 0 0 0 -1
+  0 0 0 0 0 1 -1 0 0 0 0 0 0 -1
+  0 0 0 0 0 0 0 1 -1 0 0 0 0 -1
+  0 0 0 0 0 0 0 0 1 -1 1 -1 0 -1
+  0 0 0 0 0 0 0 0 0 0 0 0 1 -1
   0.5 -0.5 -0.5 -0.5 -0.5 -0.5 -0.5
 step 6                            # v7 [e, l, r, u, p, b, f]
-concat 7 5                        # v8 (m1 = col 18)
+concat 7 5                        # v8 (g's at cols 7..20, m1 = col 20)
 slice 0 53 55                     # v9 [TP, SP]
 slice 0 16 20                     # v10 [BT, BP, CT, CP]
-concat 8 1                        # v11 (x0 col 19)
-concat 11 9                       # v12 (TP 20, SP 21)
-dense 12 3 22                     # v13
-  -8388608 0 0 -8388608 -8388608 -8388608 0  0 0 0 0 0 0 0 0 0 0 0 0  0 1 0
-  0 0 0 0 0 8388608 0  0 0 0 0 0 0 0 0 0 0 0 0  0 0 1
-  0 8388608 0 0 0 8388608 8388608  0 0 0 0 0 0 0 0 0 0 0 0  1 0 0
+concat 8 1                        # v11 (x0 col 21)
+concat 11 9                       # v12 (TP 22, SP 23)
+dense 12 3 24                     # v13
+  -8388608 0 0 -8388608 -8388608 -8388608 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 1 0
+  0 0 0 0 0 8388608 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 1
+  0 8388608 0 0 0 8388608 8388608  0 0 0 0 0 0 0 0 0 0 0 0 0 0  1 0 0
   0 -8388608 -8388608
-relu 13                           # v14 [z0, z1, z2]
-concat 12 14                      # v15 (z0 22, z1 23, z2 24)
-dense 15 8 25                     # v16 words 0..7
-  5 1 0 5 5 4 20  0 0 0 0 0 0 0 0 0 0 0 0  0 0 0  0 0 0
-  -1 0 0 -1 -1 0 0  0 0 0 0 0 0 0 0 0 0 0 0  0 0 0  0 0 0
-  -2 -1 0 -2 -2 -4 -1  0 0 0 0 0 0 0 0 0 0 0 -2  0 0 0  1 1 0
-  0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0  0 0 0  0 0 0
-  0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0  0 0 0  0 0 0
-  0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0  0 0 0  0 0 0
-  0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0  0 0 0  0 0 0
-  3 0 0 3 3 0 0  0 0 0 0 0 0 0 0 0 0 0 0  0 0 0  0 0 0
+relu 13                           # v14 [z0 = TP unless e u p b, z1 = SP if b, z2 = x0 if l b f]
+concat 12 14                      # v15 (z0 24, z1 25, z2 26)
+dense 15 8 27                     # v16 words 0..7
+  5 1 0 5 5 4 20  0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0  0 0 0
+  -1 0 0 -1 -1 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0  0 0 0
+  -2 -1 0 -2 -2 -4 -1  0 0 0 0 0 0 0 0 0 0 0 0 0 -2  0 0 0  1 1 0
+  0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0  0 0 0
+  0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0  0 0 0
+  0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0  0 0 0
+  0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0  0 0 0
+  3 0 0 3 3 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0  0 0 0
   96 1 2 0 0 0 0 0
-dense 15 1 25                     # v17 T2'
-  0 0 0 23 21 0 0  0 0 0 0 0 0 0 0 0 0 0 0  0 0 0  0 0 1
+dense 15 1 27                     # v17 T2'
+  0 0 0 23 21 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0  0 0 1
   0
-dense 15 1 25                     # v18 TP'
-  -2 -2 2 -2 -2 -2 -2  0 0 0 0 0 0 0 0 0 0 0 -2  0 1 0  0 0 0
+dense 15 1 27                     # v18 TP'
+  -2 -2 2 -2 -2 -2 -2  0 0 0 0 0 0 0 0 0 0 0 0 0 -2  0 1 0  0 0 0
   2
 concat 7 10                       # v19 [e l r u p b f BT BP CT CP]
 dense 19 12 11                    # v20 gates, values

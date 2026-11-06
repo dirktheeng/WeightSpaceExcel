@@ -1,0 +1,366 @@
+# eval/ev_ref1 (id 108): reference consumer, input 71 (block read of 6 record words at 65..70).
+# The operand is A (PC 0, 1), C (PC 2) or B (PC 3); its area (S, R1, C1, R2, C2) comes from K for
+# TAG 9 or from the record for TAG 5; ecode = its error code (TAG 4), 3 for anything else.
+# PC 0, 1 implicit intersection (legacy Excel): rows R1 if R1 = R2, else the home row if inside,
+#   else #VALUE!; same for columns; A = (9, K) or (4, 3); return to ev_dref PC 0 / 1. Block write
+#   of 0 words keeps the successor at 65 inputs.
+# PC 2 intersection, left operand: T3..T8 = area, ecode; block read B's record -> self PC 3.
+# PC 3 right operand: left error, right error, different sheets #VALUE!, empty overlap #NULL!,
+#   one cell (9, K), else range record [S, r1, c1, r2, c2, S] block-written at SCR, B = (5, SCR);
+#   SCR += 6, TP += 2 -> ev_disp PC 1. Note: weights/eval/evaluator.md. Hand-written.
+input 71
+slice 0 8 9                       # v1 [PC]
+dense 1 3 1                       # v2
+  1
+  1
+  1
+  -0.5 -1.5 -2.5
+step 2                            # v3 [q1, q2, q3]
+slice 0 14 20                     # v4 [AT AP BT BP CT CP]
+concat 3 4                        # v5 [q1 q2 q3 AT AP BT BP CT CP]
+dense 5 12 9                      # v6 gates [g01 g2 g3 g01 g2 g3], values [AT CT BT AP CP BP]
+  0 -1 0 0 0 0 0 0 0
+  0 1 -1 0 0 0 0 0 0
+  0 0 1 0 0 0 0 0 0
+  0 -1 0 0 0 0 0 0 0
+  0 1 -1 0 0 0 0 0 0
+  0 0 1 0 0 0 0 0 0
+  0 0 0 1 0 0 0 0 0
+  0 0 0 0 0 0 0 1 0
+  0 0 0 0 0 1 0 0 0
+  0 0 0 0 1 0 0 0 0
+  0 0 0 0 0 0 0 0 1
+  0 0 0 0 0 0 1 0 0
+  1 0 0 1 0 0 0 0 0 0 0 0
+mul 6 0 6 6 12                    # v7
+dense 7 2 6                       # v8 [oT, oP] operand of this phase
+  1 1 1 0 0 0
+  0 0 0 1 1 1
+  0 0
+dense 8 5 2                       # v9
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  -3.5 -4.5 -5.5 -8.5 -9.5
+step 9                            # v10 [u4 u5 u6 u9 u10]
+slice 8 1 2                       # v11 [P]
+dense 11 2 1                      # v12
+  0.00006103515625
+  0.00006103515625
+  6755399441055744 0
+dense 12 2 2                      # v13
+  1 0
+  0 1
+  -6755399441055744 0
+dense 13 1 2                      # v14
+  1 -1
+  0
+step 14                           # v15
+concat 13 15                      # v16
+dense 16 1 3                      # v17 [q = floor(P / 2^14)]
+  1 0 -1
+  0
+dense 17 2 1                      # v18
+  0.00000095367431640625
+  0.00000095367431640625
+  6755399441055744 0
+dense 18 2 2                      # v19
+  1 0
+  0 1
+  -6755399441055744 0
+dense 19 1 2                      # v20
+  1 -1
+  0
+step 20                           # v21
+concat 19 21                      # v22
+dense 22 1 3                      # v23 [S9 = floor(q / 2^20)]
+  1 0 -1
+  0
+concat 11 17                      # v24 [P, q]
+concat 24 23                      # v25 [P, q, S9]
+dense 25 3 3                      # v26 [S9, R9, C9]
+  0 0 1
+  0 1 -1048576
+  1 -16384 0
+  0 0 0
+slice 0 65 70                     # v27 rec [S R1 C1 R2 C2]
+concat 10 26                      # v28 [u4 u5 u6 u9 u10 S9 R9 C9]
+concat 28 27                      # v29 (rec 8..12)
+dense 29 20 13                    # v30 gates is9 x5, is5 x5; values
+  0 0 0 1 -1 0 0 0 0 0 0 0 0
+  0 0 0 1 -1 0 0 0 0 0 0 0 0
+  0 0 0 1 -1 0 0 0 0 0 0 0 0
+  0 0 0 1 -1 0 0 0 0 0 0 0 0
+  0 0 0 1 -1 0 0 0 0 0 0 0 0
+  0 1 -1 0 0 0 0 0 0 0 0 0 0
+  0 1 -1 0 0 0 0 0 0 0 0 0 0
+  0 1 -1 0 0 0 0 0 0 0 0 0 0
+  0 1 -1 0 0 0 0 0 0 0 0 0 0
+  0 1 -1 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 1 0 0 0 0 0 0 0
+  0 0 0 0 0 0 1 0 0 0 0 0 0
+  0 0 0 0 0 0 0 1 0 0 0 0 0
+  0 0 0 0 0 0 1 0 0 0 0 0 0
+  0 0 0 0 0 0 0 1 0 0 0 0 0
+  0 0 0 0 0 0 0 0 1 0 0 0 0
+  0 0 0 0 0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 0 0 0 0 0 1 0 0
+  0 0 0 0 0 0 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 0 0 0 0 0 1
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+mul 30 0 10 10 20                 # v31
+dense 31 5 10                     # v32 area [aS aR1 aC1 aR2 aC2]
+  1 0 0 0 0 1 0 0 0 0
+  0 1 0 0 0 0 1 0 0 0
+  0 0 1 0 0 0 0 1 0 0
+  0 0 0 1 0 0 0 0 1 0
+  0 0 0 0 1 0 0 0 0 1
+  0 0 0 0 0
+concat 10 8                       # v33 [u4 u5 u6 u9 u10 oT oP]
+dense 33 2 7                      # v34 [is4, oP]
+  1 -1 0 0 0 0 0
+  0 0 0 0 0 0 1
+  0 0
+mul 34 0 1 1 2                    # v35 [is4 oP]
+concat 33 35                      # v36 (e4P col 7)
+dense 36 1 8                      # v37 [ecode]
+  -3 0 3 -3 3 0 0 1
+  3
+slice 0 55 57                     # v38 [HR HC]
+concat 32 38                      # v39 [aS aR1 aC1 aR2 aC2 HR HC]
+dense 39 6 7                      # v40
+  0 -1 0 1 0 0 0
+  0 -1 0 0 0 1 0
+  0 0 0 1 0 -1 0
+  0 0 -1 0 1 0 0
+  0 0 -1 0 0 0 1
+  0 0 0 0 1 0 -1
+  -0.5 0.5 0.5 -0.5 0.5 0.5
+step 40                           # v41 [nsr rge rle nsc cge cle]
+concat 39 41                      # v42 (nsr 7 .. cle 12)
+dense 42 4 13                     # v43 MUX pre (M = 2^23)
+  0 1 0 0 0 0 0 -8388608 0 0 0 0 0
+  0 0 0 0 0 1 0 8388608 0 0 0 0 0
+  0 0 1 0 0 0 0 0 0 0 -8388608 0 0
+  0 0 0 0 0 0 1 0 0 0 8388608 0 0
+  0 -8388608 0 -8388608
+relu 43                           # v44 [rA rH cA cH]
+dense 42 2 13                     # v45
+  0 0 0 0 0 0 0 2 -1 -1 0 0 0
+  0 0 0 0 0 0 0 0 0 0 2 -1 -1
+  -0.5 -0.5
+step 45                           # v46 [badr badc]
+concat 44 46                      # v47
+concat 47 37                      # v48 (ecode 6)
+slice 32 0 1                      # v49 [aS]
+concat 48 49                      # v50 [rA rH cA cH badr badc ecode aS]
+dense 50 1 8                      # v51
+  0 0 0 0 1 1 1 0
+  -0.5
+step 51                           # v52 [iibad]
+dense 50 1 8                      # v53 [K]
+  16384 16384 1 1 0 0 0 17179869184
+  0
+concat 52 53                      # v54
+dense 54 2 2                      # v55 [1 - bad, K]
+  -1 0
+  0 1
+  1 0
+mul 55 0 1 1 2                    # v56
+concat 52 56                      # v57
+dense 57 2 2                      # v58 [iiT, iiP]
+  -5 0
+  3 1
+  9 0
+slice 0 16 18                     # v59 [BT BP]
+dense 59 2 2                      # v60
+  1 0
+  1 0
+  -4.5 -5.5
+step 60                           # v61
+dense 61 1 2                      # v62 [isB5]
+  1 -1
+  0
+slice 59 1 2                      # v63 [BP]
+concat 62 63
+mul 64 0 1 1 2                    # v65 [bAddr]
+slice 0 33 39                     # v66 [cS cR1 cC1 cR2 cC2 cE]
+concat 32 66                      # v67 [aS aR1 aC1 aR2 aC2 cS cR1 cC1 cR2 cC2 cE]
+dense 67 6 11                     # v68
+  0 -1 0 0 0 0 1 0 0 0 0
+  0 0 0 1 0 0 0 0 -1 0 0
+  0 0 -1 0 0 0 0 1 0 0 0
+  0 0 0 0 1 0 0 0 0 -1 0
+  1 0 0 0 0 -1 0 0 0 0 0
+  -1 0 0 0 0 1 0 0 0 0 0
+  0 0 0 0 0 0
+relu 68                           # v69 [d0..d5]
+concat 67 69                      # v70 (d at 11..16)
+dense 70 4 17                     # v71 [r1 r2 c1 c2]
+  0 1 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0
+  0 0 0 1 0 0 0 0 0 0 0 0 -1 0 0 0 0
+  0 0 1 0 0 0 0 0 0 0 0 0 0 1 0 0 0
+  0 0 0 0 1 0 0 0 0 0 0 0 0 0 -1 0 0
+  0 0 0 0
+dense 70 1 17                     # v72
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1
+  -0.5
+step 72                           # v73 [sd]
+dense 71 4 4                      # v74
+  1 -1 0 0
+  0 0 1 -1
+  -1 1 0 0
+  0 0 -1 1
+  -0.5 -0.5 -0.5 -0.5
+step 74                           # v75 [er ec mr mc]
+slice 66 5 6                      # v76 [cE]
+concat 76 37                      # v77 [cE, eB]
+dense 77 2 2                      # v78
+  1 0
+  0 1
+  -0.5 -0.5
+step 78                           # v79 [hC hB]
+concat 79 73
+concat 80 75                      # v81 [hC hB sd er ec mr mc]
+dense 81 5 7                      # v82
+  1 0 0 0 0 0 0
+  -1 1 0 0 0 0 0
+  -1 -1 1 0 0 0 0
+  -2 -2 -2 1 1 0 0
+  -2 -2 -2 -2 -2 1 1
+  -0.5 -0.5 -0.5 -0.5 -0.5
+step 82                           # v83 [gEC gEB gSD gNL gRG]
+concat 83 77                      # v84 (cE 5, eB 6)
+slice 71 0 1                      # v85 [r1]
+slice 71 2 3                      # v86 [c1]
+concat 85 86
+concat 87 49                      # v88 [r1 c1 aS]
+dense 88 1 3                      # v89 [Kx]
+  16384 1 17179869184
+  0
+slice 0 57 58                     # v90 [SCR]
+concat 84 89                      # v91 (Kx 7)
+concat 91 90                      # v92 (SCR 8)
+dense 92 8 9                      # v93 gates [gEC gEB gRG single], values [cE eB SCR Kx]
+  1 0 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0
+  0 0 0 0 1 0 0 0 0
+  -1 -1 -1 -1 -1 0 0 0 0
+  0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 0 1 0 0
+  0 0 0 0 0 0 0 0 1
+  0 0 0 0 0 0 0 1 0
+  0 0 0 1 0 0 0 0
+mul 93 0 4 4 8                    # v94
+concat 83 94                      # v95
+dense 95 2 9                      # v96 [isT, isP]
+  -5 -5 -5 -5 -4 0 0 0 0
+  0 0 3 1 0 1 1 1 1
+  9 0
+concat 49 71                      # v97 [aS r1 r2 c1 c2]
+dense 97 6 5                      # v98 payload [aS r1 c1 r2 c2 aS]
+  1 0 0 0 0
+  0 1 0 0 0
+  0 0 0 1 0
+  0 0 1 0 0
+  0 0 0 0 1
+  1 0 0 0 0
+  0 0 0 0 0 0
+# ---- outputs
+slice 0 53 54                     # v99 [TP]
+concat 3 65                       # v100 [q1 q2 q3 bAddr]
+concat 100 90                     # v101 (SCR 4)
+concat 101 99                     # v102 (TP 5)
+slice 0 8 9                       # v103 [PC] (unused copy kept for clarity)
+dense 102 2 6                     # v104 addr MUX pre
+  0 8388608 -8388608 1 0 0
+  0 0 8388608 0 1 0
+  -8388608 -8388608
+relu 104                          # v105
+concat 102 105                    # v106 (aB 6, aS 7)
+dense 106 8 8                     # v107 words 0..7
+  0 7 -12 0 0 0 0 0
+  0 1 -1 0 0 0 0 0
+  0 0 0 0 0 0 1 1
+  0 6 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0
+  1 2 -2 0 0 0 0 0
+  101 3 0 67108864 0 0 0 0
+slice 0 16 18                     # v108 [BT BP]
+concat 3 108                      # v109 [q1 q2 q3 BT BP]
+concat 109 96                     # v110 (isT 5, isP 6)
+dense 110 3 7                     # v111 MUX pre for B.TAG and gates
+  0 0 -8388608 1 0 0 0
+  0 0 8388608 0 0 1 0
+  0 0 -1 0 0 0 0
+  0 -8388608 1
+relu 111                          # v112 [bTk, bTn, 1 - q3]
+dense 110 4 7                     # v113 [1 - q3, q3, BP, isP]
+  0 0 -1 0 0 0 0
+  0 0 1 0 0 0 0
+  0 0 0 0 1 0 0
+  0 0 0 0 0 0 1
+  1 0 0 0
+mul 113 0 2 2 4                   # v114 [kBP, nBP]
+concat 112 114                    # v115 [bTk bTn x kBP nBP]
+dense 115 2 5                     # v116 [B.TAG', B.PAY']
+  1 1 0 0 0
+  0 0 0 1 1
+  0 0
+slice 0 33 39                     # v117 [T3..T8]
+dense 3 6 3                       # v118 [g2 x3, ...] gate ph2 = q2 - q3
+  0 1 -1
+  0 1 -1
+  0 1 -1
+  0 1 -1
+  0 1 -1
+  0 1 -1
+  0 0 0 0 0 0
+concat 32 37                      # v119 new [aS aR1 aC1 aR2 aC2 ecode]
+concat 118 119                    # v120
+mul 120 0 6 6 12                  # v121 ph2 new
+dense 3 6 3                       # v122 1 - ph2
+  0 -1 1
+  0 -1 1
+  0 -1 1
+  0 -1 1
+  0 -1 1
+  0 -1 1
+  1 1 1 1 1 1
+concat 122 117
+mul 123 0 6 6 12                  # v124 keep old
+concat 121 124
+dense 125 6 12                    # v126 [T3'..T8']
+  1 0 0 0 0 0 1 0 0 0 0 0
+  0 1 0 0 0 0 0 1 0 0 0 0
+  0 0 1 0 0 0 0 0 1 0 0 0
+  0 0 0 1 0 0 0 0 0 1 0 0
+  0 0 0 0 1 0 0 0 0 0 1 0
+  0 0 0 0 0 1 0 0 0 0 0 1
+  0 0 0 0 0 0
+dense 102 1 6                     # v127 TP' = TP + 2 q3
+  0 0 2 0 0 1
+  0
+dense 102 1 6                     # v128 SCR' = SCR + 6 q3
+  0 0 6 0 1 0
+  0
+slice 0 9 14                      # v129 words 8..12
+slice 0 18 33                     # v130 words 17..31
+slice 0 39 53                     # v131 words 38..51
+slice 0 54 57                     # v132 words 53..55
+slice 0 58 65                     # v133 words 57..63
+concat 107 129
+concat 134 58
+concat 135 116
+concat 136 130
+concat 137 126
+concat 138 131
+concat 139 127
+concat 140 132
+concat 141 128
+concat 142 133
+concat 143 98

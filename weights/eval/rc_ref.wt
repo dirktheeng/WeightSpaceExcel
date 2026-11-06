@@ -57,32 +57,63 @@ dense 19 1 4                      # v20
   -0.5
 step 20                           # v21 [bad]
 slice 0 34 36                     # v22 [T4, T5]
-concat 21 22                      # v23 [bad, T4, T5]
-dense 23 10 3                     # v24 words 0..9
-  67 0 0
-  0 0 0
+slice 0 8 9                       # v23 [PC]
+dense 23 1 1                      # v24
+  1
+  -0.5
+step 24                           # v25 [p1] (PC 1: x0 is a sheet operand)
+concat 25 21                      # v26 [p1, bad]
+dense 26 1 2                      # v27 badg = bad AND PC 0
+  -1 1
+  -0.5
+step 27                           # v28 [badg]
+slice 0 53 54                     # v29 [TP]
+slice 0 37 38                     # v30 [T7]
+concat 26 28                      # v31 [p1, bad, badg]
+concat 31 22                      # v32 (T4 3, T5 4)
+concat 32 29                      # v33 (TP 5)
+concat 33 30                      # v34 (T7 6)
+concat 34 1                       # v35 (x0 7)
+dense 35 4 8                      # v36 MUX pre (M = 2^23; 2^51 for x0)
+  -8388608 0 0 1 0 0 0 0
+  8388608 0 0 0 0 1 0 0
+  -8388608 0 0 0 0 0 1 0
+  2251799813685248 0 0 0 0 0 0 1
+  1 -8388608 0 -2251799813685248
+relu 36                           # v37 [aD = DT + 1 (PC 0), aT = TP (PC 1), kT7, nT7 = x0 (PC 1)]
+concat 35 37                      # v38 (aD 8, aT 9, kT7 10, nT7 11)
+dense 38 10 12                    # v39 words 0..9
+  67 0 67 0 0 0 0 0 0 0 0 0
+  -1 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 1 1 0 0
+  0 0 0 0 1 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0
+  2 0 1 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0
+  16 2 0 0 0 0 0 0 85 0
+slice 0 11 20                     # v40 words 10..18
+concat 30 17                      # v41 [T7, ROW, COL]
+dense 41 3 3                      # v42 [AS = T7, AR1, AC1]
+  1 0 0
   0 1 0
   0 0 1
   0 0 0
-  0 0 0
-  0 0 0
-  1 0 0
-  0 0 0
-  0 0 0
-  16 2 1 0 0 0 0 0 85 0
-slice 0 11 20                     # v25 words 10..18
-dense 17 3 2                      # v26 [AS, AR1, AC1]
-  0 0
-  1 0
-  0 1
-  0 0 0
-slice 0 23 31                     # v27 words 22..29
-dense 17 1 2                      # v28 T1 = 0
+slice 0 23 31                     # v43 words 22..29
+dense 17 1 2                      # v44 T1 = 0
   0 0
   0
-slice 0 32 65                     # v29 words 31..63
-concat 24 25
-concat 30 26
-concat 31 27
-concat 32 28
-concat 33 29
+slice 0 32 37                     # v45 words 31..35
+dense 38 1 12                     # v46 T7' = T7 (PC 0) or x0 (PC 1)
+  0 0 0 0 0 0 0 0 0 0 1 1
+  0
+slice 0 38 65                     # v47 words 37..63
+concat 39 40
+concat 48 42
+concat 49 43
+concat 50 44
+concat 51 45
+concat 52 46
+concat 53 47

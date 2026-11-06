@@ -436,3 +436,41 @@
 ### F6 (DECISION): range arguments scanned through the cell store, not cell by cell
 - Decided: aggregate functions scan the 2^16-slot cell store with block reads and test each occupied key against the range, so SUM(A:A) costs the same as SUM(A1:A3).
 - Alternatives: one CELL_GET per cell of the range (1M lookups for a whole column); the occupancy list (not maintained yet, K-Q3; to replace the scan once it exists).
+
+### F2 (DECISION): FILE_SCRATCH region 0x3B0000 to 0x3BFFFF (files agent, on the coordinator's instruction)
+- Decided: FILE_SCRATCH = 0x3B0000 to 0x3BFFFF (65,536 words) for the CSV token stream, the inflate output window and the XML token stream. It is taken from the top of VBA_STATE, which shrinks to 0x380000 to 0x3AFFFF; the planned VBA object table moves from 0x3B0000 to 0x3A8000 to 0x3AFFFF (frames keep 0x3A0000 to 0x3A7FFF). memory-map.md sections 2 and 10 are edited accordingly.
+- Alternatives: EVAL_SCRATCH (rejected by the coordinator: committing a field runs recalculation, which uses it); the GUARD block 0x301041 to 0x301FFF (only 4,031 words, and it exists to separate the entropy block); UI_STATE upper half (active stage 2 region, ribbon and dialogs still to be placed). No address range is unassigned in the map, so a split was unavoidable.
+- Why: VBA (stage 9) has no networks or data yet (checked: no file in weights or tests uses 0x380000 to 0x3BFFFF), so nothing is displaced.
+- Affects: CSV import of more than 65,535 tokens needs chunking (scanner limit, open). The VBA stage plan must use the new object table range.
+
+## 2026-11-06, Stage 1 session 2: evaluator gaps (eval agent; details in log/eval-agent.md)
+
+### E8 (DECISION): text to number coercion calls the parser's constant entry
+- Decided: ev_t2n (109) wraps a call to the parser entry 78: write HT to HEAP_TOP, block-write words 8..39 to RET_STACK, call 78, block-read them into ev_t2nb (115), which restores them and maps a rejection to #VALUE!. Non-numbers returned by the parser (text, boolean, error, formula) become #VALUE! in ev_dref as before.
+- Alternatives: a self-contained converter network (duplicates the lexer, numconv and the entry rules; two places to keep in step).
+- Why: entry and coercion follow the same Excel rules by construction; block ops make the save and restore 2 steps; about 48 steps per coercion.
+- Affects: ids 109, 115; depends on the parser contract in weights/parse/README.md (L0..L23 preserved, B, C, T clobbered).
+
+### E9 (DECISION): reference values on the operand stack
+- Decided: TAG 9 cell (PAY = K, sheet included), TAG 5 range (PAY = pointer to a normalised 6-word record [S, R1, C1, R2, C2, S] in EVAL_SCRATCH), TAG 10 union (PAY = pointer to a node [left TAG, left PAY, right TAG, right PAY]). Corners are normalised when the record is built (decision P9 leaves typed order in the token stream).
+- Alternatives: pack a range into PAY (68 bits plus sheet do not fit 53); expand unions into area lists (copy loops).
+- Why: one block write per range or union; consumers walk the union tree.
+- Affects: ev_push, ev_rng (88), ev_dref, ev_ref1 (108); function networks will receive these values (note for the function ABI).
+
+### E10 (DECISION): legacy implicit intersection, no spill
+- Decided: a TAG 5 range used as a value (operand of an arithmetic, comparison or & operator, or the formula result) is reduced to one cell: its row if it has one row, else the home row if inside; same for columns; otherwise #VALUE!. A union as a value is #VALUE!.
+- Alternatives: dynamic-array spill (needs the spill engine, later stage).
+- Why: matches Stage 1 cases and pre-dynamic-array Excel; spill can replace it later at the same hook in ev_dref.
+- Affects: ev_dref, ev_ref1.
+
+### E11 (DECISION): sheet prefix carried in T2 (evaluator) and T7 (recalc walk)
+- Decided: ev_push packs the prefix sheet into T2 = mode + 4096 SHEET; the recalc token walk uses rc_scan PC 2 to mean "just after a prefix" and T7 for the sheet. Unprefixed references use sheet 0.
+- Alternatives: a pending-sheet register (stale values from scratch users of T3..T10).
+- Why: no stale prefix can apply to a later reference, since every push path rewrites T2 and only PC 2 of rc_scan reads T7.
+- Affects: ev_disp, ev_push, rc_scan, rc_ref. Open: a home-sheet register for formulas stored on other sheets.
+
+### E12 (DECISION): EXP and LN for ^ inside one network
+- Decided: ev_pow2 (99) computes a^b = EXP(b LN a) in one forward pass for a > 0 and non-integer or huge b (NORM2, atanh series, hi/lo ln2, Taylor degree 14, exact overflow test before scaling). Negative base with non-integer exponent stays #NUM!.
+- Alternatives: separate LN and EXP networks (two more ids, none left in 80..117); a table-driven reduction (larger, needs exact table products).
+- Why: one step per ^; all overflow decided exactly without forming an infinity (V1).
+- Affects: ev_pow0, ev_pow2; LN and EXP blocks can be retyped by stage 3 functions (LN, EXP, POWER, SQRT).

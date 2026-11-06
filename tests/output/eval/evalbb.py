@@ -17,7 +17,8 @@ from blackbox import Harness  # noqa: E402
 REC_BASE = 0x098000      # test formula records (inside FORMULA_STORE)
 STR_BASE = 0x370000      # test strings (inside TEXT_HEAP, far above HEAP_TOP)
 OPS = {"u-": 16, "u+": 17, "%": 18, "^": 19, "*": 20, "/": 21, "+": 22, "-": 23, "&": 24,
-       "=": 25, "<>": 26, "<": 27, "<=": 28, ">": 29, ">=": 30}
+       "=": 25, "<>": 26, "<": 27, "<=": 28, ">": 29, ">=": 30,
+       "union": 32, "isect": 33}
 ERR = {"#NULL!": 1, "#DIV/0!": 2, "#VALUE!": 3, "#REF!": 4, "#NAME?": 5, "#NUM!": 6, "#N/A": 7}
 
 
@@ -59,13 +60,16 @@ class Sheet:
                 out.append((1, float(t)))
             elif isinstance(t, tuple) and t[0] == "err":
                 out.append((4, ERR[t[1]]))
-            elif isinstance(t, tuple) and t[0] == "ref":
-                a = t[1]
-                ra, ca = "$" in a.lstrip("$")[1:] or a.count("$") == 2, a.startswith("$")
-                r, c = rc(a.replace("$", ""))
-                rf = r if ra else r - hr + 2**20
-                cf = c if ca else c - hc + 2**14
-                out.append((5, (int(ra) + 2 * int(ca)) * 2**36 + rf * 2**15 + cf))
+            elif isinstance(t, tuple) and t[0] == "sheet":
+                out.append((8, t[1]))
+            elif isinstance(t, tuple) and t[0] in ("ref", "rng"):
+                for k, a in enumerate(t[1:]):
+                    opc = 5 if t[0] == "ref" else 6 + k
+                    ra, ca = "$" in a.lstrip("$")[1:] or a.count("$") == 2, a.startswith("$")
+                    r, c = rc(a.replace("$", ""))
+                    rf = r if ra else r - hr + 2**20
+                    cf = c if ca else c - hc + 2**14
+                    out.append((opc, (int(ra) + 2 * int(ca)) * 2**36 + rf * 2**15 + cf))
             elif isinstance(t, tuple) and t[0] == "fn":
                 out.append((64 + t[1], t[2]))
             elif isinstance(t, str) and t.startswith("'"):
@@ -79,7 +83,7 @@ class Sheet:
         self.rec = ts + 2 * len(out) + 8
         return rec
 
-    def set(self, addr, value=None, formula=None, max_steps=200000):
+    def set(self, addr, value=None, formula=None, max_steps=200000, sheet=0):
         """Commit a constant (value: number, bool, str, None blank) or a token list (formula)."""
         r, c = rc(addr)
         tag, pay, p1 = 0, 0.0, 0
@@ -94,7 +98,7 @@ class Sheet:
         elif isinstance(value, tuple):
             tag, pay = 4, ERR[value[1]]
         x = np.zeros(65)
-        for w, v in ((30, 1), (19, 0), (20, r), (21, c), (13, tag), (14, pay), (26, p1), (8, 80),
+        for w, v in ((30, 1), (19, sheet), (20, r), (21, c), (13, tag), (14, pay), (26, p1), (8, 80),
                      (10, 0x100), (11, 1)):
             x[w + 1] = v
         tr = []

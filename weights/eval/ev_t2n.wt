@@ -1,23 +1,48 @@
-# eval/ev_t2n (id 109): text to number coercion hook. Stub: returns A = #VALUE! to (LR, LP).
-# Contract: A = (2, handle) in; A = number or anything else (ev_dref turns non-numbers into #VALUE!).
+# eval/ev_t2n (id 109): text to number coercion by calling the parser's constant entry (78) inside
+# a save/restore wrapper. Called with A = (2, handle), LR, LP. Every phase is a block operation, so
+# the output is 64 + 32 words and the successor always takes 65 (or 97 for 115) inputs.
+# PC 0: block write of 1 word (HT) at HEAP_TOP (0x01), so parser strings land above live results.
+# PC 1: block write of words 8..39 at RSP, RSP += 32; call parser 78 PC 0 with LR 109, LP 2.
+# PC 2: (parser returned) block read of the 32 saved words at RSP - 32 -> ev_t2nb (115).
+# Note: weights/eval/evaluator.md (ev_t2n). Hand-written.
 input 65
-slice 0 9 11                      # v1 [LR, LP]
-dense 1 8 2
-  1 0
-  0 0
-  0 0
-  0 0
-  0 0
-  0 0
-  0 0
-  0 1
-  0 0 0 0 0 0 0 0
-slice 0 9 14                      # v3 words 8..12
-dense 1 2 2                       # v4 A = (4, 3)
-  0 0
-  0 0
-  4 3
-slice 0 16 65                     # v5 words 15..63
-concat 2 3
-concat 6 4
-concat 7 5
+slice 0 8 9                       # v1 [PC]
+dense 1 2 1                       # v2
+  1
+  1
+  -0.5 -1.5
+step 2                            # v3 [p1, p2]
+slice 0 9 12                      # v4 [LR, LP, RSP]
+slice 0 24 25                     # v5 [HT]
+concat 3 4                        # v6 [p1, p2, LR, LP, RSP]
+concat 6 5                        # v7 [p1, p2, LR, LP, RSP, HT]
+dense 7 5 6                       # v8 MUX_INT pre-activations (M = 2^23)
+  8388608 0 0 0 1 0
+  -8388608 8388608 1 0 0 0
+  -8388608 8388608 0 1 0 0
+  -8388608 0 0 0 0 1
+  8388608 0 1 0 0 0
+  -8388608 0 0 0 -8388608
+relu 8                            # v9 [gR = RSP if p1, gLR = LR unless ph1, gLP, gHT = HT if ph0, gPLR = LR if p1]
+concat 7 9                        # v10 [p1 p2 LR LP RSP HT gR gLR gLP gHT gPLR]
+dense 10 11 11                    # v11 words 0..10
+  -31 37 0 0 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0 0 0
+  -1 -32 0 0 0 0 1 0 0 0 0
+  31 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0
+  -1 0 0 0 0 0 0 0 0 0 0
+  109 -109 0 0 0 0 0 1 0 0 0
+  2 -2 0 0 0 0 0 0 1 0 0
+  32 -32 0 0 1 0 0 0 0 0 0
+  109 3 1 67108865 0 0 0 1 0 0 0
+slice 0 12 65                     # v12 words 11..63
+dense 10 1 11                     # v13 payload word 0: HT (ph0) or LR (ph1)
+  0 0 0 0 0 0 0 0 0 1 1
+  0
+slice 0 10 41                     # v14 payload words 1..31 = words 9..39
+concat 11 12
+concat 15 13
+concat 16 14

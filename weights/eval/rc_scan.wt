@@ -1,47 +1,64 @@
-# eval/rc_scan (id 83): token walk of the record phase. PC 0: x0 = OPC. 0: write HEAD (T5) at T6+6
-# (formula record word 6), rc_chain PC 5. 5: read OPND at TP+1, rc_ref (84). else: TP += 2, read
-# [TP], self. PC 1: same as "else" (advance after an edge). Note: weights/eval/recalc.md
+# eval/rc_scan (id 83): token walk of the record phase. PC 0 (or PC 2 = right after a sheet
+# prefix): x0 = OPC. 0: write HEAD (T5) at T6+6 (formula record word 6), rc_chain PC 5. 5: read
+# OPND at TP+1, rc_ref (84) PC 0, with T7 = the prefix sheet if PC 2, else 0. 8: read OPND at TP+1,
+# TP += 2, rc_ref PC 1 (stores the sheet in T7, reads [TP], back here at PC 2). else: TP += 2,
+# read [TP], self PC 0. PC 1: same as "else" (advance after an edge).
+# Note: weights/eval/recalc.md. Hand-written.
 input 65
 slice 0 0 1                       # v1 x0
 slice 0 8 9                       # v2 PC
 concat 1 2                        # v3
-dense 3 4 2                       # v4
+dense 3 7 2                       # v4
+  1 0
+  1 0
   1 0
   1 0
   1 0
   0 1
-  -0.5 -4.5 -5.5 -0.5
-step 4                            # v5 [s0, s4, s5, m1]
-dense 5 2 4                       # v6
-  -1 0 0 -1
-  0 1 -1 -1
-  0.5 -0.5
-step 6                            # v7 [done0, ref0]
+  0 1
+  -0.5 -4.5 -5.5 -7.5 -8.5 -0.5 -1.5
+step 4                            # v5 [s0, s4, s5, s7, s8, m1, m2]
+dense 5 3 7                       # v6 tok = 1 - m1 + m2
+  -1 0 0 0 0 -1 1
+  0 1 -1 0 0 -1 1
+  0 0 0 1 -1 -1 1
+  0.5 -0.5 -0.5
+step 6                            # v7 [done0, ref0, sh0]
 slice 0 35 37                     # v8 [T5, T6]
 slice 0 53 54                     # v9 [TP]
-concat 7 8                        # v10
-concat 10 9                       # v11 [done0, ref0, T5, T6, TP]
-dense 11 2 5                      # v12
-  8388608 0 0 1 0
-  -8388608 0 0 0 1
-  -8388608 0
-relu 12                           # v13 [ra, rb]
-concat 11 13                      # v14 [done0, ref0, T5, T6, TP, ra, rb]
-dense 14 8 7                      # v15 words 0..7
-  -1 1 0 0 0 0 0
-  1 0 0 0 0 0 0
-  4 -1 0 0 0 1 1
-  0 0 1 0 0 0 0
-  0 0 0 0 0 0 0
-  0 0 0 0 0 0 0
-  0 0 0 0 0 0 0
-  5 0 0 0 0 0 0
+slice 0 37 38                     # v10 [T7]
+concat 7 8                        # v11 [done0 ref0 sh0 T5 T6]
+concat 11 9                       # v12 (TP 5)
+concat 12 10                      # v13 (T7 6)
+concat 13 5                       # v14 (s0..m2 at 7..13)
+dense 14 3 14                     # v15 MUX pre (M = 2^23)
+  8388608 0 0 0 1 0 0  0 0 0 0 0 0 0
+  -8388608 0 0 0 0 1 0  0 0 0 0 0 0 0
+  0 0 0 0 0 0 1  0 0 0 0 0 0 8388608
+  -8388608 0 -8388608
+relu 15                           # v16 [ra = T6 if done, rb = TP unless done, kT7 = T7 if PC 2]
+concat 14 16                      # v17 (ra 14, rb 15, kT7 16)
+dense 17 8 17                     # v18 words 0..7
+  -1 1 1 0 0 0 0  0 0 0 0 0 0 0  0 0 0
+  1 0 0 0 0 0 0  0 0 0 0 0 0 0  0 0 0
+  4 -1 -1 0 0 0 0  0 0 0 0 0 0 0  1 1 0
+  0 0 0 1 0 0 0  0 0 0 0 0 0 0  0 0 0
+  0 0 0 0 0 0 0  0 0 0 0 0 0 0  0 0 0
+  0 0 0 0 0 0 0  0 0 0 0 0 0 0  0 0 0
+  0 0 0 0 0 0 0  0 0 0 0 0 0 0  0 0 0
+  5 0 1 0 0 0 0  0 0 0 0 0 0 0  0 0 0
   83 1 2 0 0 0 0 0
-dense 14 1 7                      # v16 TP'
-  -2 -2 0 0 1 0 0
+dense 17 1 17                     # v19 TP'
+  -2 -2 0 0 0 1 0  0 0 0 0 0 0 0  0 0 0
   2
-slice 0 9 53                      # v17 words 8..51
-slice 0 54 65                     # v18 words 53..63
-concat 15 17
-concat 19 16
-concat 20 18
+dense 17 1 17                     # v20 T7'
+  0 0 0 0 0 0 0  0 0 0 0 0 0 0  0 0 1
+  0
+slice 0 9 37                      # v21 words 8..35
+slice 0 38 53                     # v22 words 37..51
+slice 0 54 65                     # v23 words 53..63
+concat 18 21
+concat 24 20
+concat 25 22
+concat 26 19
+concat 27 23

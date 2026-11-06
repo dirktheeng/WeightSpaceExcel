@@ -148,3 +148,93 @@ def test_error_clears_after_fix():
     assert s.value("B1") == ERR("#DIV/0!")
     s.set("A1", 4)
     assert s.value("B1") == 5
+
+
+# ---- session 2: coercion, ^ via EXP/LN, ranges, union, intersection, sheets (expected values
+# stated by hand from Excel's documented behaviour)
+G = lambda a, b: ("rng", a, b)  # noqa: E731
+SH = lambda n: ("sheet", n)  # noqa: E731
+
+COERCE = [
+    (["'1", 1, "+"], 2), (["' 2 ", 3, "*"], 6), (["'1e3", 0, "+"], 1000), (["'50%", 0, "+"], 0.5),
+    (["'$1,000", 0, "+"], 1000), (["'(4)", 0, "+"], -4), (["'.5", 2, "*"], 1),
+    (["'abc", 1, "+"], ERR("#VALUE!")), (["'", 1, "+"], ERR("#VALUE!")),
+    (["'TRUE", 0, "+"], ERR("#VALUE!")), (["'1 1", 0, "+"], ERR("#VALUE!")),
+    (["'3", "u-"], -3), (["'50", "%"], 0.5), (["'2", "'3", "^"], 8),
+    (["'1", "'2", "&", 1, "+"], 13),
+]
+POW = [
+    ([2, 0.5, "^"], 1.4142135623730951), ([10, 0.5, "^"], 3.1622776601683795),
+    ([2, -0.5, "^"], 0.7071067811865476), ([0, 0.5, "^"], 0), ([0, -0.5, "^"], ERR("#DIV/0!")),
+    ([-8, 1 / 3, "^"], ERR("#NUM!")), ([1e300, 1.5, "^"], ERR("#NUM!")), ([1e-300, 1.5, "^"], 0),
+    ([4, 2.5, "^"], 32.0), ([0.5, 2**31, "^"], 0), ([2, 1024.5, "^"], ERR("#NUM!")),
+    ([1e308, 0.5, "^"], 1e154), ([9, -1.5, "^"], 1 / 27),
+]
+
+
+@pytest.mark.parametrize("toks,exp", COERCE + POW)
+def test_coercion_and_power(toks, exp):
+    test_single_cell(toks, exp)
+
+
+def _grid():
+    s = e.Sheet()
+    for a, v in (("A1", 1), ("A2", 2), ("A3", 3), ("B1", 10), ("B2", 20), ("C1", 30)):
+        s.set(a, v)
+    return s
+
+
+REFS = [
+    ("D2", [G("A1", "A3")], 2),                         # implicit intersection, same row
+    ("D3", [G("A3", "A1"), 2, "*"], 6),                 # reversed corners normalise
+    ("D4", [G("A1", "A3")], ERR("#VALUE!")),            # row outside the range
+    ("B5", [G("A1", "C1")], 10),                        # one row, home column inside
+    ("E5", [G("A1", "B2")], ERR("#VALUE!")),            # 2D range, cell outside
+    ("E1", [G("A1", "C1"), G("B1", "B3"), "isect"], 10),
+    ("E2", [G("A1", "A2"), G("C1", "C2"), "isect"], ERR("#NULL!")),
+    ("E3", [G("A1", "C3"), G("B2", "D4"), "isect", R("B2"), "isect"], 20),
+    ("E4", [R("A1"), R("B1"), "isect"], ERR("#NULL!")),
+    ("E6", [G("A1", "A3"), G("A2", "A3"), "isect"], ERR("#VALUE!")),  # multi-cell result as value
+    ("E7", [R("A1"), R("B1"), "union"], ERR("#VALUE!")),
+    ("E8", [R("A1"), R("B1"), "union", 1, "+"], ERR("#VALUE!")),
+    ("E9", [E("#N/A"), R("A1"), "isect"], ERR("#N/A")),
+    ("F1", [G("$A$1", "$A$3"), R("A2"), "isect", 1, "+"], 3),
+]
+
+
+@pytest.mark.parametrize("home,toks,exp", REFS)
+def test_ranges_union_intersection(home, toks, exp):
+    s = _grid()
+    s.set(home, formula=toks)
+    assert s.fault() == 0
+    got = s.value(home)
+    assert got == exp, (home, got)
+
+
+def test_whole_column_and_row_intersection():
+    s = _grid()
+    s.set("H1", formula=[G("$A$1", "$A$1048576"), G("$A$2", "$XFD$2"), "isect"])   # A:A 2:2
+    assert s.value("H1") == 2
+    s.set("H3", formula=[G("$B$1", "$B$1048576")])                                # B:B in row 3
+    assert s.value("H3") == 0
+
+
+def test_sheet_references_and_dependencies():
+    s = e.Sheet()
+    s.set("B2", 7, sheet=1)
+    s.set("B2", 100)
+    s.set("A1", formula=[SH(1), R("B2"), 1, "+"])
+    assert s.value("A1") == 8
+    s.set("B2", 10, sheet=1)
+    assert s.value("A1") == 11
+    s.set("A2", formula=[R("B2"), SH(1), R("B2"), "+"])
+    assert s.value("A2") == 110
+    s.set("A3", formula=[SH(1), R("B2"), R("B2"), "isect"])
+    assert s.value("A3") == ERR("#VALUE!")
+    t = e.Sheet()
+    t.set("C1", formula=[SH(1), R("D1"), 2, "*"])
+    t.set("D1", formula=[3, 4, "+"], sheet=1)
+    assert t.value("C1") == 14
+    t.set("D1", formula=[5, 5, "+"], sheet=1)
+    assert t.value("C1") == 20
+    assert t.fault() == 0
