@@ -390,3 +390,10 @@
 - Alternatives: payload as the trailing N words (variable N would change the successor's input length); a fixed split at word 64 (puts the application state width into the harness); numba (not installed, and a compiled loop changes dense summation order versus BLAS, breaking R5 rows).
 - Why bit-identical: dense keeps the same `W @ v` BLAS call and an elementwise bias add; all other layers are copies or single correctly rounded elementwise operations. Verified on every harness run in the full suite (v1 and v2 side by side, 830 runs, 0 differences) and a 3000-network fuzz.
 - Affects: harness/harness.py, harness/FORMAT.md, docs/HARNESS.md, encodings/control.md section 1, encodings/memory-map.md section 1, harness/FROZEN.sha256 re-frozen. Codes 3 and 4 were ignored in v1 and were never produced by any existing network. New tests: tests/output/test_block_ops.py with weights/smoke/blk_*.wt.
+
+## 2026-11-06, Stage 3: math functions, first network (func math agent; details in log/func-math-agent.md)
+### FM1 (DECISION): family networks with a selector for the math functions
+- Decided: one-argument piecewise-linear and constant math functions share one network, fm_unary (id 264), selected by T0, computing all candidates in one pass and selecting by one-hot MUX.
+- Alternatives: one network per function (9 ids, about 9 copies of the coercion and FLOOR blocks).
+- Why: the id budget (264..295 for all math functions) and rule 4 (shared blocks); the extra candidates cost about 400 parameters and no steps.
+- Affects: the ABI dispatch (FUNC_TABLE) must map ABS, SIGN, INT, TRUNC, PI, EVEN, ODD, DEGREES, RADIANS to id 264 plus a selector constant in T0, or a thin per-function wrapper sets T0.

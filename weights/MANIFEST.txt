@@ -130,3 +130,9 @@
 117 weights/eval/ev_pow1.wt
 121 weights/parse/shpack.wt
 122 weights/parse/shlook.wt
+115 weights/eval/ev_t2nb.wt
+99 weights/eval/ev_pow2.wt
+312 weights/func/text/tx_len.wt
+313 weights/func/text/tx_code.wt
+88 weights/eval/ev_rng.wt
+264 weights/func/math/fm_unary.wt

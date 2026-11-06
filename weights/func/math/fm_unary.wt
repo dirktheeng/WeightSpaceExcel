@@ -1,0 +1,180 @@
+# func/math/fm_unary (id 264): one-argument math family, one step, one forward pass.
+# Argument A = (TAG word 13, PAY word 14); selector T0 (word 29):
+#   0 ABS, 1 SIGN, 2 INT, 3 TRUNC (1 arg), 4 PI, 5 EVEN, 6 ODD, 7 DEGREES, 8 RADIANS.
+# Coercion: number, blank (0), boolean (0/1) -> x; error -> propagated unchanged; text or
+# other tags -> #VALUE!. PI ignores A. DEGREES with |x| > 1e306 -> #NUM!.
+# Return: next = LR, PC = LP, A = result, STATUS = 0, every other word passes through.
+# Note: weights/func/math/fm_unary.md. Hand-written. Not generated.
+input 65
+slice 0 14 16                     # v1 [tag, pay]
+slice 0 30 31                     # v2 [sel]
+dense 1 5 2                       # v3 tag - k + 0.5, k = 1..5
+  1 0
+  1 0
+  1 0
+  1 0
+  1 0
+  -0.5 -1.5 -2.5 -3.5 -4.5
+step 3                            # v4 [s1..s5], s_k = [tag >= k]
+dense 2 8 1                       # v5 sel - k + 0.5, k = 1..8
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  -0.5 -1.5 -2.5 -3.5 -4.5 -5.5 -6.5 -7.5
+step 5                            # v6 [t1..t8], t_k = [sel >= k]
+concat 4 6                        # v7
+concat 7 1                        # v8 [s1..s5 (0-4), t1..t8 (5-12), tag 13, pay 14]
+dense 8 2 15                      # v9 [isnum = 1 - s2 + s3 - s4, pay]
+# s1 s2 s3 s4 s5 t1 t2 t3 t4 t5 t6 t7 t8 tag pay
+  0 -1  1 -1  0  0  0  0  0  0  0  0  0  0  0
+  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1
+  1 0
+mul 9 0 1 1 2                     # v10 [x] = isnum * pay (exact: 0 or pay)
+dense 10 2 1                      # v11 [x, -x]
+  1
+  -1
+  0 0
+relu 11                           # v12 [p, n] = [relu(x), relu(-x)]
+step 11                           # v13 [sp, sn] = [x > 0, x < 0]
+concat 12 13                      # v14
+concat 14 10                      # v15 [p, n, sp, sn, x]
+dense 15 2 5                      # v16 [|x| - 2^51, 1e306 - |x|] (one of p, n is 0)
+  1 1 0 0 0
+  -1 -1 0 0 0
+  -2251799813685248 1e306
+step 16                           # v17 [b, ok]: b = |x| > 2^51 (already an integer), ok = DEGREES safe
+concat 15 17                      # v18 [p 0, n 1, sp 2, sn 3, x 4, b 5, ok 6]
+dense 18 10 7                     # v19 gates [1-b, 1-b, 1-b, ok, b], values [x, |x|/2, |x|/2 + 1/2, x, x]
+# p    n    sp sn x  b  ok
+  0    0    0  0  0  -1 0
+  0    0    0  0  0  -1 0
+  0    0    0  0  0  -1 0
+  0    0    0  0  0  0  1
+  0    0    0  0  0  1  0
+  0    0    0  0  1  0  0
+  0.5  0.5  0  0  0  0  0
+  0.5  0.5  0  0  0  0  0
+  0    0    0  0  1  0  0
+  0    0    0  0  1  0  0
+  1 1 1 0 0 0 0 0.5 0 0
+mul 19 0 5 5 10                   # v20 [xs, hxs, hx1s, xg, bx]
+dense 20 4 5                      # v21 u = [xs, -xs, -hxs, -hx1s]
+  1 0 0 0 0
+  -1 0 0 0 0
+  0 -1 0 0 0
+  0 0 -1 0 0
+  0 0 0 0
+dense 21 4 4                      # v22 u + C, C = 1.5 * 2^52 (R3, rounds to integer, ties even)
+  1 0 0 0
+  0 1 0 0
+  0 0 1 0
+  0 0 0 1
+  6755399441055744 6755399441055744 6755399441055744 6755399441055744
+dense 22 4 4                      # v23 r = round(u) (exact by Sterbenz)
+  1 0 0 0
+  0 1 0 0
+  0 0 1 0
+  0 0 0 1
+  -6755399441055744 -6755399441055744 -6755399441055744 -6755399441055744
+concat 23 21                      # v24 [r1..r4, u1..u4]
+dense 24 4 8                      # v25 r - u
+  1 0 0 0 -1 0 0 0
+  0 1 0 0 0 -1 0 0
+  0 0 1 0 0 0 -1 0
+  0 0 0 1 0 0 0 -1
+  0 0 0 0
+step 25                           # v26 g = [r > u]; FLOOR(u_i) = r_i - g_i
+concat 24 26                      # v27 [r(4), u(4), g(4)]
+concat 18 20                      # v28 [p n sp sn x b ok xs hxs hx1s xg bx] (0-11)
+concat 28 27                      # v29 + r1..r4 (12-15), u1..u4 (16-19), g1..g4 (20-23)
+dense 29 6 24                     # v30 [sn, sn, sn, T, E, O']
+# T = -F2 - F1 = -r2 + g2 - r1 + g1;  E = -2 F3 = 2 CEIL(|x|/2);  O' = -2 F4 - 1 + b
+# p n sp sn x b ok xs hxs hx1s xg bx r1 r2 r3 r4 u1 u2 u3 u4 g1 g2 g3 g4
+  0 0 0  1  0 0 0  0  0   0    0  0  0  0  0  0  0  0  0  0  0  0  0  0
+  0 0 0  1  0 0 0  0  0   0    0  0  0  0  0  0  0  0  0  0  0  0  0  0
+  0 0 0  1  0 0 0  0  0   0    0  0  0  0  0  0  0  0  0  0  0  0  0  0
+  0 0 0  0  0 0 0  0  0   0    0  0  -1 -1 0  0  0  0  0  0  1  1  0  0
+  0 0 0  0  0 0 0  0  0   0    0  0  0  0  -2 0  0  0  0  0  0  0  2  0
+  0 0 0  0  0 1 0  0  0   0    0  0  0  0  0  -2 0  0  0  0  0  0  0  2
+  0 0 0 0 0 -1
+mul 30 0 3 3 6                    # v31 [mT, mE, mO] = sn * [T, E, O']
+concat 29 31                      # v32 (24 mT, 25 mE, 26 mO)
+dense 32 9 27                     # v33 candidates c0..c8
+# p n sp sn x b ok xs hxs hx1s xg bx r1 r2 r3 r4 u1 u2 u3 u4 g1 g2 g3 g4 mT mE mO
+  1 1 0  0  0 0 0  0  0   0    0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+  0 0 1  -1 0 0 0  0  0   0    0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+  0 0 0  0  0 0 0  0  0   0    0  1  1  0  0  0  0  0  0  0  -1 0  0  0  0  0  0
+  0 0 0  0  0 0 0  0  0   0    0  1  1  0  0  0  0  0  0  0  -1 0  0  0  1  0  0
+  0 0 0  0  0 0 0  0  0   0    0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0  0
+  0 0 0  0  0 0 0  0  0   0    0  1  0  0  -2 0  0  0  0  0  0  0  2  0  0  -2 0
+  0 0 0  0  0 1 0  0  0   0    0  1  0  0  0  -2 0  0  0  0  0  0  0  2  0  0  -2
+  0 0 0  0  0 0 0  0  0   0    57.29577951308232 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0  0  0.017453292519943295 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 3.141592653589793 0 -1 0 0
+dense 8 9 15                      # v34 selector one-hot ind0..ind8
+# s1 s2 s3 s4 s5 t1 t2 t3 t4 t5 t6 t7 t8 tag pay
+  0  0  0  0  0  -1 0  0  0  0  0  0  0  0  0
+  0  0  0  0  0  1  -1 0  0  0  0  0  0  0  0
+  0  0  0  0  0  0  1  -1 0  0  0  0  0  0  0
+  0  0  0  0  0  0  0  1  -1 0  0  0  0  0  0
+  0  0  0  0  0  0  0  0  1  -1 0  0  0  0  0
+  0  0  0  0  0  0  0  0  0  1  -1 0  0  0  0
+  0  0  0  0  0  0  0  0  0  0  1  -1 0  0  0
+  0  0  0  0  0  0  0  0  0  0  0  1  -1 0  0
+  0  0  0  0  0  0  0  0  0  0  0  0  1  0  0
+  1 0 0 0 0 0 0 0 0
+concat 34 33                      # v35 [ind(9), c(9)]
+mul 35 0 9 9 18                   # v36 ind_j c_j
+dense 36 1 9                      # v37 [val] (exactly one nonzero term)
+  1 1 1 1 1 1 1 1 1
+  0
+concat 8 18                       # v38 (v8 0-14, then p n sp sn x b ok at 15-21)
+dense 38 3 22                     # v39 [iserr - ind4 - .5, isval - ind4 - .5, ind7 - ok - .5]
+# s1 s2 s3 s4 s5 t1 t2 t3 t4 t5 t6 t7 t8 tag pay p n sp sn x b ok
+  0  0  0  1  -1 0  0  0  -1 1  0  0  0  0   0   0 0 0  0  0 0 0
+  0  1  -1 0  1  0  0  0  -1 1  0  0  0  0   0   0 0 0  0  0 0 0
+  0  0  0  0  0  0  0  0  0  0  0  1  -1 0   0   0 0 0  0  0 0 -1
+  -0.5 -0.5 -0.5
+step 39                           # v40 [E, V, D]: propagate error, #VALUE!, DEGREES #NUM!
+concat 40 1                       # v41 [E, V, D, tag, pay]
+concat 41 37                      # v42 [E, V, D, tag, pay, val]
+dense 42 6 6                      # v43 [E, E, N = 1 - E - V - D, tag, pay, val]
+  1 0 0 0 0 0
+  1 0 0 0 0 0
+  -1 -1 -1 0 0 0
+  0 0 0 1 0 0
+  0 0 0 0 1 0
+  0 0 0 0 0 1
+  0 0 1 0 0 0
+mul 43 0 3 3 6                    # v44 [E tag, E pay, N val]
+concat 40 44                      # v45 [E, V, D, m1, m2, m3]
+dense 45 2 6                      # v46 [TAG, PAY]
+  -1 3 3 1 0 0
+  0 3 6 0 1 1
+  1 0
+# ---- output: next = LR, PC = LP, STATUS = 0, A = result
+slice 0 9 11                      # v47 [LR, LP]
+dense 47 8 2                      # v48 words 0..7
+  1 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 1
+  0 0 0 0 0 0 0 0
+slice 0 9 13                      # v49 words 8..11
+dense 47 1 2                      # v50 word 12 STATUS = 0
+  0 0
+  0
+slice 0 16 65                     # v51 words 15..63
+concat 48 49                      # v52
+concat 52 50                      # v53
+concat 53 46                      # v54
+concat 54 51                      # v55 (64 words)
