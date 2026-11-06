@@ -397,3 +397,42 @@
 - Alternatives: one network per function (9 ids, about 9 copies of the coercion and FLOOR blocks).
 - Why: the id budget (264..295 for all math functions) and rule 4 (shared blocks); the extra candidates cost about 400 parameters and no steps.
 - Affects: the ABI dispatch (FUNC_TABLE) must map ABS, SIGN, INT, TRUNC, PI, EVEN, ODD, DEGREES, RADIANS to id 264 plus a selector constant in T0, or a thin per-function wrapper sets T0.
+
+## 2026-11-06, Stage 8 groundwork: CSV scanner (files agent; details in log/files-agent.md)
+
+### F1 (DECISION): CSV import as a byte scanner producing a token stream, then a separate field packer
+- Decided: csv_scan (id 448, weights/files/csv_scan.wt) reads the file transfer region and writes tokens (byte 0..255, -1 field end, -2 row end, -3 end) to a caller-given buffer (proposed EVAL_SCRATCH 0x0B0000). A later network packs fields into heap strings and calls the entry parser per the kernel commit contract.
+- Alternatives: one network that scans, packs and commits (more than 8 phases, and coupled to parser and CELL_SET internals); block reads of several bytes per step (an unrolled multi-byte state machine per pass, much larger).
+- Why: the quoting state machine is the parity-critical part and is testable alone; one byte per step costs about 2 steps per byte.
+- Affects: memory map (token buffer location needs the coordinator's assignment), future ids 449 onward (packer, exporter, ZIP, inflate, XML).
+- Result: 1,488 parameters; tests/output/files/test_csv_scan.py 10 passed. Open question Q-F1: Excel's handling of CR inside a quoted CRLF.
+
+## 2026-11-06, Stage 3: function calling convention (ABI agent; details in log/abi-agent.md, spec encodings/functions.md)
+
+### F1 (DECISION): fid = checklist FN number; fid 0 unknown
+- Decided: fid 1..525 = FN-0001..FN-0525 (the parser already emitted these); FN-0526..0532 are TEXT features (fid 462); new functions 526 upward.
+- Alternatives: dense renumbering by category (would break the parser's existing fids and the checklist cross-reference).
+- Affects: encodings/functions.md section 9, parser, FUNC_TABLE.
+
+### F2 (DECISION): entry and return registers
+- Decided: argument n in B, arguments 1..n-1 in OPER_STACK at SP - 2(n - i), n in N0, 64 + fid in T2; return with next = 257 (FN_RET), result in A, SP and N0 unchanged; FN_RET drops the arguments and resumes ev_disp (or pushes via ev_push2 PC 1 for n = 0).
+- Alternatives: pop all arguments into registers (at most 3 fit; variadic functions need memory anyway); return via LR (would forbid functions from using LR for their own CELL_GET calls without a push).
+- Affects: ev_func (eval agent: read FUNC_TABLE + fid, set N0 = n, route to 256), every function network.
+
+### F3 (DECISION): name directory by transcribed decimal keys, flags packed with the fid
+- Decided: two-digit character codes ('.' 10, digits 11..20, letters 21..46, '_' 47) written side by side, 8 characters per key word, two words; sorted directory at FUNC_TABLE 0x7400 (K1), 0x7800 (K2), 0x7C00 (fid + 1024 F); binary search. Flags F leave 0x7800 + fid (memory-map section 2) for the directory entry.
+- Alternatives: the parser's base-39 key (needs hand multiplication for 525 names, 10-character limit); one equality unit per name in one network (525 x 4 rows of mostly zeros, dense format); a trie table in memory (thousands of hand-computed state numbers).
+- Why: the key of a name is read off its letters with no arithmetic, so 525 hand-typed keys can be checked by eye and by a black-box test that parses every name.
+- Affects: encodings/memory-map.md section 2 FUNC_TABLE row (coordinator: flags now in the directory, see functions.md section 3), weights/parse wordend (unknown-name path calls FN_KEY 262).
+
+### F4 (DECISION): all arguments evaluated eagerly; OPC 12/13 reserved for lazy jumps
+- Decided: IF, IFERROR, CHOOSE etc. receive all arguments evaluated; they select. Reserved OPC 12 (jump if false) and 13 (jump) for a later optimisation.
+- Why: the token stream has no side effects, so results agree with Excel; only cost differs.
+
+### F5 (DECISION): references reach functions undereferenced; range arguments as tag 5 records
+- Decided: tag 9 (cell, PAY = K) and tag 5 (PAY = 8-word record [SHEET, R1, C1, R2, C2, SHEET2, NEXT, 0] normalised, in EVAL_SCRATCH; NEXT chains union areas). Missing arguments as tag 8.
+- Affects: ev_push (eval agent: OPC 6/7 should build the record and push tag 5 instead of #VALUE!), ev_disp (OPC 11 should push (8, 0) instead of skipping), union operator 32 (link records by NEXT).
+
+### F6 (DECISION): range arguments scanned through the cell store, not cell by cell
+- Decided: aggregate functions scan the 2^16-slot cell store with block reads and test each occupied key against the range, so SUM(A:A) costs the same as SUM(A1:A3).
+- Alternatives: one CELL_GET per cell of the range (1M lookups for a whole column); the occupancy list (not maintained yet, K-Q3; to replace the scan once it exists).
