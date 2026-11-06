@@ -267,3 +267,5 @@
 
 ### P5 (DECISION): kernel hook
 - Decided: weights/kernel/c_parse.wt now calls 78 instead of 27 (coordinator authorization). Documented in weights/kernel/commit.md.
+- Result (parse agent): 16 networks in weights/parse (ids 64..79), 18,132 dense parameters, all hand-typed. tests/output/parse/test_parse.py: 91 passed. Stage 1 suite: 28 passed with the evaluator still missing (was 3 with parse_stub). Token deviations recorded in encodings/memory-map.md section 13.
+- Rule slip, recorded and undone: a shell loop briefly printed 23 repeated thermometer rows into a /tmp scratch file. It was deleted unused and the layer was typed by hand (log/parse-agent.md).

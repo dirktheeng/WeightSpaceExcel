@@ -1,0 +1,8 @@
+# Note: weights/parse/lword.wt (id 68)
+Hand-written. Not generated. Shared conventions, register map and limits: weights/parse/README.md. Log: log/parse-agent.md 2026-11-06; decisions P1 to P5 in log/WORKLOG.md.
+
+**Computes, per char.** KEY (base 39: letters 1..26, digits 27..36, '.' 37; kv = c - 64 U - 96 L - 21 D - 9 DOT) while KLEN <= 9; '$', '_' or ':' set KLEN = 100 (not a name). Reference pattern RS: 0 start, 1 after a column '$', 2 letters, 3 after a row '$', 4 digits, 5 not a reference. Letter in RS 0..2 with COL <= 16384: COL = 26 COL + letter (cl). Digit in RS 2..4 with ROW <= 1048576: ROW = 10 ROW + d (cd). '$' in RS 0: FLAGS += 2; in RS 2: FLAGS += 1. ':' when RS = 4, 1 <= ROW <= 1048576, COL <= 16384 and no colon yet (ccol): OPND1 = pack, then COL, ROW, FLAGS, RS reset, CSn = 1. Anything else ends the word: TK = [char is '('], next 69.
+**RS update.** RS' = relu(RS - M cont) + 5 cont - 3 cl - 1 cd - 4 cs0 - 2 cs2 - 5 ccol (every continue char not in a reference position gives 5).
+**Pack.** OPND = 2^36 FLAGS + 2^15 (ROW - 1 + rr) + (COL - 1 + rc), rr = relu(2^20 - HR - M rabs) = (1 - rabs)(2^20 - HR), rc likewise with 2^14 and HC (encodings/address.md section 6). rabs = [FLAGS in {1, 3}] = f1 - f2 + f3, cabs = f2. Gated into OPND1 with M = 2^40 (all terms exact integers below 2^53).
+**Debug fix (log).** Q4 originally used M = 2^23, but 10 ROW reaches 10485769 > 2^23, so the gate leaked at the terminator and XFD1048576 became a name. Q4 now uses M = 2^27.
+**Limits.** No sheet names, whole rows or columns, or R1C1. 2,077 parameters. **Multi-role weights.** X0..X7 and TK (README).

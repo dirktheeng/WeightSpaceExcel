@@ -170,3 +170,17 @@ Generators write memory-form networks (harness/FORMAT.md) here, then request io 
 - Regions are disjoint address ranges, and each is written only by its owning subsystem through its own pointer in the zero page, so no word has two owners.
 - WORK_STACK is shared by recalculation, sort and search; these never run nested (recalculation does not call sort; sort runs only from a command or a function such as SORT, which uses OPER_STACK and EVAL_SCRATCH, not WORK_STACK). The owner holds WORK_STACK until it returns to the main loop. Crosstalk test: a SORT function result feeding a recalculation chain (stage 10).
 - Multi-role words inside records (CALC, NEXTOCC, packed style words) are covered in their sections above.
+
+## 13. Parser output as built (weights/parse, 2026-11-06, decision P1 to P5 in log/WORKLOG.md)
+
+The compiled token stream follows section 6 exactly, with these stated choices and deviations:
+- Formula record word 2 (token count) counts tokens **excluding** the end token (OPC 0); the end token is always written. FORMULA_TOP is advanced past the end token.
+- Words 3 to 7 of the record are not written (flags 0 by fresh memory; volatile and INDIRECT flags not set yet).
+- Range references are OPC 6 then OPC 7 (corner order as typed, not normalised; the evaluator normalises).
+- A bare name that is not a reference, boolean or function is compiled as **error literal #NAME? (OPC 4, 5)**, not OPC 9, because no defined names exist yet. To be replaced by OPC 9 when the name table exists.
+- A function call is OPC 64 + fid with fid = the checklist FN number (CHECKLIST.csv), operand = argument count. Unknown function names compile to fid 0 (OPC 64), which FUNC_TABLE should map to a #NAME? network.
+- Missing arguments are OPC 11, including a leading one (IF(,1,2)) and a middle one (IF(1,,2)). F() with nothing inside has argument count 0 and no OPC 11.
+- Unary minus 16, unary plus 17, percent 18 (postfix, emitted directly); ^ is left associative; unary binds tighter than ^ (=-2^2 is 2 u- 2 ^).
+- Text literals are new heap strings (reference count word left 0); "" uses TEXT_EMPTY.
+- Not yet produced: OPC 8 (sheet prefix), 9, 10, 31 to 35 (range, union, intersection, @, # operators).
+- PARSE_STACK is split: 0x2000 to 0x27FF operator stack (1 word = kind + 4096 argc), 0x2800 to 0x2FFF the unpacked character buffer (one UTF-16 unit per word, at most 2047 per entry).

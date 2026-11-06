@@ -29,7 +29,8 @@ flowchart LR
     classDef wip fill:#fff4d6,stroke:#b38600,color:#5c4500;
     classDef todo fill:#f3f3f3,stroke:#999,color:#555;
     class ML,ED,CM,CS done;
-    class P,CALC wip;
+    class P done;
+    class CALC wip;
     class R todo;
 ```
 
@@ -87,7 +88,7 @@ gantt
 - **Frozen harness** ([harness/](harness/)): about 175 lines, a fixed set of layer types (dense, ReLU, step, identity, gating multiply, slice, concat) and a plain-text weight format.
 - **Kernel** ([weights/kernel/](weights/kernel/), 30 networks): boot, call and return, fault trap, the main event loop, keystroke decoding with Ctrl+G Go To, text entry straight into the heap, Enter and Delete, and a hash-table cell store with collision handling. Typing `hello` into B3 takes 60 steps from start to finish.
 - **Building-block library** ([weights/prim/](weights/prim/), 13 primitives, 172 tests): integer equality and one-hot, real compare, select (two forms), floor, ceiling, truncate and both rounding modes (including Excel's half away from zero), mod 2^k, divide by a constant, 15-digit extraction, overflow-guarded add and multiply, the cell-address hash, integer division by a variable divisor, and correctly rounded floating-point division.
-- **Parser** ([weights/parse/](weights/parse/), in progress): hooked into the kernel. Typed constants (numbers, percents, booleans, errors, text) parse correctly and formulas compile to postfix token records; syntax errors are rejected as Excel does.
+- **Parser** ([weights/parse/](weights/parse/), 16 networks, about 18,100 parameters, 91 tests): hooked into the kernel. Typed constants (numbers with decimals, exponents, percent, currency and thousands separators, booleans, error literals, text) parse with Excel's 15-digit truncation and exact decimal conversion. Formulas compile to postfix token records with Excel's precedence, references in every `$` form, ranges, and calls to 14 functions; bad syntax is rejected. Entering `=1+2*3` takes 83 steps. Not yet: whole-row and whole-column references, sheet prefixes, union and intersection operators, defined names.
 - **Evaluator and recalculation** ([weights/eval/](weights/eval/), started): operators, coercion, error propagation, dependency tracking and circular reference detection.
 
 ### Checklist by category

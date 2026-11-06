@@ -1,0 +1,6 @@
+# Note: weights/parse/idle.wt (id 66)
+Hand-written. Not generated. Shared conventions, register map and limits: weights/parse/README.md. Log: log/parse-agent.md 2026-11-06; decisions P1 to P5 in log/WORKLOG.md.
+
+**Computes.** One step per char between tokens. RDOK 0: read char I (FETCH). Else dispatch on c: space -> skip; digit -> lnum PC 1 (char re-read, TK 1, TO 1, X6 = 73 numconv return id, X7 = 0); '.' -> lnum PC 2 (consumed); letter or '$' -> lword (re-read, X = 0); '"' -> lstr PC 1 (consumed, X4 = SH = HT); '#' -> lerr (consumed); '<' '>' -> lcmp with TO 27 or 29 (consumed); + - -> parse with TK 3, TO 22 or 23; * / ^ & = -> TK 4, TO 20 21 19 24 25; % -> TK 5, TO 18; ( -> TK 6, TO 1; , -> TK 8; ) -> TK 9; end of text -> TK 10; any other char -> reject (79, STATUS + 1).
+**Blocks.** 28 thresholds on c_eff give 21 classes. Every output row is a linear map of classes, written over thresholds: the coefficient of t_k is w(class starting at k) - w(class ending at k) (worked by hand row by row; the header comment lists the boundaries). Only FETCH, END and REJECT need step gates (v13). REJECT = RDOK and not END and not any valid class. X4 = HT gated by the quote class (MUX_INT).
+**Limits.** Characters outside these classes (for example ! @ ; [ { and non-ASCII) reject. 995 parameters. **Multi-role weights.** X words initialised per token (README).
