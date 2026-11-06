@@ -1,0 +1,28 @@
+# func/date/dv_rest (id 357): block consumer (input 97) after dv_fin PC 2. Inputs 65..96 hold the words
+# 8..39 that dv_ent spilled. Restores words 8..11 and 15..39 from them (RSP back to its value before the
+# spill), keeps A (the parser result) and words 40..63, sets STATUS 0, and returns: next = spilled LR,
+# PC = spilled LP. Note: weights/func/date/dv_ent.md.
+input 97
+slice 0 65 67                     # v1 [LR LP] as spilled
+dense 1 8 2                       # v2 words 0..7
+  1 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 1
+  0 0 0 0 0 0 0 0
+slice 0 65 69                     # v3 words 8..11 (spilled)
+dense 1 1 2                       # v4 word 12 STATUS = 0
+  0 0
+  0
+slice 0 14 16                     # v5 words 13, 14 (A = result)
+slice 0 72 97                     # v6 words 15..39 (spilled)
+slice 0 41 65                     # v7 words 40..63
+concat 2 3                        # v8
+concat 8 4                        # v9
+concat 9 5                        # v10
+concat 10 6                       # v11
+concat 11 7                       # v12 output (64)

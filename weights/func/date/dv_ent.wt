@@ -1,0 +1,75 @@
+# func/date/dv_ent (id 354): entry of the date/time text parser (DATEVALUE, TIMEVALUE, date text coercion).
+# Called as a leaf subroutine: A = the argument (text expected), T0 = mode (0 DATEVALUE, 1 TIMEVALUE,
+# 2 coercion: date + time, or a plain integer), LR, LP. One step: block write of words 8..39 (32 words)
+# at RSP, RSP += 32 (restored by dv_rest, 357, so the whole chain preserves every word but A and STATUS);
+# initialises the parser state (see dv_loop.md) and goes to dv_loop (355) PC 1.
+# Output 96 words (64 state + 32 payload), mem_op 3. Note: weights/func/date/dv_ent.md.
+input 65
+slice 0 14 16                     # v1 [TA PA]
+dense 1 4 2                       # v2 TA - 1.5, - 2.5, - 3.5, - 4.5
+  1 0
+  1 0
+  1 0
+  1 0
+  -1.5 -2.5 -3.5 -4.5
+step 2                            # v3 [s1 s2 s3 s4]
+dense 3 2 4                       # v4 [isText isErr]
+  1 -1 0 0
+  0 0 1 -1
+  0 0
+slice 1 1 2                       # v5 [PA]
+concat 4 5                        # v6 [isText isErr PA]
+concat 6 5                        # v7 [isText isErr PA PA]
+mul 7 0 2 2 4                     # v8 [isText PA, isErr PA]
+concat 4 8                        # v9 [isText isErr a eP]
+dense 9 2 4                       # v10 [a, ecode0 = eP + 3 (1 - isText - isErr)]
+  0 0 1 0
+  -3 -3 0 1
+  0 3
+slice 0 9 13                      # v11 [LR LP RSP MODE]
+dense 11 13 4                     # v12 words 0..12
+  0 0 0 0
+  0 0 0 0
+  0 0 1 0
+  0 0 0 0
+  0 0 0 0
+  0 0 0 0
+  0 0 0 0
+  0 0 0 0
+  1 0 0 0
+  0 1 0 0
+  0 0 1 0
+  0 0 0 1
+  0 0 0 0
+  355 3 0 67108896 0 0 0 1 0 0 32 0 0
+slice 0 30 31                     # v13 [T0] -> word 15 (mode)
+dense 10 21 2                     # v14 words 16..36: a, zeros (17..35), ecode0
+  1 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  0 1
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+slice 0 38 65                     # v15 words 37..63
+slice 0 9 41                      # v16 payload = words 8..39
+concat 12 1                       # v17 0..14
+concat 17 13                      # v18 0..15
+concat 18 14                      # v19 0..36
+concat 19 15                      # v20 0..63
+concat 20 16                      # v21 output (96)

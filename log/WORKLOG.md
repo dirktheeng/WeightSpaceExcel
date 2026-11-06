@@ -725,3 +725,51 @@
 - F9: FORMAT_STORE split applied to encodings/memory-map.md (style records 0x8000..0xBFFF, number format region 0xC000..0xFFFF, section 7a), authorized by the coordinator.
 - F10: booleans and errors ignore number formats (returned as their own text, centred), matching TEXT(TRUE, "0") = "TRUE".
 - Result: tests/output/format 158 passed, 2 xfailed; stage 3 + 4 format cases run directly on fx_main: 87 of 132 pass (2 formula cases skipped). Not done: dates and times, fractions, decimal condition values, [$...] symbols, engineering exponents (log/format-agent.md hand-off).
+
+## 2026-11-06, Stage 4: DATEVALUE, TIMEVALUE, date text coercion (func-date agent session 2; details in log/func-date-agent.md)
+
+### FD-7 (DECISION, func-date agent): date/time text parser as a register-preserving leaf chain
+- Decided: dv_ent (354) spills words 8..39 to RET_STACK in one block write, dv_loop (355) reads one character per step and runs a token machine (numbers, separators, month-name and AM/PM keys), dv_fin (356) picks the en-US form, validates, and calls dt_time and dt_date for the value; dv_rest (357, block consumer) restores the spill and returns. Modes: 0 DATEVALUE, 1 TIMEVALUE, 2 coercion (date + time, or a plain integer).
+- Alternatives: keeping the parser state in free registers only (about 22 state words needed, 15 free while dt_abi's slots must survive); a one-step parse of the whole string from a block read (needs 40 copies of the character block).
+- Why: callers (dt_abi's dereference loop, dt_coer, and the evaluator's ev_t2nb) can call it like CELL_GET without saving anything; the cost is 4 ids and 4 extra steps.
+- Affects: RET_STACK use of 32 words per call. Limits in weights/func/date/dv_fin.md and dv_loop.md.
+- Result: test_dv.py 83 passed at the first run.
+
+### FD-8 (DECISION, func-date agent): text coercion of date arguments in a separate step after dispatch
+- Decided: dt_abi dispatches every date fid to dt_coer (358) with the core id and PC in T9, T10; dt_coer coerces the first text argument (except DATEVALUE/TIMEVALUE's argument and DATEDIF's unit) through the parser and loops until none is left, then jumps to the core. DATEVALUE (114) and TIMEVALUE (468) added to dt_abi's dispatch ROM (cores 354 with T0 = 0 and 1).
+- Alternatives: coercion inside dt_abi's reference loop (needs a new layer before v28 and renumbering of 75 layers); per-core coercion (each core would need the parser call).
+- Why: dt_abi changed only in four places (two ROM columns, the bad-count and gate rows widened, the dispatch target and two output words), and all 305 earlier tests still pass.
+- Affects: every date function call costs one more step. FUNC_TABLE[114] = FUNC_TABLE[468] = 351 (request to the ft_init owner). Evaluator: ev_t2nb can route rejected text to 354 with T0 = 2 for coe21 (weights/func/date/README.md, "Evaluator change for coe21").
+- Result: tests/output/func_date 392 passed.
+
+## 2026-11-06, Stage 3: Text functions, ABI layer and drivers (func-text agent; details in log/func-text-agent.md)
+
+- weights/func/text now uses ids 312 to 343 (32 networks, 32,250 dense parameters). ABI entry 319 serves every Text fid. tests/output/func_text: 307 passed (cores and ABI level).
+- Functions working at ABI level (FN_CALL state in, FN_RET state out): LEN, LENB, CODE, UNICODE, UPPER, LOWER, EXACT, MID, MIDB, LEFT, LEFTB, RIGHT, RIGHTB, CHAR, UNICHAR, T, CLEAN, TRIM, PROPER, CONCAT, CONCATENATE, TEXTJOIN, REPT, REPLACE, REPLACEB, FIND, FINDB, SEARCH (wildcards), SEARCHB, SUBSTITUTE, VALUE (parser-lexer numbers only), TEXT (format engine subset). Not done: DOLLAR, FIXED, NUMBERVALUE (id budget exhausted).
+
+### T5 (DECISION): one ABI entry for all Text functions, with a class ROM on T2
+- Decided: FUNC_TABLE maps every Text fid to tx_w0 (319); a telescoped thermometer over T2 gives class, per-argument kind map, minimum and maximum argument counts. Arguments are converted in place on the operand stack (CELL_GET, ev_totext, ev_t2n), then tx_ld loads up to four and enters the core or driver. tx_fin restores P1 and N0.
+- Alternatives: one wrapper network per function (about 30 ids, which the budget does not have); per-function kind logic in tx_av (grew with each class).
+- Affects: new Text functions need a class row in tx_w0 and tx_ld (retype of both).
+
+### T6 (DECISION): strings are built unit by unit by one copier with filters
+- Decided: tx_cp appends one unit per step and rewrites the current output word every emitting step; filters for copy, CLEAN, TRIM (pending space), PROPER; pieces with a skip count. Drivers for CONCAT, TEXTJOIN, REPT, REPLACE, CLEAN, TRIM, PROPER are sequences of pieces.
+- Alternatives: word-aligned copying (tx_mid style) per function (faster, far more weights per function).
+
+### T7 (DECISION): searching works on unpacked units in EVAL_SCRATCH
+- Decided: FIND, SEARCH and SUBSTITUTE unpack their strings to one unit per word above SCR (private frame, SCR not moved), match with a single-star backtracking glob matcher (prefix match = implicit trailing '*'), copy unpacked runs 16 words per 2 steps and pack the result at the end.
+- Why: random access to unit i costs one read and no division; backtracking needs random access.
+
+### T8 (DECISION): TEXT calls the format engine through a spill
+- Decided: tx_tx writes HT to HEAP_TOP, puts the code in FMT_TABLE entry 511 (uncompiled, so compiled per call), spills words 8..39 to RET_STACK (the engine clobbers GEN, CYC and T9, T10), calls fx_main with width 0, then reads HEAP_TOP back into HT and restores the spill.
+- Affects: FMT_TABLE entry 511 must stay reserved for TEXT (format agent); COMPILE_TOP grows by one record per TEXT call until compiled codes are cached by string.
+
+### Requests for other owners
+- ABI agent (ft_init): FUNC_TABLE[fid] = 319 for fids 56, 68, 69, 75, 76, 158, 171, 172, 277, 278, 279, 280, 292, 302, 303, 374, 394, 395, 396, 397, 398, 409, 410, 439, 451, 462, 465, 478, 486, 487, 489, 490. Flags words for these fids: min / max counts as in weights/func/text/tx_abi.md (CONCAT and CONCATENATE 1..255, TEXTJOIN 3..255).
+- Format agent: reserve FMT_TABLE entry 511 for TEXT; a lookup that reuses a compiled record for an identical code string would stop COMPILE_TOP from growing per call.
+- Logic agent: tests/output/func_logic/lgbb.py boots with max_steps=200, but boot now takes several thousand steps; its Abi() raises. Also its state() leaves RSP = 0 (any callee that pushes writes into the zero page).
+- Coordinator: more ids for Text (DOLLAR, FIXED, NUMBERVALUE, ASC/JIS/DBCS, ARRAYTOTEXT, VALUETOTEXT, TEXTBEFORE/AFTER, REGEX*, BAHTTEXT, PHONETIC), or a generated-id budget.
+
+## 2026-11-06, func-math agent: hyperbolic families (ids 282..285)
+- Decision FM3: hyperbolics reuse the EXP/LN/SQRT chain (268, 269) and fm_dv1 (267) instead of new cores; small arguments use Taylor/atanh/asinh series (|x| < 1 for sinh/cosh, < 0.125 for the inverse series) to avoid cancellation; COSH and SINH for 709 < |x| <= 710.476 use EXP(|x| - 1) e/2. Tests: test_hyp 39, test_ahyp 30, test_abi +10; func_math suite 475 passed.
+- Request to the ABI agent: a per-element callback variant of the range scanner (fs_blk), with each cell's offset within its range, for SUMPRODUCT, SUMX2MY2 and others, SUMIF and the matrix functions. Request repeated: FUNC_TABLE[fid] = 277 for the math fids, now also SINH 420, COSH 83, TANH 453, SECH 412, CSCH 102, COTH 85, ASINH 18, ACOSH 5, ATANH 21, ACOTH 7.

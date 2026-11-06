@@ -380,3 +380,15 @@
 418 weights/vba/ps_xid.wt
 419 weights/vba/ps_dimc.wt
 358 weights/func/date/dt_coer.wt
+282 weights/func/math/fm_hy0.wt
+283 weights/func/math/fm_hy1.wt
+284 weights/func/math/fm_ah0.wt
+285 weights/func/math/fm_ah1.wt
+42 weights/func/agg/vs_ent.wt
+43 weights/func/agg/vs_nxt.wt
+44 weights/func/agg/vs_item.wt
+45 weights/func/agg/vs_cel.wt
+46 weights/func/agg/vs_rng.wt
+47 weights/func/agg/vs_uni.wt
+48 weights/func/agg/vs_txt.wt
+49 weights/func/agg/ag_ini.wt

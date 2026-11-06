@@ -1,11 +1,32 @@
 # func/math/fm_go (id 279): block consumer after fm_ent's final read (input 71: x65..x70 = arguments
 # 1..3 as (TAG, PAY) pairs read from SP - 2 (n - 1)). Loads A = argument 1, B = argument 2, C =
 # argument 3 (absent ones = missing (8, 0); absent B = blank for TRUNC, GCD, LCM), looks up the core
-# network and selector from T2 = 64 + fid (one-hot over the 48 served fids), and calls the core with
+# network and selector from T2 = 64 + fid (one-hot over the 58 served fids), and calls the core with
 # PC 0, LR = 257 (FN_RET), LP = 0, T0 = selector. Note: weights/func/math/fm_abi.md. Hand-written.
 input 71
 slice 0 32 33                     # v1 [T2]
-dense 1 96 1                      # v2 T2 - v + 0.5, T2 - v - 0.5 for each served v = 64 + fid
+dense 1 116 1                     # v2 T2 - v + 0.5, T2 - v - 0.5 for each served v = 64 + fid
+# rows 97..116 (hyperbolic family, added later): 20 more rows of one weight each
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
 # 96 rows of one weight each (row 2i: T2 - v_i + 0.5, row 2i + 1: T2 - v_i - 0.5), typed by hand:
   1
   1
@@ -112,8 +133,11 @@ dense 1 96 1                      # v2 T2 - v + 0.5, T2 - v - 0.5 for each serve
   -82.5 -83.5 -83.5 -84.5 -69.5 -70.5 -80.5 -81.5 -67.5 -68.5
   -226.5 -227.5 -227.5 -228.5 -135.5 -136.5 -136.5 -137.5 -265.5 -266.5 -339.5 -340.5
   -444.5 -445.5 -446.5 -447.5
-step 2                            # v3 pairs; one-hot ind_f = first - second of each pair
-dense 3 3 96                      # v4 [core - 258, sel, blankB]
+# SINH COSH TANH SECH CSCH COTH | ASINH ACOSH ATANH ACOTH (v = 64 + fid: 484 147 517 476 166 149 | 82 69 85 71)
+  -483.5 -484.5 -146.5 -147.5 -516.5 -517.5 -475.5 -476.5 -165.5 -166.5 -148.5 -149.5
+  -81.5 -82.5 -68.5 -69.5 -84.5 -85.5 -70.5 -71.5
+step 2                           # v3 pairs; one-hot ind_f = first - second of each pair
+dense 3 3 116                     # v4 [core - 258, sel, blankB]
 # ABS SIGN INT PI EVEN ODD DEGREES RADIANS | ROUND ROUNDUP ROUNDDOWN TRUNC
   6 -6 6 -6 6 -6 6 -6 6 -6 6 -6 6 -6 6 -6   7 -7 7 -7 7 -7 7 -7
 # QUOTIENT MOD MROUND CEILING FLOOR CEILING.PRECISE ISO.CEILING FLOOR.PRECISE CEILING.MATH FLOOR.MATH
@@ -126,6 +150,8 @@ dense 3 3 96                      # v4 [core - 258, sel, blankB]
   16 -16 16 -16 17 -17 17 -17 18 -18 18 -18
 # RAND RANDBETWEEN
   22 -22 22 -22
+# SINH .. COTH (282) | ASINH .. ACOTH (284)
+  24 -24 24 -24 24 -24 24 -24 24 -24 24 -24   26 -26 26 -26 26 -26 26 -26
 # selectors
   0 0 1 -1 2 -2 4 -4 5 -5 6 -6 7 -7 8 -8   0 0 1 -1 2 -2 2 -2
   0 0 1 -1 2 -2 3 -3 4 -4 5 -5 5 -5 6 -6 7 -7 8 -8
@@ -133,6 +159,7 @@ dense 3 3 96                      # v4 [core - 258, sel, blankB]
   0 0 1 -1 2 -2 3 -3 4 -4 5 -5   0 0 1 -1 2 -2 3 -3 4 -4
   0 0 1 -1 0 0 1 -1 0 0 1 -1
   0 0 1 -1
+  0 0 1 -1 2 -2 3 -3 4 -4 5 -5   0 0 1 -1 2 -2 3 -3
 # blank-B flags (TRUNC, GCD, LCM)
   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 1 -1
   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -140,8 +167,9 @@ dense 3 3 96                      # v4 [core - 258, sel, blankB]
   0 0 0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 0 0
   0 0 0 0 0 0 0 0 1 -1 1 -1
   0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
   0 0 0
-slice 0 28 29                     # v5 [n]
+slice 0 28 29                    # v5 [n]
 dense 5 3 1                       # v6 [n - 0.5, n - 1.5, n - 2.5]
   1
   1

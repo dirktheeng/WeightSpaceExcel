@@ -1,0 +1,145 @@
+# func/math/fm_hy1 (id 283): hyperbolic family, combination. Entered from fm_hy0 (282).
+# In: w14 = E2 = EXP(-xe) (big route) or C = cosh|x| (small route), w20 = E = EXP(xe) or S = sinh|x|,
+#   w17 neg, w18 hi, w19 sel, w21 sm, w25 link LR 2^16 + LP.
+# Big: P = E/2 (hi: E e/2, since xe = |x| - 1), M = E2/2 (hi: 0); sh = P - M, ch = P + M.
+# Small: sh = S, ch = C. shs = (1 - 2 neg) sh.
+# SINH -> shs, COSH -> ch, returned to the unpacked link. TANH shs/ch, SECH 1/ch, CSCH 1/shs,
+# COTH ch/shs go to fm_dv1 (267) with gQ = 1 and LR, LP = the unpacked link.
+# Note: weights/func/math/fm_hyp.md. Hand-written. Not generated.
+input 65
+slice 0 15 16                     # v1 [p14]
+slice 0 18 23                     # v2 [neg, hi, sel, w20, sm]
+slice 0 26 27                     # v3 [LINK]
+concat 1 2                        # v4 (p14 0, neg 1, hi 2, sel 3, w20 4, sm 5)
+dense 4 5 6                       # v5 sel - j + 0.5, j = 1..5
+  0 0 0 1 0 0
+  0 0 0 1 0 0
+  0 0 0 1 0 0
+  0 0 0 1 0 0
+  0 0 0 1 0 0
+  -0.5 -1.5 -2.5 -3.5 -4.5
+step 5                            # v6 [e1..e5]
+concat 4 6                        # v7 (e1..e5 6-10)
+dense 7 2 11                      # v8 [nh = 1 - hi, nsm = 1 - sm]
+  0 0 -1 0 0 0 0 0 0 0 0
+  0 0 0 0 0 -1 0 0 0 0 0
+  1 1
+concat 7 8                        # v9 (nh 11, nsm 12)
+dense 9 2 13                      # v10 [c1 = (e/2) hi + nh/2, c2 = nh/2]
+  0 0 1.3591409142295225 0 0 0 0 0 0 0 0 0.5 0
+  0 0 0 0 0 0 0 0 0 0 0 0.5 0
+  0 0
+dense 9 2 13                      # v11 [w20, p14]
+  0 0 0 0 1 0 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0
+concat 10 11                      # v12 [c1, c2, w20, p14]
+mul 12 0 2 2 4                    # v13 [Pb, Mb]
+dense 13 2 2                      # v14 [shb = Pb - Mb, chb = Pb + Mb]
+  1 -1
+  1 1
+  0 0
+concat 9 14                       # v15 (shb 13, chb 14)
+dense 15 8 15                     # v16 gates [sm, sm, nsm, nsm], values [w20, p14, shb, chb]
+  0 0 0 0 0 1 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 1 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 1 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 1 0 0
+  0 0 0 0 1 0 0 0 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 1
+  0 0 0 0 0 0 0 0
+mul 16 0 4 4 8                    # v17
+dense 17 2 4                      # v18 [sh, ch] (one nonzero term each)
+  1 0 1 0
+  0 1 0 1
+  0 0
+concat 15 18                      # v19 (sh 15, ch 16)
+dense 19 2 17                     # v20 [sgn = 1 - 2 neg, sh]
+  0 -2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0
+  1 0
+mul 20 0 1 1 2                    # v21 [shs]
+concat 19 21                      # v22 (shs 17)
+dense 3 1 1                       # v23 LINK 2^-16 + C
+  1.52587890625e-05
+  6755399441055744
+dense 23 1 1                      # v24 [rq]
+  1
+  -6755399441055744
+concat 24 3                       # v25 [rq, LINK]
+dense 25 1 2                      # v26 rq - LINK 2^-16
+  1 -1.52587890625e-05
+  0
+step 26                           # v27 [g]; LRu = rq - g
+concat 22 24                      # v28 (rq 18)
+concat 28 27                      # v29 (g 19)
+concat 29 3                       # v30 (LINK 20)
+dense 30 10 21                    # v31 gates [direct, o0+o2, o1+o5, o2+o3, o4+o5], values [LRu, shs, ch, ch, shs]
+# 0-9                  10-20
+  0 0 0 0 0 0 0 -1 0 0  0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 -1 1 -1 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 1 -1 0 0  1 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 1 0 -1  0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 1   0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 1 -1 0
+  0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 1 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 1 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 1 0 0 0
+  1 1 0 0 0 0 0 0 0 0
+mul 31 0 5 5 10                   # v32 n1..n5
+concat 30 32                      # v33 (n1..n5 21-25)
+dense 33 8 26                     # v34 [next, PC, LR, LP, TAG, PAY, BPAY, gQ]
+# 0-9                  10-19                  20-25
+  0 0 0 0 0 0 0 267 0 0 0 0 0 0 0 0 0 0 0 0   0 1 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 -65536 65536  1 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 1 -1  0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 -65536 65536  1 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 1 0  -1 0 0 0 0 0 0 0 0 0  0 0 1 1 0 0
+  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 1 1
+  0 0 0 0 0 0 0 1 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0
+  0 0 0 0 1 0 0 0
+slice 34 0 1                      # v35 word 0
+dense 1 6 1                       # v36 words 1..6 = 0
+  0
+  0
+  0
+  0
+  0
+  0
+  0 0 0 0 0 0
+slice 34 1 4                      # v37 words 7..9
+slice 0 11 13                     # v38 words 10, 11
+dense 1 1 1                       # v39 word 12 = 0
+  0
+  0
+slice 34 4 6                      # v40 words 13, 14
+slice 0 16 17                     # v41 word 15
+slice 34 6 7                      # v42 word 16
+slice 0 18 31                     # v43 words 17..29
+dense 1 8 1                       # v44 words 30..37 = 0
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  0 0 0 0 0 0 0 0
+slice 34 7 8                      # v45 word 38 = gQ
+slice 0 40 65                     # v46 words 39..63
+concat 35 36
+concat 47 37
+concat 48 38
+concat 49 39
+concat 50 40
+concat 51 41
+concat 52 42
+concat 53 43
+concat 54 44
+concat 55 45
+concat 56 46

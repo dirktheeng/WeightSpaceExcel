@@ -1,0 +1,152 @@
+# func/math/fm_ah1 (id 285): inverse hyperbolic family, finisher. Entered from fm_ah0 (284) or from LN.
+# PC 0 (LN returned, L = A.PAY): r = h L + add (h = w21, add = w28).
+# PC 1 (series, y = A.PAY, |y| < 0.125): sel (w18) < 2: asinh y = y + y z PA(z); else atanh y = y + y z PT(z),
+#   z = y^2, PA coefficients (-1)^k C(2k, k) / (4^k (2k + 1)), PT coefficients 1 / (2k + 1), k = 1..9
+#   (next term below 2^-56 relative for z <= 1/64).
+# Result (1 - 2 neg) r (neg = w17), returned to the link in w25 (LR 2^16 + LP).
+# Note: weights/func/math/fm_hyp.md. Hand-written. Not generated.
+input 65
+slice 0 8 9                       # v1 [PC]
+slice 0 15 16                     # v2 [pA]
+slice 0 18 20                     # v3 [neg, sel]
+slice 0 22 23                     # v4 [h]
+slice 0 26 27                     # v5 [LINK]
+slice 0 29 30                     # v6 [add]
+dense 1 1 1                       # v7 [PC - 0.5]
+  1
+  -0.5
+step 7                            # v8 [ps]
+concat 8 2                        # v9 (ps 0, pA 1)
+concat 9 3                        # v10 (neg 2, sel 3)
+concat 10 4                       # v11 (h 4)
+concat 11 6                       # v12 (add 5)
+concat 12 5                       # v13 (LINK 6)
+dense 13 1 7                      # v14 [sel - 1.5]
+  0 0 0 1 0 0 0
+  -1.5
+step 14                           # v15 [kt]
+concat 2 2                        # v16 [y, y]
+mul 16 0 1 1 2                    # v17 [z]
+dense 17 2 1                      # v18 [c9 z + c8, z/19 + 1/17]
+  -0.00976160952919407895
+  0.05263157894736842105
+  0.01155180089613970588 0.05882352941176470588
+concat 17 17                      # v19 [z, z]
+concat 18 19                      # v20
+mul 20 0 2 2 4                    # v21
+dense 21 2 2                      # v22 + [c7, 1/15]
+  1 0
+  0 1
+  -0.01396484375 0.06666666666666666667
+concat 22 19                      # v23
+mul 23 0 2 2 4                    # v24
+dense 24 2 2                      # v25 + [c6, 1/13]
+  1 0
+  0 1
+  0.01735276442307692308 0.07692307692307692308
+concat 25 19                      # v26
+mul 26 0 2 2 4                    # v27
+dense 27 2 2                      # v28 + [c5, 1/11]
+  1 0
+  0 1
+  -0.02237215909090909091 0.09090909090909090909
+concat 28 19                      # v29
+mul 29 0 2 2 4                    # v30
+dense 30 2 2                      # v31 + [c4, 1/9]
+  1 0
+  0 1
+  0.03038194444444444444 0.11111111111111111111
+concat 31 19                      # v32
+mul 32 0 2 2 4                    # v33
+dense 33 2 2                      # v34 + [c3, 1/7]
+  1 0
+  0 1
+  -0.04464285714285714286 0.14285714285714285714
+concat 34 19                      # v35
+mul 35 0 2 2 4                    # v36
+dense 36 2 2                      # v37 + [c2, 1/5]
+  1 0
+  0 1
+  0.075 0.2
+concat 37 19                      # v38
+mul 38 0 2 2 4                    # v39
+dense 39 2 2                      # v40 [PA, PT] + [c1, 1/3]
+  1 0
+  0 1
+  -0.16666666666666666667 0.33333333333333333333
+concat 2 17                       # v41 [y, z]
+mul 41 0 1 1 2                    # v42 [yz]
+concat 42 42                      # v43
+concat 43 40                      # v44 [yz, yz, PA, PT]
+mul 44 0 2 2 4                    # v45 [t1, t2]
+concat 45 2                       # v46 [t1, t2, y]
+dense 46 2 3                      # v47 [resA = y + t1, resT = y + t2]
+  1 0 1
+  0 1 1
+  0 0
+concat 13 15                      # v48 (kt 7)
+concat 48 47                      # v49 (resA 8, resT 9)
+dense 49 6 10                     # v50 gates [1 - kt, kt, h], values [resA, resT, pA]
+  0 0 0 0 0 0 0 -1 0 0
+  0 0 0 0 0 0 0 1 0 0
+  0 0 0 0 1 0 0 0 0 0
+  0 0 0 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 0 0 1
+  0 1 0 0 0 0 0 0 0 0
+  1 0 0 0 0 0
+mul 50 0 3 3 6                    # v51 [nkA, ktT, hL]
+concat 49 51                      # v52 (nkA 10, ktT 11, hL 12)
+dense 52 4 13                     # v53 gates [ps, 1 - ps], values [sres = nkA + ktT, Lres = hL + add]
+  1 0 0 0 0 0 0 0 0 0 0 0 0
+  -1 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 1 1 0
+  0 0 0 0 0 1 0 0 0 0 0 0 1
+  0 1 0 0
+mul 53 0 2 2 4                    # v54
+concat 52 54                      # v55 (a1 13, a2 14)
+dense 55 2 15                     # v56 [sgn = 1 - 2 neg, r = a1 + a2]
+  0 0 -2 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 1 1
+  1 0
+mul 56 0 1 1 2                    # v57 [rs]
+dense 5 1 1                       # v58 LINK 2^-16 + C
+  1.52587890625e-05
+  6755399441055744
+dense 58 1 1                      # v59 [rq]
+  1
+  -6755399441055744
+concat 59 5                       # v60 [rq, LINK]
+dense 60 1 2                      # v61 rq - LINK 2^-16
+  1 -1.52587890625e-05
+  0
+step 61                           # v62 [g]
+concat 60 62                      # v63 [rq, LINK, g]
+concat 63 57                      # v64 [rq, LINK, g, rs]
+dense 64 6 4                      # v65 [next, PC, LR, LP, TAG, PAY]
+  1 0 -1 0
+  -65536 1 65536 0
+  1 0 -1 0
+  -65536 1 65536 0
+  0 0 0 0
+  0 0 0 1
+  0 0 0 0 1 0
+slice 65 0 1                      # v66 word 0
+dense 1 6 1                       # v67 words 1..6 = 0
+  0
+  0
+  0
+  0
+  0
+  0
+  0 0 0 0 0 0
+slice 65 1 4                      # v68 words 7..9
+slice 0 11 13                     # v69 words 10, 11
+slice 67 0 1                      # v70 word 12 = 0
+slice 65 4 6                      # v71 words 13, 14
+slice 0 16 65                     # v72 words 15..63
+concat 66 67
+concat 73 68
+concat 74 69
+concat 75 70
+concat 76 71
+concat 77 72

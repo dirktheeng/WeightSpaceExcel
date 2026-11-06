@@ -530,14 +530,14 @@ def test_gcd(sel, a, b, want):
 ALL_MATH = {264: "fm_unary", 265: "fm_round", 266: "fm_dv0", 267: "fm_dv1", 268: "fm_pw0",
             269: "fm_pw1", 270: "fm_trig", 271: "fm_at0", 272: "fm_at1", 273: "fm_lg", 274: "fm_fact",
             275: "fm_comb", 276: "fm_gcd", 277: "fm_ent", 278: "fm_arg", 279: "fm_go", 280: "fm_rand",
-            281: "fm_rnd"}
+            281: "fm_rnd", 282: "fm_hy0", 283: "fm_hy1", 284: "fm_ah0", 285: "fm_ah1"}
 SP0 = 0x1000 + 40
 
 
 def abi_call(fid, args, steps=3000):
     key = ("abi",)
     if key not in _chain:
-        paths = [os.path.join(KERNEL, "trap.wt")] * 282
+        paths = [os.path.join(KERNEL, "trap.wt")] * 286
         paths[257] = os.path.join(KERNEL, "halt_ok.wt")
         for i, nm in ALL_MATH.items():
             paths[i] = os.path.join(MATH, nm + ".wt")
@@ -592,6 +592,16 @@ ABI = [  # (fid, args, expected) hand-stated from Excel
     (400, [(ERR, 7), n(1)], (4, 7)),                # error propagates
     (400, [n(2.5), (MISS, 0)], (1, 3)),             # ROUND(2.5,) : missing digits = 0
     (1, [(BOOL, 1)], (1, 1)),
+    (420, [n(1)], (1, 1.1752011936438014)),         # SINH
+    (83, [n(4)], (1, 27.308232836016487)),          # COSH
+    (453, [n(-2)], (1, -0.9640275800758169)),       # TANH (through fm_dv1)
+    (412, [n(1)], (1, 0.6480542736638855)),         # SECH
+    (102, [n(0)], (4, 2)),                          # CSCH(0) #DIV/0!
+    (85, [n(1)], (1, 1.3130352854993312)),          # COTH
+    (18, [n(-2.5)], (1, -1.6472311463710958)),      # ASINH (SQRT, LN)
+    (5, [n(10)], (1, 2.993222846126381)),           # ACOSH
+    (21, [n(-0.1)], (1, -0.10033534773107558)),     # ATANH (series)
+    (7, [n(6)], (1, 0.16823611831060645)),          # ACOTH (fm_dv1, LN)
 ]
 
 
@@ -626,3 +636,54 @@ def test_randbetween():
     assert abi_call(383, [n(6), n(1)]) == (4, 6)
     assert abi_call(383, [n(-3), n(-3)]) == (1, -3)
     assert abi_call(383, [(ERR, 7), n(1)]) == (4, 7)
+
+
+HY_PATHS = {267: "fm_dv1", 268: "fm_pw0", 269: "fm_pw1", 282: "fm_hy0", 283: "fm_hy1"}
+SINH, COSH, TANH, SECH, CSCH, COTH = range(6)
+HY = [  # hand-stated: Excel documentation SINH(1) 1.175201194, COSH(4) 27.30823284, TANH(-2) -0.96402758,
+        # TANH(0) 0, TANH(0.5) 0.462117157; other values are the known hyperbolic values
+    (SINH, n(1), (1, 1.1752011936438014)), (SINH, n(-1), (1, -1.1752011936438014)), (SINH, n(0), (1, 0)),
+    (SINH, n(0.5), (1, 0.5210953054937474)), (SINH, n(2), (1, 3.626860407847019)),
+    (SINH, n(10), (1, 11013.232874703393)), (SINH, n(1e-10), (1, 1e-10)),
+    (SINH, n(-710), (1, -1.1169973830808557e308)), (SINH, n(711), (4, 6)), (SINH, n(1e300), (4, 6)),
+    (COSH, n(4), (1, 27.308232836016487)), (COSH, n(0), (1, 1)), (COSH, n(1), (1, 1.5430806348152437)),
+    (COSH, n(-0.5), (1, 1.1276259652063807)), (COSH, n(2), (1, 3.7621956910836314)),
+    (COSH, n(10), (1, 11013.232920103324)), (COSH, n(710), (1, 1.1169973830808557e308)), (COSH, n(-711), (4, 6)),
+    (TANH, n(-2), (1, -0.9640275800758169)), (TANH, n(0), (1, 0)), (TANH, n(0.5), (1, 0.46211715726000974)),
+    (TANH, n(1), (1, 0.7615941559557649)), (TANH, n(1000), (1, 1)), (TANH, n(-30), (1, -1)), (TANH, n(1e308), (1, 1)),
+    (SECH, n(1), (1, 0.6480542736638855)), (SECH, n(0), (1, 1)), (SECH, n(800), (1, 0)),
+    (CSCH, n(1), (1, 0.8509181282393216)), (CSCH, n(-1), (1, -0.8509181282393216)), (CSCH, n(0), (4, 2)),
+    (CSCH, n(-800), (1, 0)), (COTH, n(1), (1, 1.3130352854993312)), (COTH, n(0), (4, 2)), (COTH, n(30), (1, 1)),
+    (SINH, (ERR, 7), (4, 7)), (COSH, (TEXT, 3), (4, 3)), (SINH, (BOOL, 1), (1, 1.1752011936438014)),
+    (COSH, (BLANK, 0), (1, 1)),
+]
+
+
+@pytest.mark.parametrize("sel,a,want", HY)
+def test_hyp(sel, a, want):
+    (t, p), _ = call_loop(282, HY_PATHS, sel, a)
+    assert t == want[0] and close15(p, want[1]), (t, p)
+
+
+AH_PATHS = {267: "fm_dv1", 268: "fm_pw0", 269: "fm_pw1", 284: "fm_ah0", 285: "fm_ah1"}
+ASINH, ACOSH, ATANH, ACOTH = range(4)
+AH = [  # hand-stated: Excel documentation ASINH(-2.5) -1.647231146, ASINH(10) 2.99822295, ACOSH(1) 0,
+        # ACOSH(10) 2.9932228, ATANH(-0.1) -0.100335348, ACOTH(6) 0.168236118; others known values
+    (ASINH, n(-2.5), (1, -1.6472311463710958)), (ASINH, n(10), (1, 2.99822295029797)), (ASINH, n(0), (1, 0)),
+    (ASINH, n(1), (1, 0.881373587019543)), (ASINH, n(0.1), (1, 0.09983407889920758)),
+    (ASINH, n(1e10), (1, 23.718998110500402)), (ASINH, n(-1e308), (1, -709.8893558227261)),
+    (ACOSH, n(1), (1, 0)), (ACOSH, n(10), (1, 2.993222846126381)), (ACOSH, n(2), (1, 1.3169578969248166)),
+    (ACOSH, n(1e10), (1, 23.718998110500402)), (ACOSH, n(0.5), (4, 6)), (ACOSH, n(-2), (4, 6)),
+    (ATANH, n(-0.1), (1, -0.10033534773107558)), (ATANH, n(0.5), (1, 0.5493061443340549)), (ATANH, n(0), (1, 0)),
+    (ATANH, n(1), (4, 6)), (ATANH, n(-1.5), (4, 6)),
+    (ACOTH, n(6), (1, 0.16823611831060645)), (ACOTH, n(-6), (1, -0.16823611831060645)),
+    (ACOTH, n(2), (1, 0.5493061443340549)), (ACOTH, n(10), (1, 0.10033534773107558)), (ACOTH, n(1), (4, 6)),
+    (ACOTH, n(0.5), (4, 6)), (ACOSH, n(1.5), (1, 0.9624236501192069)), (ATANH, n(0.9), (1, 1.4722194895832204)),
+    (ACOTH, n(1.5), (1, 0.8047189562170503)), (ASINH, (ERR, 7), (4, 7)), (ATANH, (TEXT, 3), (4, 3)), (ACOSH, (BOOL, 1), (1, 0)),
+]
+
+
+@pytest.mark.parametrize("sel,a,want", AH)
+def test_ahyp(sel, a, want):
+    (t, p), _ = call_loop(284, AH_PATHS, sel, a)
+    assert t == want[0] and close15(p, want[1]), (t, p)

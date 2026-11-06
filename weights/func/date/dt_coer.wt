@@ -1,0 +1,158 @@
+# func/date/dt_coer (id 358): text-to-date coercion of the date function arguments, between dt_abi's dispatch
+# and the core. Entered at PC 0 from dt_abi with A B C = arguments, T0 / N1 = core selector, T9 = core id,
+# T10 = core PC, T2 = 64 + fid, N0 = n. Finds the first text argument (A unless DATEVALUE or TIMEVALUE,
+# B if n >= 1, C unless DATEDIF) and calls the parser in coercion mode (dv_ent 354, T0 = 2) with LR 358,
+# LP = slot; the parser chain keeps every word but A and STATUS, so A's old value and the core T0 are parked
+# in AS AR1 AC1. PC 1..3 (return): the result goes to slot LP, A and T0 come back from AS AR1 AC1, then the
+# same search runs again. No text left: next = T9, PC = T10, LR 257, LP 0 (as dt_abi set them).
+# Note: weights/func/date/dt_coer.md.
+input 65
+slice 0 8 9                       # v1 [PC]
+dense 1 3 1                       # v2
+  1
+  1
+  1
+  -0.5 -1.5 -2.5
+step 2                            # v3 [p1 p2 p3]
+slice 0 14 20                     # v4 [TA PA TB PB TC PCv]
+slice 0 20 23                     # v5 [AS AR1 AC1]
+slice 0 30 31                     # v6 [T0]
+dense 3 14 3                      # v7 store gates
+  0 -1 0
+  0 -1 0
+  0 1 0
+  0 1 0
+  0 -1 1
+  0 -1 1
+  0 1 -1
+  0 1 -1
+  0 0 -1
+  0 0 -1
+  0 0 1
+  0 0 1
+  -1 0 0
+  1 0 0
+  1 1 0 0 1 1 0 0 1 1 0 0 1 0
+concat 4 5                        # v8
+concat 8 6                        # v9 [TA PA TB PB TC PCv AS AR1 AC1 T0]
+dense 9 14 10                     # v10 V = [TA PA AS AR1 TB PB TA PA TC PCv TA PA T0 AC1]
+  1 0 0 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 0 0 1 0 0
+  0 0 1 0 0 0 0 0 0 0
+  0 0 0 1 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0 0
+  0 0 0 0 1 0 0 0 0 0
+  0 0 0 0 0 1 0 0 0 0
+  1 0 0 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 1
+  0 0 0 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0
+concat 7 10                       # v11
+mul 11 0 14 14 28                 # v12
+dense 12 7 14                     # v13 [A'T A'P B'T B'P C'T C'P T0']
+  1 0 1 0 0 0 0 0 0 0 0 0 0 0
+  0 1 0 1 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 1 0 1 0 0 0 0 0 0 0
+  0 0 0 0 0 1 0 1 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 1 0 1 0 0 0
+  0 0 0 0 0 0 0 0 0 1 0 1 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 1 1
+  0 0 0 0 0 0 0
+slice 0 32 33                     # v14 [T2]
+slice 0 28 29                     # v15 [N0]
+concat 13 14                      # v16
+concat 16 15                      # v17 [A'T A'P B'T B'P C'T C'P T0' T2 N0]
+dense 17 13 9                     # v18 tag and fid tests
+  1 0 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0 0
+  0 0 1 0 0 0 0 0 0
+  0 0 1 0 0 0 0 0 0
+  0 0 0 0 1 0 0 0 0
+  0 0 0 0 1 0 0 0 0
+  0 0 0 0 0 0 0 0 1
+  0 0 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 1 0
+  0 0 0 0 0 0 0 1 0
+  -1.5 -2.5 -1.5 -2.5 -1.5 -2.5 -0.5 -177.5 -178.5 -531.5 -532.5 -176.5 -177.5
+step 18                           # v19 [aL aH bL bH cL cH n1 dvL dvH tvL tvH ddL ddH]
+dense 19 3 13                     # v20 [txA txB txC] pre
+  1 -1 0 0 0 0 0 -1 1 -1 1 0 0
+  0 0 1 -1 0 0 1 0 0 0 0 0 0
+  0 0 0 0 1 -1 0 0 0 0 0 -1 1
+  -0.5 -1.5 -0.5
+step 20                           # v21 [txA txB txC]
+dense 21 3 3                      # v22 first text slot
+  1 0 0
+  -1 1 0
+  -1 -1 1
+  -0.5 -0.5 -0.5
+step 22                           # v23 [f1 f2 f3]
+dense 13 3 7                      # v24 [A'P B'P C'P]
+  0 1 0 0 0 0 0
+  0 0 0 1 0 0 0
+  0 0 0 0 0 1 0
+  0 0 0
+concat 23 24                      # v25
+mul 25 0 3 3 6                    # v26 [pf1 pf2 pf3]
+dense 23 1 3                      # v27 [1 - any]
+  -1 -1 -1
+  1
+dense 27 5 1                      # v28 5 copies
+  1
+  1
+  1
+  1
+  1
+  0 0 0 0 0
+slice 0 39 41                     # v29 [T9 T10]
+concat 29 13                      # v30 [T9 T10 A'T A'P B'T B'P C'T C'P T0']
+dense 30 5 9                      # v31 [T9 T10 A'T A'P T0']
+  1 0 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0
+  0 0 1 0 0 0 0 0 0
+  0 0 0 1 0 0 0 0 0
+  0 0 0 0 0 0 0 0 1
+  0 0 0 0 0
+concat 28 31                      # v32
+mul 32 0 5 5 10                   # v33 [nT9 nT10 nAT nAP nT0]
+concat 33 23                      # v34
+concat 34 26                      # v35 nT9 0 nT10 1 nAT 2 nAP 3 nT0 4 f1 5 f2 6 f3 7 pf1 8 pf2 9 pf3 10
+dense 35 13 11                    # v36 words 0..9, 13, 14, 29
+  1 0 0 0 0  354 354 354  0 0 0
+  0 0 0 0 0  0 0 0  0 0 0
+  0 0 0 0 0  0 0 0  0 0 0
+  0 0 0 0 0  0 0 0  0 0 0
+  0 0 0 0 0  0 0 0  0 0 0
+  0 0 0 0 0  0 0 0  0 0 0
+  0 0 0 0 0  0 0 0  0 0 0
+  0 1 0 0 0  0 0 0  0 0 0
+  0 0 0 0 0  101 101 101  0 0 0
+  0 0 0 0 0  1 2 3  0 0 0
+  0 0 1 0 0  2 2 2  0 0 0
+  0 0 0 1 0  0 0 0  1 1 1
+  0 0 0 0 1  2 2 2  0 0 0
+  0 0 0 0 0 0 0 0 257 0 0 0 0
+slice 36 0 10                     # v37 words 0..9
+slice 36 10 12                    # v38 words 13, 14
+slice 36 12 13                    # v39 word 29
+slice 0 11 14                     # v40 words 10..12
+slice 13 2 6                      # v41 words 15..18 = B' C'
+slice 13 0 2                      # v42 words 19, 20 = A' (parked)
+slice 13 6 7                      # v43 word 21 = T0' (parked)
+slice 0 23 30                     # v44 words 22..28
+slice 0 31 65                     # v45 words 30..63
+concat 37 40                      # v46 0..12
+concat 46 38                      # v47 0..14
+concat 47 41                      # v48 0..18
+concat 48 42                      # v49 0..20
+concat 49 43                      # v50 0..21
+concat 50 44                      # v51 0..28
+concat 51 39                      # v52 0..29
+concat 52 45                      # v53 output (64)
