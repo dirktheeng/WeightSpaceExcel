@@ -1,0 +1,255 @@
+# Stage 3 conformance cases: text functions.
+# Written 2026-11-06 by tests-345-agent. Format and conventions: see cases_math.yaml header.
+# B-variants (FINDB, LEFTB, ...) are tested under the en-US single-byte default, where they
+# behave like the non-B forms; double-byte behavior depends on the editing language (low confidence).
+cases:
+# ARRAYTOTEXT https://support.microsoft.com/en-us/excel/functions/arraytotext-function
+- {id: a2t01, requires: [ARRAYTOTEXT], cells: {A1: "1", A2: "a", B1: "=ARRAYTOTEXT(A1:A2,0)"}, expect: {B1: "1, a"}}
+- {id: a2t02, requires: [ARRAYTOTEXT], cells: {A1: "1", A2: "a", B1: "=ARRAYTOTEXT(A1:A2,1)"}, expect: {B1: '{1;"a"}'}, note: "strict: rows separated by semicolon, text quoted"}
+- {id: a2t03, requires: [ARRAYTOTEXT], cells: {A1: "TRUE", B1: "1", C1: "=ARRAYTOTEXT(A1:B1)"}, expect: {C1: "TRUE, 1"}}
+- {id: a2t04, requires: [ARRAYTOTEXT], cells: {A1: "1", B1: "=ARRAYTOTEXT(A1,2)"}, expect: {B1: {error: "#VALUE!"}}, note: "format other than 0 or 1"}
+# ASC https://support.microsoft.com/en-us/excel/functions/asc-function
+- {id: asc01, requires: [ASC], cells: {A1: '=ASC("ＥＸＣＥＬ")'}, expect: {A1: "EXCEL"}, confidence: medium, note: "full width to half width"}
+- {id: asc02, requires: [ASC], cells: {A1: '=ASC("Excel")'}, expect: {A1: "Excel"}, note: "already single byte"}
+- {id: asc03, requires: [ASC, NA], cells: {A1: "=ASC(NA())"}, expect: {A1: {error: "#N/A"}}}
+# BAHTTEXT https://support.microsoft.com/en-us/excel/functions/bahttext-function
+- {id: baht01, requires: [BAHTTEXT], cells: {A1: "=BAHTTEXT(1234)"}, expect: {A1: "หนึ่งพันสองร้อยสามสิบสี่บาทถ้วน"}, confidence: medium}
+- {id: baht02, requires: [BAHTTEXT], cells: {A1: "=BAHTTEXT(0)"}, expect: {A1: "ศูนย์บาทถ้วน"}, confidence: low}
+- {id: baht03, requires: [BAHTTEXT], cells: {A1: '=BAHTTEXT("a")'}, expect: {A1: {error: "#VALUE!"}}}
+# CHAR https://support.microsoft.com/en-us/excel/functions/char-function
+- {id: char01, requires: [CHAR], cells: {A1: "=CHAR(65)"}, expect: {A1: "A"}}
+- {id: char02, requires: [CHAR], cells: {A1: "=CHAR(33)"}, expect: {A1: "!"}}
+- {id: char03, requires: [CHAR], cells: {A1: "=CHAR(65.9)"}, expect: {A1: "A"}, note: "truncated", confidence: medium}
+- {id: char04, requires: [CHAR], cells: {A1: "=CHAR(0)"}, expect: {A1: {error: "#VALUE!"}}}
+- {id: char05, requires: [CHAR], cells: {A1: "=CHAR(256)"}, expect: {A1: {error: "#VALUE!"}}}
+# CLEAN https://support.microsoft.com/en-us/excel/functions/clean-function
+- {id: clean01, requires: [CLEAN, CHAR], cells: {A1: '=CLEAN(CHAR(9)&"Monthly report"&CHAR(10))'}, expect: {A1: "Monthly report"}}
+- {id: clean02, requires: [CLEAN], cells: {A1: '=CLEAN("abc")'}, expect: {A1: "abc"}}
+- {id: clean03, requires: [CLEAN, LEN, CHAR], cells: {A1: "=LEN(CLEAN(CHAR(160)))"}, expect: {A1: 1}, note: "only codes 0 to 31 removed", confidence: medium}
+- {id: clean04, requires: [CLEAN, NA], cells: {A1: "=CLEAN(NA())"}, expect: {A1: {error: "#N/A"}}}
+# CODE https://support.microsoft.com/en-us/excel/functions/code-function
+- {id: code01, requires: [CODE], cells: {A1: '=CODE("A")'}, expect: {A1: 65}}
+- {id: code02, requires: [CODE], cells: {A1: '=CODE("!")'}, expect: {A1: 33}}
+- {id: code03, requires: [CODE], cells: {A1: '=CODE("Alphabet")'}, expect: {A1: 65}, note: "first character only"}
+- {id: code04, requires: [CODE], cells: {A1: '=CODE("")'}, expect: {A1: {error: "#VALUE!"}}}
+# CONCAT https://support.microsoft.com/en-us/excel/functions/concat-function
+- {id: concat01, requires: [CONCAT], cells: {A1: '=CONCAT("The"," ","sun"," ","will"," ","come"," ","up"," ","tomorrow.")'}, expect: {A1: "The sun will come up tomorrow."}}
+- {id: concat02, requires: [CONCAT], cells: {A1: "a", B1: "b", A2: "c", B2: "d", C1: "=CONCAT(A1:B2)"}, expect: {C1: "abcd"}, note: "range read row by row"}
+- {id: concat03, requires: [CONCAT], cells: {A1: '=CONCAT(1,TRUE,"")'}, expect: {A1: "1TRUE"}}
+- {id: concat04, requires: [CONCAT], cells: {B1: "=CONCAT(A1:A3)"}, expect: {B1: ""}, note: "blank range gives empty text"}
+- {id: concat05, requires: [CONCAT, NA], cells: {A1: '=CONCAT("a",NA())'}, expect: {A1: {error: "#N/A"}}}
+# CONCATENATE https://support.microsoft.com/en-us/excel/functions/concatenate-function
+- {id: concatn01, requires: [CONCATENATE], cells: {A1: "brook trout", A2: "32", B1: '=CONCATENATE("Stream population for ",A1," species is ",A2,"/mile.")'}, expect: {B1: "Stream population for brook trout species is 32/mile."}}
+- {id: concatn02, requires: [CONCATENATE], cells: {A1: '=CONCATENATE("a","")'}, expect: {A1: "a"}}
+- {id: concatn03, requires: [CONCATENATE], cells: {A1: "1.5", B1: "=CONCATENATE(A1,TRUE)"}, expect: {B1: "1.5TRUE"}}
+- {id: concatn04, requires: [CONCATENATE], cells: {A1: '=CONCATENATE("a",1/0)'}, expect: {A1: {error: "#DIV/0!"}}}
+# DBCS https://support.microsoft.com/en-us/excel/functions/dbcs-function
+- {id: dbcs01, requires: [DBCS], cells: {A1: '=DBCS("EXCEL")'}, expect: {A1: "ＥＸＣＥＬ"}, confidence: low, note: "documented example; may depend on DBCS editing language"}
+- {id: dbcs02, requires: [DBCS], cells: {A1: '=DBCS("")'}, expect: {A1: ""}, confidence: medium}
+- {id: dbcs03, requires: [DBCS, NA], cells: {A1: "=DBCS(NA())"}, expect: {A1: {error: "#N/A"}}}
+# DOLLAR https://support.microsoft.com/en-us/excel/functions/dollar-function
+- {id: dollar01, requires: [DOLLAR], cells: {A1: "=DOLLAR(1234.567,2)"}, expect: {A1: "$1,234.57"}}
+- {id: dollar02, requires: [DOLLAR], cells: {A1: "=DOLLAR(1234.567,-2)"}, expect: {A1: "$1,200"}}
+- {id: dollar03, requires: [DOLLAR], cells: {A1: "=DOLLAR(-1234.567,-2)"}, expect: {A1: "($1,200)"}}
+- {id: dollar04, requires: [DOLLAR], cells: {A1: "=DOLLAR(-0.123,4)"}, expect: {A1: "($0.1230)"}}
+- {id: dollar05, requires: [DOLLAR], cells: {A1: "=DOLLAR(99.888)"}, expect: {A1: "$99.89"}, note: "default 2 decimals"}
+- {id: dollar06, requires: [DOLLAR], cells: {A1: '=DOLLAR("x")'}, expect: {A1: {error: "#VALUE!"}}}
+# EXACT https://support.microsoft.com/en-us/excel/functions/exact-function
+- {id: exact01, requires: [EXACT], cells: {A1: '=EXACT("word","word")'}, expect: {A1: true}}
+- {id: exact02, requires: [EXACT], cells: {A1: '=EXACT("Word","word")'}, expect: {A1: false}}
+- {id: exact03, requires: [EXACT], cells: {A1: '=EXACT("w ord","word")'}, expect: {A1: false}}
+- {id: exact04, requires: [EXACT], cells: {A1: '=EXACT(1,"1")'}, expect: {A1: true}, note: "compared as text", confidence: medium}
+- {id: exact05, requires: [EXACT, NA], cells: {A1: '=EXACT(NA(),"a")'}, expect: {A1: {error: "#N/A"}}}
+# FIND, FINDB https://support.microsoft.com/en-us/topic/c7912941-af2a-4bdf-a553-d0d89b0a0628
+- {id: find01, requires: [FIND], cells: {A1: "Miriam McGovern", B1: '=FIND("M",A1)'}, expect: {B1: 1}}
+- {id: find02, requires: [FIND], cells: {A1: "Miriam McGovern", B1: '=FIND("m",A1)'}, expect: {B1: 6}, note: "case sensitive"}
+- {id: find03, requires: [FIND], cells: {A1: "Miriam McGovern", B1: '=FIND("M",A1,3)'}, expect: {B1: 8}}
+- {id: find04, requires: [FIND], cells: {A1: '=FIND("","abc")'}, expect: {A1: 1}, note: "empty find_text matches at start"}
+- {id: find05, requires: [FIND], cells: {A1: '=FIND("z","abc")'}, expect: {A1: {error: "#VALUE!"}}}
+- {id: find06, requires: [FIND], cells: {A1: '=FIND("a","abc",0)'}, expect: {A1: {error: "#VALUE!"}}}
+- {id: find07, requires: [FIND], cells: {A1: '=FIND("a","abc",4)'}, expect: {A1: {error: "#VALUE!"}}, note: "start beyond length"}
+- {id: findb01, requires: [FINDB], cells: {A1: '=FINDB("b","abc")'}, expect: {A1: 2}}
+- {id: findb02, requires: [FINDB], cells: {A1: '=FINDB("","abc")'}, expect: {A1: 1}}
+- {id: findb03, requires: [FINDB], cells: {A1: '=FINDB("z","abc")'}, expect: {A1: {error: "#VALUE!"}}}
+# FIXED https://support.microsoft.com/en-us/excel/functions/fixed-function
+- {id: fixed01, requires: [FIXED], cells: {A1: "=FIXED(1234.567,1)"}, expect: {A1: "1,234.6"}}
+- {id: fixed02, requires: [FIXED], cells: {A1: "=FIXED(1234.567,-1)"}, expect: {A1: "1,230"}}
+- {id: fixed03, requires: [FIXED], cells: {A1: "=FIXED(-1234.567,-1,TRUE)"}, expect: {A1: "-1230"}, note: "no commas"}
+- {id: fixed04, requires: [FIXED], cells: {A1: "=FIXED(44.332)"}, expect: {A1: "44.33"}}
+- {id: fixed05, requires: [FIXED], cells: {A1: '=FIXED("x")'}, expect: {A1: {error: "#VALUE!"}}}
+# LEFT, LEFTB https://support.microsoft.com/en-us/excel/functions/left-function
+- {id: left01, requires: [LEFT], cells: {A1: '=LEFT("Sale Price",4)'}, expect: {A1: "Sale"}}
+- {id: left02, requires: [LEFT], cells: {A1: '=LEFT("Sweden")'}, expect: {A1: "S"}, note: "default 1"}
+- {id: left03, requires: [LEFT], cells: {A1: '=LEFT("abc",10)'}, expect: {A1: "abc"}}
+- {id: left04, requires: [LEFT], cells: {A1: '=LEFT("abc",0)'}, expect: {A1: ""}}
+- {id: left05, requires: [LEFT], cells: {A1: '=LEFT("abc",-1)'}, expect: {A1: {error: "#VALUE!"}}}
+- {id: left06, requires: [LEFT], cells: {A1: "=LEFT(12345,2)"}, expect: {A1: "12"}, note: "number as text"}
+- {id: leftb01, requires: [LEFTB], cells: {A1: '=LEFTB("abc",2)'}, expect: {A1: "ab"}}
+- {id: leftb02, requires: [LEFTB], cells: {A1: '=LEFTB("abc",0)'}, expect: {A1: ""}}
+- {id: leftb03, requires: [LEFTB], cells: {A1: '=LEFTB("abc",-1)'}, expect: {A1: {error: "#VALUE!"}}}
+# LEN, LENB https://support.microsoft.com/en-us/excel/functions/len-function
+- {id: len01, requires: [LEN], cells: {A1: '=LEN("Phoenix, AZ")'}, expect: {A1: 11}}
+- {id: len02, requires: [LEN], cells: {A1: '=LEN("")'}, expect: {A1: 0}}
+- {id: len03, requires: [LEN], cells: {A1: '=LEN("     One   ")'}, expect: {A1: 11}, note: "spaces count"}
+- {id: len04, requires: [LEN], cells: {A1: "=LEN(123)"}, expect: {A1: 3}}
+- {id: len05, requires: [LEN], cells: {B1: "=LEN(A1)"}, expect: {B1: 0}, note: "blank cell"}
+- {id: len06, requires: [LEN, NA], cells: {A1: "=LEN(NA())"}, expect: {A1: {error: "#N/A"}}}
+- {id: lenb01, requires: [LENB], cells: {A1: '=LENB("abc")'}, expect: {A1: 3}}
+- {id: lenb02, requires: [LENB], cells: {A1: '=LENB("")'}, expect: {A1: 0}}
+- {id: lenb03, requires: [LENB, NA], cells: {A1: "=LENB(NA())"}, expect: {A1: {error: "#N/A"}}}
+# LOWER https://support.microsoft.com/en-us/excel/functions/lower-function
+- {id: lower01, requires: [LOWER], cells: {A1: '=LOWER("E. E. Cummings")'}, expect: {A1: "e. e. cummings"}}
+- {id: lower02, requires: [LOWER], cells: {A1: '=LOWER("Apt. 2B")'}, expect: {A1: "apt. 2b"}}
+- {id: lower03, requires: [LOWER], cells: {A1: "=LOWER(TRUE)"}, expect: {A1: "true"}, confidence: medium}
+- {id: lower04, requires: [LOWER, NA], cells: {A1: "=LOWER(NA())"}, expect: {A1: {error: "#N/A"}}}
+# MID, MIDB https://support.microsoft.com/en-us/excel/functions/mid-function
+- {id: mid01, requires: [MID], cells: {A1: '=MID("Fluid Flow",1,5)'}, expect: {A1: "Fluid"}}
+- {id: mid02, requires: [MID], cells: {A1: '=MID("Fluid Flow",7,20)'}, expect: {A1: "Flow"}}
+- {id: mid03, requires: [MID], cells: {A1: '=MID("Fluid Flow",20,5)'}, expect: {A1: ""}, note: "start beyond length"}
+- {id: mid04, requires: [MID], cells: {A1: '=MID("abc",0,1)'}, expect: {A1: {error: "#VALUE!"}}}
+- {id: mid05, requires: [MID], cells: {A1: '=MID("abc",1,-1)'}, expect: {A1: {error: "#VALUE!"}}}
+- {id: midb01, requires: [MIDB], cells: {A1: '=MIDB("Fluid Flow",7,20)'}, expect: {A1: "Flow"}}
+- {id: midb02, requires: [MIDB], cells: {A1: '=MIDB("abc",9,1)'}, expect: {A1: ""}}
+- {id: midb03, requires: [MIDB], cells: {A1: '=MIDB("abc",0,1)'}, expect: {A1: {error: "#VALUE!"}}}
+# NUMBERVALUE https://support.microsoft.com/en-us/excel/functions/numbervalue-function
+- {id: numval01, requires: [NUMBERVALUE], cells: {A1: '=NUMBERVALUE("2.500,27",",",".")'}, expect: {A1: 2500.27}}
+- {id: numval02, requires: [NUMBERVALUE], cells: {A1: '=NUMBERVALUE("3.5%")'}, expect: {A1: 0.035}}
+- {id: numval03, requires: [NUMBERVALUE], cells: {A1: '=NUMBERVALUE("")'}, expect: {A1: 0}, note: "empty text is 0"}
+- {id: numval04, requires: [NUMBERVALUE], cells: {A1: '=NUMBERVALUE(" 3 000 ")'}, expect: {A1: 3000}, note: "spaces ignored"}
+- {id: numval05, requires: [NUMBERVALUE], cells: {A1: '=NUMBERVALUE("1.2.3")'}, expect: {A1: {error: "#VALUE!"}}, note: "decimal separator used twice"}
+- {id: numval06, requires: [NUMBERVALUE], cells: {A1: '=NUMBERVALUE("1,000.5",".",".")'}, expect: {A1: {error: "#VALUE!"}}, confidence: low}
+# PHONETIC https://support.microsoft.com/en-us/excel/functions/phonetic-function
+- {id: phon01, requires: [PHONETIC], cells: {A1: "abc", B1: "=PHONETIC(A1)"}, expect: {B1: "abc"}, confidence: low, note: "no furigana stored: returns the text"}
+- {id: phon02, requires: [PHONETIC], cells: {B1: "=PHONETIC(A1)"}, expect: {B1: ""}, confidence: low}
+- {id: phon03, requires: [PHONETIC], cells: {A1: '=PHONETIC("abc")'}, expect: {A1: {error: "#N/A"}}, confidence: low, note: "reference required"}
+# PROPER https://support.microsoft.com/en-us/excel/functions/proper-function
+- {id: proper01, requires: [PROPER], cells: {A1: '=PROPER("this is a TITLE")'}, expect: {A1: "This Is A Title"}}
+- {id: proper02, requires: [PROPER], cells: {A1: '=PROPER("2-way street")'}, expect: {A1: "2-Way Street"}}
+- {id: proper03, requires: [PROPER], cells: {A1: '=PROPER("76BudGet")'}, expect: {A1: "76Budget"}}
+- {id: proper04, requires: [PROPER], cells: {A1: '=PROPER("don''t")'}, expect: {A1: "Don'T"}, note: "letter after apostrophe capitalized"}
+- {id: proper05, requires: [PROPER, NA], cells: {A1: "=PROPER(NA())"}, expect: {A1: {error: "#N/A"}}}
+# REGEXEXTRACT https://support.microsoft.com/en-us/excel/functions/regexextract-function
+- {id: rxe01, requires: [REGEXEXTRACT], cells: {A1: '=REGEXEXTRACT("abc123def","[0-9]+")'}, expect: {A1: "123"}}
+- {id: rxe02, requires: [REGEXEXTRACT], cells: {A1: '=REGEXEXTRACT("ABC","b",0,1)'}, expect: {A1: "B"}, note: "case insensitive"}
+- {id: rxe03, requires: [REGEXEXTRACT], cells: {A1: '=REGEXEXTRACT("a1b2","[0-9]",1)'}, expect: {A1: "1", B1: "2"}, note: "return_mode 1 spills all matches", confidence: medium}
+- {id: rxe04, requires: [REGEXEXTRACT], cells: {A1: '=REGEXEXTRACT("abc","[0-9]+")'}, expect: {A1: {error: "#N/A"}}, note: "no match"}
+- {id: rxe05, requires: [REGEXEXTRACT], cells: {A1: '=REGEXEXTRACT("abc","(")'}, expect: {A1: {error: "#VALUE!"}}, note: "invalid pattern", confidence: medium}
+# REGEXREPLACE https://support.microsoft.com/en-us/excel/functions/regexreplace-function
+- {id: rxr01, requires: [REGEXREPLACE], cells: {A1: '=REGEXREPLACE("abc123","[0-9]","#")'}, expect: {A1: "abc###"}}
+- {id: rxr02, requires: [REGEXREPLACE], cells: {A1: '=REGEXREPLACE("a-b-c","-","+",2)'}, expect: {A1: "a-b+c"}, note: "occurrence 2 only"}
+- {id: rxr03, requires: [REGEXREPLACE], cells: {A1: '=REGEXREPLACE("John Smith","(\w+) (\w+)","$2, $1")'}, expect: {A1: "Smith, John"}, note: "capture groups"}
+- {id: rxr04, requires: [REGEXREPLACE], cells: {A1: '=REGEXREPLACE("abc","z","y")'}, expect: {A1: "abc"}, note: "no match unchanged"}
+- {id: rxr05, requires: [REGEXREPLACE], cells: {A1: '=REGEXREPLACE("x","(","")'}, expect: {A1: {error: "#VALUE!"}}, confidence: medium}
+# REGEXTEST https://support.microsoft.com/en-us/excel/functions/regextest-function
+- {id: rxt01, requires: [REGEXTEST], cells: {A1: '=REGEXTEST("Alpha","^A")'}, expect: {A1: true}}
+- {id: rxt02, requires: [REGEXTEST], cells: {A1: '=REGEXTEST("alpha","^A")'}, expect: {A1: false}, note: "case sensitive by default"}
+- {id: rxt03, requires: [REGEXTEST], cells: {A1: '=REGEXTEST("alpha","^A",1)'}, expect: {A1: true}}
+- {id: rxt04, requires: [REGEXTEST], cells: {A1: '=REGEXTEST("a","[")'}, expect: {A1: {error: "#VALUE!"}}, confidence: medium}
+# REPLACE, REPLACEB https://support.microsoft.com/en-us/excel/functions/replace-function
+- {id: repl01, requires: [REPLACE], cells: {A1: '=REPLACE("abcdefghijk",6,5,"*")'}, expect: {A1: "abcde*k"}}
+- {id: repl02, requires: [REPLACE], cells: {A1: '=REPLACE("2009",3,2,"10")'}, expect: {A1: "2010"}}
+- {id: repl03, requires: [REPLACE], cells: {A1: '=REPLACE("123456",1,3,"@")'}, expect: {A1: "@456"}}
+- {id: repl04, requires: [REPLACE], cells: {A1: '=REPLACE("abc",10,1,"x")'}, expect: {A1: "abcx"}, note: "start beyond end appends", confidence: medium}
+- {id: repl05, requires: [REPLACE], cells: {A1: '=REPLACE("abc",0,1,"x")'}, expect: {A1: {error: "#VALUE!"}}}
+- {id: replb01, requires: [REPLACEB], cells: {A1: '=REPLACEB("abcdefghijk",6,5,"*")'}, expect: {A1: "abcde*k"}}
+- {id: replb02, requires: [REPLACEB], cells: {A1: '=REPLACEB("abc",2,0,"X")'}, expect: {A1: "aXbc"}, note: "insert"}
+- {id: replb03, requires: [REPLACEB], cells: {A1: '=REPLACEB("abc",0,1,"x")'}, expect: {A1: {error: "#VALUE!"}}}
+# REPT https://support.microsoft.com/en-us/excel/functions/rept-function
+- {id: rept01, requires: [REPT], cells: {A1: '=REPT("*-",3)'}, expect: {A1: "*-*-*-"}}
+- {id: rept02, requires: [REPT], cells: {A1: '=REPT("ab",2.9)'}, expect: {A1: "abab"}, note: "truncated"}
+- {id: rept03, requires: [REPT], cells: {A1: '=REPT("a",0)'}, expect: {A1: ""}}
+- {id: rept04, requires: [REPT], cells: {A1: '=REPT("a",-1)'}, expect: {A1: {error: "#VALUE!"}}}
+- {id: rept05, requires: [REPT], cells: {A1: '=REPT("ab",20000)'}, expect: {A1: {error: "#VALUE!"}}, note: "result over 32767 characters"}
+# RIGHT, RIGHTB https://support.microsoft.com/en-us/excel/functions/right-function
+- {id: right01, requires: [RIGHT], cells: {A1: '=RIGHT("Sale Price",5)'}, expect: {A1: "Price"}}
+- {id: right02, requires: [RIGHT], cells: {A1: '=RIGHT("Stock Number")'}, expect: {A1: "r"}}
+- {id: right03, requires: [RIGHT], cells: {A1: '=RIGHT("abc",5)'}, expect: {A1: "abc"}}
+- {id: right04, requires: [RIGHT], cells: {A1: '=RIGHT("abc",-1)'}, expect: {A1: {error: "#VALUE!"}}}
+- {id: rightb01, requires: [RIGHTB], cells: {A1: '=RIGHTB("abc",2)'}, expect: {A1: "bc"}}
+- {id: rightb02, requires: [RIGHTB], cells: {A1: '=RIGHTB("abc",0)'}, expect: {A1: ""}}
+- {id: rightb03, requires: [RIGHTB], cells: {A1: '=RIGHTB("abc",-1)'}, expect: {A1: {error: "#VALUE!"}}}
+# SEARCH, SEARCHB https://support.microsoft.com/en-us/excel/functions/search-function
+- {id: search01, requires: [SEARCH], cells: {A1: '=SEARCH("e","Statements",6)'}, expect: {A1: 7}}
+- {id: search02, requires: [SEARCH], cells: {A1: '=SEARCH("margin","Profit Margin")'}, expect: {A1: 8}, note: "case insensitive"}
+- {id: search03, requires: [SEARCH], cells: {A1: '=SEARCH("c*e","abcde")'}, expect: {A1: 3}, note: "wildcard"}
+- {id: search04, requires: [SEARCH], cells: {A1: '=SEARCH("~*","a*b")'}, expect: {A1: 2}, note: "escaped asterisk"}
+- {id: search05, requires: [SEARCH], cells: {A1: '=SEARCH("x","abc")'}, expect: {A1: {error: "#VALUE!"}}}
+- {id: searchb01, requires: [SEARCHB], cells: {A1: '=SEARCHB("B","abc")'}, expect: {A1: 2}}
+- {id: searchb02, requires: [SEARCHB], cells: {A1: '=SEARCHB("?c","abc")'}, expect: {A1: 2}}
+- {id: searchb03, requires: [SEARCHB], cells: {A1: '=SEARCHB("x","abc")'}, expect: {A1: {error: "#VALUE!"}}}
+# SUBSTITUTE https://support.microsoft.com/en-us/excel/functions/substitute-function
+- {id: subst01, requires: [SUBSTITUTE], cells: {A1: '=SUBSTITUTE("Sales Data","Sales","Cost")'}, expect: {A1: "Cost Data"}}
+- {id: subst02, requires: [SUBSTITUTE], cells: {A1: '=SUBSTITUTE("Quarter 1, 2008","1","2",1)'}, expect: {A1: "Quarter 2, 2008"}}
+- {id: subst03, requires: [SUBSTITUTE], cells: {A1: '=SUBSTITUTE("Quarter 1, 2011","1","2",3)'}, expect: {A1: "Quarter 1, 2012"}}
+- {id: subst04, requires: [SUBSTITUTE], cells: {A1: '=SUBSTITUTE("aaa","a","b")'}, expect: {A1: "bbb"}, note: "all instances"}
+- {id: subst05, requires: [SUBSTITUTE], cells: {A1: '=SUBSTITUTE("abc","","x")'}, expect: {A1: "abc"}, confidence: medium}
+- {id: subst06, requires: [SUBSTITUTE], cells: {A1: '=SUBSTITUTE("abc","a","x",0)'}, expect: {A1: {error: "#VALUE!"}}}
+# T https://support.microsoft.com/en-us/excel/functions/t-function
+- {id: t01, requires: [T], cells: {A1: "Rainfall", B1: "=T(A1)"}, expect: {B1: "Rainfall"}}
+- {id: t02, requires: [T], cells: {A1: "19", B1: "=T(A1)"}, expect: {B1: ""}}
+- {id: t03, requires: [T], cells: {A1: "TRUE", B1: "=T(A1)"}, expect: {B1: ""}}
+- {id: t04, requires: [T, NA], cells: {A1: "=T(NA())"}, expect: {A1: {error: "#N/A"}}}
+# TEXT https://support.microsoft.com/en-us/excel/functions/text-function
+- {id: text01, requires: [TEXT], cells: {A1: "1234.567", B1: '=TEXT(A1,"$#,##0.00")'}, expect: {B1: "$1,234.57"}}
+- {id: text02, requires: [TEXT], cells: {A1: "0.285", B1: '=TEXT(A1,"0.0%")'}, expect: {B1: "28.5%"}}
+- {id: text03, requires: [TEXT], cells: {A1: "12200000", B1: '=TEXT(A1,"0.00E+00")'}, expect: {B1: "1.22E+07"}}
+- {id: text04, requires: [TEXT], cells: {A1: "1234", B1: '=TEXT(A1,"0000000")'}, expect: {B1: "0001234"}}
+- {id: text05, requires: [TEXT], cells: {A1: '=TEXT("abc","0.00")'}, expect: {A1: "abc"}, note: "text passes through number format", confidence: medium}
+- {id: text06, requires: [TEXT, NA], cells: {A1: '=TEXT(NA(),"0")'}, expect: {A1: {error: "#N/A"}}}
+# TEXTAFTER https://support.microsoft.com/en-us/excel/functions/textafter-function
+- {id: tafter01, requires: [TEXTAFTER], cells: {A1: "Red riding hood's, red hood", B1: '=TEXTAFTER(A1,"hood")'}, expect: {B1: "'s, red hood"}}
+- {id: tafter02, requires: [TEXTAFTER], cells: {A1: "Red riding hood's, red hood", B1: '=TEXTAFTER(A1,"red",2,1)'}, expect: {B1: " hood"}, note: "case insensitive, second red"}
+- {id: tafter03, requires: [TEXTAFTER], cells: {A1: "Red riding hood's, red hood", B1: '=TEXTAFTER(A1,"red",-2,1)'}, expect: {B1: " riding hood's, red hood"}, note: "negative instance counts from end"}
+- {id: tafter03b, requires: [TEXTAFTER], cells: {A1: "Red riding hood's, red hood", B1: '=TEXTAFTER(A1,"red",2)'}, expect: {B1: {error: "#N/A"}}, note: "case sensitive: only one lowercase red"}
+- {id: tafter04, requires: [TEXTAFTER], cells: {A1: "Red riding hood's, red hood", B1: '=TEXTAFTER(A1,"HOOD",,1)'}, expect: {B1: "'s, red hood"}, note: "match_mode 1 case insensitive"}
+- {id: tafter05, requires: [TEXTAFTER], cells: {A1: '=TEXTAFTER("abc","z")'}, expect: {A1: {error: "#N/A"}}}
+- {id: tafter06, requires: [TEXTAFTER], cells: {A1: '=TEXTAFTER("abc","z",,,,"none")'}, expect: {A1: "none"}, note: "if_not_found"}
+- {id: tafter07, requires: [TEXTAFTER], cells: {A1: '=TEXTAFTER("abc","b",0)'}, expect: {A1: {error: "#VALUE!"}}}
+# TEXTBEFORE https://support.microsoft.com/en-us/excel/functions/textbefore-function
+- {id: tbefore01, requires: [TEXTBEFORE], cells: {A1: "Red riding hood's, red hood", B1: '=TEXTBEFORE(A1,"hood")'}, expect: {B1: "Red riding "}}
+- {id: tbefore02, requires: [TEXTBEFORE], cells: {A1: "Red riding hood's, red hood", B1: '=TEXTBEFORE(A1,"hood",2)'}, expect: {B1: "Red riding hood's, red "}}
+- {id: tbefore03, requires: [TEXTBEFORE], cells: {A1: "Red riding hood's, red hood", B1: '=TEXTBEFORE(A1,"hood",-1)'}, expect: {B1: "Red riding hood's, red "}}
+- {id: tbefore04, requires: [TEXTBEFORE], cells: {A1: '=TEXTBEFORE("abc","z")'}, expect: {A1: {error: "#N/A"}}}
+- {id: tbefore05, requires: [TEXTBEFORE], cells: {A1: '=TEXTBEFORE("abc","b",0)'}, expect: {A1: {error: "#VALUE!"}}}
+# TEXTJOIN https://support.microsoft.com/en-us/excel/functions/textjoin-function
+- {id: tjoin01, requires: [TEXTJOIN], cells: {A1: "a", A2: "", A3: "b", B1: '=TEXTJOIN(", ",TRUE,A1:A3)'}, expect: {B1: "a, b"}, note: "A2 left blank by empty entry"}
+- {id: tjoin02, requires: [TEXTJOIN], cells: {A1: '=TEXTJOIN(", ",FALSE,"a","","b")'}, expect: {A1: "a, , b"}}
+- {id: tjoin03, requires: [TEXTJOIN], cells: {A1: '=TEXTJOIN("",TRUE,1,2,3)'}, expect: {A1: "123"}}
+- {id: tjoin04, requires: [TEXTJOIN, REPT], cells: {A1: '=TEXTJOIN("",TRUE,REPT("a",20000),REPT("b",20000))'}, expect: {A1: {error: "#VALUE!"}}, note: "result over 32767 characters"}
+# TRIM https://support.microsoft.com/en-us/excel/functions/trim-function
+- {id: trim01, requires: [TRIM], cells: {A1: '=TRIM(" First Quarter Earnings ")'}, expect: {A1: "First Quarter Earnings"}}
+- {id: trim02, requires: [TRIM], cells: {A1: '=TRIM("  a   b  ")'}, expect: {A1: "a b"}, note: "inner runs collapse to one space"}
+- {id: trim03, requires: [TRIM, LEN, CHAR], cells: {A1: "=LEN(TRIM(CHAR(160)))"}, expect: {A1: 1}, note: "nonbreaking space kept"}
+- {id: trim04, requires: [TRIM], cells: {A1: '=TRIM("")'}, expect: {A1: ""}}
+- {id: trim05, requires: [TRIM, NA], cells: {A1: "=TRIM(NA())"}, expect: {A1: {error: "#N/A"}}}
+# UNICHAR https://support.microsoft.com/en-us/excel/functions/unichar-function
+- {id: unichar01, requires: [UNICHAR], cells: {A1: "=UNICHAR(66)"}, expect: {A1: "B"}}
+- {id: unichar02, requires: [UNICHAR], cells: {A1: "=UNICHAR(32)"}, expect: {A1: " "}}
+- {id: unichar03, requires: [UNICHAR], cells: {A1: "=UNICHAR(8364)"}, expect: {A1: "€"}}
+- {id: unichar04, requires: [UNICHAR], cells: {A1: "=UNICHAR(0)"}, expect: {A1: {error: "#VALUE!"}}}
+# UNICODE https://support.microsoft.com/en-us/excel/functions/unicode-function
+- {id: unicode01, requires: [UNICODE], cells: {A1: '=UNICODE(" ")'}, expect: {A1: 32}}
+- {id: unicode02, requires: [UNICODE], cells: {A1: '=UNICODE("B")'}, expect: {A1: 66}}
+- {id: unicode03, requires: [UNICODE], cells: {A1: '=UNICODE("€uro")'}, expect: {A1: 8364}, note: "first character"}
+- {id: unicode04, requires: [UNICODE], cells: {A1: '=UNICODE("")'}, expect: {A1: {error: "#VALUE!"}}}
+# UPPER https://support.microsoft.com/en-us/excel/functions/upper-function
+- {id: upper01, requires: [UPPER], cells: {A1: '=UPPER("total")'}, expect: {A1: "TOTAL"}}
+- {id: upper02, requires: [UPPER], cells: {A1: '=UPPER("Yield")'}, expect: {A1: "YIELD"}}
+- {id: upper03, requires: [UPPER], cells: {A1: '=UPPER("a1b")'}, expect: {A1: "A1B"}}
+- {id: upper04, requires: [UPPER, NA], cells: {A1: "=UPPER(NA())"}, expect: {A1: {error: "#N/A"}}}
+# VALUE https://support.microsoft.com/en-us/excel/functions/value-function
+- {id: value01, requires: [VALUE], cells: {A1: '=VALUE("$1,000")'}, expect: {A1: 1000}}
+- {id: value02, requires: [VALUE], cells: {A1: '=VALUE("16:48:00")-VALUE("12:00:00")'}, expect: {A1: 0.2}, tol: 1e-12}
+- {id: value03, requires: [VALUE], cells: {A1: '=VALUE("12%")'}, expect: {A1: 0.12}}
+- {id: value04, requires: [VALUE], cells: {A1: '=VALUE(" 5 ")'}, expect: {A1: 5}, confidence: medium}
+- {id: value05, requires: [VALUE], cells: {A1: '=VALUE("abc")'}, expect: {A1: {error: "#VALUE!"}}}
+# VALUETOTEXT https://support.microsoft.com/en-us/excel/functions/valuetotext-function
+- {id: v2t01, requires: [VALUETOTEXT], cells: {A1: '=VALUETOTEXT("a")'}, expect: {A1: "a"}}
+- {id: v2t02, requires: [VALUETOTEXT], cells: {A1: '=VALUETOTEXT("a",1)'}, expect: {A1: '"a"'}, note: "strict quotes text"}
+- {id: v2t03, requires: [VALUETOTEXT], cells: {A1: "=VALUETOTEXT(TRUE)"}, expect: {A1: "TRUE"}}
+- {id: v2t04, requires: [VALUETOTEXT], cells: {A1: "=VALUETOTEXT(1/0)"}, expect: {A1: "#DIV/0!"}, note: "errors become text"}
+- {id: v2t05, requires: [VALUETOTEXT], cells: {A1: '=VALUETOTEXT("a",2)'}, expect: {A1: {error: "#VALUE!"}}}
+# JIS https://support.microsoft.com/en-us/excel/functions/jis-function
+- {id: jis01, requires: [JIS], cells: {A1: '=JIS("EXCEL")'}, expect: {A1: "ＥＸＣＥＬ"}, confidence: low}
+- {id: jis02, requires: [JIS], cells: {A1: '=JIS("")'}, expect: {A1: ""}, confidence: medium}
+- {id: jis03, requires: [JIS, NA], cells: {A1: "=JIS(NA())"}, expect: {A1: {error: "#N/A"}}}

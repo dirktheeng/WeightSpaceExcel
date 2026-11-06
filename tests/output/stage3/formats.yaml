@@ -1,0 +1,80 @@
+# Stage 3 number format display cases.
+# Written 2026-11-06 by tests-345-agent. Do not edit to fit results.
+# value: raw text typed into A1. format: Excel format code. text: expected displayed text.
+# Runner checks via =TEXT(A1,format) in A2 unless display_only (needs a cell display observer,
+# then optional col_width in default-width characters; default column width is 8.43).
+# Sources: Review guidelines for customizing a number format
+#   https://support.microsoft.com/en-us/office/review-guidelines-for-customizing-a-number-format-c0a1d1fa-d3f4-4018-96b7-9c9354dd99f5
+#   Number format codes https://support.microsoft.com/en-us/office/number-format-codes-5026bbd6-04bc-48cd-bf33-80f18b4eae68
+#   TEXT function https://support.microsoft.com/en-us/excel/functions/text-function
+#   Available number formats https://support.microsoft.com/en-us/office/available-number-formats-in-excel-0afe8f52-97db-41f1-b972-4b46e9f1e8d2
+# Those office/ URLs with ids were recalled, not resolved this session (confidence medium on links).
+cases:
+# digit placeholders 0 # ? and decimal point
+- {id: fd01, item: "TEXT format codes: digit placeholders 0 # ? and decimal point", value: "1234.59", format: "####.#", text: "1234.6"}
+- {id: fd02, item: "TEXT format codes: digit placeholders 0 # ? and decimal point", value: "8.9", format: "#.000", text: "8.900"}
+- {id: fd03, item: "TEXT format codes: digit placeholders 0 # ? and decimal point", value: "0.631", format: "0.#", text: "0.6"}
+- {id: fd04, item: "TEXT format codes: digit placeholders 0 # ? and decimal point", value: "12", format: "#.0#", text: "12.0"}
+- {id: fd05, item: "TEXT format codes: digit placeholders 0 # ? and decimal point", value: "1234.568", format: "#.0#", text: "1234.57"}
+- {id: fd06, item: "TEXT format codes: digit placeholders 0 # ? and decimal point", value: "44.398", format: "???.???", text: " 44.398", confidence: medium}
+- {id: fd07, item: "TEXT format codes: digit placeholders 0 # ? and decimal point", value: "2.8", format: "???.???", text: "  2.8  ", confidence: medium}
+- {id: fd08, item: "TEXT format codes: digit placeholders 0 # ? and decimal point", value: "0", format: "#", text: "", note: "edge: # shows no insignificant zero"}
+- {id: fd09, item: "TEXT format codes: digit placeholders 0 # ? and decimal point", value: "0", format: "#.##", text: ".", confidence: medium}
+- {id: fd10, item: "TEXT format codes: digit placeholders 0 # ? and decimal point", value: "1234", format: "0000000", text: "0001234"}
+- {id: fd11, item: "TEXT format codes: digit placeholders 0 # ? and decimal point", value: "-0.4", format: "0", text: "-0", confidence: low, note: "rounds to zero but keeps sign"}
+# thousands separator and scaling
+- {id: fk01, item: "TEXT format codes: thousands separator and scaling by trailing commas", value: "12000", format: "#,###", text: "12,000"}
+- {id: fk02, item: "TEXT format codes: thousands separator and scaling by trailing commas", value: "12000", format: "#,", text: "12"}
+- {id: fk03, item: "TEXT format codes: thousands separator and scaling by trailing commas", value: "12200000", format: "0.0,,", text: "12.2"}
+- {id: fk04, item: "TEXT format codes: thousands separator and scaling by trailing commas", value: "999", format: "#,##0", text: "999", note: "edge: no separator under 1000"}
+- {id: fk05, item: "TEXT format codes: thousands separator and scaling by trailing commas", value: "-1234567.8", format: "#,##0.0", text: "-1,234,567.8"}
+# percent and scientific
+- {id: fp01, item: "TEXT format codes: percent and scientific E+ E-", value: "0.08", format: "0%", text: "8%"}
+- {id: fp02, item: "TEXT format codes: percent and scientific E+ E-", value: "2.8", format: "0%", text: "280%"}
+- {id: fp03, item: "TEXT format codes: percent and scientific E+ E-", value: "0.285", format: "0.0%", text: "28.5%"}
+- {id: fp04, item: "TEXT format codes: percent and scientific E+ E-", value: "12200000", format: "0.00E+00", text: "1.22E+07"}
+- {id: fp05, item: "TEXT format codes: percent and scientific E+ E-", value: "0.000123", format: "0.00E+00", text: "1.23E-04"}
+- {id: fp06, item: "TEXT format codes: percent and scientific E+ E-", value: "123", format: "0.0E-0", text: "1.2E2", note: "E- shows no plus sign", confidence: medium}
+- {id: fp07, item: "TEXT format codes: percent and scientific E+ E-", value: "12345", format: "##0.0E+0", text: "12.3E+3", note: "engineering style", confidence: medium}
+# literal text, quoting, backslash, @
+- {id: fl01, item: "TEXT format codes: literal text quoting backslash escape and @", value: "12", format: '0" units"', text: "12 units"}
+- {id: fl02, item: "TEXT format codes: literal text quoting backslash escape and @", value: "12", format: '\#0', text: "#12"}
+- {id: fl03, item: "TEXT format codes: literal text quoting backslash escape and @", value: "abc", format: '"Item: "@', text: "Item: abc"}
+- {id: fl04, item: "TEXT format codes: literal text quoting backslash escape and @", value: "5", format: "(0)", text: "(5)", note: "parentheses are literal without quotes"}
+- {id: fl05, item: "TEXT format codes: literal text quoting backslash escape and @", value: "1.5", format: "$0.00", text: "$1.50"}
+- {id: fl06, item: "TEXT format codes: literal text quoting backslash escape and @", value: "abc", format: '0.0;-0.0;0;"[" @ "]"', text: "[ abc ]", note: "fourth section for text"}
+# built-in formats (format codes as Format Cells writes them)
+- {id: fg01, item: "Built-in number format General", value: "1234.5", format: "General", text: "1234.5"}
+- {id: fg02, item: "Built-in number format General", value: "=0.1+0.2", format: "General", text: "0.3", note: "15 significant digits"}
+- {id: fg03, item: "Built-in number format General", value: "1E+20", format: "General", text: "1E+20"}
+- {id: fg04, item: "Built-in number format General", value: "-0.5", format: "General", text: "-0.5"}
+- {id: fn01, item: "Built-in number format Number with decimals and thousands separator", value: "1234.567", format: "#,##0.00", text: "1,234.57"}
+- {id: fn02, item: "Built-in number format Number with decimals and thousands separator", value: "-1234.5", format: "#,##0.00", text: "-1,234.50"}
+- {id: fn03, item: "Built-in number format Number with decimals and thousands separator", value: "0.005", format: "0.00", text: "0.01", note: "half away from zero"}
+- {id: fc01, item: "Built-in number format Currency", value: "1234.5", format: "$#,##0.00", text: "$1,234.50"}
+- {id: fc02, item: "Built-in number format Currency", value: "-1234.5", format: "$#,##0.00", text: "-$1,234.50"}
+- {id: fc03, item: "Built-in number format Currency", value: "-1234.5", format: "$#,##0.00_);($#,##0.00)", text: "($1,234.50)"}
+- {id: fc04, item: "Built-in number format Currency", value: "0", format: "$#,##0.00", text: "$0.00"}
+- {id: fa01, item: "Built-in number format Accounting", value: "1234.5", format: '_($* #,##0.00_);_($* (#,##0.00);_($* "-"??_);_(@_)', text: " $1,234.50 ", confidence: low, note: "TEXT drops * fill; _ gives one space"}
+- {id: fa02, item: "Built-in number format Accounting", value: "-1234.5", format: '_($* #,##0.00_);_($* (#,##0.00);_($* "-"??_);_(@_)', text: " $(1,234.50)", confidence: low}
+- {id: fa03, item: "Built-in number format Accounting", value: "0", format: '_($* #,##0.00_);_($* (#,##0.00);_($* "-"??_);_(@_)', text: " $-   ", confidence: low, note: "zero shows dash plus two ? spaces"}
+- {id: fpc01, item: "Built-in number format Percentage", value: "0.1234", format: "0.00%", text: "12.34%"}
+- {id: fpc02, item: "Built-in number format Percentage", value: "1", format: "0.00%", text: "100.00%"}
+- {id: fpc03, item: "Built-in number format Percentage", value: "-0.005", format: "0%", text: "-1%", confidence: medium}
+- {id: fs01, item: "Built-in number format Scientific", value: "1234", format: "0.00E+00", text: "1.23E+03"}
+- {id: fs02, item: "Built-in number format Scientific", value: "0", format: "0.00E+00", text: "0.00E+00"}
+- {id: fs03, item: "Built-in number format Scientific", value: "-0.00056", format: "0.00E+00", text: "-5.60E-04"}
+- {id: ft01, item: "Built-in number format Text", value: "1234", format: "@", text: "1234"}
+- {id: ft02, item: "Built-in number format Text", value: "abc", format: "@", text: "abc"}
+- {id: ft03, item: "Built-in number format Text", value: "1.50", format: "@", text: "1.5", note: "number already stored as 1.5"}
+- {id: fneg01, item: "Negative number display options (red and parentheses)", value: "-5", format: "0;(0)", text: "(5)"}
+- {id: fneg02, item: "Negative number display options (red and parentheses)", value: "-1234.1", format: "#,##0.00;[Red]#,##0.00", text: "1,234.10", note: "TEXT ignores color, no minus sign in section 2"}
+- {id: fneg03, item: "Negative number display options (red and parentheses)", value: "-1234.1", format: "#,##0.00;[Red]#,##0.00", text: "1,234.10", display_only: true, color: red}
+- {id: fneg04, item: "Negative number display options (red and parentheses)", value: "1234.1", format: "#,##0.00_);(#,##0.00)", text: "1,234.10 "}
+# display-only items
+- {id: fhash01, item: "Display of #### when a value does not fit", value: "123456789", format: "0", col_width: 3, text: "###", display_only: true, confidence: medium, note: "fills the cell width with #"}
+- {id: fhash02, item: "Display of #### when a value does not fit", value: "1234.5", format: "#,##0.00", col_width: 8.43, text: "1,234.50", display_only: true}
+- {id: fhash03, item: "Display of #### when a value does not fit", value: "abcdefghijklmnop", format: "General", col_width: 3, text: "abcdefghijklmnop", display_only: true, note: "text never shows ####; overflow is clipped or spills"}
+- {id: fgw01, item: "General format column-width adaptive rounding", value: "1234567.891", format: "General", col_width: 8.43, text: "1234568", display_only: true, confidence: medium}
+- {id: fgw02, item: "General format column-width adaptive rounding", value: "0.123456789012", format: "General", col_width: 8.43, text: "0.123457", display_only: true, confidence: medium}
+- {id: fgw03, item: "General format column-width adaptive rounding", value: "123456789012", format: "General", col_width: 8.43, text: "1.23E+11", display_only: true, confidence: low}

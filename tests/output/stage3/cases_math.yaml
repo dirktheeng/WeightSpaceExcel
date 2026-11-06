@@ -1,0 +1,444 @@
+# Stage 3 conformance cases: math and trigonometry functions.
+# Written 2026-11-06 by tests-345-agent before Stage 3 weights exist. Do not edit to fit results.
+# Format as tests/output/stage1/cases.yaml plus: tol (relative), abs_tol, requires (checklist item names).
+# Expected values paraphrase Microsoft support examples and documented rules; none computed by code.
+# Source page per group: https://support.microsoft.com/en-us/excel/functions/<name>-function
+# Settings: en-US, automatic calculation, 1900 date system.
+cases:
+# ABS https://support.microsoft.com/en-us/excel/functions/abs-function
+- {id: abs01, requires: [ABS], cells: {A1: "=ABS(-4)"}, expect: {A1: 4}}
+- {id: abs02, requires: [ABS], cells: {A1: "=ABS(0)"}, expect: {A1: 0}, note: edge}
+- {id: abs03, requires: [ABS], cells: {A1: '=ABS("-2")'}, expect: {A1: 2}, note: "numeric text coerces"}
+- {id: abs04, requires: [ABS], cells: {A1: '=ABS("x")'}, expect: {A1: {error: "#VALUE!"}}}
+# ACOS https://support.microsoft.com/en-us/excel/functions/acos-function
+- {id: acos01, requires: [ACOS], cells: {A1: "=ACOS(-0.5)"}, expect: {A1: 2.094395102}, tol: 1e-9}
+- {id: acos02, requires: [ACOS], cells: {A1: "=ACOS(1)"}, expect: {A1: 0}}
+- {id: acos03, requires: [ACOS], cells: {A1: "=ACOS(2)"}, expect: {A1: {error: "#NUM!"}}, note: "outside -1..1"}
+# ACOSH https://support.microsoft.com/en-us/excel/functions/acosh-function
+- {id: acosh01, requires: [ACOSH], cells: {A1: "=ACOSH(10)"}, expect: {A1: 2.9932228}, tol: 1e-7}
+- {id: acosh02, requires: [ACOSH], cells: {A1: "=ACOSH(1)"}, expect: {A1: 0}}
+- {id: acosh03, requires: [ACOSH], cells: {A1: "=ACOSH(0.5)"}, expect: {A1: {error: "#NUM!"}}}
+# ACOT https://support.microsoft.com/en-us/excel/functions/acot-function
+- {id: acot01, requires: [ACOT], cells: {A1: "=ACOT(2)"}, expect: {A1: 0.463647609}, tol: 1e-8}
+- {id: acot02, requires: [ACOT], cells: {A1: "=ACOT(0)"}, expect: {A1: 1.5707963267949}, tol: 1e-13, note: "edge, pi/2"}
+- {id: acot03, requires: [ACOT], cells: {A1: '=ACOT("a")'}, expect: {A1: {error: "#VALUE!"}}}
+# ACOTH https://support.microsoft.com/en-us/excel/functions/acoth-function
+- {id: acoth01, requires: [ACOTH], cells: {A1: "=ACOTH(6)"}, expect: {A1: 0.168236118}, tol: 1e-8}
+- {id: acoth02, requires: [ACOTH], cells: {A1: "=ACOTH(-6)"}, expect: {A1: -0.168236118}, tol: 1e-8}
+- {id: acoth03, requires: [ACOTH], cells: {A1: "=ACOTH(0.5)"}, expect: {A1: {error: "#NUM!"}}, note: "abs below 1"}
+# AGGREGATE https://support.microsoft.com/en-us/excel/functions/aggregate-function
+- {id: agg01, requires: [AGGREGATE], cells: {A1: "1", A2: "=1/0", A3: "3", A4: "4", B1: "=AGGREGATE(9,6,A1:A4)"}, expect: {B1: 8}, note: "option 6 ignores errors"}
+- {id: agg02, requires: [AGGREGATE], cells: {A1: "1", A2: "=1/0", A3: "3", A4: "4", B1: "=AGGREGATE(4,6,A1:A4)"}, expect: {B1: 4}}
+- {id: agg03, requires: [AGGREGATE], cells: {A1: "1", A2: "=1/0", A3: "3", A4: "4", B1: "=AGGREGATE(14,6,A1:A4,2)"}, expect: {B1: 3}, note: "LARGE k=2"}
+- {id: agg04, requires: [AGGREGATE], cells: {A1: "1", A2: "=1/0", A3: "3", B1: "=AGGREGATE(9,4,A1:A3)"}, expect: {B1: {error: "#DIV/0!"}}, note: "option 4 ignores nothing"}
+- {id: agg05, requires: [AGGREGATE], cells: {A1: "1", A2: "3", B1: "=AGGREGATE(14,6,A1:A2)"}, expect: {B1: {error: "#VALUE!"}}, note: "k missing for LARGE"}
+- {id: agg06, requires: [AGGREGATE], cells: {A1: "1", B1: "=AGGREGATE(20,6,A1)"}, expect: {B1: {error: "#VALUE!"}}, confidence: medium}
+# ARABIC https://support.microsoft.com/en-us/excel/functions/arabic-function
+- {id: arabic01, requires: [ARABIC], cells: {A1: '=ARABIC("LVII")'}, expect: {A1: 57}}
+- {id: arabic02, requires: [ARABIC], cells: {A1: '=ARABIC("mcmxii")'}, expect: {A1: 1912}, note: "case insensitive"}
+- {id: arabic03, requires: [ARABIC], cells: {A1: '=ARABIC("")'}, expect: {A1: 0}, note: "empty string is 0"}
+- {id: arabic04, requires: [ARABIC], cells: {A1: '=ARABIC("-L")'}, expect: {A1: -50}, confidence: medium, note: "leading minus allowed"}
+- {id: arabic05, requires: [ARABIC], cells: {A1: '=ARABIC("ABC")'}, expect: {A1: {error: "#VALUE!"}}}
+# ASIN https://support.microsoft.com/en-us/excel/functions/asin-function
+- {id: asin01, requires: [ASIN], cells: {A1: "=ASIN(-0.5)"}, expect: {A1: -0.523598776}, tol: 1e-9}
+- {id: asin02, requires: [ASIN], cells: {A1: "=ASIN(1)"}, expect: {A1: 1.5707963267949}, tol: 1e-13}
+- {id: asin03, requires: [ASIN], cells: {A1: "=ASIN(2)"}, expect: {A1: {error: "#NUM!"}}}
+# ASINH https://support.microsoft.com/en-us/excel/functions/asinh-function
+- {id: asinh01, requires: [ASINH], cells: {A1: "=ASINH(-2.5)"}, expect: {A1: -1.647231146}, tol: 1e-9}
+- {id: asinh02, requires: [ASINH], cells: {A1: "=ASINH(10)"}, expect: {A1: 2.99822295}, tol: 1e-8}
+- {id: asinh03, requires: [ASINH], cells: {A1: "=ASINH(0)"}, expect: {A1: 0}}
+- {id: asinh04, requires: [ASINH], cells: {A1: '=ASINH("x")'}, expect: {A1: {error: "#VALUE!"}}}
+# ATAN https://support.microsoft.com/en-us/excel/functions/atan-function
+- {id: atan01, requires: [ATAN], cells: {A1: "=ATAN(1)"}, expect: {A1: 0.785398163}, tol: 1e-9}
+- {id: atan02, requires: [ATAN], cells: {A1: "=ATAN(0)"}, expect: {A1: 0}}
+- {id: atan03, requires: [ATAN], cells: {A1: '=ATAN("x")'}, expect: {A1: {error: "#VALUE!"}}}
+# ATAN2 https://support.microsoft.com/en-us/excel/functions/atan2-function
+- {id: atan201, requires: [ATAN2], cells: {A1: "=ATAN2(1,1)"}, expect: {A1: 0.785398163}, tol: 1e-9}
+- {id: atan202, requires: [ATAN2], cells: {A1: "=ATAN2(-1,-1)"}, expect: {A1: -2.35619449}, tol: 1e-9}
+- {id: atan203, requires: [ATAN2], cells: {A1: "=ATAN2(-1,0)"}, expect: {A1: 3.14159265358979}, tol: 1e-13, note: "edge, x first then y"}
+- {id: atan204, requires: [ATAN2], cells: {A1: "=ATAN2(0,0)"}, expect: {A1: {error: "#DIV/0!"}}}
+# ATANH https://support.microsoft.com/en-us/excel/functions/atanh-function
+- {id: atanh01, requires: [ATANH], cells: {A1: "=ATANH(0.76159416)"}, expect: {A1: 1.00000001}, tol: 1e-8}
+- {id: atanh02, requires: [ATANH], cells: {A1: "=ATANH(-0.1)"}, expect: {A1: -0.100335348}, tol: 1e-8}
+- {id: atanh03, requires: [ATANH], cells: {A1: "=ATANH(1)"}, expect: {A1: {error: "#NUM!"}}, note: "open interval"}
+# BASE https://support.microsoft.com/en-us/excel/functions/base-function
+- {id: base01, requires: [BASE], cells: {A1: "=BASE(7,2)"}, expect: {A1: "111"}}
+- {id: base02, requires: [BASE], cells: {A1: "=BASE(100,16)"}, expect: {A1: "64"}}
+- {id: base03, requires: [BASE], cells: {A1: "=BASE(15,2,10)"}, expect: {A1: "0000001111"}, note: "min_length pads"}
+- {id: base04, requires: [BASE], cells: {A1: "=BASE(-1,2)"}, expect: {A1: {error: "#NUM!"}}}
+- {id: base05, requires: [BASE], cells: {A1: "=BASE(7,1)"}, expect: {A1: {error: "#NUM!"}}, note: "radix below 2"}
+# CEILING https://support.microsoft.com/en-us/excel/functions/ceiling-function
+- {id: ceil01, requires: [CEILING], cells: {A1: "=CEILING(2.5,1)"}, expect: {A1: 3}}
+- {id: ceil02, requires: [CEILING], cells: {A1: "=CEILING(-2.5,-2)"}, expect: {A1: -4}}
+- {id: ceil03, requires: [CEILING], cells: {A1: "=CEILING(-2.5,2)"}, expect: {A1: -2}}
+- {id: ceil04, requires: [CEILING], cells: {A1: "=CEILING(0.234,0.01)"}, expect: {A1: 0.24}, tol: 1e-13}
+- {id: ceil05, requires: [CEILING], cells: {A1: "=CEILING(2.5,-2)"}, expect: {A1: {error: "#NUM!"}}, note: "positive number, negative significance"}
+# CEILING.MATH https://support.microsoft.com/en-us/excel/functions/ceiling-math-function
+- {id: ceilm01, requires: [CEILING.MATH], cells: {A1: "=CEILING.MATH(24.3,5)"}, expect: {A1: 25}}
+- {id: ceilm02, requires: [CEILING.MATH], cells: {A1: "=CEILING.MATH(6.7)"}, expect: {A1: 7}}
+- {id: ceilm03, requires: [CEILING.MATH], cells: {A1: "=CEILING.MATH(-8.1,2)"}, expect: {A1: -8}}
+- {id: ceilm04, requires: [CEILING.MATH], cells: {A1: "=CEILING.MATH(-5.5,2,-1)"}, expect: {A1: -6}, note: "mode rounds away from zero"}
+- {id: ceilm05, requires: [CEILING.MATH], cells: {A1: '=CEILING.MATH("a")'}, expect: {A1: {error: "#VALUE!"}}}
+# CEILING.PRECISE https://support.microsoft.com/en-us/excel/functions/ceiling-precise-function
+- {id: ceilp01, requires: [CEILING.PRECISE], cells: {A1: "=CEILING.PRECISE(4.3)"}, expect: {A1: 5}}
+- {id: ceilp02, requires: [CEILING.PRECISE], cells: {A1: "=CEILING.PRECISE(-4.3)"}, expect: {A1: -4}}
+- {id: ceilp03, requires: [CEILING.PRECISE], cells: {A1: "=CEILING.PRECISE(4.3,-2)"}, expect: {A1: 6}, note: "sign of significance ignored"}
+- {id: ceilp04, requires: [CEILING.PRECISE], cells: {A1: "=CEILING.PRECISE(-4.3,2)"}, expect: {A1: -4}}
+- {id: ceilp05, requires: [CEILING.PRECISE], cells: {A1: '=CEILING.PRECISE("x")'}, expect: {A1: {error: "#VALUE!"}}}
+# COMBIN https://support.microsoft.com/en-us/excel/functions/combin-function
+- {id: combin01, requires: [COMBIN], cells: {A1: "=COMBIN(8,2)"}, expect: {A1: 28}}
+- {id: combin02, requires: [COMBIN], cells: {A1: "=COMBIN(8.9,2.1)"}, expect: {A1: 28}, note: "args truncated"}
+- {id: combin03, requires: [COMBIN], cells: {A1: "=COMBIN(5,0)"}, expect: {A1: 1}}
+- {id: combin04, requires: [COMBIN], cells: {A1: "=COMBIN(2,3)"}, expect: {A1: {error: "#NUM!"}}}
+# COMBINA https://support.microsoft.com/en-us/excel/functions/combina-function
+- {id: combina01, requires: [COMBINA], cells: {A1: "=COMBINA(4,3)"}, expect: {A1: 20}}
+- {id: combina02, requires: [COMBINA], cells: {A1: "=COMBINA(10,3)"}, expect: {A1: 220}}
+- {id: combina03, requires: [COMBINA], cells: {A1: "=COMBINA(3,0)"}, expect: {A1: 1}, confidence: medium}
+- {id: combina04, requires: [COMBINA], cells: {A1: "=COMBINA(-1,2)"}, expect: {A1: {error: "#NUM!"}}}
+# COS https://support.microsoft.com/en-us/excel/functions/cos-function
+- {id: cos01, requires: [COS], cells: {A1: "=COS(1.047)"}, expect: {A1: 0.500171075}, tol: 1e-8}
+- {id: cos02, requires: [COS, RADIANS], cells: {A1: "=COS(RADIANS(60))"}, expect: {A1: 0.5}, tol: 1e-14}
+- {id: cos03, requires: [COS], cells: {A1: "=COS(0)"}, expect: {A1: 1}}
+- {id: cos04, requires: [COS], cells: {A1: '=COS("x")'}, expect: {A1: {error: "#VALUE!"}}}
+- {id: cos05, requires: [COS], cells: {A1: "=COS(2^27)"}, expect: {A1: {error: "#NUM!"}}, confidence: low, note: "argument at or above 2^27 rejected"}
+# COSH https://support.microsoft.com/en-us/excel/functions/cosh-function
+- {id: cosh01, requires: [COSH], cells: {A1: "=COSH(4)"}, expect: {A1: 27.308233}, tol: 1e-7}
+- {id: cosh02, requires: [COSH, EXP], cells: {A1: "=COSH(EXP(1))"}, expect: {A1: 7.6101251}, tol: 1e-7}
+- {id: cosh03, requires: [COSH], cells: {A1: "=COSH(0)"}, expect: {A1: 1}}
+- {id: cosh04, requires: [COSH], cells: {A1: '=COSH("x")'}, expect: {A1: {error: "#VALUE!"}}}
+# COT https://support.microsoft.com/en-us/excel/functions/cot-function
+- {id: cot01, requires: [COT], cells: {A1: "=COT(30)"}, expect: {A1: -0.156119952}, tol: 1e-8}
+- {id: cot02, requires: [COT, PI], cells: {A1: "=COT(PI()/4)"}, expect: {A1: 1}, tol: 1e-14}
+- {id: cot03, requires: [COT], cells: {A1: "=COT(0)"}, expect: {A1: {error: "#DIV/0!"}}}
+# COTH https://support.microsoft.com/en-us/excel/functions/coth-function
+- {id: coth01, requires: [COTH], cells: {A1: "=COTH(2)"}, expect: {A1: 1.037314721}, tol: 1e-9}
+- {id: coth02, requires: [COTH], cells: {A1: "=COTH(-2)"}, expect: {A1: -1.037314721}, tol: 1e-9}
+- {id: coth03, requires: [COTH], cells: {A1: "=COTH(0)"}, expect: {A1: {error: "#DIV/0!"}}}
+# CSC https://support.microsoft.com/en-us/excel/functions/csc-function
+- {id: csc01, requires: [CSC], cells: {A1: "=CSC(15)"}, expect: {A1: 1.537780562}, tol: 1e-9}
+- {id: csc02, requires: [CSC, PI], cells: {A1: "=CSC(PI()/2)"}, expect: {A1: 1}, tol: 1e-14}
+- {id: csc03, requires: [CSC], cells: {A1: "=CSC(0)"}, expect: {A1: {error: "#DIV/0!"}}}
+# CSCH https://support.microsoft.com/en-us/excel/functions/csch-function
+- {id: csch01, requires: [CSCH], cells: {A1: "=CSCH(1.5)"}, expect: {A1: 0.469642441}, tol: 1e-9}
+- {id: csch02, requires: [CSCH], cells: {A1: "=CSCH(-1.5)"}, expect: {A1: -0.469642441}, tol: 1e-9}
+- {id: csch03, requires: [CSCH], cells: {A1: "=CSCH(0)"}, expect: {A1: {error: "#DIV/0!"}}}
+# DECIMAL https://support.microsoft.com/en-us/excel/functions/decimal-function
+- {id: decimal01, requires: [DECIMAL], cells: {A1: '=DECIMAL("FF",16)'}, expect: {A1: 255}}
+- {id: decimal02, requires: [DECIMAL], cells: {A1: "=DECIMAL(111,2)"}, expect: {A1: 7}}
+- {id: decimal03, requires: [DECIMAL], cells: {A1: '=DECIMAL("zap",36)'}, expect: {A1: 45745}}
+- {id: decimal04, requires: [DECIMAL], cells: {A1: '=DECIMAL("2",2)'}, expect: {A1: {error: "#NUM!"}}, note: "digit not valid in radix"}
+- {id: decimal05, requires: [DECIMAL], cells: {A1: '=DECIMAL("1",1)'}, expect: {A1: {error: "#NUM!"}}}
+# DEGREES https://support.microsoft.com/en-us/excel/functions/degrees-function
+- {id: degrees01, requires: [DEGREES, PI], cells: {A1: "=DEGREES(PI())"}, expect: {A1: 180}, tol: 1e-14}
+- {id: degrees02, requires: [DEGREES], cells: {A1: "=DEGREES(0)"}, expect: {A1: 0}}
+- {id: degrees03, requires: [DEGREES], cells: {A1: '=DEGREES("x")'}, expect: {A1: {error: "#VALUE!"}}}
+# EVEN https://support.microsoft.com/en-us/excel/functions/even-function
+- {id: even01, requires: [EVEN], cells: {A1: "=EVEN(1.5)"}, expect: {A1: 2}}
+- {id: even02, requires: [EVEN], cells: {A1: "=EVEN(3)"}, expect: {A1: 4}}
+- {id: even03, requires: [EVEN], cells: {A1: "=EVEN(2)"}, expect: {A1: 2}}
+- {id: even04, requires: [EVEN], cells: {A1: "=EVEN(-1)"}, expect: {A1: -2}, note: "away from zero"}
+- {id: even05, requires: [EVEN], cells: {A1: "=EVEN(0)"}, expect: {A1: 0}}
+- {id: even06, requires: [EVEN], cells: {A1: '=EVEN("x")'}, expect: {A1: {error: "#VALUE!"}}}
+# EXP https://support.microsoft.com/en-us/excel/functions/exp-function
+- {id: exp01, requires: [EXP], cells: {A1: "=EXP(1)"}, expect: {A1: 2.71828182845905}, tol: 1e-13}
+- {id: exp02, requires: [EXP], cells: {A1: "=EXP(2)"}, expect: {A1: 7.38905609893065}, tol: 1e-13}
+- {id: exp03, requires: [EXP], cells: {A1: "=EXP(0)"}, expect: {A1: 1}}
+- {id: exp04, requires: [EXP], cells: {A1: "=EXP(710)"}, expect: {A1: {error: "#NUM!"}}, note: "overflow"}
+# FACT https://support.microsoft.com/en-us/excel/functions/fact-function
+- {id: fact01, requires: [FACT], cells: {A1: "=FACT(5)"}, expect: {A1: 120}}
+- {id: fact02, requires: [FACT], cells: {A1: "=FACT(1.9)"}, expect: {A1: 1}, note: "truncated"}
+- {id: fact03, requires: [FACT], cells: {A1: "=FACT(0)"}, expect: {A1: 1}}
+- {id: fact04, requires: [FACT], cells: {A1: "=FACT(-1)"}, expect: {A1: {error: "#NUM!"}}}
+- {id: fact05, requires: [FACT], cells: {A1: "=FACT(171)"}, expect: {A1: {error: "#NUM!"}}, confidence: medium, note: "overflow"}
+# FACTDOUBLE https://support.microsoft.com/en-us/excel/functions/factdouble-function
+- {id: factd01, requires: [FACTDOUBLE], cells: {A1: "=FACTDOUBLE(6)"}, expect: {A1: 48}}
+- {id: factd02, requires: [FACTDOUBLE], cells: {A1: "=FACTDOUBLE(7)"}, expect: {A1: 105}}
+- {id: factd03, requires: [FACTDOUBLE], cells: {A1: "=FACTDOUBLE(0)"}, expect: {A1: 1}, confidence: medium}
+- {id: factd04, requires: [FACTDOUBLE], cells: {A1: "=FACTDOUBLE(-2)"}, expect: {A1: {error: "#NUM!"}}, confidence: low}
+- {id: factd05, requires: [FACTDOUBLE], cells: {A1: '=FACTDOUBLE("a")'}, expect: {A1: {error: "#VALUE!"}}}
+# FLOOR https://support.microsoft.com/en-us/excel/functions/floor-function
+- {id: floor01, requires: [FLOOR], cells: {A1: "=FLOOR(3.7,2)"}, expect: {A1: 2}}
+- {id: floor02, requires: [FLOOR], cells: {A1: "=FLOOR(-2.5,-2)"}, expect: {A1: -2}}
+- {id: floor03, requires: [FLOOR], cells: {A1: "=FLOOR(1.58,0.1)"}, expect: {A1: 1.5}, tol: 1e-13}
+- {id: floor04, requires: [FLOOR], cells: {A1: "=FLOOR(2.5,-2)"}, expect: {A1: {error: "#NUM!"}}}
+- {id: floor05, requires: [FLOOR], cells: {A1: "=FLOOR(5,0)"}, expect: {A1: {error: "#DIV/0!"}}}
+# FLOOR.MATH https://support.microsoft.com/en-us/excel/functions/floor-math-function
+- {id: floorm01, requires: [FLOOR.MATH], cells: {A1: "=FLOOR.MATH(24.3,5)"}, expect: {A1: 20}}
+- {id: floorm02, requires: [FLOOR.MATH], cells: {A1: "=FLOOR.MATH(6.7)"}, expect: {A1: 6}}
+- {id: floorm03, requires: [FLOOR.MATH], cells: {A1: "=FLOOR.MATH(-8.1,2)"}, expect: {A1: -10}}
+- {id: floorm04, requires: [FLOOR.MATH], cells: {A1: "=FLOOR.MATH(-5.5,2,-1)"}, expect: {A1: -4}, note: "mode rounds toward zero"}
+- {id: floorm05, requires: [FLOOR.MATH], cells: {A1: '=FLOOR.MATH("a")'}, expect: {A1: {error: "#VALUE!"}}}
+# FLOOR.PRECISE https://support.microsoft.com/en-us/excel/functions/floor-precise-function
+- {id: floorp01, requires: [FLOOR.PRECISE], cells: {A1: "=FLOOR.PRECISE(-3.2,-1)"}, expect: {A1: -4}}
+- {id: floorp02, requires: [FLOOR.PRECISE], cells: {A1: "=FLOOR.PRECISE(3.2,1)"}, expect: {A1: 3}}
+- {id: floorp03, requires: [FLOOR.PRECISE], cells: {A1: "=FLOOR.PRECISE(3.2,-1)"}, expect: {A1: 3}}
+- {id: floorp04, requires: [FLOOR.PRECISE], cells: {A1: "=FLOOR.PRECISE(3.2)"}, expect: {A1: 3}}
+- {id: floorp05, requires: [FLOOR.PRECISE], cells: {A1: '=FLOOR.PRECISE("x")'}, expect: {A1: {error: "#VALUE!"}}}
+# GCD https://support.microsoft.com/en-us/excel/functions/gcd-function
+- {id: gcd01, requires: [GCD], cells: {A1: "=GCD(5,2)"}, expect: {A1: 1}}
+- {id: gcd02, requires: [GCD], cells: {A1: "=GCD(24,36)"}, expect: {A1: 12}}
+- {id: gcd03, requires: [GCD], cells: {A1: "=GCD(5,0)"}, expect: {A1: 5}}
+- {id: gcd04, requires: [GCD], cells: {A1: "=GCD(-1,2)"}, expect: {A1: {error: "#NUM!"}}}
+- {id: gcd05, requires: [GCD], cells: {A1: '=GCD("a",2)'}, expect: {A1: {error: "#VALUE!"}}}
+# INT https://support.microsoft.com/en-us/excel/functions/int-function
+- {id: int01, requires: [INT], cells: {A1: "=INT(8.9)"}, expect: {A1: 8}}
+- {id: int02, requires: [INT], cells: {A1: "=INT(-8.9)"}, expect: {A1: -9}}
+- {id: int03, requires: [INT], cells: {A1: "19.5", B1: "=A1-INT(A1)"}, expect: {B1: 0.5}}
+- {id: int04, requires: [INT], cells: {A1: '=INT("x")'}, expect: {A1: {error: "#VALUE!"}}}
+# ISO.CEILING https://support.microsoft.com/en-us/excel/functions/iso-ceiling-function
+- {id: isoceil01, requires: [ISO.CEILING], cells: {A1: "=ISO.CEILING(4.3)"}, expect: {A1: 5}}
+- {id: isoceil02, requires: [ISO.CEILING], cells: {A1: "=ISO.CEILING(-4.3)"}, expect: {A1: -4}}
+- {id: isoceil03, requires: [ISO.CEILING], cells: {A1: "=ISO.CEILING(4.3,2)"}, expect: {A1: 6}}
+- {id: isoceil04, requires: [ISO.CEILING], cells: {A1: "=ISO.CEILING(-4.3,-2)"}, expect: {A1: -4}}
+- {id: isoceil05, requires: [ISO.CEILING], cells: {A1: '=ISO.CEILING("x")'}, expect: {A1: {error: "#VALUE!"}}}
+# LCM https://support.microsoft.com/en-us/excel/functions/lcm-function
+- {id: lcm01, requires: [LCM], cells: {A1: "=LCM(5,2)"}, expect: {A1: 10}}
+- {id: lcm02, requires: [LCM], cells: {A1: "=LCM(24,36)"}, expect: {A1: 72}}
+- {id: lcm03, requires: [LCM], cells: {A1: "=LCM(5,0)"}, expect: {A1: 0}, confidence: medium}
+- {id: lcm04, requires: [LCM], cells: {A1: "=LCM(-1,2)"}, expect: {A1: {error: "#NUM!"}}}
+# LN https://support.microsoft.com/en-us/excel/functions/ln-function
+- {id: ln01, requires: [LN], cells: {A1: "=LN(86)"}, expect: {A1: 4.4543473625}, tol: 1e-10}
+- {id: ln02, requires: [LN, EXP], cells: {A1: "=LN(EXP(3))"}, expect: {A1: 3}, tol: 1e-14}
+- {id: ln03, requires: [LN], cells: {A1: "=LN(1)"}, expect: {A1: 0}}
+- {id: ln04, requires: [LN], cells: {A1: "=LN(0)"}, expect: {A1: {error: "#NUM!"}}}
+- {id: ln05, requires: [LN], cells: {A1: "=LN(-1)"}, expect: {A1: {error: "#NUM!"}}}
+# LOG https://support.microsoft.com/en-us/excel/functions/log-function
+- {id: log01, requires: [LOG], cells: {A1: "=LOG(10)"}, expect: {A1: 1}}
+- {id: log02, requires: [LOG], cells: {A1: "=LOG(8,2)"}, expect: {A1: 3}, tol: 1e-14}
+- {id: log03, requires: [LOG], cells: {A1: "=LOG(86,2.7182818)"}, expect: {A1: 4.4543473}, tol: 1e-7}
+- {id: log04, requires: [LOG], cells: {A1: "=LOG(0)"}, expect: {A1: {error: "#NUM!"}}}
+- {id: log05, requires: [LOG], cells: {A1: "=LOG(10,1)"}, expect: {A1: {error: "#DIV/0!"}}, note: "base 1"}
+# LOG10 https://support.microsoft.com/en-us/excel/functions/log10-function
+- {id: log1001, requires: [LOG10], cells: {A1: "=LOG10(86)"}, expect: {A1: 1.934498451}, tol: 1e-9}
+- {id: log1002, requires: [LOG10], cells: {A1: "=LOG10(1E5)"}, expect: {A1: 5}, tol: 1e-15}
+- {id: log1003, requires: [LOG10], cells: {A1: "=LOG10(1)"}, expect: {A1: 0}}
+- {id: log1004, requires: [LOG10], cells: {A1: "=LOG10(0)"}, expect: {A1: {error: "#NUM!"}}}
+# MDETERM https://support.microsoft.com/en-us/excel/functions/mdeterm-function
+- {id: mdet01, requires: [MDETERM], cells: {A1: "=MDETERM({1,3,8,5;1,3,6,1;1,1,1,0;7,3,10,2})"}, expect: {A1: 88}, tol: 1e-12}
+- {id: mdet02, requires: [MDETERM], cells: {A1: "=MDETERM({3,6,1;1,1,0;3,10,2})"}, expect: {A1: 1}, tol: 1e-12}
+- {id: mdet03, requires: [MDETERM], cells: {A1: "=MDETERM({3,6;1,1})"}, expect: {A1: -3}, tol: 1e-12}
+- {id: mdet04, requires: [MDETERM], cells: {A1: "=MDETERM(5)"}, expect: {A1: 5}, note: "1x1 edge", confidence: medium}
+- {id: mdet05, requires: [MDETERM], cells: {A1: "=MDETERM({1,3,8,5;1,3,6,1})"}, expect: {A1: {error: "#VALUE!"}}, note: "not square"}
+- {id: mdet06, requires: [MDETERM], cells: {A1: "1", B1: "x", A2: "3", B2: "4", C1: "=MDETERM(A1:B2)"}, expect: {C1: {error: "#VALUE!"}}, note: "text cell"}
+# MINVERSE https://support.microsoft.com/en-us/excel/functions/minverse-function
+- {id: minv01, requires: [MINVERSE], cells: {A1: "=MINVERSE({4,-1;2,0})"}, expect: {A1: 0, B1: 0.5, A2: -1, B2: 2}, abs_tol: 1e-15, note: "spills 2x2"}
+- {id: minv02, requires: [MINVERSE], cells: {A1: "=MINVERSE(4)"}, expect: {A1: 0.25}, note: "1x1 edge"}
+- {id: minv03, requires: [MINVERSE], cells: {A1: "=MINVERSE({1,2;2,4})"}, expect: {A1: {error: "#NUM!"}}, note: "singular"}
+- {id: minv04, requires: [MINVERSE], cells: {A1: "=MINVERSE({1,2,3})"}, expect: {A1: {error: "#VALUE!"}}, note: "not square"}
+# MMULT https://support.microsoft.com/en-us/excel/functions/mmult-function
+- {id: mmult01, requires: [MMULT], cells: {A1: "=MMULT({1,3;7,2},{2,0;0,2})"}, expect: {A1: 2, B1: 6, A2: 14, B2: 4}}
+- {id: mmult02, requires: [MMULT], cells: {A1: "=MMULT({1,2},{3;4})"}, expect: {A1: 11}, note: "1x2 by 2x1"}
+- {id: mmult03, requires: [MMULT], cells: {A1: "=MMULT({1,2},{3,4})"}, expect: {A1: {error: "#VALUE!"}}, note: "inner dims differ"}
+# MOD https://support.microsoft.com/en-us/excel/functions/mod-function
+- {id: mod01, requires: [MOD], cells: {A1: "=MOD(3,2)"}, expect: {A1: 1}}
+- {id: mod02, requires: [MOD], cells: {A1: "=MOD(-3,2)"}, expect: {A1: 1}, note: "sign of divisor"}
+- {id: mod03, requires: [MOD], cells: {A1: "=MOD(3,-2)"}, expect: {A1: -1}}
+- {id: mod04, requires: [MOD], cells: {A1: "=MOD(-3,-2)"}, expect: {A1: -1}}
+- {id: mod05, requires: [MOD], cells: {A1: "=MOD(3,0)"}, expect: {A1: {error: "#DIV/0!"}}}
+# MROUND https://support.microsoft.com/en-us/excel/functions/mround-function
+- {id: mround01, requires: [MROUND], cells: {A1: "=MROUND(10,3)"}, expect: {A1: 9}}
+- {id: mround02, requires: [MROUND], cells: {A1: "=MROUND(-10,-3)"}, expect: {A1: -9}}
+- {id: mround03, requires: [MROUND], cells: {A1: "=MROUND(1.3,0.2)"}, expect: {A1: 1.4}, tol: 1e-13}
+- {id: mround04, requires: [MROUND], cells: {A1: "=MROUND(5,0)"}, expect: {A1: 0}, confidence: medium}
+- {id: mround05, requires: [MROUND], cells: {A1: "=MROUND(5,-2)"}, expect: {A1: {error: "#NUM!"}}, note: "signs differ"}
+# MULTINOMIAL https://support.microsoft.com/en-us/excel/functions/multinomial-function
+- {id: multi01, requires: [MULTINOMIAL], cells: {A1: "=MULTINOMIAL(2,3,4)"}, expect: {A1: 1260}}
+- {id: multi02, requires: [MULTINOMIAL], cells: {A1: "=MULTINOMIAL(3)"}, expect: {A1: 1}}
+- {id: multi03, requires: [MULTINOMIAL], cells: {A1: "=MULTINOMIAL(-1,2)"}, expect: {A1: {error: "#NUM!"}}}
+- {id: multi04, requires: [MULTINOMIAL], cells: {A1: '=MULTINOMIAL("a",2)'}, expect: {A1: {error: "#VALUE!"}}}
+# MUNIT https://support.microsoft.com/en-us/excel/functions/munit-function
+- {id: munit01, requires: [MUNIT], cells: {A1: "=MUNIT(3)"}, expect: {A1: 1, B1: 0, C1: 0, A2: 0, B2: 1, C2: 0, A3: 0, B3: 0, C3: 1}}
+- {id: munit02, requires: [MUNIT], cells: {A1: "=MUNIT(1)"}, expect: {A1: 1}}
+- {id: munit03, requires: [MUNIT], cells: {A1: "=MUNIT(0)"}, expect: {A1: {error: "#VALUE!"}}}
+# ODD https://support.microsoft.com/en-us/excel/functions/odd-function
+- {id: odd01, requires: [ODD], cells: {A1: "=ODD(1.5)"}, expect: {A1: 3}}
+- {id: odd02, requires: [ODD], cells: {A1: "=ODD(3)"}, expect: {A1: 3}}
+- {id: odd03, requires: [ODD], cells: {A1: "=ODD(2)"}, expect: {A1: 3}}
+- {id: odd04, requires: [ODD], cells: {A1: "=ODD(-1)"}, expect: {A1: -1}}
+- {id: odd05, requires: [ODD], cells: {A1: "=ODD(-2)"}, expect: {A1: -3}}
+- {id: odd06, requires: [ODD], cells: {A1: "=ODD(0)"}, expect: {A1: 1}, confidence: medium}
+- {id: odd07, requires: [ODD], cells: {A1: '=ODD("x")'}, expect: {A1: {error: "#VALUE!"}}}
+# PERCENTOF https://support.microsoft.com/en-us/excel/functions/percentof-function
+- {id: pctof01, requires: [PERCENTOF], cells: {A1: "=PERCENTOF(25,100)"}, expect: {A1: 0.25}}
+- {id: pctof02, requires: [PERCENTOF], cells: {A1: "1", A2: "2", A3: "3", A4: "4", B1: "=PERCENTOF(A1:A2,A1:A4)"}, expect: {B1: 0.3}, tol: 1e-14}
+- {id: pctof03, requires: [PERCENTOF], cells: {A1: "=PERCENTOF(1,0)"}, expect: {A1: {error: "#DIV/0!"}}, confidence: medium}
+# PI https://support.microsoft.com/en-us/excel/functions/pi-function
+- {id: pi01, requires: [PI], cells: {A1: "=PI()"}, expect: {A1: 3.14159265358979}, tol: 1e-14}
+- {id: pi02, requires: [PI], cells: {A1: "=PI()/2"}, expect: {A1: 1.57079632679490}, tol: 1e-14}
+- {id: pi03, requires: [PI], cells: {A1: "3", B1: "=PI()*(A1^2)"}, expect: {B1: 28.27433388}, tol: 1e-9}
+- {id: pi04, requires: [PI], cells: {A1: "=PI(1)"}, expect: {A1: {blank: true}}, rejected: [A1], note: "too many arguments"}
+# POWER https://support.microsoft.com/en-us/excel/functions/power-function
+- {id: power01, requires: [POWER], cells: {A1: "=POWER(5,2)"}, expect: {A1: 25}}
+- {id: power02, requires: [POWER], cells: {A1: "=POWER(98.6,3.2)"}, expect: {A1: 2401077.222}, tol: 1e-9}
+- {id: power03, requires: [POWER], cells: {A1: "=POWER(4,5/4)"}, expect: {A1: 5.656854249}, tol: 1e-9}
+- {id: power04, requires: [POWER], cells: {A1: "=POWER(0,0)"}, expect: {A1: {error: "#NUM!"}}}
+- {id: power05, requires: [POWER], cells: {A1: "=POWER(-1,0.5)"}, expect: {A1: {error: "#NUM!"}}}
+- {id: power06, requires: [POWER], cells: {A1: "=POWER(0,-1)"}, expect: {A1: {error: "#DIV/0!"}}}
+# PRODUCT https://support.microsoft.com/en-us/excel/functions/product-function
+- {id: prod01, requires: [PRODUCT], cells: {A1: "5", A2: "15", A3: "30", B1: "=PRODUCT(A1:A3)"}, expect: {B1: 2250}}
+- {id: prod02, requires: [PRODUCT], cells: {A1: "5", A2: "15", A3: "30", B1: "=PRODUCT(A1:A3,2)"}, expect: {B1: 4500}}
+- {id: prod03, requires: [PRODUCT], cells: {A1: "5", A2: "abc", A3: "TRUE", B1: "=PRODUCT(A1:A3)"}, expect: {B1: 5}, note: "text and logical in range ignored"}
+- {id: prod04, requires: [PRODUCT], cells: {A1: '=PRODUCT("2",3)'}, expect: {A1: 6}, note: "typed numeric text counts"}
+- {id: prod05, requires: [PRODUCT], cells: {B1: "=PRODUCT(A1:A3)"}, expect: {B1: 0}, note: "no numbers gives 0", confidence: medium}
+- {id: prod06, requires: [PRODUCT], cells: {A1: '=PRODUCT("a",3)'}, expect: {A1: {error: "#VALUE!"}}}
+# QUOTIENT https://support.microsoft.com/en-us/excel/functions/quotient-function
+- {id: quot01, requires: [QUOTIENT], cells: {A1: "=QUOTIENT(5,2)"}, expect: {A1: 2}}
+- {id: quot02, requires: [QUOTIENT], cells: {A1: "=QUOTIENT(4.5,3.1)"}, expect: {A1: 1}}
+- {id: quot03, requires: [QUOTIENT], cells: {A1: "=QUOTIENT(-10,3)"}, expect: {A1: -3}, note: "truncates toward zero"}
+- {id: quot04, requires: [QUOTIENT], cells: {A1: "=QUOTIENT(5,0)"}, expect: {A1: {error: "#DIV/0!"}}}
+# RADIANS https://support.microsoft.com/en-us/excel/functions/radians-function
+- {id: rad01, requires: [RADIANS], cells: {A1: "=RADIANS(270)"}, expect: {A1: 4.71238898}, tol: 1e-9}
+- {id: rad02, requires: [RADIANS], cells: {A1: "=RADIANS(0)"}, expect: {A1: 0}}
+- {id: rad03, requires: [RADIANS], cells: {A1: '=RADIANS("x")'}, expect: {A1: {error: "#VALUE!"}}}
+# RAND https://support.microsoft.com/en-us/excel/functions/rand-function
+- {id: rand01, requires: [RAND, AND], cells: {A1: "=RAND()", B1: "=AND(A1>=0,A1<1)"}, expect: {B1: true}}
+- {id: rand02, requires: [RAND, INT], cells: {A1: "=INT(RAND())"}, expect: {A1: 0}, note: "edge: never reaches 1"}
+- {id: rand03, requires: [RAND], cells: {A1: "=RAND(1)"}, expect: {A1: {blank: true}}, rejected: [A1]}
+# RANDBETWEEN https://support.microsoft.com/en-us/excel/functions/randbetween-function
+- {id: randb01, requires: [RANDBETWEEN, AND, INT], cells: {A1: "=RANDBETWEEN(1,100)", B1: "=AND(A1>=1,A1<=100,A1=INT(A1))"}, expect: {B1: true}}
+- {id: randb02, requires: [RANDBETWEEN], cells: {A1: "=RANDBETWEEN(7,7)"}, expect: {A1: 7}, note: "edge, bottom equals top"}
+- {id: randb03, requires: [RANDBETWEEN], cells: {A1: "=RANDBETWEEN(5,1)"}, expect: {A1: {error: "#NUM!"}}}
+# ROMAN https://support.microsoft.com/en-us/excel/functions/roman-function
+- {id: roman01, requires: [ROMAN], cells: {A1: "=ROMAN(499,0)"}, expect: {A1: "CDXCIX"}}
+- {id: roman02, requires: [ROMAN], cells: {A1: "=ROMAN(499,1)"}, expect: {A1: "LDVLIV"}}
+- {id: roman03, requires: [ROMAN], cells: {A1: "=ROMAN(499,2)"}, expect: {A1: "XDIX"}}
+- {id: roman04, requires: [ROMAN], cells: {A1: "=ROMAN(499,3)"}, expect: {A1: "VDIV"}}
+- {id: roman05, requires: [ROMAN], cells: {A1: "=ROMAN(499,4)"}, expect: {A1: "ID"}}
+- {id: roman06, requires: [ROMAN], cells: {A1: "=ROMAN(2013,TRUE)"}, expect: {A1: "MMXIII"}, note: "TRUE is classic form"}
+- {id: roman07, requires: [ROMAN], cells: {A1: "=ROMAN(0)"}, expect: {A1: ""}, note: "edge, zero is empty text"}
+- {id: roman08, requires: [ROMAN], cells: {A1: "=ROMAN(-1)"}, expect: {A1: {error: "#VALUE!"}}}
+- {id: roman09, requires: [ROMAN], cells: {A1: "=ROMAN(4000)"}, expect: {A1: {error: "#VALUE!"}}}
+# ROUND https://support.microsoft.com/en-us/excel/functions/round-function
+- {id: round01, requires: [ROUND], cells: {A1: "=ROUND(2.15,1)"}, expect: {A1: 2.2}}
+- {id: round02, requires: [ROUND], cells: {A1: "=ROUND(2.149,1)"}, expect: {A1: 2.1}}
+- {id: round03, requires: [ROUND], cells: {A1: "=ROUND(-1.475,2)"}, expect: {A1: -1.48}}
+- {id: round04, requires: [ROUND], cells: {A1: "=ROUND(21.5,-1)"}, expect: {A1: 20}}
+- {id: round05, requires: [ROUND], cells: {A1: "=ROUND(626.3,-3)"}, expect: {A1: 1000}}
+- {id: round06, requires: [ROUND], cells: {A1: "=ROUND(1.98,-1)"}, expect: {A1: 0}}
+- {id: round07, requires: [ROUND], cells: {A1: "=ROUND(-50.55,-2)"}, expect: {A1: -100}}
+- {id: round08, requires: [ROUND], cells: {A1: '=ROUND("x",1)'}, expect: {A1: {error: "#VALUE!"}}}
+# ROUNDDOWN https://support.microsoft.com/en-us/excel/functions/rounddown-function
+- {id: rdown01, requires: [ROUNDDOWN], cells: {A1: "=ROUNDDOWN(3.2,0)"}, expect: {A1: 3}}
+- {id: rdown02, requires: [ROUNDDOWN], cells: {A1: "=ROUNDDOWN(76.9,0)"}, expect: {A1: 76}}
+- {id: rdown03, requires: [ROUNDDOWN], cells: {A1: "=ROUNDDOWN(3.14159,3)"}, expect: {A1: 3.141}}
+- {id: rdown04, requires: [ROUNDDOWN], cells: {A1: "=ROUNDDOWN(-3.14159,1)"}, expect: {A1: -3.1}}
+- {id: rdown05, requires: [ROUNDDOWN], cells: {A1: "=ROUNDDOWN(31415.92654,-2)"}, expect: {A1: 31400}}
+- {id: rdown06, requires: [ROUNDDOWN], cells: {A1: '=ROUNDDOWN("x",0)'}, expect: {A1: {error: "#VALUE!"}}}
+# ROUNDUP https://support.microsoft.com/en-us/excel/functions/roundup-function
+- {id: rup01, requires: [ROUNDUP], cells: {A1: "=ROUNDUP(3.2,0)"}, expect: {A1: 4}}
+- {id: rup02, requires: [ROUNDUP], cells: {A1: "=ROUNDUP(76.9,0)"}, expect: {A1: 77}}
+- {id: rup03, requires: [ROUNDUP], cells: {A1: "=ROUNDUP(3.14159,3)"}, expect: {A1: 3.142}}
+- {id: rup04, requires: [ROUNDUP], cells: {A1: "=ROUNDUP(-3.14159,1)"}, expect: {A1: -3.2}}
+- {id: rup05, requires: [ROUNDUP], cells: {A1: "=ROUNDUP(31415.92654,-2)"}, expect: {A1: 31500}}
+- {id: rup06, requires: [ROUNDUP], cells: {A1: '=ROUNDUP("x",0)'}, expect: {A1: {error: "#VALUE!"}}}
+# SEC https://support.microsoft.com/en-us/excel/functions/sec-function
+- {id: sec01, requires: [SEC], cells: {A1: "=SEC(45)"}, expect: {A1: 1.90359}, tol: 1e-5}
+- {id: sec02, requires: [SEC], cells: {A1: "=SEC(30)"}, expect: {A1: 6.48292}, tol: 1e-5}
+- {id: sec03, requires: [SEC], cells: {A1: "=SEC(0)"}, expect: {A1: 1}}
+- {id: sec04, requires: [SEC], cells: {A1: '=SEC("x")'}, expect: {A1: {error: "#VALUE!"}}}
+# SECH https://support.microsoft.com/en-us/excel/functions/sech-function
+- {id: sech01, requires: [SECH], cells: {A1: "=SECH(45)"}, expect: {A1: 5.73e-20}, tol: 1e-2}
+- {id: sech02, requires: [SECH], cells: {A1: "=SECH(0)"}, expect: {A1: 1}}
+- {id: sech03, requires: [SECH], cells: {A1: '=SECH("x")'}, expect: {A1: {error: "#VALUE!"}}}
+# SERIESSUM https://support.microsoft.com/en-us/excel/functions/seriessum-function
+- {id: series01, requires: [SERIESSUM, PI], cells: {A1: "1", A2: "=-1/2", A3: "=1/24", A4: "=-1/720", B1: "=SERIESSUM(PI()/4,0,2,A1:A4)"}, expect: {B1: 0.707103215}, tol: 1e-8, note: "cos(pi/4) approximation"}
+- {id: series02, requires: [SERIESSUM], cells: {A1: "=SERIESSUM(2,1,1,{1})"}, expect: {A1: 2}, note: "single coefficient"}
+- {id: series03, requires: [SERIESSUM], cells: {A1: '=SERIESSUM("a",1,1,{1})'}, expect: {A1: {error: "#VALUE!"}}}
+# SIGN https://support.microsoft.com/en-us/excel/functions/sign-function
+- {id: sign01, requires: [SIGN], cells: {A1: "=SIGN(10)"}, expect: {A1: 1}}
+- {id: sign02, requires: [SIGN], cells: {A1: "=SIGN(4-4)"}, expect: {A1: 0}}
+- {id: sign03, requires: [SIGN], cells: {A1: "=SIGN(-0.00001)"}, expect: {A1: -1}}
+- {id: sign04, requires: [SIGN], cells: {A1: '=SIGN("x")'}, expect: {A1: {error: "#VALUE!"}}}
+# SIN https://support.microsoft.com/en-us/excel/functions/sin-function
+- {id: sin01, requires: [SIN, PI], cells: {A1: "=SIN(PI())"}, expect: {A1: 1.22465e-16}, tol: 1e-5, note: "not exactly 0"}
+- {id: sin02, requires: [SIN, PI], cells: {A1: "=SIN(PI()/2)"}, expect: {A1: 1}}
+- {id: sin03, requires: [SIN, RADIANS], cells: {A1: "=SIN(RADIANS(30))"}, expect: {A1: 0.5}, tol: 1e-14}
+- {id: sin04, requires: [SIN], cells: {A1: '=SIN("x")'}, expect: {A1: {error: "#VALUE!"}}}
+# SINH https://support.microsoft.com/en-us/excel/functions/sinh-function
+- {id: sinh01, requires: [SINH], cells: {A1: "=SINH(1)"}, expect: {A1: 1.175201194}, tol: 1e-9}
+- {id: sinh02, requires: [SINH], cells: {A1: "=SINH(-1)"}, expect: {A1: -1.175201194}, tol: 1e-9}
+- {id: sinh03, requires: [SINH], cells: {A1: "=SINH(0)"}, expect: {A1: 0}}
+- {id: sinh04, requires: [SINH], cells: {A1: "=SINH(1000)"}, expect: {A1: {error: "#NUM!"}}, confidence: medium}
+# SQRT https://support.microsoft.com/en-us/excel/functions/sqrt-function
+- {id: sqrt01, requires: [SQRT], cells: {A1: "=SQRT(16)"}, expect: {A1: 4}}
+- {id: sqrt02, requires: [SQRT], cells: {A1: "=SQRT(0)"}, expect: {A1: 0}}
+- {id: sqrt03, requires: [SQRT, ABS], cells: {A1: "-16", B1: "=SQRT(ABS(A1))"}, expect: {B1: 4}}
+- {id: sqrt04, requires: [SQRT], cells: {A1: "=SQRT(-16)"}, expect: {A1: {error: "#NUM!"}}}
+# SQRTPI https://support.microsoft.com/en-us/excel/functions/sqrtpi-function
+- {id: sqrtpi01, requires: [SQRTPI], cells: {A1: "=SQRTPI(1)"}, expect: {A1: 1.772453851}, tol: 1e-9}
+- {id: sqrtpi02, requires: [SQRTPI], cells: {A1: "=SQRTPI(2)"}, expect: {A1: 2.506628275}, tol: 1e-9}
+- {id: sqrtpi03, requires: [SQRTPI], cells: {A1: "=SQRTPI(0)"}, expect: {A1: 0}}
+- {id: sqrtpi04, requires: [SQRTPI], cells: {A1: "=SQRTPI(-1)"}, expect: {A1: {error: "#NUM!"}}}
+# SUBTOTAL https://support.microsoft.com/en-us/excel/functions/subtotal-function
+- {id: subt01, requires: [SUBTOTAL], cells: {A1: "120", A2: "10", A3: "150", A4: "23", B1: "=SUBTOTAL(9,A1:A4)"}, expect: {B1: 303}}
+- {id: subt02, requires: [SUBTOTAL], cells: {A1: "120", A2: "10", A3: "150", A4: "23", B1: "=SUBTOTAL(1,A1:A4)"}, expect: {B1: 75.75}}
+- {id: subt03, requires: [SUBTOTAL], cells: {A1: "120", A2: "10", A3: "150", A4: "23", B1: "=SUBTOTAL(109,A1:A4)"}, expect: {B1: 303}}
+- {id: subt04, requires: [SUBTOTAL], cells: {A1: "1", A2: "2", A3: "=SUBTOTAL(9,A1:A2)", B1: "=SUBTOTAL(9,A1:A3)"}, expect: {B1: 3}, note: "nested SUBTOTAL ignored"}
+- {id: subt05, requires: [SUBTOTAL], cells: {A1: "1", B1: "=SUBTOTAL(12,A1)"}, expect: {B1: {error: "#VALUE!"}}}
+# SUM https://support.microsoft.com/en-us/excel/functions/sum-function
+- {id: sum01, requires: [SUM], cells: {A1: "=SUM(3,2)"}, expect: {A1: 5}}
+- {id: sum02, requires: [SUM], cells: {A1: '=SUM("5",15,TRUE)'}, expect: {A1: 21}, note: "typed args coerce"}
+- {id: sum03, requires: [SUM], cells: {A1: "'5", A2: "TRUE", B1: "=SUM(A1:A2)"}, expect: {B1: 0}, note: "text and logical in range ignored"}
+- {id: sum04, requires: [SUM], cells: {B1: "=SUM(A1:A5)"}, expect: {B1: 0}, note: "empty range"}
+- {id: sum05, requires: [SUM], cells: {A1: '=SUM("a",1)'}, expect: {A1: {error: "#VALUE!"}}}
+- {id: sum06, requires: [SUM, NA], cells: {A1: "1", A2: "=NA()", B1: "=SUM(A1:A2)"}, expect: {B1: {error: "#N/A"}}}
+# SUMIF https://support.microsoft.com/en-us/excel/functions/sumif-function
+- {id: sumif01, requires: [SUMIF], cells: {A1: "100000", A2: "200000", A3: "300000", A4: "400000", B1: "7000", B2: "14000", B3: "21000", B4: "28000", C1: '=SUMIF(A1:A4,">160000",B1:B4)'}, expect: {C1: 63000}}
+- {id: sumif02, requires: [SUMIF], cells: {A1: "100000", A2: "200000", A3: "300000", A4: "400000", C1: '=SUMIF(A1:A4,">160000")'}, expect: {C1: 900000}}
+- {id: sumif03, requires: [SUMIF], cells: {A1: "100000", A2: "200000", A3: "300000", A4: "400000", B1: "7000", B2: "14000", B3: "21000", B4: "28000", C1: "=SUMIF(A1:A4,300000,B1:B4)"}, expect: {C1: 21000}}
+- {id: sumif04, requires: [SUMIF], cells: {A1: "Vegetables", A2: "Fruits", A3: "Greens", B1: "2300", B2: "8000", B3: "1200", C1: '=SUMIF(A1:A3,"*es",B1:B3)'}, expect: {C1: 3500}, note: "wildcard"}
+- {id: sumif05, requires: [SUMIF], cells: {A1: "a", B1: "5", C1: '=SUMIF(A1,"zzz",B1)'}, expect: {C1: 0}, note: "no match"}
+- {id: sumif06, requires: [SUMIF, NA], cells: {A1: "1", A2: "2", B1: "=NA()", B2: "5", C1: '=SUMIF(A1:A2,">0",B1:B2)'}, expect: {C1: {error: "#N/A"}}}
+# SUMIFS https://support.microsoft.com/en-us/excel/functions/sumifs-function
+- {id: sumifs01, requires: [SUMIFS], cells: {A1: "5", A2: "4", A3: "15", A4: "3", B1: "Apples", B2: "Apples", B3: "Artichokes", B4: "Artichokes", C1: "Tom", C2: "Sarah", C3: "Tom", C4: "Sarah", D1: '=SUMIFS(A1:A4,B1:B4,"=A*",C1:C4,"Tom")'}, expect: {D1: 20}}
+- {id: sumifs02, requires: [SUMIFS], cells: {A1: "5", A2: "4", A3: "15", A4: "3", B1: "Apples", B2: "Apples", B3: "Artichokes", B4: "Artichokes", C1: "Tom", C2: "Sarah", C3: "Tom", C4: "Sarah", D1: '=SUMIFS(A1:A4,B1:B4,"<>Apples",C1:C4,"Sarah")'}, expect: {D1: 3}}
+- {id: sumifs03, requires: [SUMIFS], cells: {A1: "5", B1: "x", D1: '=SUMIFS(A1,B1,"y")'}, expect: {D1: 0}, note: "no match"}
+- {id: sumifs04, requires: [SUMIFS], cells: {A1: "5", A2: "6", B1: "x", B2: "x", D1: '=SUMIFS(A1:A2,B1:B3,"x")'}, expect: {D1: {error: "#VALUE!"}}, note: "range sizes differ"}
+# SUMPRODUCT https://support.microsoft.com/en-us/excel/functions/sumproduct-function
+- {id: sumprod01, requires: [SUMPRODUCT], cells: {A1: "=SUMPRODUCT({3,4;8,6;1,9},{2,7;6,7;5,3})"}, expect: {A1: 156}}
+- {id: sumprod02, requires: [SUMPRODUCT], cells: {A1: "2", A2: "x", B1: "3", B2: "4", C1: "=SUMPRODUCT(A1:A2,B1:B2)"}, expect: {C1: 6}, note: "text treated as 0"}
+- {id: sumprod03, requires: [SUMPRODUCT], cells: {A1: "=SUMPRODUCT({1,2,3})"}, expect: {A1: 6}, note: "single array sums"}
+- {id: sumprod04, requires: [SUMPRODUCT], cells: {A1: "=SUMPRODUCT({1,2},{1,2,3})"}, expect: {A1: {error: "#VALUE!"}}}
+# SUMSQ https://support.microsoft.com/en-us/excel/functions/sumsq-function
+- {id: sumsq01, requires: [SUMSQ], cells: {A1: "=SUMSQ(3,4)"}, expect: {A1: 25}}
+- {id: sumsq02, requires: [SUMSQ], cells: {A1: "=SUMSQ(-2)"}, expect: {A1: 4}}
+- {id: sumsq03, requires: [SUMSQ], cells: {A1: "3", A2: "x", B1: "=SUMSQ(A1:A2)"}, expect: {B1: 9}}
+- {id: sumsq04, requires: [SUMSQ], cells: {A1: '=SUMSQ("a")'}, expect: {A1: {error: "#VALUE!"}}}
+# SUMX2MY2 https://support.microsoft.com/en-us/excel/functions/sumx2my2-function
+- {id: sx2my2_01, requires: [SUMX2MY2], cells: {A1: "=SUMX2MY2({2,3,9,1,8,7,5},{6,5,11,7,5,4,4})"}, expect: {A1: -55}}
+- {id: sx2my2_02, requires: [SUMX2MY2], cells: {A1: "=SUMX2MY2({3},{3})"}, expect: {A1: 0}}
+- {id: sx2my2_03, requires: [SUMX2MY2], cells: {A1: "=SUMX2MY2({1,2},{1,2,3})"}, expect: {A1: {error: "#N/A"}}}
+# SUMX2PY2 https://support.microsoft.com/en-us/excel/functions/sumx2py2-function
+- {id: sx2py2_01, requires: [SUMX2PY2], cells: {A1: "=SUMX2PY2({2,3,9,1,8,7,5},{6,5,11,7,5,4,4})"}, expect: {A1: 521}}
+- {id: sx2py2_02, requires: [SUMX2PY2], cells: {A1: "=SUMX2PY2({0},{0})"}, expect: {A1: 0}}
+- {id: sx2py2_03, requires: [SUMX2PY2], cells: {A1: "=SUMX2PY2({1,2},{1,2,3})"}, expect: {A1: {error: "#N/A"}}}
+# SUMXMY2 https://support.microsoft.com/en-us/excel/functions/sumxmy2-function
+- {id: sxmy2_01, requires: [SUMXMY2], cells: {A1: "=SUMXMY2({2,3,9,1,8,7,5},{6,5,11,7,5,4,4})"}, expect: {A1: 79}}
+- {id: sxmy2_02, requires: [SUMXMY2], cells: {A1: "=SUMXMY2({4},{4})"}, expect: {A1: 0}}
+- {id: sxmy2_03, requires: [SUMXMY2], cells: {A1: "=SUMXMY2({1,2},{1,2,3})"}, expect: {A1: {error: "#N/A"}}}
+# TAN https://support.microsoft.com/en-us/excel/functions/tan-function
+- {id: tan01, requires: [TAN], cells: {A1: "=TAN(0.785)"}, expect: {A1: 0.99920399}, tol: 1e-8}
+- {id: tan02, requires: [TAN, RADIANS], cells: {A1: "=TAN(RADIANS(45))"}, expect: {A1: 1}, tol: 1e-14}
+- {id: tan03, requires: [TAN], cells: {A1: "=TAN(0)"}, expect: {A1: 0}}
+- {id: tan04, requires: [TAN], cells: {A1: '=TAN("x")'}, expect: {A1: {error: "#VALUE!"}}}
+# TANH https://support.microsoft.com/en-us/excel/functions/tanh-function
+- {id: tanh01, requires: [TANH], cells: {A1: "=TANH(-2)"}, expect: {A1: -0.96402758}, tol: 1e-8}
+- {id: tanh02, requires: [TANH], cells: {A1: "=TANH(0.5)"}, expect: {A1: 0.462117157}, tol: 1e-9}
+- {id: tanh03, requires: [TANH], cells: {A1: "=TANH(0)"}, expect: {A1: 0}}
+- {id: tanh04, requires: [TANH], cells: {A1: '=TANH("x")'}, expect: {A1: {error: "#VALUE!"}}}
+# TRUNC https://support.microsoft.com/en-us/excel/functions/trunc-function
+- {id: trunc01, requires: [TRUNC], cells: {A1: "=TRUNC(8.9)"}, expect: {A1: 8}}
+- {id: trunc02, requires: [TRUNC], cells: {A1: "=TRUNC(-8.9)"}, expect: {A1: -8}}
+- {id: trunc03, requires: [TRUNC], cells: {A1: "=TRUNC(0.45)"}, expect: {A1: 0}}
+- {id: trunc04, requires: [TRUNC], cells: {A1: "=TRUNC(3.14159,2)"}, expect: {A1: 3.14}}
+- {id: trunc05, requires: [TRUNC], cells: {A1: "=TRUNC(1234,-2)"}, expect: {A1: 1200}}
+- {id: trunc06, requires: [TRUNC], cells: {A1: '=TRUNC("x")'}, expect: {A1: {error: "#VALUE!"}}}
+# Formula language items (stage 3): range args ignore text/booleans, wildcards, criteria with operators
+- {id: rngign01, requires: [AVERAGE, "Range arguments ignoring text and booleans in aggregate functions"], cells: {A1: "2", A2: "TRUE", A3: "x", A4: "4", B1: "=AVERAGE(A1:A4)"}, expect: {B1: 3}}
+- {id: rngign02, requires: [SUM, "Range arguments ignoring text and booleans in aggregate functions"], cells: {A1: "2", A2: "TRUE", B1: "=SUM(A1:A2,TRUE)"}, expect: {B1: 3}, note: "typed TRUE counts, range TRUE does not"}
+- {id: wild01, requires: [COUNTIF, "Wildcard matching * ? ~ in criteria functions"], cells: {A1: "apples", A2: "apricot", A3: "banana", B1: '=COUNTIF(A1:A3,"ap*")'}, expect: {B1: 2}}
+- {id: wild02, requires: [COUNTIF, "Wildcard matching * ? ~ in criteria functions"], cells: {A1: "cat", A2: "cart", A3: "cut", B1: '=COUNTIF(A1:A3,"c?t")'}, expect: {B1: 2}}
+- {id: wild03, requires: [COUNTIF, "Wildcard matching * ? ~ in criteria functions"], cells: {A1: "a*b", A2: "axb", B1: '=COUNTIF(A1:A2,"a~*b")'}, expect: {B1: 1}, note: "tilde escapes"}
+- {id: crit01, requires: [COUNTIF, "Criteria strings with operators (\">5\")"], cells: {A1: "3", A2: "5", A3: "7", B1: '=COUNTIF(A1:A3,">=5")'}, expect: {B1: 2}}
+- {id: crit02, requires: [COUNTIF, "Criteria strings with operators (\">5\")"], cells: {A1: "3", A2: "5", A3: "7", B1: '=COUNTIF(A1:A3,"<>5")'}, expect: {B1: 2}}
+- {id: crit03, requires: [COUNTIF, "Criteria strings with operators (\">5\")"], cells: {A1: "3", A2: "5", A3: "7", C1: "4", B1: '=COUNTIF(A1:A3,"<"&C1)'}, expect: {B1: 1}}

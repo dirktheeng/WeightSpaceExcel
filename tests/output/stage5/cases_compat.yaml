@@ -1,0 +1,160 @@
+# Stage 5 conformance cases: Compatibility-category functions (older names of statistical functions).
+# Written 2026-11-06 by tests-345-agent. Format and conventions: see stage3/cases_math.yaml header.
+# Each uses its own Microsoft page example (https://support.microsoft.com/en-us/excel/functions/<name>-function),
+# which usually matches the example of the modern function.
+cases:
+# BETADIST
+- {id: cbetad01, requires: [BETADIST], cells: {A1: "=BETADIST(2,8,10,1,3)"}, expect: {A1: 0.6854706}, tol: 1e-7}
+- {id: cbetad02, requires: [BETADIST], cells: {A1: "=BETADIST(3,8,10,1,3)"}, expect: {A1: 1}, tol: 1e-12, note: "edge x equals B"}
+- {id: cbetad03, requires: [BETADIST], cells: {A1: "=BETADIST(4,8,10,1,3)"}, expect: {A1: {error: "#NUM!"}}, note: "x outside A..B"}
+# BETAINV
+- {id: cbetai01, requires: [BETAINV], cells: {A1: "=BETAINV(0.685470581,8,10,1,3)"}, expect: {A1: 2}, tol: 1e-6}
+- {id: cbetai02, requires: [BETAINV], cells: {A1: "=BETAINV(0.5,1,1)"}, expect: {A1: 0.5}, tol: 1e-7}
+- {id: cbetai03, requires: [BETAINV], cells: {A1: "=BETAINV(0.5,-1,1)"}, expect: {A1: {error: "#NUM!"}}}
+# BINOMDIST
+- {id: cbinom01, requires: [BINOMDIST], cells: {A1: "=BINOMDIST(6,10,0.5,FALSE)"}, expect: {A1: 0.2050781}, tol: 1e-6}
+- {id: cbinom02, requires: [BINOMDIST], cells: {A1: "=BINOMDIST(0,10,0.5,FALSE)"}, expect: {A1: 0.0009765625}, tol: 1e-12, note: "edge 1/1024"}
+- {id: cbinom03, requires: [BINOMDIST], cells: {A1: "=BINOMDIST(6,10,1.5,FALSE)"}, expect: {A1: {error: "#NUM!"}}}
+# CHIDIST
+- {id: cchid01, requires: [CHIDIST], cells: {A1: "=CHIDIST(18.307,10)"}, expect: {A1: 0.050000589}, tol: 1e-7}
+- {id: cchid02, requires: [CHIDIST], cells: {A1: "=CHIDIST(0,10)"}, expect: {A1: 1}}
+- {id: cchid03, requires: [CHIDIST], cells: {A1: "=CHIDIST(-1,10)"}, expect: {A1: {error: "#NUM!"}}}
+# CHIINV
+- {id: cchii01, requires: [CHIINV], cells: {A1: "=CHIINV(0.050001,10)"}, expect: {A1: 18.30697346}, tol: 1e-8}
+- {id: cchii02, requires: [CHIINV], cells: {A1: "=CHIINV(0.5,2)"}, expect: {A1: 1.386294361}, tol: 1e-8, note: "2 ln 2"}
+- {id: cchii03, requires: [CHIINV], cells: {A1: "=CHIINV(0.5,0)"}, expect: {A1: {error: "#NUM!"}}}
+# CHITEST
+- {id: cchit01, requires: [CHITEST], cells: {A1: "58", B1: "35", A2: "11", B2: "25", A3: "10", B3: "23", C1: "45.35", D1: "47.65", C2: "17.56", D2: "18.44", C3: "16.09", D3: "16.91", E1: "=CHITEST(A1:B3,C1:D3)"}, expect: {E1: 0.0003082}, tol: 1e-4}
+- {id: cchit02, requires: [CHITEST], cells: {A1: "=CHITEST({10,20},{10,20})"}, expect: {A1: 1}, tol: 1e-12}
+- {id: cchit03, requires: [CHITEST], cells: {A1: "=CHITEST({1,2,3},{1,2})"}, expect: {A1: {error: "#N/A"}}}
+# CONFIDENCE
+- {id: cconf01, requires: [CONFIDENCE], cells: {A1: "=CONFIDENCE(0.05,2.5,50)"}, expect: {A1: 0.692951912}, tol: 1e-8}
+- {id: cconf02, requires: [CONFIDENCE], cells: {A1: "=CONFIDENCE(0.05,2.5,0.5)"}, expect: {A1: {error: "#NUM!"}}, note: "size below 1"}
+- {id: cconf03, requires: [CONFIDENCE], cells: {A1: "=CONFIDENCE(0.05,0,50)"}, expect: {A1: {error: "#NUM!"}}}
+# COVAR
+- {id: ccovar01, requires: [COVAR], cells: {A1: "=COVAR({3,2,4,5,6},{9,7,12,15,17})"}, expect: {A1: 5.2}, tol: 1e-12}
+- {id: ccovar02, requires: [COVAR], cells: {A1: "=COVAR({1,1},{2,3})"}, expect: {A1: 0}}
+- {id: ccovar03, requires: [COVAR], cells: {A1: "=COVAR({1,2},{1,2,3})"}, expect: {A1: {error: "#N/A"}}}
+# CRITBINOM
+- {id: ccrit01, requires: [CRITBINOM], cells: {A1: "=CRITBINOM(6,0.5,0.75)"}, expect: {A1: 4}}
+- {id: ccrit02, requires: [CRITBINOM], cells: {A1: "=CRITBINOM(6,0.5,0.01)"}, expect: {A1: 0}, note: "edge: P(X<=0)=1/64 already above 0.01"}
+- {id: ccrit03, requires: [CRITBINOM], cells: {A1: "=CRITBINOM(-1,0.5,0.75)"}, expect: {A1: {error: "#NUM!"}}}
+# EXPONDIST
+- {id: cexpd01, requires: [EXPONDIST], cells: {A1: "=EXPONDIST(0.2,10,TRUE)"}, expect: {A1: 0.86466472}, tol: 1e-8}
+- {id: cexpd02, requires: [EXPONDIST], cells: {A1: "=EXPONDIST(0.2,10,FALSE)"}, expect: {A1: 1.35335283}, tol: 1e-8}
+- {id: cexpd03, requires: [EXPONDIST], cells: {A1: "=EXPONDIST(-0.2,10,TRUE)"}, expect: {A1: {error: "#NUM!"}}}
+# FDIST
+- {id: cfdist01, requires: [FDIST], cells: {A1: "=FDIST(15.2069,6,4)"}, expect: {A1: 0.01}, tol: 1e-5}
+- {id: cfdist02, requires: [FDIST], cells: {A1: "=FDIST(0,6,4)"}, expect: {A1: 1}}
+- {id: cfdist03, requires: [FDIST], cells: {A1: "=FDIST(-1,6,4)"}, expect: {A1: {error: "#NUM!"}}}
+# FINV
+- {id: cfinv01, requires: [FINV], cells: {A1: "=FINV(0.01,6,4)"}, expect: {A1: 15.20686}, tol: 1e-6}
+- {id: cfinv02, requires: [FINV], cells: {A1: "=FINV(1,6,4)"}, expect: {A1: 0}, abs_tol: 1e-9, confidence: medium}
+- {id: cfinv03, requires: [FINV], cells: {A1: "=FINV(0.01,0,4)"}, expect: {A1: {error: "#NUM!"}}}
+# FTEST
+- {id: cftest01, requires: [FTEST], cells: {A1: "=FTEST({6,7,9,15,21},{20,28,31,38,40})"}, expect: {A1: 0.64831785}, tol: 1e-8}
+- {id: cftest02, requires: [FTEST], cells: {A1: "=FTEST({1,2,3},{2,3,4})"}, expect: {A1: 1}, tol: 1e-12}
+- {id: cftest03, requires: [FTEST], cells: {A1: "=FTEST({1},{2,3,4})"}, expect: {A1: {error: "#DIV/0!"}}}
+# GAMMADIST
+- {id: cgamd01, requires: [GAMMADIST], cells: {A1: "=GAMMADIST(10.00001131,9,2,FALSE)"}, expect: {A1: 0.032639}, tol: 1e-5}
+- {id: cgamd02, requires: [GAMMADIST], cells: {A1: "=GAMMADIST(10.00001131,9,2,TRUE)"}, expect: {A1: 0.068094}, tol: 1e-5}
+- {id: cgamd03, requires: [GAMMADIST], cells: {A1: "=GAMMADIST(10,9,0,TRUE)"}, expect: {A1: {error: "#NUM!"}}}
+# GAMMAINV
+- {id: cgami01, requires: [GAMMAINV], cells: {A1: "=GAMMAINV(0.068094,9,2)"}, expect: {A1: 10.0000112}, tol: 1e-6}
+- {id: cgami02, requires: [GAMMAINV], cells: {A1: "=GAMMAINV(0.632120558828558,1,1)"}, expect: {A1: 1}, tol: 1e-7, note: "exponential case: 1-1/e"}
+- {id: cgami03, requires: [GAMMAINV], cells: {A1: "=GAMMAINV(1.5,9,2)"}, expect: {A1: {error: "#NUM!"}}}
+# HYPGEOMDIST
+- {id: chyp01, requires: [HYPGEOMDIST], cells: {A1: "=HYPGEOMDIST(1,4,8,20)"}, expect: {A1: 0.363261}, tol: 1e-5}
+- {id: chyp02, requires: [HYPGEOMDIST], cells: {A1: "=HYPGEOMDIST(0,1,1,2)"}, expect: {A1: 0.5}, tol: 1e-14}
+- {id: chyp03, requires: [HYPGEOMDIST], cells: {A1: "=HYPGEOMDIST(1,4,8,2)"}, expect: {A1: {error: "#NUM!"}}, note: "population too small"}
+# LOGINV
+- {id: cloginv01, requires: [LOGINV], cells: {A1: "=LOGINV(0.039084,3.5,1.2)"}, expect: {A1: 4.000025}, tol: 1e-6}
+- {id: cloginv02, requires: [LOGINV], cells: {A1: "=LOGINV(0.5,0,1)"}, expect: {A1: 1}, tol: 1e-12}
+- {id: cloginv03, requires: [LOGINV], cells: {A1: "=LOGINV(0.5,0,0)"}, expect: {A1: {error: "#NUM!"}}}
+# LOGNORMDIST
+- {id: clognd01, requires: [LOGNORMDIST], cells: {A1: "=LOGNORMDIST(4,3.5,1.2)"}, expect: {A1: 0.0390836}, tol: 1e-6}
+- {id: clognd02, requires: [LOGNORMDIST], cells: {A1: "=LOGNORMDIST(1,0,1)"}, expect: {A1: 0.5}, tol: 1e-12}
+- {id: clognd03, requires: [LOGNORMDIST], cells: {A1: "=LOGNORMDIST(0,3.5,1.2)"}, expect: {A1: {error: "#NUM!"}}}
+# MODE
+- {id: cmode01, requires: [MODE], cells: {A1: "=MODE(5.6,4,4,3,2,4)"}, expect: {A1: 4}}
+- {id: cmode02, requires: [MODE], cells: {A1: "=MODE(7,7)"}, expect: {A1: 7}}
+- {id: cmode03, requires: [MODE], cells: {A1: "=MODE(1,2,3)"}, expect: {A1: {error: "#N/A"}}}
+# NEGBINOMDIST
+- {id: cnegb01, requires: [NEGBINOMDIST], cells: {A1: "=NEGBINOMDIST(10,5,0.25)"}, expect: {A1: 0.05504866}, tol: 1e-7}
+- {id: cnegb02, requires: [NEGBINOMDIST], cells: {A1: "=NEGBINOMDIST(0,1,0.5)"}, expect: {A1: 0.5}, tol: 1e-14}
+- {id: cnegb03, requires: [NEGBINOMDIST], cells: {A1: "=NEGBINOMDIST(10,0,0.25)"}, expect: {A1: {error: "#NUM!"}}}
+# NORMDIST
+- {id: cnormd01, requires: [NORMDIST], cells: {A1: "=NORMDIST(42,40,1.5,TRUE)"}, expect: {A1: 0.9087888}, tol: 1e-7}
+- {id: cnormd02, requires: [NORMDIST], cells: {A1: "=NORMDIST(40,40,1.5,TRUE)"}, expect: {A1: 0.5}, tol: 1e-14}
+- {id: cnormd03, requires: [NORMDIST], cells: {A1: "=NORMDIST(42,40,-1,TRUE)"}, expect: {A1: {error: "#NUM!"}}}
+# NORMINV
+- {id: cnormi01, requires: [NORMINV], cells: {A1: "=NORMINV(0.908789,40,1.5)"}, expect: {A1: 42.000002}, tol: 1e-8}
+- {id: cnormi02, requires: [NORMINV], cells: {A1: "=NORMINV(0.5,40,1.5)"}, expect: {A1: 40}, tol: 1e-13}
+- {id: cnormi03, requires: [NORMINV], cells: {A1: "=NORMINV(1,40,1.5)"}, expect: {A1: {error: "#NUM!"}}}
+# NORMSDIST
+- {id: cnormsd01, requires: [NORMSDIST], cells: {A1: "=NORMSDIST(1.333333)"}, expect: {A1: 0.908789}, tol: 1e-6}
+- {id: cnormsd02, requires: [NORMSDIST], cells: {A1: "=NORMSDIST(0)"}, expect: {A1: 0.5}, tol: 1e-15}
+- {id: cnormsd03, requires: [NORMSDIST], cells: {A1: '=NORMSDIST("x")'}, expect: {A1: {error: "#VALUE!"}}}
+# NORMSINV
+- {id: cnormsi01, requires: [NORMSINV], cells: {A1: "=NORMSINV(0.908789)"}, expect: {A1: 1.3333347}, tol: 1e-7}
+- {id: cnormsi02, requires: [NORMSINV], cells: {A1: "=NORMSINV(0.5)"}, expect: {A1: 0}, abs_tol: 1e-15}
+- {id: cnormsi03, requires: [NORMSINV], cells: {A1: "=NORMSINV(0)"}, expect: {A1: {error: "#NUM!"}}}
+# PERCENTILE
+- {id: cpct01, requires: [PERCENTILE], cells: {A1: "=PERCENTILE({1,3,2,4},0.3)"}, expect: {A1: 1.9}, tol: 1e-14}
+- {id: cpct02, requires: [PERCENTILE], cells: {A1: "=PERCENTILE({1,3,2,4},1)"}, expect: {A1: 4}}
+- {id: cpct03, requires: [PERCENTILE], cells: {A1: "=PERCENTILE({1,3,2,4},-0.1)"}, expect: {A1: {error: "#NUM!"}}}
+# PERCENTRANK
+- {id: cprank01, requires: [PERCENTRANK], cells: {A1: "=PERCENTRANK({13,12,11,8,4,3,2,1,1,1},4)"}, expect: {A1: 0.555}}
+- {id: cprank02, requires: [PERCENTRANK], cells: {A1: "=PERCENTRANK({13,12,11,8,4,3,2,1,1,1},8)"}, expect: {A1: 0.666}}
+- {id: cprank03, requires: [PERCENTRANK], cells: {A1: "=PERCENTRANK({13,12,11,8,4,3,2,1,1,1},13)"}, expect: {A1: 1}, note: "edge maximum"}
+- {id: cprank04, requires: [PERCENTRANK], cells: {A1: "=PERCENTRANK({13,12,11,8,4,3,2,1,1,1},4,0)"}, expect: {A1: {error: "#NUM!"}}, note: "significance below 1"}
+# POISSON
+- {id: cpois01, requires: [POISSON], cells: {A1: "=POISSON(2,5,TRUE)"}, expect: {A1: 0.124652}, tol: 1e-5}
+- {id: cpois02, requires: [POISSON], cells: {A1: "=POISSON(2,5,FALSE)"}, expect: {A1: 0.084224}, tol: 1e-5}
+- {id: cpois03, requires: [POISSON], cells: {A1: "=POISSON(-1,5,FALSE)"}, expect: {A1: {error: "#NUM!"}}}
+# QUARTILE
+- {id: cquart01, requires: [QUARTILE], cells: {A1: "=QUARTILE({1,2,4,7,8,9,10,12},1)"}, expect: {A1: 3.5}}
+- {id: cquart02, requires: [QUARTILE], cells: {A1: "=QUARTILE({1,2,4,7,8,9,10,12},2)"}, expect: {A1: 7.5}, note: "median"}
+- {id: cquart03, requires: [QUARTILE], cells: {A1: "=QUARTILE({1,2,4,7,8,9,10,12},-1)"}, expect: {A1: {error: "#NUM!"}}}
+# RANK
+- {id: crank01, requires: [RANK], cells: {A1: "7", A2: "3.5", A3: "3.5", A4: "1", A5: "2", B1: "=RANK(3.5,A1:A5,1)"}, expect: {B1: 3}}
+- {id: crank02, requires: [RANK], cells: {A1: "7", A2: "3.5", A3: "3.5", A4: "1", A5: "2", B1: "=RANK(7,A1:A5,1)"}, expect: {B1: 5}}
+- {id: crank03, requires: [RANK], cells: {A1: "7", A2: "3.5", A3: "3.5", A4: "1", A5: "2", B1: "=RANK(7,A1:A5)"}, expect: {B1: 1}}
+- {id: crank04, requires: [RANK], cells: {A1: "7", B1: "=RANK(9,A1:A5)"}, expect: {B1: {error: "#N/A"}}}
+# STDEV
+- {id: cstdev01, requires: [STDEV], cells: {A1: "=STDEV(1345,1301,1368,1322,1310,1370,1318,1350,1303,1299)"}, expect: {A1: 27.46391572}, tol: 1e-9}
+- {id: cstdev02, requires: [STDEV], cells: {A1: "=STDEV(3,3)"}, expect: {A1: 0}}
+- {id: cstdev03, requires: [STDEV], cells: {A1: "=STDEV(3)"}, expect: {A1: {error: "#DIV/0!"}}}
+# STDEVP
+- {id: cstdevp01, requires: [STDEVP], cells: {A1: "=STDEVP(1345,1301,1368,1322,1310,1370,1318,1350,1303,1299)"}, expect: {A1: 26.05455814}, tol: 1e-9}
+- {id: cstdevp02, requires: [STDEVP], cells: {A1: "=STDEVP(3)"}, expect: {A1: 0}}
+- {id: cstdevp03, requires: [STDEVP], cells: {B1: "=STDEVP(A1:A2)"}, expect: {B1: {error: "#DIV/0!"}}}
+# TDIST
+- {id: ctdist01, requires: [TDIST], cells: {A1: "=TDIST(1.959999998,60,2)"}, expect: {A1: 0.054644930}, tol: 1e-7}
+- {id: ctdist02, requires: [TDIST], cells: {A1: "=TDIST(1.959999998,60,1)"}, expect: {A1: 0.027322465}, tol: 1e-7}
+- {id: ctdist03, requires: [TDIST], cells: {A1: "=TDIST(0,60,1)"}, expect: {A1: 0.5}, tol: 1e-14}
+- {id: ctdist04, requires: [TDIST], cells: {A1: "=TDIST(-1,60,2)"}, expect: {A1: {error: "#NUM!"}}, note: "negative x"}
+# TINV
+- {id: ctinv01, requires: [TINV], cells: {A1: "=TINV(0.054644930,60)"}, expect: {A1: 1.959999998}, tol: 1e-8}
+- {id: ctinv02, requires: [TINV], cells: {A1: "=TINV(1,60)"}, expect: {A1: 0}, abs_tol: 1e-12}
+- {id: ctinv03, requires: [TINV], cells: {A1: "=TINV(0,60)"}, expect: {A1: {error: "#NUM!"}}}
+# TTEST
+- {id: cttest01, requires: [TTEST], cells: {A1: "=TTEST({3,4,5,8,9,1,2,4,5},{6,19,3,2,14,4,5,17,1},2,1)"}, expect: {A1: 0.196016}, tol: 1e-5}
+- {id: cttest02, requires: [TTEST], cells: {A1: "=TTEST({1,2,3,4},{1,2,3,4},2,2)"}, expect: {A1: 1}, tol: 1e-12}
+- {id: cttest03, requires: [TTEST], cells: {A1: "=TTEST({1,2,3},{4,5},2,1)"}, expect: {A1: {error: "#N/A"}}, note: "paired with unequal sizes"}
+# VAR
+- {id: cvar01, requires: [VAR], cells: {A1: "=VAR(1345,1301,1368,1322,1310,1370,1318,1350,1303,1299)"}, expect: {A1: 754.2666667}, tol: 1e-9}
+- {id: cvar02, requires: [VAR], cells: {A1: "=VAR(2,4)"}, expect: {A1: 2}, tol: 1e-14}
+- {id: cvar03, requires: [VAR], cells: {A1: "=VAR(2)"}, expect: {A1: {error: "#DIV/0!"}}}
+# VARP
+- {id: cvarp01, requires: [VARP], cells: {A1: "=VARP(1345,1301,1368,1322,1310,1370,1318,1350,1303,1299)"}, expect: {A1: 678.84}, tol: 1e-12}
+- {id: cvarp02, requires: [VARP], cells: {A1: "=VARP(2,4)"}, expect: {A1: 1}, tol: 1e-14}
+- {id: cvarp03, requires: [VARP], cells: {B1: "=VARP(A1:A2)"}, expect: {B1: {error: "#DIV/0!"}}}
+# WEIBULL
+- {id: cweib01, requires: [WEIBULL], cells: {A1: "=WEIBULL(105,20,100,TRUE)"}, expect: {A1: 0.929581}, tol: 1e-6}
+- {id: cweib02, requires: [WEIBULL], cells: {A1: "=WEIBULL(105,20,100,FALSE)"}, expect: {A1: 0.035589}, tol: 1e-5}
+- {id: cweib03, requires: [WEIBULL], cells: {A1: "=WEIBULL(-1,20,100,TRUE)"}, expect: {A1: {error: "#NUM!"}}}
+# ZTEST
+- {id: cztest01, requires: [ZTEST], cells: {A1: "=ZTEST({3,6,7,8,6,5,4,2,1,9},4)"}, expect: {A1: 0.090574}, tol: 1e-5}
+- {id: cztest02, requires: [ZTEST], cells: {A1: "=ZTEST({3,6,7,8,6,5,4,2,1,9},6)"}, expect: {A1: 0.863043}, tol: 1e-6}
+- {id: cztest03, requires: [ZTEST], cells: {A1: "=ZTEST({5,5,5},4)"}, expect: {A1: {error: "#DIV/0!"}}}

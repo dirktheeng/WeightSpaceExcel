@@ -1,0 +1,248 @@
+# Stage 5 conformance cases: financial functions.
+# Written 2026-11-06 by tests-345-agent. Format and conventions: see stage3/cases_math.yaml header.
+# Values follow the Microsoft example for each function page
+# (https://support.microsoft.com/en-us/excel/functions/<name>-function). Results printed to cents
+# use abs_tol 0.005; others use tol matching the printed digits. DISC and ODDFYIELD examples were
+# re-read on the live page this session; the rest are recalled examples (confidence medium where noted).
+# Dates are typed as en-US date text in cells.
+cases:
+# ACCRINT
+- {id: accrint01, requires: [ACCRINT], cells: {A1: "3/1/2008", A2: "8/31/2008", A3: "5/1/2008", B1: "=ACCRINT(A1,A2,A3,0.1,1000,2,0)"}, expect: {B1: 16.666667}, tol: 1e-7}
+- {id: accrint02, requires: [ACCRINT], cells: {A1: "3/5/2008", A2: "8/31/2008", A3: "5/1/2008", B1: "=ACCRINT(A1,A2,A3,0.1,1000,2,0,FALSE)"}, expect: {B1: 15.555556}, tol: 1e-7, note: "calc_method FALSE: from first interest"}
+- {id: accrint03, requires: [ACCRINT], cells: {A1: "3/1/2008", A2: "8/31/2008", A3: "5/1/2008", B1: "=ACCRINT(A1,A2,A3,0,1000,2,0)"}, expect: {B1: {error: "#NUM!"}}, note: "rate 0"}
+- {id: accrint04, requires: [ACCRINT], cells: {A1: "3/1/2008", A2: "8/31/2008", A3: "5/1/2008", B1: "=ACCRINT(A1,A2,A3,0.1,1000,3,0)"}, expect: {B1: {error: "#NUM!"}}, note: "frequency 3"}
+# ACCRINTM
+- {id: accrintm01, requires: [ACCRINTM], cells: {A1: "4/1/2008", A2: "6/15/2008", B1: "=ACCRINTM(A1,A2,0.1,1000,3)"}, expect: {B1: 20.54794521}, tol: 1e-9}
+- {id: accrintm02, requires: [ACCRINTM], cells: {A1: "4/1/2008", A2: "6/15/2008", B1: "=ACCRINTM(A1,A2,0.1,1000)"}, expect: {B1: 20.55555556}, tol: 1e-9, note: "basis 0: 74/360 of 100 (30/360 day count)", confidence: medium}
+- {id: accrintm03, requires: [ACCRINTM], cells: {A1: "6/15/2008", A2: "4/1/2008", B1: "=ACCRINTM(A1,A2,0.1,1000,3)"}, expect: {B1: {error: "#NUM!"}}, note: "issue after settlement"}
+# AMORDEGRC
+- {id: amordeg01, requires: [AMORDEGRC], cells: {A1: "8/19/2008", A2: "12/31/2008", B1: "=AMORDEGRC(2400,A1,A2,300,1,0.15,1)"}, expect: {B1: 776}}
+- {id: amordeg02, requires: [AMORDEGRC], cells: {A1: "8/19/2008", A2: "12/31/2008", B1: "=AMORDEGRC(2400,A1,A2,300,1,0.15,2)"}, expect: {B1: {error: "#NUM!"}}, note: "basis 2 not allowed", confidence: medium}
+- {id: amordeg03, requires: [AMORDEGRC], cells: {A1: "8/19/2008", A2: "12/31/2008", B1: '=AMORDEGRC("x",A1,A2,300,1,0.15,1)'}, expect: {B1: {error: "#VALUE!"}}}
+# AMORLINC
+- {id: amorlin01, requires: [AMORLINC], cells: {A1: "8/19/2008", A2: "12/31/2008", B1: "=AMORLINC(2400,A1,A2,300,1,0.15,1)"}, expect: {B1: 360}}
+- {id: amorlin02, requires: [AMORLINC], cells: {A1: "8/19/2008", A2: "12/31/2008", B1: "=AMORLINC(2400,A1,A2,2400,1,0.15,1)"}, expect: {B1: 0}, note: "edge: salvage equals cost", confidence: medium}
+- {id: amorlin03, requires: [AMORLINC], cells: {A1: "8/19/2008", A2: "12/31/2008", B1: "=AMORLINC(2400,A1,A2,300,1,0.15,2)"}, expect: {B1: {error: "#NUM!"}}, confidence: medium}
+# COUPDAYBS, COUPDAYS, COUPDAYSNC, COUPNCD, COUPNUM, COUPPCD (shared example: 1/25/2011 to 11/15/2011, semiannual, actual/actual)
+- {id: coupdbs01, requires: [COUPDAYBS], cells: {A1: "1/25/2011", A2: "11/15/2011", B1: "=COUPDAYBS(A1,A2,2,1)"}, expect: {B1: 71}}
+- {id: coupdbs02, requires: [COUPDAYBS], cells: {A1: "11/15/2010", A2: "11/15/2011", B1: "=COUPDAYBS(A1,A2,2,1)"}, expect: {B1: 0}, note: "edge: settle on coupon date", confidence: medium}
+- {id: coupdbs03, requires: [COUPDAYBS], cells: {A1: "11/15/2011", A2: "1/25/2011", B1: "=COUPDAYBS(A1,A2,2,1)"}, expect: {B1: {error: "#NUM!"}}}
+- {id: coupds01, requires: [COUPDAYS], cells: {A1: "1/25/2011", A2: "11/15/2011", B1: "=COUPDAYS(A1,A2,2,1)"}, expect: {B1: 181}}
+- {id: coupds02, requires: [COUPDAYS], cells: {A1: "1/25/2011", A2: "11/15/2011", B1: "=COUPDAYS(A1,A2,2,0)"}, expect: {B1: 180}, note: "30/360 basis"}
+- {id: coupds03, requires: [COUPDAYS], cells: {A1: "1/25/2011", A2: "11/15/2011", B1: "=COUPDAYS(A1,A2,3,1)"}, expect: {B1: {error: "#NUM!"}}}
+- {id: coupdnc01, requires: [COUPDAYSNC], cells: {A1: "1/25/2011", A2: "11/15/2011", B1: "=COUPDAYSNC(A1,A2,2,1)"}, expect: {B1: 110}}
+- {id: coupdnc02, requires: [COUPDAYSNC], cells: {A1: "5/14/2011", A2: "11/15/2011", B1: "=COUPDAYSNC(A1,A2,2,1)"}, expect: {B1: 1}, note: "edge: day before coupon"}
+- {id: coupdnc03, requires: [COUPDAYSNC], cells: {A1: "1/25/2011", A2: "11/15/2011", B1: "=COUPDAYSNC(A1,A2,2,5)"}, expect: {B1: {error: "#NUM!"}}}
+- {id: coupncd01, requires: [COUPNCD], cells: {A1: "1/25/2011", A2: "11/15/2011", B1: "=COUPNCD(A1,A2,2,1)"}, expect: {B1: 40678}, note: "5/15/2011"}
+- {id: coupncd02, requires: [COUPNCD], cells: {A1: "1/25/2011", A2: "11/15/2011", B1: "=COUPNCD(A1,A2,1,1)"}, expect: {B1: 40862}, note: "annual: 11/15/2011 itself"}
+- {id: coupncd03, requires: [COUPNCD], cells: {A1: '=COUPNCD("x","11/15/2011",2,1)'}, expect: {A1: {error: "#VALUE!"}}}
+- {id: coupnum01, requires: [COUPNUM], cells: {A1: "1/25/2007", A2: "11/15/2008", B1: "=COUPNUM(A1,A2,2,1)"}, expect: {B1: 4}}
+- {id: coupnum02, requires: [COUPNUM], cells: {A1: "1/25/2011", A2: "11/15/2011", B1: "=COUPNUM(A1,A2,2,1)"}, expect: {B1: 2}}
+- {id: coupnum03, requires: [COUPNUM], cells: {A1: "11/15/2011", A2: "11/15/2011", B1: "=COUPNUM(A1,A2,2,1)"}, expect: {B1: {error: "#NUM!"}}, note: "settlement equals maturity"}
+- {id: couppcd01, requires: [COUPPCD], cells: {A1: "1/25/2011", A2: "11/15/2011", B1: "=COUPPCD(A1,A2,2,1)"}, expect: {B1: 40497}, note: "11/15/2010"}
+- {id: couppcd02, requires: [COUPPCD], cells: {A1: "1/25/2011", A2: "11/15/2011", B1: "=COUPPCD(A1,A2,4,1)"}, expect: {B1: 40497}, note: "quarterly coupons fall on 2/15/2011 and 11/15/2010, so previous is 11/15/2010"}
+- {id: couppcd03, requires: [COUPPCD], cells: {A1: "1/25/2011", A2: "11/15/2011", B1: "=COUPPCD(A1,A2,2,-1)"}, expect: {B1: {error: "#NUM!"}}}
+# CUMIPMT
+- {id: cumipmt01, requires: [CUMIPMT], cells: {A1: "=CUMIPMT(0.09/12,30*12,125000,13,24,0)"}, expect: {A1: -11135.23213}, tol: 1e-9}
+- {id: cumipmt02, requires: [CUMIPMT], cells: {A1: "=CUMIPMT(0.09/12,30*12,125000,1,1,0)"}, expect: {A1: -937.5}, tol: 1e-12}
+- {id: cumipmt03, requires: [CUMIPMT], cells: {A1: "=CUMIPMT(0.09/12,30*12,125000,1,1,2)"}, expect: {A1: {error: "#NUM!"}}, note: "type 2"}
+- {id: cumipmt04, requires: [CUMIPMT], cells: {A1: "=CUMIPMT(0.09/12,30*12,125000,24,13,0)"}, expect: {A1: {error: "#NUM!"}}, note: "start after end"}
+# CUMPRINC
+- {id: cumprinc01, requires: [CUMPRINC], cells: {A1: "=CUMPRINC(0.09/12,30*12,125000,13,24,0)"}, expect: {A1: -934.1071234}, tol: 1e-9}
+- {id: cumprinc02, requires: [CUMPRINC], cells: {A1: "=CUMPRINC(0.09/12,30*12,125000,1,1,0)"}, expect: {A1: -68.27827118}, tol: 1e-9}
+- {id: cumprinc03, requires: [CUMPRINC], cells: {A1: "=CUMPRINC(0,30*12,125000,1,1,0)"}, expect: {A1: {error: "#NUM!"}}, note: "rate 0"}
+# DB
+- {id: db01, requires: [DB], cells: {A1: "=DB(1000000,100000,6,1,7)"}, expect: {A1: 186083.33}, abs_tol: 0.005}
+- {id: db02, requires: [DB], cells: {A1: "=DB(1000000,100000,6,2,7)"}, expect: {A1: 259639.42}, abs_tol: 0.005}
+- {id: db03, requires: [DB], cells: {A1: "=DB(1000000,100000,6,7,7)"}, expect: {A1: 15845.10}, abs_tol: 0.005, note: "edge: partial last year"}
+- {id: db04, requires: [DB], cells: {A1: "=DB(1000000,100000,6,8,7)"}, expect: {A1: {error: "#NUM!"}}, confidence: medium}
+# DDB
+- {id: ddb01, requires: [DDB], cells: {A1: "=DDB(2400,300,10*365,1)"}, expect: {A1: 1.32}, abs_tol: 0.005}
+- {id: ddb02, requires: [DDB], cells: {A1: "=DDB(2400,300,10*12,1,2)"}, expect: {A1: 40}, abs_tol: 0.005}
+- {id: ddb03, requires: [DDB], cells: {A1: "=DDB(2400,300,10,1,2)"}, expect: {A1: 480}, abs_tol: 0.005}
+- {id: ddb04, requires: [DDB], cells: {A1: "=DDB(2400,300,10,2,1.5)"}, expect: {A1: 306}, abs_tol: 0.005}
+- {id: ddb05, requires: [DDB], cells: {A1: "=DDB(2400,300,10,10)"}, expect: {A1: 22.12}, abs_tol: 0.005}
+- {id: ddb06, requires: [DDB], cells: {A1: "=DDB(2400,300,10,11)"}, expect: {A1: {error: "#NUM!"}}}
+# DISC (re-read this session)
+- {id: disc01, requires: [DISC], cells: {A1: "7/1/2018", A2: "1/1/2048", B1: "=DISC(A1,A2,97.975,100,1)"}, expect: {B1: 0.001038}, tol: 1e-3}
+- {id: disc02, requires: [DISC], cells: {A1: "7/1/2018", A2: "1/1/2048", B1: "=DISC(A1,A2,100,100,1)"}, expect: {B1: 0}, note: "edge: price at par"}
+- {id: disc03, requires: [DISC], cells: {A1: "7/1/2018", A2: "1/1/2048", B1: "=DISC(A1,A2,0,100,1)"}, expect: {B1: {error: "#NUM!"}}}
+- {id: disc04, requires: [DISC], cells: {A1: "7/1/2018", A2: "1/1/2048", B1: "=DISC(A2,A1,97.975,100,1)"}, expect: {B1: {error: "#NUM!"}}}
+# DOLLARDE
+- {id: dde01, requires: [DOLLARDE], cells: {A1: "=DOLLARDE(1.02,16)"}, expect: {A1: 1.125}}
+- {id: dde02, requires: [DOLLARDE], cells: {A1: "=DOLLARDE(1.1,32)"}, expect: {A1: 1.3125}}
+- {id: dde03, requires: [DOLLARDE], cells: {A1: "=DOLLARDE(1.02,0)"}, expect: {A1: {error: "#DIV/0!"}}}
+- {id: dde04, requires: [DOLLARDE], cells: {A1: "=DOLLARDE(1.02,-1)"}, expect: {A1: {error: "#NUM!"}}}
+# DOLLARFR
+- {id: dfr01, requires: [DOLLARFR], cells: {A1: "=DOLLARFR(1.125,16)"}, expect: {A1: 1.02}, tol: 1e-14}
+- {id: dfr02, requires: [DOLLARFR], cells: {A1: "=DOLLARFR(1.125,32)"}, expect: {A1: 1.04}, tol: 1e-14}
+- {id: dfr03, requires: [DOLLARFR], cells: {A1: "=DOLLARFR(2,8)"}, expect: {A1: 2}, note: "edge whole number"}
+- {id: dfr04, requires: [DOLLARFR], cells: {A1: "=DOLLARFR(1.125,0)"}, expect: {A1: {error: "#DIV/0!"}}}
+# DURATION
+- {id: dur01, requires: [DURATION], cells: {A1: "7/1/2018", A2: "1/1/2048", B1: "=DURATION(A1,A2,0.08,0.09,2,1)"}, expect: {B1: 10.9191453}, tol: 1e-8}
+- {id: dur02, requires: [DURATION], cells: {A1: "7/1/2018", A2: "1/1/2048", B1: "=DURATION(A1,A2,-0.08,0.09,2,1)"}, expect: {B1: {error: "#NUM!"}}}
+- {id: dur03, requires: [DURATION], cells: {A1: "7/1/2018", A2: "1/1/2048", B1: "=DURATION(A1,A2,0.08,0.09,5,1)"}, expect: {B1: {error: "#NUM!"}}}
+# EFFECT
+- {id: effect01, requires: [EFFECT], cells: {A1: "=EFFECT(0.0525,4)"}, expect: {A1: 0.053542667}, tol: 1e-8}
+- {id: effect02, requires: [EFFECT], cells: {A1: "=EFFECT(0.0525,1)"}, expect: {A1: 0.0525}, tol: 1e-14, note: "edge annual"}
+- {id: effect03, requires: [EFFECT], cells: {A1: "=EFFECT(0.0525,0)"}, expect: {A1: {error: "#NUM!"}}}
+# FV
+- {id: fv01, requires: [FV], cells: {A1: "=FV(0.06/12,10,-200,-500,1)"}, expect: {A1: 2581.403374}, tol: 1e-9}
+- {id: fv02, requires: [FV], cells: {A1: "=FV(0.12/12,12,-1000)"}, expect: {A1: 12682.50301}, tol: 1e-9}
+- {id: fv03, requires: [FV], cells: {A1: "=FV(0.11/12,35,-2000,,1)"}, expect: {A1: 82846.24607}, tol: 1e-9}
+- {id: fv04, requires: [FV], cells: {A1: "=FV(0,10,-100)"}, expect: {A1: 1000}, note: "edge zero rate"}
+- {id: fv05, requires: [FV], cells: {A1: '=FV("x",10,-100)'}, expect: {A1: {error: "#VALUE!"}}}
+# FVSCHEDULE
+- {id: fvs01, requires: [FVSCHEDULE], cells: {A1: "=FVSCHEDULE(1,{0.09,0.11,0.1})"}, expect: {A1: 1.33089}, tol: 1e-12}
+- {id: fvs02, requires: [FVSCHEDULE], cells: {B1: "=FVSCHEDULE(100,A1:A2)"}, expect: {B1: 100}, note: "blank rates are 0"}
+- {id: fvs03, requires: [FVSCHEDULE], cells: {A1: "x", B1: "=FVSCHEDULE(100,A1)"}, expect: {B1: {error: "#VALUE!"}}}
+# INTRATE
+- {id: intrate01, requires: [INTRATE], cells: {A1: "2/15/2008", A2: "5/15/2008", B1: "=INTRATE(A1,A2,1000000,1014420,2)"}, expect: {B1: 0.05768}, tol: 1e-4}
+- {id: intrate02, requires: [INTRATE], cells: {A1: "2/15/2008", A2: "5/15/2008", B1: "=INTRATE(A1,A2,1000000,1000000,2)"}, expect: {B1: 0}}
+- {id: intrate03, requires: [INTRATE], cells: {A1: "2/15/2008", A2: "5/15/2008", B1: "=INTRATE(A1,A2,0,1014420,2)"}, expect: {B1: {error: "#NUM!"}}}
+# IPMT
+- {id: ipmt01, requires: [IPMT], cells: {A1: "=IPMT(0.1/12,1,3*12,8000)"}, expect: {A1: -66.67}, abs_tol: 0.005}
+- {id: ipmt02, requires: [IPMT], cells: {A1: "=IPMT(0.1,3,3,8000)"}, expect: {A1: -292.45}, abs_tol: 0.005}
+- {id: ipmt03, requires: [IPMT], cells: {A1: "=IPMT(0.1,1,3,8000,0,1)"}, expect: {A1: 0}, note: "edge: type 1 first period has no interest", confidence: medium}
+- {id: ipmt04, requires: [IPMT], cells: {A1: "=IPMT(0.1,4,3,8000)"}, expect: {A1: {error: "#NUM!"}}}
+# IRR
+- {id: irr01, requires: [IRR], cells: {A1: "-70000", A2: "12000", A3: "15000", A4: "18000", A5: "21000", A6: "26000", B1: "=IRR(A1:A5)"}, expect: {B1: -0.021244848}, tol: 1e-7}
+- {id: irr02, requires: [IRR], cells: {A1: "-70000", A2: "12000", A3: "15000", A4: "18000", A5: "21000", A6: "26000", B1: "=IRR(A1:A6)"}, expect: {B1: 0.086630948}, tol: 1e-7}
+- {id: irr03, requires: [IRR], cells: {A1: "-70000", A2: "12000", A3: "15000", B1: "=IRR(A1:A3,-0.1)"}, expect: {B1: -0.443506941}, tol: 1e-7}
+- {id: irr04, requires: [IRR], cells: {A1: "100", A2: "200", B1: "=IRR(A1:A2)"}, expect: {B1: {error: "#NUM!"}}, note: "no sign change"}
+# ISPMT
+- {id: ispmt01, requires: [ISPMT], cells: {A1: "=ISPMT(0.1/12,1,3*12,8000000)"}, expect: {A1: -64814.8}, abs_tol: 0.05}
+- {id: ispmt02, requires: [ISPMT], cells: {A1: "=ISPMT(0.1,1,3,8000000)"}, expect: {A1: -533333}, abs_tol: 0.5}
+- {id: ispmt03, requires: [ISPMT], cells: {A1: "=ISPMT(0.1,3,3,8000000)"}, expect: {A1: 0}, abs_tol: 1e-9, note: "edge: last period"}
+- {id: ispmt04, requires: [ISPMT], cells: {A1: "=ISPMT(0.1,1,0,8000000)"}, expect: {A1: {error: "#DIV/0!"}}}
+# MDURATION
+- {id: mdur01, requires: [MDURATION], cells: {A1: "1/1/2008", A2: "1/1/2016", B1: "=MDURATION(A1,A2,0.08,0.09,2,1)"}, expect: {B1: 5.73567}, tol: 1e-5}
+- {id: mdur02, requires: [MDURATION], cells: {A1: "1/1/2008", A2: "1/1/2016", B1: "=MDURATION(A1,A2,0.08,-0.09,2,1)"}, expect: {B1: {error: "#NUM!"}}}
+- {id: mdur03, requires: [MDURATION], cells: {A1: "1/1/2008", A2: "1/1/2016", B1: "=MDURATION(A2,A1,0.08,0.09,2,1)"}, expect: {B1: {error: "#NUM!"}}}
+# MIRR
+- {id: mirr01, requires: [MIRR], cells: {A1: "-120000", A2: "39000", A3: "30000", A4: "21000", A5: "37000", A6: "46000", B1: "=MIRR(A1:A6,0.1,0.12)"}, expect: {B1: 0.126094}, tol: 1e-5}
+- {id: mirr02, requires: [MIRR], cells: {A1: "-120000", A2: "39000", A3: "30000", A4: "21000", B1: "=MIRR(A1:A4,0.1,0.12)"}, expect: {B1: -0.048044655}, tol: 1e-7}
+- {id: mirr03, requires: [MIRR], cells: {A1: "-120000", A2: "39000", A3: "30000", A4: "21000", A5: "37000", A6: "46000", B1: "=MIRR(A1:A6,0.1,0.14)"}, expect: {B1: 0.134759555}, tol: 1e-7}
+- {id: mirr04, requires: [MIRR], cells: {A1: "100", A2: "200", B1: "=MIRR(A1:A2,0.1,0.1)"}, expect: {B1: {error: "#DIV/0!"}}}
+# NOMINAL
+- {id: nominal01, requires: [NOMINAL], cells: {A1: "=NOMINAL(0.053543,4)"}, expect: {A1: 0.05250032}, tol: 1e-7}
+- {id: nominal02, requires: [NOMINAL], cells: {A1: "=NOMINAL(0.05,1)"}, expect: {A1: 0.05}, tol: 1e-14}
+- {id: nominal03, requires: [NOMINAL], cells: {A1: "=NOMINAL(0,4)"}, expect: {A1: {error: "#NUM!"}}}
+# NPER
+- {id: nper01, requires: [NPER], cells: {A1: "=NPER(0.12/12,-100,-1000,10000,1)"}, expect: {A1: 59.6738657}, tol: 1e-8}
+- {id: nper02, requires: [NPER], cells: {A1: "=NPER(0.12/12,-100,-1000,10000)"}, expect: {A1: 60.0821229}, tol: 1e-8}
+- {id: nper03, requires: [NPER], cells: {A1: "=NPER(0.12/12,-100,-1000)"}, expect: {A1: -9.57859404}, tol: 1e-8}
+- {id: nper04, requires: [NPER], cells: {A1: "=NPER(0,-100,1000)"}, expect: {A1: 10}, note: "edge zero rate"}
+- {id: nper05, requires: [NPER], cells: {A1: "=NPER(0.1,100,1000)"}, expect: {A1: {error: "#NUM!"}}, note: "never pays off"}
+# NPV
+- {id: npv01, requires: [NPV], cells: {A1: "=NPV(0.1,-10000,3000,4200,6800)"}, expect: {A1: 1188.44}, abs_tol: 0.005}
+- {id: npv02, requires: [NPV], cells: {A1: "8000", A2: "9200", A3: "10000", A4: "12000", A5: "14500", B1: "=NPV(0.08,A1:A5)+(-40000)"}, expect: {B1: 1922.06}, abs_tol: 0.005}
+- {id: npv03, requires: [NPV], cells: {A1: "=NPV(0,1,2,3)"}, expect: {A1: 6}, note: "edge zero rate"}
+- {id: npv04, requires: [NPV], cells: {A1: '=NPV("x",1)'}, expect: {A1: {error: "#VALUE!"}}}
+# ODDFPRICE
+- {id: oddfp01, requires: [ODDFPRICE], cells: {A1: "11/11/2008", A2: "3/1/2021", A3: "10/15/2008", A4: "3/1/2009", B1: "=ODDFPRICE(A1,A2,A3,A4,0.0785,0.0625,100,2,1)"}, expect: {B1: 113.597717}, tol: 1e-8, confidence: medium}
+- {id: oddfp02, requires: [ODDFPRICE], cells: {A1: "11/11/2008", A2: "3/1/2021", A3: "10/15/2008", A4: "3/1/2009", B1: "=ODDFPRICE(A1,A2,A3,A4,0.0785,0.0625,100,2,5)"}, expect: {B1: {error: "#NUM!"}}}
+- {id: oddfp03, requires: [ODDFPRICE], cells: {A1: "11/11/2008", A2: "3/1/2021", A3: "10/15/2008", A4: "3/1/2009", B1: "=ODDFPRICE(A3,A2,A1,A4,0.0785,0.0625,100,2,1)"}, expect: {B1: {error: "#NUM!"}}, note: "issue after settlement"}
+# ODDFYIELD (re-read this session)
+- {id: oddfy01, requires: [ODDFYIELD], cells: {A1: "11/11/2008", A2: "3/1/2021", A3: "10/15/2008", A4: "3/1/2009", B1: "=ODDFYIELD(A1,A2,A3,A4,0.0575,84.5,100,2,0)"}, expect: {B1: 0.0772}, tol: 1e-3}
+- {id: oddfy02, requires: [ODDFYIELD], cells: {A1: "11/11/2008", A2: "3/1/2021", A3: "10/15/2008", A4: "3/1/2009", B1: "=ODDFYIELD(A1,A2,A3,A4,0.0575,0,100,2,0)"}, expect: {B1: {error: "#NUM!"}}}
+- {id: oddfy03, requires: [ODDFYIELD], cells: {A1: "11/11/2008", A2: "3/1/2021", A3: "10/15/2008", A4: "3/1/2009", B1: "=ODDFYIELD(A1,A2,A3,A4,0.0575,84.5,100,3,0)"}, expect: {B1: {error: "#NUM!"}}}
+# ODDLPRICE
+- {id: oddlp01, requires: [ODDLPRICE], cells: {A1: "2/7/2008", A2: "6/15/2008", A3: "10/15/2007", B1: "=ODDLPRICE(A1,A2,A3,0.0375,0.0405,100,2,0)"}, expect: {B1: 99.87829834}, tol: 1e-9, confidence: medium}
+- {id: oddlp02, requires: [ODDLPRICE], cells: {A1: "2/7/2008", A2: "6/15/2008", A3: "10/15/2007", B1: "=ODDLPRICE(A1,A2,A3,-0.0375,0.0405,100,2,0)"}, expect: {B1: {error: "#NUM!"}}}
+- {id: oddlp03, requires: [ODDLPRICE], cells: {A1: "2/7/2008", A2: "6/15/2008", A3: "10/15/2007", B1: "=ODDLPRICE(A2,A1,A3,0.0375,0.0405,100,2,0)"}, expect: {B1: {error: "#NUM!"}}}
+# ODDLYIELD
+- {id: oddly01, requires: [ODDLYIELD], cells: {A1: "4/20/2008", A2: "6/15/2008", A3: "12/24/2007", B1: "=ODDLYIELD(A1,A2,A3,0.0375,99.875,100,2,0)"}, expect: {B1: 0.045192}, tol: 1e-5, confidence: medium}
+- {id: oddly02, requires: [ODDLYIELD], cells: {A1: "4/20/2008", A2: "6/15/2008", A3: "12/24/2007", B1: "=ODDLYIELD(A1,A2,A3,0.0375,0,100,2,0)"}, expect: {B1: {error: "#NUM!"}}}
+- {id: oddly03, requires: [ODDLYIELD], cells: {A1: "4/20/2008", A2: "6/15/2008", A3: "12/24/2007", B1: "=ODDLYIELD(A1,A2,A3,0.0375,99.875,100,2,7)"}, expect: {B1: {error: "#NUM!"}}}
+# PDURATION
+- {id: pdur01, requires: [PDURATION], cells: {A1: "=PDURATION(0.025,2000,2200)"}, expect: {A1: 3.86}, abs_tol: 0.005}
+- {id: pdur02, requires: [PDURATION], cells: {A1: "=PDURATION(0.025/12,1000,1200)"}, expect: {A1: 87.6}, abs_tol: 0.05}
+- {id: pdur03, requires: [PDURATION], cells: {A1: "=PDURATION(0.1,100,100)"}, expect: {A1: 0}, note: "edge already there"}
+- {id: pdur04, requires: [PDURATION], cells: {A1: "=PDURATION(0,1000,1200)"}, expect: {A1: {error: "#NUM!"}}}
+# PMT
+- {id: pmt01, requires: [PMT], cells: {A1: "=PMT(0.08/12,10,10000)"}, expect: {A1: -1037.03}, abs_tol: 0.005}
+- {id: pmt02, requires: [PMT], cells: {A1: "=PMT(0.08/12,10,10000,0,1)"}, expect: {A1: -1030.16}, abs_tol: 0.005}
+- {id: pmt03, requires: [PMT], cells: {A1: "=PMT(0.06/12,18*12,0,50000)"}, expect: {A1: -129.08}, abs_tol: 0.005}
+- {id: pmt04, requires: [PMT], cells: {A1: "=PMT(0,10,1000)"}, expect: {A1: -100}, note: "edge zero rate"}
+- {id: pmt05, requires: [PMT], cells: {A1: "=PMT(0.1,0,1000)"}, expect: {A1: {error: "#NUM!"}}, note: "nper 0", confidence: medium}
+# PPMT
+- {id: ppmt01, requires: [PPMT], cells: {A1: "=PPMT(0.1/12,1,2*12,2000)"}, expect: {A1: -75.62}, abs_tol: 0.005}
+- {id: ppmt02, requires: [PPMT], cells: {A1: "=PPMT(0.08,10,10,200000)"}, expect: {A1: -27598.05}, abs_tol: 0.005}
+- {id: ppmt03, requires: [PPMT], cells: {A1: "=PPMT(0,1,10,1000)"}, expect: {A1: -100}, note: "edge zero rate"}
+- {id: ppmt04, requires: [PPMT], cells: {A1: "=PPMT(0.08,11,10,200000)"}, expect: {A1: {error: "#NUM!"}}}
+# PRICE
+- {id: price01, requires: [PRICE], cells: {A1: "2/15/2008", A2: "11/15/2017", B1: "=PRICE(A1,A2,0.0575,0.065,100,2,0)"}, expect: {B1: 94.63436}, tol: 1e-6}
+- {id: price02, requires: [PRICE], cells: {A1: "2/15/2008", A2: "11/15/2017", B1: "=PRICE(A1,A2,0.0575,-0.065,100,2,0)"}, expect: {B1: {error: "#NUM!"}}}
+- {id: price03, requires: [PRICE], cells: {A1: "2/15/2008", A2: "11/15/2017", B1: "=PRICE(A2,A1,0.0575,0.065,100,2,0)"}, expect: {B1: {error: "#NUM!"}}}
+# PRICEDISC
+- {id: pdisc01, requires: [PRICEDISC], cells: {A1: "2/16/2008", A2: "3/1/2008", B1: "=PRICEDISC(A1,A2,0.0525,100,2)"}, expect: {B1: 99.79583}, tol: 1e-7}
+- {id: pdisc02, requires: [PRICEDISC], cells: {A1: "2/16/2008", A2: "3/1/2008", B1: "=PRICEDISC(A1,A2,0,100,2)"}, expect: {B1: {error: "#NUM!"}}}
+- {id: pdisc03, requires: [PRICEDISC], cells: {A1: "2/16/2008", A2: "3/1/2008", B1: "=PRICEDISC(A2,A1,0.0525,100,2)"}, expect: {B1: {error: "#NUM!"}}}
+# PRICEMAT
+- {id: pmat01, requires: [PRICEMAT], cells: {A1: "2/15/2008", A2: "4/13/2008", A3: "11/11/2007", B1: "=PRICEMAT(A1,A2,A3,0.061,0.061,0)"}, expect: {B1: 99.98449888}, tol: 1e-9}
+- {id: pmat02, requires: [PRICEMAT], cells: {A1: "2/15/2008", A2: "4/13/2008", A3: "11/11/2007", B1: "=PRICEMAT(A1,A2,A3,-0.061,0.061,0)"}, expect: {B1: {error: "#NUM!"}}}
+- {id: pmat03, requires: [PRICEMAT], cells: {A1: "2/15/2008", A2: "4/13/2008", A3: "11/11/2007", B1: "=PRICEMAT(A1,A2,A3,0.061,0.061,9)"}, expect: {B1: {error: "#NUM!"}}}
+# PV
+- {id: pv01, requires: [PV], cells: {A1: "=PV(0.08/12,12*20,500,,0)"}, expect: {A1: -59777.15}, abs_tol: 0.005}
+- {id: pv02, requires: [PV], cells: {A1: "=PV(0,10,-100)"}, expect: {A1: 1000}, note: "edge zero rate"}
+- {id: pv03, requires: [PV], cells: {A1: '=PV("x",10,-100)'}, expect: {A1: {error: "#VALUE!"}}}
+# RATE
+- {id: rate01, requires: [RATE], cells: {A1: "=RATE(4*12,-200,8000)"}, expect: {A1: 0.00770147248820165}, tol: 1e-6, confidence: medium, note: "doc prints 1%; annual 9.24%"}
+- {id: rate02, requires: [RATE], cells: {A1: "=RATE(4*12,-200,8000)*12"}, expect: {A1: 0.09241767}, tol: 1e-7}
+- {id: rate03, requires: [RATE], cells: {A1: "=RATE(10,0,-100,100)"}, expect: {A1: 0}, abs_tol: 1e-10, note: "edge zero growth"}
+- {id: rate04, requires: [RATE], cells: {A1: "=RATE(10,100,1000)"}, expect: {A1: {error: "#NUM!"}}, note: "no solution"}
+# RECEIVED
+- {id: recv01, requires: [RECEIVED], cells: {A1: "2/15/2008", A2: "5/15/2008", B1: "=RECEIVED(A1,A2,1000000,0.0575,2)"}, expect: {B1: 1014584.654}, tol: 1e-9}
+- {id: recv02, requires: [RECEIVED], cells: {A1: "2/15/2008", A2: "5/15/2008", B1: "=RECEIVED(A1,A2,1000000,0,2)"}, expect: {B1: 1000000}, note: "edge zero discount"}
+- {id: recv03, requires: [RECEIVED], cells: {A1: "2/15/2008", A2: "5/15/2008", B1: "=RECEIVED(A1,A2,0,0.0575,2)"}, expect: {B1: {error: "#NUM!"}}}
+# RRI
+- {id: rri01, requires: [RRI], cells: {A1: "=RRI(96,10000,11000)"}, expect: {A1: 0.0009933}, tol: 1e-4}
+- {id: rri02, requires: [RRI], cells: {A1: "=RRI(1,100,110)"}, expect: {A1: 0.1}, tol: 1e-14}
+- {id: rri03, requires: [RRI], cells: {A1: "=RRI(0,100,110)"}, expect: {A1: {error: "#NUM!"}}}
+# SLN
+- {id: sln01, requires: [SLN], cells: {A1: "=SLN(30000,7500,10)"}, expect: {A1: 2250}}
+- {id: sln02, requires: [SLN], cells: {A1: "=SLN(30000,30000,10)"}, expect: {A1: 0}}
+- {id: sln03, requires: [SLN], cells: {A1: "=SLN(30000,7500,0)"}, expect: {A1: {error: "#DIV/0!"}}}
+# SYD
+- {id: syd01, requires: [SYD], cells: {A1: "=SYD(30000,7500,10,1)"}, expect: {A1: 4090.91}, abs_tol: 0.005}
+- {id: syd02, requires: [SYD], cells: {A1: "=SYD(30000,7500,10,10)"}, expect: {A1: 409.09}, abs_tol: 0.005}
+- {id: syd03, requires: [SYD], cells: {A1: "=SYD(30000,7500,10,11)"}, expect: {A1: {error: "#NUM!"}}}
+# TBILLEQ
+- {id: tbeq01, requires: [TBILLEQ], cells: {A1: "3/31/2008", A2: "6/1/2008", B1: "=TBILLEQ(A1,A2,0.0914)"}, expect: {B1: 0.094151}, tol: 1e-5}
+- {id: tbeq02, requires: [TBILLEQ], cells: {A1: "3/31/2008", A2: "6/1/2008", B1: "=TBILLEQ(A1,A2,0)"}, expect: {B1: {error: "#NUM!"}}}
+- {id: tbeq03, requires: [TBILLEQ], cells: {A1: "3/31/2008", A2: "6/1/2009", B1: "=TBILLEQ(A1,A2,0.0914)"}, expect: {B1: {error: "#NUM!"}}, note: "more than one year"}
+# TBILLPRICE
+- {id: tbpr01, requires: [TBILLPRICE], cells: {A1: "3/31/2008", A2: "6/1/2008", B1: "=TBILLPRICE(A1,A2,0.09)"}, expect: {B1: 98.45}, tol: 1e-12}
+- {id: tbpr02, requires: [TBILLPRICE], cells: {A1: "3/31/2008", A2: "6/1/2008", B1: "=TBILLPRICE(A1,A2,-0.09)"}, expect: {B1: {error: "#NUM!"}}}
+- {id: tbpr03, requires: [TBILLPRICE], cells: {A1: "3/31/2008", A2: "6/1/2008", B1: "=TBILLPRICE(A2,A1,0.09)"}, expect: {B1: {error: "#NUM!"}}}
+# TBILLYIELD
+- {id: tbyl01, requires: [TBILLYIELD], cells: {A1: "3/31/2008", A2: "6/1/2008", B1: "=TBILLYIELD(A1,A2,98.45)"}, expect: {B1: 0.0914}, tol: 1e-3}
+- {id: tbyl02, requires: [TBILLYIELD], cells: {A1: "3/31/2008", A2: "6/1/2008", B1: "=TBILLYIELD(A1,A2,100)"}, expect: {B1: 0}, note: "edge at par"}
+- {id: tbyl03, requires: [TBILLYIELD], cells: {A1: "3/31/2008", A2: "6/1/2008", B1: "=TBILLYIELD(A1,A2,0)"}, expect: {B1: {error: "#NUM!"}}}
+# VDB
+- {id: vdb01, requires: [VDB], cells: {A1: "=VDB(2400,300,10*365,0,1)"}, expect: {A1: 1.32}, abs_tol: 0.005}
+- {id: vdb02, requires: [VDB], cells: {A1: "=VDB(2400,300,10*12,0,1)"}, expect: {A1: 40}, abs_tol: 0.005}
+- {id: vdb03, requires: [VDB], cells: {A1: "=VDB(2400,300,10,0,1)"}, expect: {A1: 480}, abs_tol: 0.005}
+- {id: vdb04, requires: [VDB], cells: {A1: "=VDB(2400,300,10*12,6,18)"}, expect: {A1: 396.31}, abs_tol: 0.005}
+- {id: vdb05, requires: [VDB], cells: {A1: "=VDB(2400,300,10,5,1)"}, expect: {A1: {error: "#NUM!"}}, note: "start after end"}
+# XIRR
+- {id: xirr01, requires: [XIRR], cells: {A1: "-10000", A2: "2750", A3: "4250", A4: "3250", A5: "2750", B1: "1/1/2008", B2: "3/1/2008", B3: "10/30/2008", B4: "2/15/2009", B5: "4/1/2009", C1: "=XIRR(A1:A5,B1:B5,0.1)"}, expect: {C1: 0.373362535}, tol: 1e-7}
+- {id: xirr02, requires: [XIRR], cells: {A1: "-100", A2: "100", B1: "1/1/2008", B2: "1/1/2009", C1: "=XIRR(A1:A2,B1:B2)"}, expect: {C1: 0}, abs_tol: 1e-8, note: "edge zero return"}
+- {id: xirr03, requires: [XIRR], cells: {A1: "100", A2: "100", B1: "1/1/2008", B2: "1/1/2009", C1: "=XIRR(A1:A2,B1:B2)"}, expect: {C1: {error: "#NUM!"}}, note: "no negative flow"}
+# XNPV
+- {id: xnpv01, requires: [XNPV], cells: {A1: "-10000", A2: "2750", A3: "4250", A4: "3250", A5: "2750", B1: "1/1/2008", B2: "3/1/2008", B3: "10/30/2008", B4: "2/15/2009", B5: "4/1/2009", C1: "=XNPV(0.09,A1:A5,B1:B5)"}, expect: {C1: 2086.65}, abs_tol: 0.005}
+- {id: xnpv02, requires: [XNPV], cells: {A1: "-100", A2: "100", B1: "1/1/2008", B2: "1/1/2009", C1: "=XNPV(0,A1:A2,B1:B2)"}, expect: {C1: 0}, note: "edge zero rate"}
+- {id: xnpv03, requires: [XNPV], cells: {A1: "-100", A2: "100", B1: "1/1/2008", C1: "=XNPV(0.09,A1:A2,B1:B3)"}, expect: {C1: {error: "#NUM!"}}, note: "sizes differ"}
+# YIELD
+- {id: yield01, requires: [YIELD], cells: {A1: "2/15/2008", A2: "11/15/2016", B1: "=YIELD(A1,A2,0.0575,95.04287,100,2,0)"}, expect: {B1: 0.065}, tol: 1e-6}
+- {id: yield02, requires: [YIELD], cells: {A1: "2/15/2008", A2: "11/15/2016", B1: "=YIELD(A1,A2,0.0575,0,100,2,0)"}, expect: {B1: {error: "#NUM!"}}}
+- {id: yield03, requires: [YIELD], cells: {A1: "2/15/2008", A2: "11/15/2016", B1: "=YIELD(A1,A2,0.0575,95.04287,100,3,0)"}, expect: {B1: {error: "#NUM!"}}}
+# YIELDDISC
+- {id: ydisc01, requires: [YIELDDISC], cells: {A1: "2/16/2008", A2: "3/1/2008", B1: "=YIELDDISC(A1,A2,99.795,100,2)"}, expect: {B1: 0.052823}, tol: 1e-5}
+- {id: ydisc02, requires: [YIELDDISC], cells: {A1: "2/16/2008", A2: "3/1/2008", B1: "=YIELDDISC(A1,A2,100,100,2)"}, expect: {B1: 0}}
+- {id: ydisc03, requires: [YIELDDISC], cells: {A1: "2/16/2008", A2: "3/1/2008", B1: "=YIELDDISC(A1,A2,0,100,2)"}, expect: {B1: {error: "#NUM!"}}}
+# YIELDMAT
+- {id: ymat01, requires: [YIELDMAT], cells: {A1: "3/15/2008", A2: "11/3/2008", A3: "11/8/2007", B1: "=YIELDMAT(A1,A2,A3,0.0625,100.0123,0)"}, expect: {B1: 0.060954}, tol: 1e-5}
+- {id: ymat02, requires: [YIELDMAT], cells: {A1: "3/15/2008", A2: "11/3/2008", A3: "11/8/2007", B1: "=YIELDMAT(A1,A2,A3,-0.0625,100.0123,0)"}, expect: {B1: {error: "#NUM!"}}}
+- {id: ymat03, requires: [YIELDMAT], cells: {A1: "3/15/2008", A2: "11/3/2008", A3: "11/8/2007", B1: "=YIELDMAT(A2,A1,A3,0.0625,100.0123,0)"}, expect: {B1: {error: "#NUM!"}}}

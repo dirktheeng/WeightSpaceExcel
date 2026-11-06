@@ -1,0 +1,171 @@
+# Stage 4 conformance cases: date and time functions and date coercion.
+# Written 2026-11-06 by tests-345-agent. Format and conventions: see stage3/cases_math.yaml header.
+# Dates are serial numbers in the 1900 date system (1 = 1900-01-01, 60 = the fictitious 1900-02-29).
+# Serial anchors used by hand: 2000-01-01 = 36526, 2008-01-01 = 39448, 2011-01-01 = 40544,
+# 2012-01-01 = 40909, 2024-01-01 = 44927 (a Monday).
+# Date text typed in cells (e.g. "1/1/2008") is read as a date serial (en-US, month first).
+cases:
+# DATE https://support.microsoft.com/en-us/excel/functions/date-function
+- {id: date01, requires: [DATE], cells: {A1: "=DATE(2008,1,1)"}, expect: {A1: 39448}}
+- {id: date02, requires: [DATE], cells: {A1: "=DATE(2008,14,2)"}, expect: {A1: 39846}, note: "month 14 rolls to Feb 2009"}
+- {id: date03, requires: [DATE], cells: {A1: "=DATE(2008,1,-15)"}, expect: {A1: 39432}, note: "Dec 16 2007"}
+- {id: date04, requires: [DATE], cells: {A1: "=DATE(108,1,2)"}, expect: {A1: 39449}, note: "year below 1900 adds 1900"}
+- {id: date05, requires: [DATE], cells: {A1: "=DATE(1900,3,1)"}, expect: {A1: 61}, note: "edge: 1900 leap-year bug"}
+- {id: date06, requires: [DATE], cells: {A1: "=DATE(1900,1,1)"}, expect: {A1: 1}}
+- {id: date07, requires: [DATE], cells: {A1: "=DATE(10000,1,1)"}, expect: {A1: {error: "#NUM!"}}}
+- {id: date08, requires: [DATE], cells: {A1: "=DATE(-1,1,1)"}, expect: {A1: {error: "#NUM!"}}}
+- {id: date09, requires: [DATE], cells: {A1: '=DATE("x",1,1)'}, expect: {A1: {error: "#VALUE!"}}}
+# DATEDIF https://support.microsoft.com/en-us/excel/functions/datedif-function
+- {id: datedif01, requires: [DATEDIF], cells: {A1: "1/1/2001", B1: "1/1/2003", C1: '=DATEDIF(A1,B1,"Y")'}, expect: {C1: 2}}
+- {id: datedif02, requires: [DATEDIF], cells: {A1: "6/1/2001", B1: "8/15/2002", C1: '=DATEDIF(A1,B1,"D")'}, expect: {C1: 440}}
+- {id: datedif03, requires: [DATEDIF], cells: {A1: "6/1/2001", B1: "8/15/2002", C1: '=DATEDIF(A1,B1,"YD")'}, expect: {C1: 75}}
+- {id: datedif04, requires: [DATEDIF], cells: {A1: "6/1/2001", B1: "8/15/2002", C1: '=DATEDIF(A1,B1,"M")'}, expect: {C1: 14}}
+- {id: datedif05, requires: [DATEDIF], cells: {A1: "6/1/2001", B1: "6/1/2001", C1: '=DATEDIF(A1,B1,"D")'}, expect: {C1: 0}, note: "edge: same day"}
+- {id: datedif06, requires: [DATEDIF], cells: {A1: "1/1/2003", B1: "1/1/2001", C1: '=DATEDIF(A1,B1,"Y")'}, expect: {C1: {error: "#NUM!"}}, note: "start after end"}
+- {id: datedif07, requires: [DATEDIF], cells: {A1: "1/1/2001", B1: "1/1/2003", C1: '=DATEDIF(A1,B1,"Q")'}, expect: {C1: {error: "#NUM!"}}, confidence: medium}
+# DATEVALUE https://support.microsoft.com/en-us/excel/functions/datevalue-function
+- {id: dv01, requires: [DATEVALUE], cells: {A1: '=DATEVALUE("8/22/2011")'}, expect: {A1: 40777}}
+- {id: dv02, requires: [DATEVALUE], cells: {A1: '=DATEVALUE("22-MAY-2011")'}, expect: {A1: 40685}}
+- {id: dv03, requires: [DATEVALUE], cells: {A1: '=DATEVALUE("2011/02/23")'}, expect: {A1: 40597}}
+- {id: dv04, requires: [DATEVALUE], cells: {A1: '=DATEVALUE("1/1/1900")'}, expect: {A1: 1}, note: "edge: first date"}
+- {id: dv05, requires: [DATEVALUE], cells: {A1: '=DATEVALUE("8/22/2011 6:35 AM")'}, expect: {A1: 40777}, note: "time part ignored"}
+- {id: dv06, requires: [DATEVALUE], cells: {A1: '=DATEVALUE("abc")'}, expect: {A1: {error: "#VALUE!"}}}
+- {id: dv07, requires: [DATEVALUE], cells: {A1: '=DATEVALUE("1/1/10000")'}, expect: {A1: {error: "#VALUE!"}}, note: "outside range"}
+# DAY https://support.microsoft.com/en-us/excel/functions/day-function
+- {id: day01, requires: [DAY], cells: {A1: "15-Apr-11", B1: "=DAY(A1)"}, expect: {B1: 15}}
+- {id: day02, requires: [DAY, DATE], cells: {A1: "=DAY(DATE(2024,2,29))"}, expect: {A1: 29}}
+- {id: day03, requires: [DAY], cells: {A1: "=DAY(0)"}, expect: {A1: 0}, note: "edge: serial 0 is Jan 0 1900"}
+- {id: day04, requires: [DAY], cells: {A1: "=DAY(-1)"}, expect: {A1: {error: "#NUM!"}}}
+- {id: day05, requires: [DAY], cells: {A1: '=DAY("x")'}, expect: {A1: {error: "#VALUE!"}}}
+# DAYS https://support.microsoft.com/en-us/excel/functions/days-function
+- {id: days01, requires: [DAYS], cells: {A1: '=DAYS("15-MAR-2021","1-FEB-2021")'}, expect: {A1: 42}}
+- {id: days02, requires: [DAYS], cells: {A1: "12/31/2021", A2: "1/1/2021", B1: "=DAYS(A1,A2)"}, expect: {B1: 364}}
+- {id: days03, requires: [DAYS], cells: {A1: '=DAYS("1/1/2021","1/2/2021")'}, expect: {A1: -1}, note: "negative"}
+- {id: days04, requires: [DAYS], cells: {A1: '=DAYS("x",1)'}, expect: {A1: {error: "#VALUE!"}}}
+- {id: days05, requires: [DAYS], cells: {A1: "=DAYS(1,-1)"}, expect: {A1: {error: "#NUM!"}}, confidence: medium}
+# DAYS360 https://support.microsoft.com/en-us/excel/functions/days360-function
+- {id: d360_01, requires: [DAYS360], cells: {A1: "1/30/2011", A2: "2/1/2011", B1: "=DAYS360(A1,A2)"}, expect: {B1: 1}}
+- {id: d360_02, requires: [DAYS360], cells: {A1: "1/1/2011", A2: "12/31/2011", B1: "=DAYS360(A1,A2)"}, expect: {B1: 360}, note: "US method end day 31"}
+- {id: d360_03, requires: [DAYS360], cells: {A1: "1/1/2011", A2: "12/31/2011", B1: "=DAYS360(A1,A2,TRUE)"}, expect: {B1: 359}, note: "European method", confidence: medium}
+- {id: d360_04, requires: [DAYS360], cells: {A1: "2/1/2011", A2: "1/30/2011", B1: "=DAYS360(A1,A2)"}, expect: {B1: -1}}
+- {id: d360_05, requires: [DAYS360], cells: {A1: '=DAYS360("x","1/1/2011")'}, expect: {A1: {error: "#VALUE!"}}}
+# EDATE https://support.microsoft.com/en-us/excel/functions/edate-function
+- {id: edate01, requires: [EDATE], cells: {A1: "15-Jan-11", B1: "=EDATE(A1,1)"}, expect: {B1: 40589}}
+- {id: edate02, requires: [EDATE], cells: {A1: "15-Jan-11", B1: "=EDATE(A1,-1)"}, expect: {B1: 40527}}
+- {id: edate03, requires: [EDATE], cells: {A1: "15-Jan-11", B1: "=EDATE(A1,2)"}, expect: {B1: 40617}}
+- {id: edate04, requires: [EDATE], cells: {A1: "31-Jan-11", B1: "=EDATE(A1,1)"}, expect: {B1: 40602}, note: "edge: clamps to Feb 28"}
+- {id: edate05, requires: [EDATE], cells: {A1: '=EDATE("x",1)'}, expect: {A1: {error: "#VALUE!"}}}
+# EOMONTH https://support.microsoft.com/en-us/excel/functions/eomonth-function
+- {id: eom01, requires: [EOMONTH], cells: {A1: "1-Jan-11", B1: "=EOMONTH(A1,1)"}, expect: {B1: 40602}}
+- {id: eom02, requires: [EOMONTH], cells: {A1: "1-Jan-11", B1: "=EOMONTH(A1,-3)"}, expect: {B1: 40482}}
+- {id: eom03, requires: [EOMONTH], cells: {A1: "1-Jan-11", B1: "=EOMONTH(A1,0)"}, expect: {B1: 40574}}
+- {id: eom04, requires: [EOMONTH], cells: {A1: '=EOMONTH("x",1)'}, expect: {A1: {error: "#VALUE!"}}}
+- {id: eom05, requires: [EOMONTH], cells: {A1: "1-Jan-11", B1: "=EOMONTH(A1,-1500000)"}, expect: {B1: {error: "#NUM!"}}, note: "before 1900"}
+# HOUR https://support.microsoft.com/en-us/excel/functions/hour-function
+- {id: hour01, requires: [HOUR], cells: {A1: "=HOUR(0.75)"}, expect: {A1: 18}}
+- {id: hour02, requires: [HOUR], cells: {A1: "7/18/2011 7:45", B1: "=HOUR(A1)"}, expect: {B1: 7}}
+- {id: hour03, requires: [HOUR], cells: {A1: "4/21/2012", B1: "=HOUR(A1)"}, expect: {B1: 0}, note: "date only"}
+- {id: hour04, requires: [HOUR], cells: {A1: "=HOUR(-1)"}, expect: {A1: {error: "#NUM!"}}}
+- {id: hour05, requires: [HOUR], cells: {A1: '=HOUR("x")'}, expect: {A1: {error: "#VALUE!"}}}
+# ISOWEEKNUM https://support.microsoft.com/en-us/excel/functions/isoweeknum-function
+- {id: isowk01, requires: [ISOWEEKNUM], cells: {A1: "3/9/2012", B1: "=ISOWEEKNUM(A1)"}, expect: {B1: 10}}
+- {id: isowk02, requires: [ISOWEEKNUM, DATE], cells: {A1: "=ISOWEEKNUM(DATE(2021,1,1))"}, expect: {A1: 53}, note: "edge: Jan 1 in last week of prior year"}
+- {id: isowk03, requires: [ISOWEEKNUM, DATE], cells: {A1: "=ISOWEEKNUM(DATE(2024,1,1))"}, expect: {A1: 1}}
+- {id: isowk04, requires: [ISOWEEKNUM], cells: {A1: '=ISOWEEKNUM("x")'}, expect: {A1: {error: "#VALUE!"}}}
+- {id: isowk05, requires: [ISOWEEKNUM], cells: {A1: "=ISOWEEKNUM(-1)"}, expect: {A1: {error: "#NUM!"}}}
+# MINUTE https://support.microsoft.com/en-us/excel/functions/minute-function
+- {id: minute01, requires: [MINUTE], cells: {A1: "12:45:00 PM", B1: "=MINUTE(A1)"}, expect: {B1: 45}}
+- {id: minute02, requires: [MINUTE], cells: {A1: "=MINUTE(0.5)"}, expect: {A1: 0}}
+- {id: minute03, requires: [MINUTE], cells: {A1: '=MINUTE("0:59:59")'}, expect: {A1: 59}, note: "edge: text time"}
+- {id: minute04, requires: [MINUTE], cells: {A1: '=MINUTE("x")'}, expect: {A1: {error: "#VALUE!"}}}
+# MONTH https://support.microsoft.com/en-us/excel/functions/month-function
+- {id: month01, requires: [MONTH], cells: {A1: "15-Apr-11", B1: "=MONTH(A1)"}, expect: {B1: 4}}
+- {id: month02, requires: [MONTH], cells: {A1: "=MONTH(61)"}, expect: {A1: 3}}
+- {id: month03, requires: [MONTH], cells: {A1: "=MONTH(0)"}, expect: {A1: 1}, note: "edge: Jan 0 1900", confidence: medium}
+- {id: month04, requires: [MONTH], cells: {A1: "=MONTH(-1)"}, expect: {A1: {error: "#NUM!"}}}
+# NETWORKDAYS https://support.microsoft.com/en-us/excel/functions/networkdays-function
+- {id: nwd01, requires: [NETWORKDAYS], cells: {A1: "10/1/2012", A2: "3/1/2013", B1: "=NETWORKDAYS(A1,A2)"}, expect: {B1: 110}}
+- {id: nwd02, requires: [NETWORKDAYS], cells: {A1: "10/1/2012", A2: "3/1/2013", A3: "11/22/2012", B1: "=NETWORKDAYS(A1,A2,A3)"}, expect: {B1: 109}}
+- {id: nwd03, requires: [NETWORKDAYS], cells: {A1: "10/1/2012", A2: "3/1/2013", A3: "11/22/2012", A4: "12/4/2012", A5: "1/21/2013", B1: "=NETWORKDAYS(A1,A2,A3:A5)"}, expect: {B1: 107}}
+- {id: nwd04, requires: [NETWORKDAYS, DATE], cells: {A1: "=NETWORKDAYS(DATE(2024,1,6),DATE(2024,1,7))"}, expect: {A1: 0}, note: "edge: weekend only"}
+- {id: nwd05, requires: [NETWORKDAYS], cells: {A1: '=NETWORKDAYS("x","1/1/2024")'}, expect: {A1: {error: "#VALUE!"}}}
+# NETWORKDAYS.INTL https://support.microsoft.com/en-us/excel/functions/networkdays-intl-function
+- {id: nwdi01, requires: [NETWORKDAYS.INTL, DATE], cells: {A1: "=NETWORKDAYS.INTL(DATE(2006,1,1),DATE(2006,1,31))"}, expect: {A1: 22}}
+- {id: nwdi02, requires: [NETWORKDAYS.INTL, DATE], cells: {A1: "=NETWORKDAYS.INTL(DATE(2006,2,28),DATE(2006,1,31))"}, expect: {A1: -21}, note: "reversed dates negative"}
+- {id: nwdi03, requires: [NETWORKDAYS.INTL, DATE], cells: {A1: '=NETWORKDAYS.INTL(DATE(2006,1,1),DATE(2006,2,1),7,{"2006/1/2","2006/1/16"})'}, expect: {A1: 22}}
+- {id: nwdi04, requires: [NETWORKDAYS.INTL, DATE], cells: {A1: '=NETWORKDAYS.INTL(DATE(2006,1,1),DATE(2006,2,1),"0010001",{"2006/1/2","2006/1/16"})'}, expect: {A1: 20}}
+- {id: nwdi05, requires: [NETWORKDAYS.INTL, DATE], cells: {A1: '=NETWORKDAYS.INTL(DATE(2006,1,1),DATE(2006,2,1),"1111111")'}, expect: {A1: 0}, confidence: low, note: "all days weekend"}
+- {id: nwdi06, requires: [NETWORKDAYS.INTL, DATE], cells: {A1: "=NETWORKDAYS.INTL(DATE(2006,1,1),DATE(2006,2,1),99)"}, expect: {A1: {error: "#NUM!"}}, note: "invalid weekend number"}
+- {id: nwdi07, requires: [NETWORKDAYS.INTL, DATE], cells: {A1: '=NETWORKDAYS.INTL(DATE(2006,1,1),DATE(2006,2,1),"123")'}, expect: {A1: {error: "#VALUE!"}}, note: "bad weekend string"}
+# NOW https://support.microsoft.com/en-us/excel/functions/now-function
+- {id: now01, requires: [NOW, DATE], cells: {A1: "=NOW()>DATE(2026,1,1)"}, expect: {A1: true}}
+- {id: now02, requires: [NOW, TODAY, INT], cells: {A1: "=INT(NOW())=TODAY()"}, expect: {A1: true}, note: "may fail if run across midnight"}
+- {id: now03, requires: [NOW], cells: {A1: "=NOW(1)"}, expect: {A1: {blank: true}}, rejected: [A1]}
+# SECOND https://support.microsoft.com/en-us/excel/functions/second-function
+- {id: second01, requires: [SECOND], cells: {A1: "4:48:18 PM", B1: "=SECOND(A1)"}, expect: {B1: 18}}
+- {id: second02, requires: [SECOND], cells: {A1: "4:48 PM", B1: "=SECOND(A1)"}, expect: {B1: 0}}
+- {id: second03, requires: [SECOND], cells: {A1: "=SECOND(-1)"}, expect: {A1: {error: "#NUM!"}}}
+- {id: second04, requires: [SECOND], cells: {A1: '=SECOND("x")'}, expect: {A1: {error: "#VALUE!"}}}
+# TIME https://support.microsoft.com/en-us/excel/functions/time-function
+- {id: time01, requires: [TIME], cells: {A1: "=TIME(12,0,0)"}, expect: {A1: 0.5}}
+- {id: time02, requires: [TIME], cells: {A1: "=TIME(16,48,10)"}, expect: {A1: 0.700115741}, tol: 1e-9}
+- {id: time03, requires: [TIME], cells: {A1: "=TIME(27,0,0)"}, expect: {A1: 0.125}, note: "hours over 23 wrap"}
+- {id: time04, requires: [TIME], cells: {A1: "=TIME(0,750,0)"}, expect: {A1: 0.520833333}, tol: 1e-9, note: "750 minutes is 12:30"}
+- {id: time05, requires: [TIME], cells: {A1: "=TIME(-1,0,0)"}, expect: {A1: {error: "#NUM!"}}}
+- {id: time06, requires: [TIME], cells: {A1: '=TIME("x",0,0)'}, expect: {A1: {error: "#VALUE!"}}}
+# TIMEVALUE https://support.microsoft.com/en-us/excel/functions/timevalue-function
+- {id: tv01, requires: [TIMEVALUE], cells: {A1: '=TIMEVALUE("2:24 AM")'}, expect: {A1: 0.1}, tol: 1e-12}
+- {id: tv02, requires: [TIMEVALUE], cells: {A1: '=TIMEVALUE("22-Aug-2011 6:35 AM")'}, expect: {A1: 0.274305556}, tol: 1e-9}
+- {id: tv03, requires: [TIMEVALUE], cells: {A1: '=TIMEVALUE("12:00 AM")'}, expect: {A1: 0}, note: "edge midnight"}
+- {id: tv04, requires: [TIMEVALUE], cells: {A1: '=TIMEVALUE("x")'}, expect: {A1: {error: "#VALUE!"}}}
+# TODAY https://support.microsoft.com/en-us/excel/functions/today-function
+- {id: today01, requires: [TODAY, DATE], cells: {A1: "=TODAY()>DATE(2026,1,1)"}, expect: {A1: true}}
+- {id: today02, requires: [TODAY, INT], cells: {A1: "=TODAY()-INT(TODAY())"}, expect: {A1: 0}, note: "no time part"}
+- {id: today03, requires: [TODAY], cells: {A1: "=TODAY(1)"}, expect: {A1: {blank: true}}, rejected: [A1]}
+# WEEKDAY https://support.microsoft.com/en-us/excel/functions/weekday-function
+- {id: wday01, requires: [WEEKDAY], cells: {A1: "2/14/2008", B1: "=WEEKDAY(A1)"}, expect: {B1: 5}, note: "Thursday"}
+- {id: wday02, requires: [WEEKDAY], cells: {A1: "2/14/2008", B1: "=WEEKDAY(A1,2)"}, expect: {B1: 4}}
+- {id: wday03, requires: [WEEKDAY], cells: {A1: "2/14/2008", B1: "=WEEKDAY(A1,3)"}, expect: {B1: 3}}
+- {id: wday04, requires: [WEEKDAY], cells: {A1: "2/14/2008", B1: "=WEEKDAY(A1,16)"}, expect: {B1: 6}, note: "Saturday is 1", confidence: medium}
+- {id: wday05, requires: [WEEKDAY], cells: {A1: "2/14/2008", B1: "=WEEKDAY(A1,4)"}, expect: {B1: {error: "#NUM!"}}}
+# WEEKNUM https://support.microsoft.com/en-us/excel/functions/weeknum-function
+- {id: wnum01, requires: [WEEKNUM], cells: {A1: "3/9/2012", B1: "=WEEKNUM(A1)"}, expect: {B1: 10}}
+- {id: wnum02, requires: [WEEKNUM], cells: {A1: "3/9/2012", B1: "=WEEKNUM(A1,2)"}, expect: {B1: 11}}
+- {id: wnum03, requires: [WEEKNUM, DATE], cells: {A1: "=WEEKNUM(DATE(2012,1,1))"}, expect: {A1: 1}, note: "edge: Jan 1 always week 1"}
+- {id: wnum04, requires: [WEEKNUM], cells: {A1: "3/9/2012", B1: "=WEEKNUM(A1,21)"}, expect: {B1: 10}, note: "ISO system"}
+- {id: wnum05, requires: [WEEKNUM], cells: {A1: "3/9/2012", B1: "=WEEKNUM(A1,3)"}, expect: {B1: {error: "#NUM!"}}}
+# WORKDAY https://support.microsoft.com/en-us/excel/functions/workday-function
+- {id: wd01, requires: [WORKDAY], cells: {A1: "10/1/2008", A2: "151", A3: "11/26/2008", A4: "12/4/2008", A5: "1/21/2009", B1: "=WORKDAY(A1,A2,A3:A5)"}, expect: {B1: 39933}, note: "4/30/2009"}
+- {id: wd02, requires: [WORKDAY, DATE], cells: {A1: "=WORKDAY(DATE(2024,1,5),1)"}, expect: {A1: 44934}, note: "Friday plus 1 is Monday"}
+- {id: wd03, requires: [WORKDAY, DATE], cells: {A1: "=WORKDAY(DATE(2024,1,8),0)"}, expect: {A1: 44934}, note: "edge: zero days"}
+- {id: wd04, requires: [WORKDAY, DATE], cells: {A1: "=WORKDAY(DATE(2024,1,8),-1)"}, expect: {A1: 44931}, note: "back to Friday Jan 5"}
+- {id: wd05, requires: [WORKDAY], cells: {A1: '=WORKDAY("x",1)'}, expect: {A1: {error: "#VALUE!"}}}
+# WORKDAY.INTL https://support.microsoft.com/en-us/excel/functions/workday-intl-function
+- {id: wdi01, requires: [WORKDAY.INTL, DATE], cells: {A1: "=WORKDAY.INTL(DATE(2012,1,1),90,11)"}, expect: {A1: 41013}}
+- {id: wdi02, requires: [WORKDAY.INTL, DATE, TEXT], cells: {A1: '=TEXT(WORKDAY.INTL(DATE(2012,1,1),30,17),"m/dd/yyyy")'}, expect: {A1: "2/05/2012"}}
+- {id: wdi03, requires: [WORKDAY.INTL, DATE], cells: {A1: '=WORKDAY.INTL(DATE(2024,1,5),1,"0000000")'}, expect: {A1: 44932}, note: "edge: no weekend days", confidence: medium}
+- {id: wdi04, requires: [WORKDAY.INTL, DATE], cells: {A1: "=WORKDAY.INTL(DATE(2012,1,1),30,0)"}, expect: {A1: {error: "#NUM!"}}, note: "weekend 0 invalid"}
+# YEAR https://support.microsoft.com/en-us/excel/functions/year-function
+- {id: year01, requires: [YEAR], cells: {A1: "7/5/2008", B1: "=YEAR(A1)"}, expect: {B1: 2008}}
+- {id: year02, requires: [YEAR], cells: {A1: "7/5/2010", B1: "=YEAR(A1)"}, expect: {B1: 2010}}
+- {id: year03, requires: [YEAR], cells: {A1: "=YEAR(0)"}, expect: {A1: 1900}, note: "edge"}
+- {id: year04, requires: [YEAR], cells: {A1: "=YEAR(-1)"}, expect: {A1: {error: "#NUM!"}}}
+- {id: year05, requires: [YEAR], cells: {A1: '=YEAR("x")'}, expect: {A1: {error: "#VALUE!"}}}
+# YEARFRAC https://support.microsoft.com/en-us/excel/functions/yearfrac-function
+- {id: yf01, requires: [YEARFRAC], cells: {A1: "1/1/2012", A2: "7/30/2012", B1: "=YEARFRAC(A1,A2)"}, expect: {B1: 0.58055556}, tol: 1e-8}
+- {id: yf02, requires: [YEARFRAC], cells: {A1: "1/1/2012", A2: "7/30/2012", B1: "=YEARFRAC(A1,A2,1)"}, expect: {B1: 0.57650273}, tol: 1e-8}
+- {id: yf03, requires: [YEARFRAC], cells: {A1: "1/1/2012", A2: "7/30/2012", B1: "=YEARFRAC(A1,A2,3)"}, expect: {B1: 0.57808219}, tol: 1e-8}
+- {id: yf04, requires: [YEARFRAC], cells: {A1: "1/1/2012", B1: "=YEARFRAC(A1,A1)"}, expect: {B1: 0}, note: "edge"}
+- {id: yf05, requires: [YEARFRAC], cells: {A1: "1/1/2012", A2: "7/30/2012", B1: "=YEARFRAC(A2,A1)"}, expect: {B1: 0.58055556}, tol: 1e-8, note: "order does not matter"}
+- {id: yf06, requires: [YEARFRAC], cells: {A1: "1/1/2012", A2: "7/30/2012", B1: "=YEARFRAC(A1,A2,5)"}, expect: {B1: {error: "#NUM!"}}}
+# Formula language: date text coercion in arithmetic
+- {id: dcoerce01, requires: ["Date text coercion in arithmetic"], cells: {A1: '="1/1/2008"+1'}, expect: {A1: 39449}}
+- {id: dcoerce02, requires: ["Date text coercion in arithmetic"], cells: {A1: '="2008-01-01"-"2007-12-31"'}, expect: {A1: 1}}
+- {id: dcoerce03, requires: ["Date text coercion in arithmetic"], cells: {A1: '="12:00"*2'}, expect: {A1: 1}}
+- {id: dcoerce04, requires: ["Date text coercion in arithmetic"], cells: {A1: '="2/30/2008"+0'}, expect: {A1: {error: "#VALUE!"}}, note: "not a valid date"}
+# Values and errors: 1904 date system option (needs a workbook setting)
+- {id: d1904_01, requires: [DATE, "1904 date system option"], settings: [date1904], cells: {A1: "=DATE(1904,1,1)"}, expect: {A1: 0}}
+- {id: d1904_02, requires: [DATE, "1904 date system option"], settings: [date1904], cells: {A1: "=DATE(2008,1,1)"}, expect: {A1: 37986}, note: "1462 less than 1900 system"}
+- {id: d1904_03, requires: [DATE, "1904 date system option"], settings: [date1904], cells: {A1: "=DATE(1903,12,31)"}, expect: {A1: {error: "#NUM!"}}}
+# Calculation: precision as displayed (needs setting and cell format)
+- {id: pad01, requires: ["Precision as displayed option"], settings: [precision_as_displayed, "A1 format 0.00"], cells: {A1: "1.005", B1: "=A1*1000"}, expect: {B1: 1010}, confidence: low, note: "A1 stored rounded to 1.01 once format applies"}

@@ -1,0 +1,85 @@
+# Stage 4 number format display cases (date/time, sections, conditions, fractions, custom formats).
+# Written 2026-11-06 by tests-345-agent. Same schema as stage3/formats.yaml.
+# Sources: Number format codes https://support.microsoft.com/en-us/office/number-format-codes-5026bbd6-04bc-48cd-bf33-80f18b4eae68
+#   Format a date the way you want https://support.microsoft.com/en-us/office/format-a-date-the-way-you-want-8e10019e-d5d8-47a1-ba95-db95123d273e
+#   TEXT function https://support.microsoft.com/en-us/excel/functions/text-function
+# Value anchor: 39448.75 is 2008-01-01 18:00 (a Tuesday).
+cases:
+# date and time tokens
+- {id: dt01, item: "TEXT format codes: date and time tokens d m y h s AM/PM and elapsed [h] [m] [s]", value: "39448.75", format: "m/d/yyyy", text: "1/1/2008"}
+- {id: dt02, item: "TEXT format codes: date and time tokens d m y h s AM/PM and elapsed [h] [m] [s]", value: "39448.75", format: "mm/dd/yy", text: "01/01/08"}
+- {id: dt03, item: "TEXT format codes: date and time tokens d m y h s AM/PM and elapsed [h] [m] [s]", value: "39448.75", format: "mmm", text: "Jan"}
+- {id: dt04, item: "TEXT format codes: date and time tokens d m y h s AM/PM and elapsed [h] [m] [s]", value: "39448.75", format: "mmmm", text: "January"}
+- {id: dt05, item: "TEXT format codes: date and time tokens d m y h s AM/PM and elapsed [h] [m] [s]", value: "39448.75", format: "mmmmm", text: "J"}
+- {id: dt06, item: "TEXT format codes: date and time tokens d m y h s AM/PM and elapsed [h] [m] [s]", value: "39448.75", format: "ddd", text: "Tue"}
+- {id: dt07, item: "TEXT format codes: date and time tokens d m y h s AM/PM and elapsed [h] [m] [s]", value: "39448.75", format: "dddd", text: "Tuesday"}
+- {id: dt08, item: "TEXT format codes: date and time tokens d m y h s AM/PM and elapsed [h] [m] [s]", value: "39448.75", format: "h:mm AM/PM", text: "6:00 PM"}
+- {id: dt09, item: "TEXT format codes: date and time tokens d m y h s AM/PM and elapsed [h] [m] [s]", value: "39448.75", format: "hh:mm:ss", text: "18:00:00"}
+- {id: dt10, item: "TEXT format codes: date and time tokens d m y h s AM/PM and elapsed [h] [m] [s]", value: "0.5", format: "h:mm a/p", text: "12:00 p"}
+- {id: dt11, item: "TEXT format codes: date and time tokens d m y h s AM/PM and elapsed [h] [m] [s]", value: "0", format: "h:mm AM/PM", text: "12:00 AM", note: "edge midnight"}
+- {id: dt12, item: "TEXT format codes: date and time tokens d m y h s AM/PM and elapsed [h] [m] [s]", value: "0.0430902777777778", format: "h:mm:ss.00", text: "1:02:03.00", note: "0.04309027... is 1:02:03"}
+- {id: dt13, item: "TEXT format codes: date and time tokens d m y h s AM/PM and elapsed [h] [m] [s]", value: "1.5", format: "[h]:mm", text: "36:00"}
+- {id: dt14, item: "TEXT format codes: date and time tokens d m y h s AM/PM and elapsed [h] [m] [s]", value: "0.5", format: "[mm]:ss", text: "720:00"}
+- {id: dt15, item: "TEXT format codes: date and time tokens d m y h s AM/PM and elapsed [h] [m] [s]", value: "0.01", format: "[ss]", text: "864"}
+- {id: dt16, item: "TEXT format codes: date and time tokens d m y h s AM/PM and elapsed [h] [m] [s]", value: "0.5", format: "h:m", text: "12:0", note: "m after h is minutes"}
+# sections and conditions
+- {id: sc01, item: "TEXT format codes: sections and conditions", value: "0", format: '0;-0;"zero";"text:"@', text: "zero"}
+- {id: sc02, item: "TEXT format codes: sections and conditions", value: "-3", format: "0;0", text: "3", note: "second section has no minus"}
+- {id: sc03, item: "TEXT format codes: sections and conditions", value: "150", format: '[>100]"big";[<=100]"small"', text: "big"}
+- {id: sc04, item: "TEXT format codes: sections and conditions", value: "50", format: '[>100]"big";[<=100]"small"', text: "small"}
+- {id: sc05, item: "TEXT format codes: sections and conditions", value: "100", format: '[>100]"big";[<=100]"small"', text: "small", note: "edge on boundary"}
+- {id: sc06, item: "TEXT format codes: sections and conditions", value: "x", format: '0;-0;0', text: "x", note: "no text section: text unchanged"}
+# fractions
+- {id: fr01, item: "TEXT format codes: fractions", value: "5.25", format: "# ?/?", text: "5 1/4"}
+- {id: fr02, item: "TEXT format codes: fractions", value: "0.5", format: "?/?", text: "1/2"}
+- {id: fr03, item: "TEXT format codes: fractions", value: "1.25", format: "?/?", text: "5/4", note: "no integer part"}
+- {id: fr04, item: "TEXT format codes: fractions", value: "5", format: "# ?/?", text: "5    ", confidence: low, note: "whole number pads fraction width"}
+- {id: fr05, item: "TEXT format codes: fractions", value: "0.333333333", format: "# ??/??", text: "  1/3 ", confidence: low}
+# built-in
+- {id: bd01, item: "Built-in number format Short Date and Long Date", value: "39448", format: "m/d/yyyy", text: "1/1/2008"}
+- {id: bd02, item: "Built-in number format Short Date and Long Date", value: "39448", format: "[$-F800]dddd, mmmm dd, yyyy", text: "Tuesday, January 01, 2008", confidence: low, note: "system long date code"}
+- {id: bd03, item: "Built-in number format Short Date and Long Date", value: "39448", format: "dddd, mmmm d, yyyy", text: "Tuesday, January 1, 2008"}
+- {id: bd04, item: "Built-in number format Short Date and Long Date", value: "1", format: "m/d/yyyy", text: "1/1/1900", note: "edge first serial"}
+- {id: bt01, item: "Built-in number format Time", value: "0.75", format: "h:mm:ss AM/PM", text: "6:00:00 PM"}
+- {id: bt02, item: "Built-in number format Time", value: "0.999988425925926", format: "h:mm:ss", text: "23:59:59"}
+- {id: bt03, item: "Built-in number format Time", value: "1.25", format: "h:mm", text: "6:00", note: "day part dropped without brackets"}
+- {id: bf01, item: "Built-in number format Fraction", value: "0.75", format: "# ?/4", text: " 3/4", confidence: medium, note: "integer 0 shows as space"}
+- {id: bf02, item: "Built-in number format Fraction", value: "2.5", format: "# ?/2", text: "2 1/2"}
+- {id: bf03, item: "Built-in number format Fraction", value: "1.3", format: "# ?/10", text: "1 3/10"}
+- {id: bsp01, item: "Built-in number format Special (zip phone SSN)", value: "1234", format: "00000", text: "01234"}
+- {id: bsp02, item: "Built-in number format Special (zip phone SSN)", value: "980521234", format: "00000-0000", text: "98052-1234"}
+- {id: bsp03, item: "Built-in number format Special (zip phone SSN)", value: "4255550100", format: "[<=9999999]###-####;(###) ###-####", text: "(425) 555-0100"}
+- {id: bsp04, item: "Built-in number format Special (zip phone SSN)", value: "5550100", format: "[<=9999999]###-####;(###) ###-####", text: "555-0100"}
+- {id: bsp05, item: "Built-in number format Special (zip phone SSN)", value: "123456789", format: "000-00-0000", text: "123-45-6789"}
+# custom formats
+- {id: cf4s01, item: "Custom format: up to four sections", value: "-2.5", format: '0.00;(0.00);"-";@" txt"', text: "(2.50)"}
+- {id: cf4s02, item: "Custom format: up to four sections", value: "abc", format: '0.00;(0.00);"-";@" txt"', text: "abc txt"}
+- {id: cf4s03, item: "Custom format: up to four sections", value: "0", format: '0.00;(0.00);"-";@" txt"', text: "-"}
+- {id: cfc01, item: "Custom format: conditions [>100]", value: "1500", format: '[>=1000]#,##0,"K";0', text: "2K", note: "scaled and rounded"}
+- {id: cfc02, item: "Custom format: conditions [>100]", value: "999", format: '[>=1000]#,##0,"K";0', text: "999"}
+- {id: cfc03, item: "Custom format: conditions [>100]", value: "-5", format: '[<0]"neg";"pos"', text: "neg"}
+- {id: cfcol01, item: "Custom format: colors [Red] and [ColorN]", value: "-5", format: "[Blue]0;[Red]0", text: "5", note: "TEXT drops color"}
+- {id: cfcol02, item: "Custom format: colors [Red] and [ColorN]", value: "-5", format: "[Blue]0;[Red]0", text: "5", display_only: true, color: red}
+- {id: cfcol03, item: "Custom format: colors [Red] and [ColorN]", value: "5", format: "[Color10]0", text: "5", display_only: true, color: "palette 10 (green)", confidence: medium}
+- {id: cfdt01, item: "Custom format: date and time codes", value: "39448.75", format: "yyyy-mm-dd hh:mm", text: "2008-01-01 18:00"}
+- {id: cfdt02, item: "Custom format: date and time codes", value: "39448.75", format: 'd "of" mmmm', text: "1 of January"}
+- {id: cfdt03, item: "Custom format: date and time codes", value: "39508", format: "d-mmm-yy", text: "1-Mar-08", note: "2008 is a leap year: 39448+60"}
+- {id: cfel01, item: "Custom format: elapsed time codes", value: "2.75", format: "[h]:mm:ss", text: "66:00:00"}
+- {id: cfel02, item: "Custom format: elapsed time codes", value: "0.0006944444444444", format: "[s]", text: "60"}
+- {id: cfel03, item: "Custom format: elapsed time codes", value: "-0.5", format: "[h]:mm", text: "-12:00", confidence: low}
+- {id: cffd01, item: "Custom format: fractions with fixed denominators", value: "2.5", format: "# ?/8", text: "2 4/8"}
+- {id: cffd02, item: "Custom format: fractions with fixed denominators", value: "0.3", format: "?/100", text: "30/100"}
+- {id: cffd03, item: "Custom format: fractions with fixed denominators", value: "2.5", format: "# ??/16", text: "2  8/16", confidence: medium}
+- {id: cfsci01, item: "Custom format: scientific", value: "1234", format: "0.0E+00", text: "1.2E+03"}
+- {id: cfsci02, item: "Custom format: scientific", value: "0.00012", format: "0E+0", text: "1E-4"}
+- {id: cfsci03, item: "Custom format: scientific", value: "-98765", format: "0.000E+00", text: "-9.877E+04"}
+- {id: cffill01, item: "Custom format: fill character * and space _", value: "5", format: "0_)", text: "5 "}
+- {id: cffill02, item: "Custom format: fill character * and space _", value: "5", format: "0*-", text: "5", note: "TEXT omits fill", confidence: medium}
+- {id: cffill03, item: "Custom format: fill character * and space _", value: "5", format: "0*-", col_width: 8.43, text: "5-------", display_only: true, confidence: low}
+- {id: cfloc01, item: "Custom format: locale and currency codes [$-409]", value: "39448", format: "[$-409]mmmm d, yyyy", text: "January 1, 2008"}
+- {id: cfloc02, item: "Custom format: locale and currency codes [$-409]", value: "1234.5", format: "[$$-409]#,##0.00", text: "$1,234.50"}
+- {id: cfloc03, item: "Custom format: locale and currency codes [$-409]", value: "1234.5", format: "[$€-2] #,##0.00", text: "€ 1,234.50", confidence: medium}
+# negative dates and times shown as ####
+- {id: negdt01, item: "Negative dates and times shown as ####", value: "-1", format: "m/d/yyyy", col_width: 8.43, text: "########", display_only: true, confidence: medium}
+- {id: negdt02, item: "Negative dates and times shown as ####", value: "=TIME(1,0,0)-TIME(2,0,0)", format: "h:mm", col_width: 8.43, text: "########", display_only: true, confidence: medium}
+- {id: negdt03, item: "Negative dates and times shown as ####", value: "-1", format: "General", col_width: 8.43, text: "-1", display_only: true, note: "General shows the number"}

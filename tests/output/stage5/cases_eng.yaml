@@ -1,0 +1,248 @@
+# Stage 5 conformance cases: engineering functions.
+# Written 2026-11-06 by tests-345-agent. Format and conventions: see stage3/cases_math.yaml header.
+# Complex results are text compared exactly; Excel prints up to 15 significant digits. The
+# documented IM* example strings are recalled (confidence medium).
+# Source page per group: https://support.microsoft.com/en-us/excel/functions/<name>-function
+cases:
+# BESSELI
+- {id: bessi01, requires: [BESSELI], cells: {A1: "=BESSELI(1.5,1)"}, expect: {A1: 0.981666428}, tol: 1e-8}
+- {id: bessi02, requires: [BESSELI], cells: {A1: "=BESSELI(0,0)"}, expect: {A1: 1}, tol: 1e-9}
+- {id: bessi03, requires: [BESSELI], cells: {A1: "=BESSELI(1.5,-1)"}, expect: {A1: {error: "#NUM!"}}}
+- {id: bessi04, requires: [BESSELI], cells: {A1: '=BESSELI("x",1)'}, expect: {A1: {error: "#VALUE!"}}}
+# BESSELJ
+- {id: bessj01, requires: [BESSELJ], cells: {A1: "=BESSELJ(1.9,2)"}, expect: {A1: 0.329925829}, tol: 1e-8}
+- {id: bessj02, requires: [BESSELJ], cells: {A1: "=BESSELJ(0,0)"}, expect: {A1: 1}, tol: 1e-9}
+- {id: bessj03, requires: [BESSELJ], cells: {A1: "=BESSELJ(1.9,-2)"}, expect: {A1: {error: "#NUM!"}}}
+# BESSELK
+- {id: bessk01, requires: [BESSELK], cells: {A1: "=BESSELK(1.5,1)"}, expect: {A1: 0.277387804}, tol: 1e-8}
+- {id: bessk02, requires: [BESSELK], cells: {A1: "=BESSELK(1.5,1.9)"}, expect: {A1: 0.277387804}, tol: 1e-8, note: "order truncated"}
+- {id: bessk03, requires: [BESSELK], cells: {A1: "=BESSELK(0,1)"}, expect: {A1: {error: "#NUM!"}}, confidence: medium}
+# BESSELY
+- {id: bessy01, requires: [BESSELY], cells: {A1: "=BESSELY(2.5,1)"}, expect: {A1: 0.145918138}, tol: 1e-8}
+- {id: bessy02, requires: [BESSELY], cells: {A1: "=BESSELY(2.5,1.7)"}, expect: {A1: 0.145918138}, tol: 1e-8, note: "order truncated"}
+- {id: bessy03, requires: [BESSELY], cells: {A1: "=BESSELY(-1,1)"}, expect: {A1: {error: "#NUM!"}}, confidence: medium}
+# BIN2DEC
+- {id: b2d01, requires: [BIN2DEC], cells: {A1: "=BIN2DEC(1100100)"}, expect: {A1: 100}}
+- {id: b2d02, requires: [BIN2DEC], cells: {A1: "=BIN2DEC(1111111111)"}, expect: {A1: -512}, note: "two's complement"}
+- {id: b2d03, requires: [BIN2DEC], cells: {A1: "=BIN2DEC(0)"}, expect: {A1: 0}}
+- {id: b2d04, requires: [BIN2DEC], cells: {A1: "=BIN2DEC(12)"}, expect: {A1: {error: "#NUM!"}}}
+- {id: b2d05, requires: [BIN2DEC], cells: {A1: '=BIN2DEC("11111111111")'}, expect: {A1: {error: "#NUM!"}}, note: "more than 10 digits"}
+# BIN2HEX
+- {id: b2h01, requires: [BIN2HEX], cells: {A1: "=BIN2HEX(11111011,4)"}, expect: {A1: "00FB"}}
+- {id: b2h02, requires: [BIN2HEX], cells: {A1: "=BIN2HEX(1110)"}, expect: {A1: "E"}}
+- {id: b2h03, requires: [BIN2HEX], cells: {A1: "=BIN2HEX(1111111111)"}, expect: {A1: "FFFFFFFFFF"}}
+- {id: b2h04, requires: [BIN2HEX], cells: {A1: "=BIN2HEX(11111011,1)"}, expect: {A1: {error: "#NUM!"}}, note: "places too small"}
+# BIN2OCT
+- {id: b2o01, requires: [BIN2OCT], cells: {A1: "=BIN2OCT(1001,3)"}, expect: {A1: "011"}}
+- {id: b2o02, requires: [BIN2OCT], cells: {A1: "=BIN2OCT(1100100)"}, expect: {A1: "144"}}
+- {id: b2o03, requires: [BIN2OCT], cells: {A1: "=BIN2OCT(1111111111)"}, expect: {A1: "7777777777"}}
+- {id: b2o04, requires: [BIN2OCT], cells: {A1: "=BIN2OCT(1001,-1)"}, expect: {A1: {error: "#NUM!"}}}
+# BITAND
+- {id: band01, requires: [BITAND], cells: {A1: "=BITAND(1,5)"}, expect: {A1: 1}}
+- {id: band02, requires: [BITAND], cells: {A1: "=BITAND(13,25)"}, expect: {A1: 9}}
+- {id: band03, requires: [BITAND], cells: {A1: "=BITAND(0,0)"}, expect: {A1: 0}}
+- {id: band04, requires: [BITAND], cells: {A1: "=BITAND(-1,1)"}, expect: {A1: {error: "#NUM!"}}}
+- {id: band05, requires: [BITAND], cells: {A1: "=BITAND(1.5,1)"}, expect: {A1: {error: "#NUM!"}}, note: "non-integer"}
+# BITLSHIFT
+- {id: blsh01, requires: [BITLSHIFT], cells: {A1: "=BITLSHIFT(4,2)"}, expect: {A1: 16}}
+- {id: blsh02, requires: [BITLSHIFT], cells: {A1: "=BITLSHIFT(4,-1)"}, expect: {A1: 2}, note: "negative shifts right"}
+- {id: blsh03, requires: [BITLSHIFT], cells: {A1: "=BITLSHIFT(1,48)"}, expect: {A1: {error: "#NUM!"}}, note: "result beyond 2^48-1"}
+# BITOR
+- {id: bor01, requires: [BITOR], cells: {A1: "=BITOR(23,10)"}, expect: {A1: 31}}
+- {id: bor02, requires: [BITOR], cells: {A1: "=BITOR(0,0)"}, expect: {A1: 0}}
+- {id: bor03, requires: [BITOR], cells: {A1: "=BITOR(2^48,1)"}, expect: {A1: {error: "#NUM!"}}}
+# BITRSHIFT
+- {id: brsh01, requires: [BITRSHIFT], cells: {A1: "=BITRSHIFT(13,2)"}, expect: {A1: 3}}
+- {id: brsh02, requires: [BITRSHIFT], cells: {A1: "=BITRSHIFT(13,-2)"}, expect: {A1: 52}, note: "negative shifts left"}
+- {id: brsh03, requires: [BITRSHIFT], cells: {A1: "=BITRSHIFT(13,54)"}, expect: {A1: {error: "#NUM!"}}, note: "shift above 53"}
+# BITXOR
+- {id: bxor01, requires: [BITXOR], cells: {A1: "=BITXOR(5,3)"}, expect: {A1: 6}}
+- {id: bxor02, requires: [BITXOR], cells: {A1: "=BITXOR(7,7)"}, expect: {A1: 0}}
+- {id: bxor03, requires: [BITXOR], cells: {A1: '=BITXOR("a",3)'}, expect: {A1: {error: "#VALUE!"}}}
+# COMPLEX
+- {id: cplx01, requires: [COMPLEX], cells: {A1: "=COMPLEX(3,4)"}, expect: {A1: "3+4i"}}
+- {id: cplx02, requires: [COMPLEX], cells: {A1: '=COMPLEX(3,4,"j")'}, expect: {A1: "3+4j"}}
+- {id: cplx03, requires: [COMPLEX], cells: {A1: "=COMPLEX(0,1)"}, expect: {A1: "i"}}
+- {id: cplx04, requires: [COMPLEX], cells: {A1: "=COMPLEX(1,0)"}, expect: {A1: "1"}}
+- {id: cplx05, requires: [COMPLEX], cells: {A1: '=COMPLEX(3,4,"k")'}, expect: {A1: {error: "#VALUE!"}}}
+# CONVERT
+- {id: conv01, requires: [CONVERT], cells: {A1: '=CONVERT(1,"lbm","kg")'}, expect: {A1: 0.4535924}, tol: 1e-7}
+- {id: conv02, requires: [CONVERT], cells: {A1: '=CONVERT(68,"F","C")'}, expect: {A1: 20}, tol: 1e-12}
+- {id: conv03, requires: [CONVERT], cells: {A1: '=CONVERT(CONVERT(100,"ft","m"),"ft","m")'}, expect: {A1: 9.290304}, tol: 1e-12}
+- {id: conv04, requires: [CONVERT], cells: {A1: '=CONVERT(1,"in","cm")'}, expect: {A1: 2.54}, tol: 1e-14}
+- {id: conv05, requires: [CONVERT], cells: {A1: '=CONVERT(1,"km","m")'}, expect: {A1: 1000}, tol: 1e-14, note: "prefix"}
+- {id: conv06, requires: [CONVERT], cells: {A1: '=CONVERT(2.5,"ft","sec")'}, expect: {A1: {error: "#N/A"}}, note: "different groups"}
+- {id: conv07, requires: [CONVERT], cells: {A1: '=CONVERT(1,"KG","kg")'}, expect: {A1: {error: "#N/A"}}, note: "case sensitive units"}
+# DEC2BIN
+- {id: d2b01, requires: [DEC2BIN], cells: {A1: "=DEC2BIN(9,4)"}, expect: {A1: "1001"}}
+- {id: d2b02, requires: [DEC2BIN], cells: {A1: "=DEC2BIN(-100)"}, expect: {A1: "1110011100"}}
+- {id: d2b03, requires: [DEC2BIN], cells: {A1: "=DEC2BIN(511)"}, expect: {A1: "111111111"}, note: "edge max"}
+- {id: d2b04, requires: [DEC2BIN], cells: {A1: "=DEC2BIN(512)"}, expect: {A1: {error: "#NUM!"}}}
+# DEC2HEX
+- {id: d2h01, requires: [DEC2HEX], cells: {A1: "=DEC2HEX(100,4)"}, expect: {A1: "0064"}}
+- {id: d2h02, requires: [DEC2HEX], cells: {A1: "=DEC2HEX(-54)"}, expect: {A1: "FFFFFFFFCA"}}
+- {id: d2h03, requires: [DEC2HEX], cells: {A1: "=DEC2HEX(28)"}, expect: {A1: "1C"}}
+- {id: d2h04, requires: [DEC2HEX], cells: {A1: "=DEC2HEX(64,1)"}, expect: {A1: {error: "#NUM!"}}}
+# DEC2OCT
+- {id: d2o01, requires: [DEC2OCT], cells: {A1: "=DEC2OCT(58,3)"}, expect: {A1: "072"}}
+- {id: d2o02, requires: [DEC2OCT], cells: {A1: "=DEC2OCT(-100)"}, expect: {A1: "7777777634"}}
+- {id: d2o03, requires: [DEC2OCT], cells: {A1: "=DEC2OCT(0)"}, expect: {A1: "0"}}
+- {id: d2o04, requires: [DEC2OCT], cells: {A1: "=DEC2OCT(536870912)"}, expect: {A1: {error: "#NUM!"}}, note: "above 536870911"}
+# DELTA
+- {id: delta01, requires: [DELTA], cells: {A1: "=DELTA(5,4)"}, expect: {A1: 0}}
+- {id: delta02, requires: [DELTA], cells: {A1: "=DELTA(5,5)"}, expect: {A1: 1}}
+- {id: delta03, requires: [DELTA], cells: {A1: "=DELTA(0)"}, expect: {A1: 1}, note: "second defaults to 0"}
+- {id: delta04, requires: [DELTA], cells: {A1: '=DELTA("a",1)'}, expect: {A1: {error: "#VALUE!"}}}
+# ERF
+- {id: erf01, requires: [ERF], cells: {A1: "=ERF(0.745)"}, expect: {A1: 0.70792892}, tol: 1e-8}
+- {id: erf02, requires: [ERF], cells: {A1: "=ERF(1)"}, expect: {A1: 0.84270079}, tol: 1e-8}
+- {id: erf03, requires: [ERF], cells: {A1: "=ERF(0)"}, expect: {A1: 0}, abs_tol: 1e-15}
+- {id: erf04, requires: [ERF], cells: {A1: "=ERF(0,1)"}, expect: {A1: 0.84270079}, tol: 1e-8, note: "two-argument form"}
+- {id: erf05, requires: [ERF], cells: {A1: '=ERF("x")'}, expect: {A1: {error: "#VALUE!"}}}
+# ERF.PRECISE
+- {id: erfp01, requires: [ERF.PRECISE], cells: {A1: "=ERF.PRECISE(0.745)"}, expect: {A1: 0.70792892}, tol: 1e-8}
+- {id: erfp02, requires: [ERF.PRECISE], cells: {A1: "=ERF.PRECISE(-1)"}, expect: {A1: -0.84270079}, tol: 1e-8}
+- {id: erfp03, requires: [ERF.PRECISE], cells: {A1: '=ERF.PRECISE("x")'}, expect: {A1: {error: "#VALUE!"}}}
+# ERFC
+- {id: erfc01, requires: [ERFC], cells: {A1: "=ERFC(1)"}, expect: {A1: 0.15729921}, tol: 1e-7}
+- {id: erfc02, requires: [ERFC], cells: {A1: "=ERFC(0)"}, expect: {A1: 1}, tol: 1e-15}
+- {id: erfc03, requires: [ERFC], cells: {A1: '=ERFC("x")'}, expect: {A1: {error: "#VALUE!"}}}
+# ERFC.PRECISE
+- {id: erfcp01, requires: [ERFC.PRECISE], cells: {A1: "=ERFC.PRECISE(1)"}, expect: {A1: 0.15729921}, tol: 1e-7}
+- {id: erfcp02, requires: [ERFC.PRECISE], cells: {A1: "=ERFC.PRECISE(-1)"}, expect: {A1: 1.84270079}, tol: 1e-8}
+- {id: erfcp03, requires: [ERFC.PRECISE], cells: {A1: '=ERFC.PRECISE("x")'}, expect: {A1: {error: "#VALUE!"}}}
+# GESTEP
+- {id: gestep01, requires: [GESTEP], cells: {A1: "=GESTEP(5,4)"}, expect: {A1: 1}}
+- {id: gestep02, requires: [GESTEP], cells: {A1: "=GESTEP(5,5)"}, expect: {A1: 1}}
+- {id: gestep03, requires: [GESTEP], cells: {A1: "=GESTEP(-4,-5)"}, expect: {A1: 1}}
+- {id: gestep04, requires: [GESTEP], cells: {A1: "=GESTEP(-1)"}, expect: {A1: 0}}
+- {id: gestep05, requires: [GESTEP], cells: {A1: '=GESTEP("a")'}, expect: {A1: {error: "#VALUE!"}}}
+# HEX2BIN
+- {id: h2b01, requires: [HEX2BIN], cells: {A1: '=HEX2BIN("F",8)'}, expect: {A1: "00001111"}}
+- {id: h2b02, requires: [HEX2BIN], cells: {A1: '=HEX2BIN("B7")'}, expect: {A1: "10110111"}}
+- {id: h2b03, requires: [HEX2BIN], cells: {A1: '=HEX2BIN("FFFFFFFFFF")'}, expect: {A1: "1111111111"}}
+- {id: h2b04, requires: [HEX2BIN], cells: {A1: '=HEX2BIN("200")'}, expect: {A1: {error: "#NUM!"}}, note: "512 out of range"}
+# HEX2DEC
+- {id: h2d01, requires: [HEX2DEC], cells: {A1: '=HEX2DEC("A5")'}, expect: {A1: 165}}
+- {id: h2d02, requires: [HEX2DEC], cells: {A1: '=HEX2DEC("FFFFFFFF5B")'}, expect: {A1: -165}}
+- {id: h2d03, requires: [HEX2DEC], cells: {A1: '=HEX2DEC("3DA408B9")'}, expect: {A1: 1034160313}}
+- {id: h2d04, requires: [HEX2DEC], cells: {A1: '=HEX2DEC("G")'}, expect: {A1: {error: "#NUM!"}}}
+# HEX2OCT
+- {id: h2o01, requires: [HEX2OCT], cells: {A1: '=HEX2OCT("F",3)'}, expect: {A1: "017"}}
+- {id: h2o02, requires: [HEX2OCT], cells: {A1: '=HEX2OCT("3B4E")'}, expect: {A1: "35516"}}
+- {id: h2o03, requires: [HEX2OCT], cells: {A1: '=HEX2OCT("FFFFFFFF00")'}, expect: {A1: "7777777400"}}
+- {id: h2o04, requires: [HEX2OCT], cells: {A1: '=HEX2OCT("F",1)'}, expect: {A1: {error: "#NUM!"}}}
+# OCT2BIN
+- {id: o2b01, requires: [OCT2BIN], cells: {A1: "=OCT2BIN(3,3)"}, expect: {A1: "011"}}
+- {id: o2b02, requires: [OCT2BIN], cells: {A1: "=OCT2BIN(7777777000)"}, expect: {A1: "1000000000"}}
+- {id: o2b03, requires: [OCT2BIN], cells: {A1: "=OCT2BIN(0)"}, expect: {A1: "0"}}
+- {id: o2b04, requires: [OCT2BIN], cells: {A1: "=OCT2BIN(8)"}, expect: {A1: {error: "#NUM!"}}}
+# OCT2DEC
+- {id: o2d01, requires: [OCT2DEC], cells: {A1: "=OCT2DEC(54)"}, expect: {A1: 44}}
+- {id: o2d02, requires: [OCT2DEC], cells: {A1: "=OCT2DEC(7777777533)"}, expect: {A1: -165}}
+- {id: o2d03, requires: [OCT2DEC], cells: {A1: "=OCT2DEC(9)"}, expect: {A1: {error: "#NUM!"}}}
+# OCT2HEX
+- {id: o2h01, requires: [OCT2HEX], cells: {A1: "=OCT2HEX(100,4)"}, expect: {A1: "0040"}}
+- {id: o2h02, requires: [OCT2HEX], cells: {A1: "=OCT2HEX(7777777533)"}, expect: {A1: "FFFFFFFF5B"}}
+- {id: o2h03, requires: [OCT2HEX], cells: {A1: "=OCT2HEX(8)"}, expect: {A1: {error: "#NUM!"}}}
+# IMABS
+- {id: imabs01, requires: [IMABS], cells: {A1: '=IMABS("5+12i")'}, expect: {A1: 13}, tol: 1e-14}
+- {id: imabs02, requires: [IMABS], cells: {A1: '=IMABS("0")'}, expect: {A1: 0}}
+- {id: imabs03, requires: [IMABS], cells: {A1: '=IMABS("x")'}, expect: {A1: {error: "#NUM!"}}}
+# IMAGINARY
+- {id: imag01, requires: [IMAGINARY], cells: {A1: '=IMAGINARY("3+4i")'}, expect: {A1: 4}}
+- {id: imag02, requires: [IMAGINARY], cells: {A1: '=IMAGINARY("0-j")'}, expect: {A1: -1}}
+- {id: imag03, requires: [IMAGINARY], cells: {A1: "=IMAGINARY(4)"}, expect: {A1: 0}}
+- {id: imag04, requires: [IMAGINARY], cells: {A1: '=IMAGINARY("3+4k")'}, expect: {A1: {error: "#NUM!"}}}
+# IMARGUMENT
+- {id: imarg01, requires: [IMARGUMENT], cells: {A1: '=IMARGUMENT("3+4i")'}, expect: {A1: 0.92729522}, tol: 1e-8}
+- {id: imarg02, requires: [IMARGUMENT], cells: {A1: '=IMARGUMENT("i")'}, expect: {A1: 1.5707963267949}, tol: 1e-13}
+- {id: imarg03, requires: [IMARGUMENT], cells: {A1: '=IMARGUMENT("0")'}, expect: {A1: {error: "#DIV/0!"}}, confidence: medium}
+# IMCONJUGATE
+- {id: imconj01, requires: [IMCONJUGATE], cells: {A1: '=IMCONJUGATE("3+4i")'}, expect: {A1: "3-4i"}}
+- {id: imconj02, requires: [IMCONJUGATE], cells: {A1: '=IMCONJUGATE("5")'}, expect: {A1: "5"}}
+- {id: imconj03, requires: [IMCONJUGATE], cells: {A1: '=IMCONJUGATE("x")'}, expect: {A1: {error: "#NUM!"}}}
+# IMCOS
+- {id: imcos01, requires: [IMCOS], cells: {A1: '=IMCOS("1+i")'}, expect: {A1: "0.833730025131149-0.988897705762865i"}, confidence: medium}
+- {id: imcos02, requires: [IMCOS], cells: {A1: '=IMCOS("0")'}, expect: {A1: "1"}}
+- {id: imcos03, requires: [IMCOS], cells: {A1: '=IMCOS("x")'}, expect: {A1: {error: "#NUM!"}}}
+# IMCOSH
+- {id: imcosh01, requires: [IMCOSH], cells: {A1: '=IMCOSH("4+3i")'}, expect: {A1: "-27.0349456030742+3.85115333481178i"}, confidence: medium}
+- {id: imcosh02, requires: [IMCOSH], cells: {A1: '=IMCOSH("0")'}, expect: {A1: "1"}}
+- {id: imcosh03, requires: [IMCOSH], cells: {A1: '=IMCOSH("x")'}, expect: {A1: {error: "#NUM!"}}}
+# IMCOT
+- {id: imcot01, requires: [IMCOT], cells: {A1: '=IMCOT("4+3i")'}, expect: {A1: "0.0049011823943045-0.999266927805902i"}, confidence: medium}
+- {id: imcot02, requires: [IMCOT, IMREAL], cells: {A1: '=IMREAL(IMCOT("1"))'}, expect: {A1: 0.642092616}, tol: 1e-8, note: "real cot(1)"}
+- {id: imcot03, requires: [IMCOT], cells: {A1: '=IMCOT("x")'}, expect: {A1: {error: "#NUM!"}}}
+# IMCSC
+- {id: imcsc01, requires: [IMCSC], cells: {A1: '=IMCSC("4+3i")'}, expect: {A1: "-0.0754898329158637+0.0648774713706355i"}, confidence: medium}
+- {id: imcsc02, requires: [IMCSC, IMREAL], cells: {A1: '=IMREAL(IMCSC("1"))'}, expect: {A1: 1.188395106}, tol: 1e-8}
+- {id: imcsc03, requires: [IMCSC], cells: {A1: '=IMCSC("x")'}, expect: {A1: {error: "#NUM!"}}}
+# IMCSCH
+- {id: imcsch01, requires: [IMCSCH], cells: {A1: '=IMCSCH("4+3i")'}, expect: {A1: "-0.036275889628626+0.0051744731840194i"}, confidence: medium}
+- {id: imcsch02, requires: [IMCSCH, IMREAL], cells: {A1: '=IMREAL(IMCSCH("1"))'}, expect: {A1: 0.850918128}, tol: 1e-8}
+- {id: imcsch03, requires: [IMCSCH], cells: {A1: '=IMCSCH("x")'}, expect: {A1: {error: "#NUM!"}}}
+# IMDIV
+- {id: imdiv01, requires: [IMDIV], cells: {A1: '=IMDIV("-238+240i","10+24i")'}, expect: {A1: "5+12i"}}
+- {id: imdiv02, requires: [IMDIV], cells: {A1: '=IMDIV("4","2")'}, expect: {A1: "2"}}
+- {id: imdiv03, requires: [IMDIV], cells: {A1: '=IMDIV("1","0")'}, expect: {A1: {error: "#NUM!"}}}
+# IMEXP
+- {id: imexp01, requires: [IMEXP], cells: {A1: '=IMEXP("1+i")'}, expect: {A1: "1.46869393991589+2.28735528717884i"}, confidence: medium}
+- {id: imexp02, requires: [IMEXP], cells: {A1: '=IMEXP("0")'}, expect: {A1: "1"}}
+- {id: imexp03, requires: [IMEXP], cells: {A1: '=IMEXP("x")'}, expect: {A1: {error: "#NUM!"}}}
+# IMLN
+- {id: imln01, requires: [IMLN], cells: {A1: '=IMLN("3+4i")'}, expect: {A1: "1.6094379124341+0.927295218001612i"}, confidence: medium}
+- {id: imln02, requires: [IMLN], cells: {A1: '=IMLN("1")'}, expect: {A1: "0"}}
+- {id: imln03, requires: [IMLN], cells: {A1: '=IMLN("0")'}, expect: {A1: {error: "#NUM!"}}}
+# IMLOG10
+- {id: imlog1001, requires: [IMLOG10], cells: {A1: '=IMLOG10("3+4i")'}, expect: {A1: "0.698970004336019+0.402719196273373i"}, confidence: medium}
+- {id: imlog1002, requires: [IMLOG10], cells: {A1: '=IMLOG10("100")'}, expect: {A1: "2"}}
+- {id: imlog1003, requires: [IMLOG10], cells: {A1: '=IMLOG10("0")'}, expect: {A1: {error: "#NUM!"}}}
+# IMLOG2
+- {id: imlog201, requires: [IMLOG2], cells: {A1: '=IMLOG2("3+4i")'}, expect: {A1: "2.32192809488736+1.33780421245098i"}, confidence: medium}
+- {id: imlog202, requires: [IMLOG2], cells: {A1: '=IMLOG2("8")'}, expect: {A1: "3"}}
+- {id: imlog203, requires: [IMLOG2], cells: {A1: '=IMLOG2("0")'}, expect: {A1: {error: "#NUM!"}}}
+# IMPOWER
+- {id: impow01, requires: [IMPOWER], cells: {A1: '=IMPOWER("2+3i",3)'}, expect: {A1: "-46+9i"}, confidence: medium, note: "Excel may print a tiny rounding residue"}
+- {id: impow02, requires: [IMPOWER], cells: {A1: '=IMPOWER("2",0)'}, expect: {A1: "1"}}
+- {id: impow03, requires: [IMPOWER], cells: {A1: '=IMPOWER("2+3i","x")'}, expect: {A1: {error: "#VALUE!"}}}
+# IMPRODUCT
+- {id: improd01, requires: [IMPRODUCT], cells: {A1: '=IMPRODUCT("3+4i","5-3i")'}, expect: {A1: "27+11i"}}
+- {id: improd02, requires: [IMPRODUCT], cells: {A1: '=IMPRODUCT("1+2i",30)'}, expect: {A1: "30+60i"}}
+- {id: improd03, requires: [IMPRODUCT], cells: {A1: '=IMPRODUCT("1+2i","x")'}, expect: {A1: {error: "#NUM!"}}}
+# IMREAL
+- {id: imreal01, requires: [IMREAL], cells: {A1: '=IMREAL("6-9i")'}, expect: {A1: 6}}
+- {id: imreal02, requires: [IMREAL], cells: {A1: '=IMREAL("i")'}, expect: {A1: 0}}
+- {id: imreal03, requires: [IMREAL], cells: {A1: '=IMREAL("6-9k")'}, expect: {A1: {error: "#NUM!"}}}
+# IMSEC
+- {id: imsec01, requires: [IMSEC], cells: {A1: '=IMSEC("4+3i")'}, expect: {A1: "-0.0652940278579471-0.0752249603027732i"}, confidence: medium}
+- {id: imsec02, requires: [IMSEC], cells: {A1: '=IMSEC("0")'}, expect: {A1: "1"}}
+- {id: imsec03, requires: [IMSEC], cells: {A1: '=IMSEC("x")'}, expect: {A1: {error: "#NUM!"}}}
+# IMSECH
+- {id: imsech01, requires: [IMSECH], cells: {A1: '=IMSECH("4+3i")'}, expect: {A1: "-0.0362534969158689-0.00516434460775318i"}, confidence: medium}
+- {id: imsech02, requires: [IMSECH], cells: {A1: '=IMSECH("0")'}, expect: {A1: "1"}}
+- {id: imsech03, requires: [IMSECH], cells: {A1: '=IMSECH("x")'}, expect: {A1: {error: "#NUM!"}}}
+# IMSIN
+- {id: imsin01, requires: [IMSIN], cells: {A1: '=IMSIN("4+3i")'}, expect: {A1: "-7.61923172032141-6.548120040911i"}, confidence: medium}
+- {id: imsin02, requires: [IMSIN], cells: {A1: '=IMSIN("0")'}, expect: {A1: "0"}}
+- {id: imsin03, requires: [IMSIN], cells: {A1: '=IMSIN("x")'}, expect: {A1: {error: "#NUM!"}}}
+# IMSINH
+- {id: imsinh01, requires: [IMSINH], cells: {A1: '=IMSINH("4+3i")'}, expect: {A1: "-27.0168132580039+3.85373803791938i"}, confidence: medium}
+- {id: imsinh02, requires: [IMSINH], cells: {A1: '=IMSINH("0")'}, expect: {A1: "0"}}
+- {id: imsinh03, requires: [IMSINH], cells: {A1: '=IMSINH("x")'}, expect: {A1: {error: "#NUM!"}}}
+# IMSQRT
+- {id: imsqrt01, requires: [IMSQRT], cells: {A1: '=IMSQRT("1+i")'}, expect: {A1: "1.09868411346781+0.455089860562227i"}, confidence: medium}
+- {id: imsqrt02, requires: [IMSQRT], cells: {A1: '=IMSQRT("4")'}, expect: {A1: "2"}}
+- {id: imsqrt03, requires: [IMSQRT], cells: {A1: '=IMSQRT("x")'}, expect: {A1: {error: "#NUM!"}}}
+# IMSUB
+- {id: imsub01, requires: [IMSUB], cells: {A1: '=IMSUB("13+4i","5+3i")'}, expect: {A1: "8+i"}}
+- {id: imsub02, requires: [IMSUB], cells: {A1: '=IMSUB("3+4i","3+4i")'}, expect: {A1: "0"}}
+- {id: imsub03, requires: [IMSUB], cells: {A1: '=IMSUB("3+4i","2+2j")'}, expect: {A1: {error: "#VALUE!"}}, note: "mixed suffixes", confidence: medium}
+# IMSUM
+- {id: imsum01, requires: [IMSUM], cells: {A1: '=IMSUM("3+4i","5-3i")'}, expect: {A1: "8+i"}}
+- {id: imsum02, requires: [IMSUM], cells: {A1: '=IMSUM("1")'}, expect: {A1: "1"}}
+- {id: imsum03, requires: [IMSUM], cells: {A1: '=IMSUM("3+4i","x")'}, expect: {A1: {error: "#NUM!"}}}
+# IMTAN
+- {id: imtan01, requires: [IMTAN], cells: {A1: '=IMTAN("4+3i")'}, expect: {A1: "0.00490825806749606+1.00070953606723i"}, confidence: medium}
+- {id: imtan02, requires: [IMTAN], cells: {A1: '=IMTAN("0")'}, expect: {A1: "0"}}
+- {id: imtan03, requires: [IMTAN], cells: {A1: '=IMTAN("x")'}, expect: {A1: {error: "#NUM!"}}}

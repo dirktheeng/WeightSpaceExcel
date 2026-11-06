@@ -1,0 +1,128 @@
+# Stage 4 conformance cases: lookup and reference functions.
+# Written 2026-11-06 by tests-345-agent. Format and conventions: see stage3/cases_math.yaml header.
+# Spilled results are checked cell by cell.
+cases:
+# ADDRESS https://support.microsoft.com/en-us/excel/functions/address-function
+- {id: addr01, requires: [ADDRESS], cells: {A1: "=ADDRESS(2,3)"}, expect: {A1: "$C$2"}}
+- {id: addr02, requires: [ADDRESS], cells: {A1: "=ADDRESS(2,3,2)"}, expect: {A1: "C$2"}}
+- {id: addr03, requires: [ADDRESS], cells: {A1: "=ADDRESS(2,3,2,FALSE)"}, expect: {A1: "R2C[3]"}}
+- {id: addr04, requires: [ADDRESS], cells: {A1: '=ADDRESS(2,3,1,FALSE,"[Book1]Sheet1")'}, expect: {A1: "'[Book1]Sheet1'!R2C3"}}
+- {id: addr05, requires: [ADDRESS], cells: {A1: '=ADDRESS(2,3,1,FALSE,"EXCEL SHEET")'}, expect: {A1: "'EXCEL SHEET'!R2C3"}}
+- {id: addr06, requires: [ADDRESS], cells: {A1: "=ADDRESS(1048576,16384)"}, expect: {A1: "$XFD$1048576"}, note: "edge: last cell"}
+- {id: addr07, requires: [ADDRESS], cells: {A1: "=ADDRESS(0,1)"}, expect: {A1: {error: "#VALUE!"}}}
+# AREAS https://support.microsoft.com/en-us/excel/functions/areas-function
+- {id: areas01, requires: [AREAS], cells: {A1: "=AREAS(B2:D4)"}, expect: {A1: 1}}
+- {id: areas02, requires: [AREAS], cells: {A1: "=AREAS((B2:D4,E5,F6:I9))"}, expect: {A1: 3}}
+- {id: areas03, requires: [AREAS], cells: {A1: "=AREAS(B2:D4 B2)"}, expect: {A1: 1}, note: "intersection is one area"}
+- {id: areas04, requires: [AREAS], cells: {A1: "=AREAS(B2:C2 D4:E4)"}, expect: {A1: {error: "#NULL!"}}, note: "empty intersection", confidence: medium}
+# CHOOSE https://support.microsoft.com/en-us/excel/functions/choose-function
+- {id: choose01, requires: [CHOOSE], cells: {A1: '=CHOOSE(2,"1st","2nd","3rd")'}, expect: {A1: "2nd"}}
+- {id: choose02, requires: [CHOOSE], cells: {A1: '=CHOOSE(1.9,"a","b")'}, expect: {A1: "a"}, note: "index truncated"}
+- {id: choose03, requires: [CHOOSE, SUM], cells: {A1: "1", A2: "2", A3: "3", B1: "=SUM(A1:CHOOSE(2,A2,A3))"}, expect: {B1: 6}, note: "returns a reference"}
+- {id: choose04, requires: [CHOOSE], cells: {A1: '=CHOOSE(4,"a","b")'}, expect: {A1: {error: "#VALUE!"}}}
+- {id: choose05, requires: [CHOOSE], cells: {A1: '=CHOOSE(0,"a","b")'}, expect: {A1: {error: "#VALUE!"}}}
+# COLUMN https://support.microsoft.com/en-us/excel/functions/column-function
+- {id: col01, requires: [COLUMN], cells: {A1: "=COLUMN(D10)"}, expect: {A1: 4}}
+- {id: col02, requires: [COLUMN], cells: {C1: "=COLUMN()"}, expect: {C1: 3}, note: "own cell"}
+- {id: col03, requires: [COLUMN], cells: {A1: "=COLUMN(B1:D1)"}, expect: {A1: 2, B1: 3, C1: 4}, note: "spills horizontally"}
+- {id: col04, requires: [COLUMN, INDIRECT], cells: {A1: '=COLUMN(INDIRECT("bad ref"))'}, expect: {A1: {error: "#REF!"}}}
+# COLUMNS https://support.microsoft.com/en-us/excel/functions/columns-function
+- {id: cols01, requires: [COLUMNS], cells: {A1: "=COLUMNS(C1:E4)"}, expect: {A1: 3}}
+- {id: cols02, requires: [COLUMNS], cells: {A1: "=COLUMNS({1,2,3;4,5,6})"}, expect: {A1: 3}}
+- {id: cols03, requires: [COLUMNS], cells: {A1: "=COLUMNS(B1)"}, expect: {A1: 1}}
+- {id: cols04, requires: [COLUMNS], cells: {A1: "=COLUMNS(#REF!)"}, expect: {A1: {error: "#REF!"}}, confidence: medium}
+# FORMULATEXT https://support.microsoft.com/en-us/excel/functions/formulatext-function
+- {id: ftext01, requires: [FORMULATEXT], cells: {A1: "=1+1", B1: "=FORMULATEXT(A1)"}, expect: {B1: "=1+1"}}
+- {id: ftext02, requires: [FORMULATEXT, SUM], cells: {A1: "=sum(2,3)", B1: "=FORMULATEXT(A1)"}, expect: {B1: "=SUM(2,3)"}, note: "names upper-cased on entry"}
+- {id: ftext03, requires: [FORMULATEXT], cells: {A1: "5", B1: "=FORMULATEXT(A1)"}, expect: {B1: {error: "#N/A"}}, note: "not a formula"}
+- {id: ftext04, requires: [FORMULATEXT], cells: {B1: "=FORMULATEXT(A1)"}, expect: {B1: {error: "#N/A"}}}
+# HLOOKUP https://support.microsoft.com/en-us/excel/functions/hlookup-function
+- {id: hl01, requires: [HLOOKUP], cells: {A1: "Axles", B1: "Bearings", C1: "Bolts", A2: "4", B2: "4", C2: "9", A3: "5", B3: "7", C3: "10", A4: "6", B4: "8", C4: "11", E1: '=HLOOKUP("Axles",A1:C4,2,TRUE)'}, expect: {E1: 4}}
+- {id: hl02, requires: [HLOOKUP], cells: {A1: "Axles", B1: "Bearings", C1: "Bolts", A2: "4", B2: "4", C2: "9", A3: "5", B3: "7", C3: "10", A4: "6", B4: "8", C4: "11", E1: '=HLOOKUP("Bearings",A1:C4,3,FALSE)'}, expect: {E1: 7}}
+- {id: hl03, requires: [HLOOKUP], cells: {A1: "Axles", B1: "Bearings", C1: "Bolts", A2: "4", B2: "4", C2: "9", A3: "5", B3: "7", C3: "10", A4: "6", B4: "8", C4: "11", E1: '=HLOOKUP("B",A1:C4,3,TRUE)'}, expect: {E1: 5}, note: "approximate: largest below B is Axles"}
+- {id: hl04, requires: [HLOOKUP], cells: {A1: "Axles", B1: "Bearings", C1: "Bolts", A2: "4", B2: "4", C2: "9", A3: "5", B3: "7", C3: "10", A4: "6", B4: "8", C4: "11", E1: '=HLOOKUP("Bolts",A1:C4,4)'}, expect: {E1: 11}}
+- {id: hl05, requires: [HLOOKUP], cells: {A1: '=HLOOKUP(3,{1,2,3;"a","b","c";"d","e","f"},2,TRUE)'}, expect: {A1: "c"}}
+- {id: hl06, requires: [HLOOKUP], cells: {A1: "1", A2: "2", E1: "=HLOOKUP(1,A1:A2,0,FALSE)"}, expect: {E1: {error: "#VALUE!"}}}
+- {id: hl07, requires: [HLOOKUP], cells: {A1: "1", A2: "2", E1: "=HLOOKUP(1,A1:A2,3,FALSE)"}, expect: {E1: {error: "#REF!"}}}
+- {id: hl08, requires: [HLOOKUP], cells: {A1: "1", A2: "2", E1: "=HLOOKUP(9,A1:A2,2,FALSE)"}, expect: {E1: {error: "#N/A"}}}
+# HYPERLINK https://support.microsoft.com/en-us/excel/functions/hyperlink-function
+- {id: hyper01, requires: [HYPERLINK], cells: {A1: '=HYPERLINK("http://example.com/report.xlsx","Click for report")'}, expect: {A1: "Click for report"}}
+- {id: hyper02, requires: [HYPERLINK], cells: {A1: '=HYPERLINK("http://example.com")'}, expect: {A1: "http://example.com"}, note: "no friendly name"}
+- {id: hyper03, requires: [HYPERLINK], cells: {A1: '=HYPERLINK("#Sheet1!B2",5)'}, expect: {A1: 5}, note: "numeric friendly name"}
+- {id: hyper04, requires: [HYPERLINK, NA], cells: {A1: '=HYPERLINK("http://example.com",NA())'}, expect: {A1: {error: "#N/A"}}}
+# INDEX https://support.microsoft.com/en-us/excel/functions/index-function
+- {id: index01, requires: [INDEX], cells: {A1: "Apples", B1: "Lemons", A2: "Bananas", B2: "Pears", C1: "=INDEX(A1:B2,2,2)"}, expect: {C1: "Pears"}}
+- {id: index02, requires: [INDEX], cells: {A1: "Apples", B1: "Lemons", A2: "Bananas", B2: "Pears", C1: "=INDEX(A1:B2,2,1)"}, expect: {C1: "Bananas"}}
+- {id: index03, requires: [INDEX], cells: {A1: "=INDEX({1,2;3,4},0,2)"}, expect: {A1: 2, A2: 4}, note: "row 0 returns whole column"}
+- {id: index04, requires: [INDEX, SUM], cells: {A1: "1", B1: "2", A2: "3", B2: "4", C1: "=SUM(INDEX(A1:B2,0,2))"}, expect: {C1: 6}}
+- {id: index05, requires: [INDEX], cells: {A1: "1", B1: "2", D1: "7", E1: "8", C3: "=INDEX((A1:B1,D1:E1),1,2,2)"}, expect: {C3: 8}, note: "area_num 2"}
+- {id: index06, requires: [INDEX], cells: {A1: "1", B1: "2", C1: "=INDEX(A1:B1,1,3)"}, expect: {C1: {error: "#REF!"}}}
+- {id: index07, requires: [INDEX], cells: {A1: "=INDEX({1,2;3,4},3,1)"}, expect: {A1: {error: "#REF!"}}}
+# INDIRECT https://support.microsoft.com/en-us/excel/functions/indirect-function
+- {id: indir01, requires: [INDIRECT], cells: {A1: "B2", B2: "1.333", C1: "=INDIRECT(A1)"}, expect: {C1: 1.333}}
+- {id: indir02, requires: [INDIRECT], cells: {A3: "George", C1: '=INDIRECT("A"&3)'}, expect: {C1: "George"}}
+- {id: indir03, requires: [INDIRECT], cells: {A1: "5", C1: '=INDIRECT("R1C1",FALSE)'}, expect: {C1: 5}, note: "R1C1 style"}
+- {id: indir04, requires: [INDIRECT], cells: {C1: '=INDIRECT("Z99")'}, expect: {C1: 0}, note: "edge: blank target reads 0"}
+- {id: indir05, requires: [INDIRECT], cells: {C1: '=INDIRECT("not a ref")'}, expect: {C1: {error: "#REF!"}}}
+# LOOKUP https://support.microsoft.com/en-us/excel/functions/lookup-function
+- {id: lookup01, requires: [LOOKUP], cells: {A1: "4.14", A2: "4.19", A3: "5.17", A4: "5.77", A5: "6.39", B1: "red", B2: "orange", B3: "yellow", B4: "green", B5: "blue", C1: "=LOOKUP(4.19,A1:A5,B1:B5)"}, expect: {C1: "orange"}}
+- {id: lookup02, requires: [LOOKUP], cells: {A1: "4.14", A2: "4.19", A3: "5.17", A4: "5.77", A5: "6.39", B1: "red", B2: "orange", B3: "yellow", B4: "green", B5: "blue", C1: "=LOOKUP(5.75,A1:A5,B1:B5)"}, expect: {C1: "yellow"}}
+- {id: lookup03, requires: [LOOKUP], cells: {A1: "4.14", A2: "4.19", A3: "5.17", A4: "5.77", A5: "6.39", B1: "red", B2: "orange", B3: "yellow", B4: "green", B5: "blue", C1: "=LOOKUP(7.66,A1:A5,B1:B5)"}, expect: {C1: "blue"}, note: "above all: last"}
+- {id: lookup04, requires: [LOOKUP], cells: {A1: "4.14", A2: "4.19", A3: "5.17", A4: "5.77", A5: "6.39", B1: "red", B2: "orange", B3: "yellow", B4: "green", B5: "blue", C1: "=LOOKUP(0,A1:A5,B1:B5)"}, expect: {C1: {error: "#N/A"}}}
+- {id: lookup05, requires: [LOOKUP], cells: {A1: '=LOOKUP("C",{"a","b","c","d";1,2,3,4})'}, expect: {A1: 3}, note: "array form, wider than tall"}
+- {id: lookup06, requires: [LOOKUP], cells: {A1: '=LOOKUP("bump",{"a",1;"b",2;"c",3})'}, expect: {A1: 2}}
+# MATCH https://support.microsoft.com/en-us/excel/functions/match-function
+- {id: match01, requires: [MATCH], cells: {A1: "25", A2: "38", A3: "40", A4: "41", B1: "=MATCH(39,A1:A4,1)"}, expect: {B1: 2}}
+- {id: match02, requires: [MATCH], cells: {A1: "25", A2: "38", A3: "40", A4: "41", B1: "=MATCH(41,A1:A4,0)"}, expect: {B1: 4}}
+- {id: match03, requires: [MATCH], cells: {A1: "25", A2: "38", A3: "40", A4: "41", B1: "=MATCH(40,A1:A4,-1)"}, expect: {B1: {error: "#N/A"}}, note: "range not descending"}
+- {id: match04, requires: [MATCH], cells: {A1: '=MATCH("b*",{"apple","banana"},0)'}, expect: {A1: 2}, note: "wildcard"}
+- {id: match05, requires: [MATCH], cells: {A1: '=MATCH("BANANA",{"apple","banana"},0)'}, expect: {A1: 2}, note: "case insensitive"}
+- {id: match06, requires: [MATCH], cells: {A1: "=MATCH(1,{5,6},1)"}, expect: {A1: {error: "#N/A"}}, note: "below first"}
+# OFFSET https://support.microsoft.com/en-us/excel/functions/offset-function
+- {id: offset01, requires: [OFFSET], cells: {F5: "42", A1: "=OFFSET(C3,2,3,1,1)"}, expect: {A1: 42}}
+- {id: offset02, requires: [OFFSET, SUM], cells: {C2: "1", D2: "2", E2: "3", C3: "4", D3: "5", E3: "6", C4: "7", D4: "8", E4: "9", A1: "=SUM(OFFSET(C3:E5,-1,0,3,3))"}, expect: {A1: 45}}
+- {id: offset03, requires: [OFFSET], cells: {A1: "=OFFSET(C3:E5,0,-3,3,3)"}, expect: {A1: {error: "#REF!"}}, note: "off the sheet"}
+- {id: offset04, requires: [OFFSET], cells: {B2: "7", A1: "=OFFSET(B2,0,0)"}, expect: {A1: 7}, note: "edge: zero offset"}
+# ROW https://support.microsoft.com/en-us/excel/functions/row-function
+- {id: row01, requires: [ROW], cells: {A1: "=ROW(C10)"}, expect: {A1: 10}}
+- {id: row02, requires: [ROW], cells: {A3: "=ROW()"}, expect: {A3: 3}}
+- {id: row03, requires: [ROW], cells: {B1: "=ROW(A2:A4)"}, expect: {B1: 2, B2: 3, B3: 4}, note: "spills"}
+- {id: row04, requires: [ROW, INDIRECT], cells: {A1: '=ROW(INDIRECT("bad ref"))'}, expect: {A1: {error: "#REF!"}}}
+# ROWS https://support.microsoft.com/en-us/excel/functions/rows-function
+- {id: rows01, requires: [ROWS], cells: {A1: "=ROWS(C1:E4)"}, expect: {A1: 4}}
+- {id: rows02, requires: [ROWS], cells: {A1: "=ROWS({1,2,3;4,5,6})"}, expect: {A1: 2}}
+- {id: rows03, requires: [ROWS], cells: {A1: "=ROWS(B1)"}, expect: {A1: 1}}
+- {id: rows04, requires: [ROWS], cells: {A1: "=ROWS(#REF!)"}, expect: {A1: {error: "#REF!"}}, confidence: medium}
+# TRANSPOSE https://support.microsoft.com/en-us/excel/functions/transpose-function
+- {id: transp01, requires: [TRANSPOSE], cells: {A1: "=TRANSPOSE({1,2,3})"}, expect: {A1: 1, A2: 2, A3: 3}}
+- {id: transp02, requires: [TRANSPOSE], cells: {A1: "1", B1: "2", A2: "3", B2: "4", D1: "=TRANSPOSE(A1:B2)"}, expect: {D1: 1, E1: 3, D2: 2, E2: 4}}
+- {id: transp03, requires: [TRANSPOSE], cells: {A1: "=TRANSPOSE(5)"}, expect: {A1: 5}, note: "edge: scalar"}
+- {id: transp04, requires: [TRANSPOSE], cells: {A1: "=TRANSPOSE(1/0)"}, expect: {A1: {error: "#DIV/0!"}}}
+# VLOOKUP https://support.microsoft.com/en-us/excel/functions/vlookup-function
+- {id: vl01, requires: [VLOOKUP], cells: {A1: "101", B1: "Davis", C1: "Sara", A2: "102", B2: "Fontana", C2: "Olivier", A3: "103", B3: "Leal", C3: "Karina", E1: "=VLOOKUP(102,A1:C3,2,FALSE)"}, expect: {E1: "Fontana"}}
+- {id: vl02, requires: [VLOOKUP], cells: {A1: "101", B1: "Davis", C1: "Sara", A2: "102", B2: "Fontana", C2: "Olivier", A3: "103", B3: "Leal", C3: "Karina", E1: "=VLOOKUP(102.5,A1:C3,3,TRUE)"}, expect: {E1: "Olivier"}}
+- {id: vl03, requires: [VLOOKUP], cells: {A1: "101", B1: "Davis", C1: "Sara", A2: "102", B2: "Fontana", C2: "Olivier", A3: "103", B3: "Leal", C3: "Karina", E1: "=VLOOKUP(999,A1:C3,2)"}, expect: {E1: "Leal"}, note: "default approximate, above all"}
+- {id: vl04, requires: [VLOOKUP], cells: {A1: "101", B1: "Davis", C1: "Sara", A2: "102", B2: "Fontana", C2: "Olivier", A3: "103", B3: "Leal", C3: "Karina", E1: "=VLOOKUP(104,A1:C3,2,FALSE)"}, expect: {E1: {error: "#N/A"}}}
+- {id: vl05, requires: [VLOOKUP], cells: {A1: "101", B1: "Davis", C1: "Sara", E1: "=VLOOKUP(101,A1:C1,4,FALSE)"}, expect: {E1: {error: "#REF!"}}}
+- {id: vl06, requires: [VLOOKUP], cells: {A1: "101", B1: "Davis", C1: "Sara", E1: "=VLOOKUP(101,A1:C1,0,FALSE)"}, expect: {E1: {error: "#VALUE!"}}}
+- {id: vl07, requires: [VLOOKUP], cells: {A1: "apple", B1: "1", A2: "banana", B2: "2", E1: '=VLOOKUP("BAN*",A1:B2,2,FALSE)'}, expect: {E1: 2}, note: "wildcard, case insensitive"}
+# XLOOKUP https://support.microsoft.com/en-us/excel/functions/xlookup-function
+- {id: xl01, requires: [XLOOKUP], cells: {A1: '=XLOOKUP("b",{"a","b","c"},{1,2,3})'}, expect: {A1: 2}}
+- {id: xl02, requires: [XLOOKUP], cells: {A1: '=XLOOKUP("z",{"a","b","c"},{1,2,3},"none")'}, expect: {A1: "none"}}
+- {id: xl03, requires: [XLOOKUP], cells: {A1: '=XLOOKUP(25,{10,20,30},{"a","b","c"},,-1)'}, expect: {A1: "b"}, note: "next smaller"}
+- {id: xl04, requires: [XLOOKUP], cells: {A1: '=XLOOKUP(25,{10,20,30},{"a","b","c"},,1)'}, expect: {A1: "c"}, note: "next larger"}
+- {id: xl05, requires: [XLOOKUP], cells: {A1: '=XLOOKUP(1,{1,2,1},{"x","y","z"},,0,-1)'}, expect: {A1: "z"}, note: "search last to first"}
+- {id: xl06, requires: [XLOOKUP], cells: {A1: '=XLOOKUP("b?",{"a1","b2"},{1,2},,2)'}, expect: {A1: 2}, note: "wildcard mode"}
+- {id: xl07, requires: [XLOOKUP], cells: {A1: '=XLOOKUP("z",{"a","b","c"},{1,2,3})'}, expect: {A1: {error: "#N/A"}}}
+- {id: xl08, requires: [XLOOKUP], cells: {A1: '=XLOOKUP("a",{"a","b","c"},{1,2})'}, expect: {A1: {error: "#VALUE!"}}, note: "array sizes differ"}
+# XMATCH https://support.microsoft.com/en-us/excel/functions/xmatch-function
+- {id: xm01, requires: [XMATCH], cells: {A1: '=XMATCH("Gra?",{"Apple","Grape","Pear"},2)'}, expect: {A1: 2}}
+- {id: xm02, requires: [XMATCH], cells: {A1: "=XMATCH(4,{1,3,5},1)"}, expect: {A1: 3}, note: "next larger"}
+- {id: xm03, requires: [XMATCH], cells: {A1: "=XMATCH(4,{1,3,5},-1)"}, expect: {A1: 2}, note: "next smaller"}
+- {id: xm04, requires: [XMATCH], cells: {A1: "=XMATCH(1,{1,2,1},0,-1)"}, expect: {A1: 3}, note: "search from last"}
+- {id: xm05, requires: [XMATCH], cells: {A1: "=XMATCH(9,{1,3,5})"}, expect: {A1: {error: "#N/A"}}}
+- {id: xm06, requires: [XMATCH], cells: {A1: "=XMATCH(1,{1,3,5},3)"}, expect: {A1: {error: "#VALUE!"}}, note: "invalid match_mode", confidence: medium}
+# Formula language: OFFSET INDEX INDIRECT as references
+- {id: refret01, requires: [INDEX, SUM, "Range functions returning references (OFFSET INDEX INDIRECT as reference)"], cells: {A1: "1", A2: "2", A3: "3", B1: "=SUM(INDEX(A1:A3,2):A3)"}, expect: {B1: 5}}
+- {id: refret02, requires: [INDIRECT, SUM, "Range functions returning references (OFFSET INDEX INDIRECT as reference)"], cells: {A1: "1", A2: "2", A3: "3", B1: '=SUM(INDIRECT("A1:A"&2))'}, expect: {B1: 3}}
+- {id: refret03, requires: [OFFSET, ROWS, "Range functions returning references (OFFSET INDEX INDIRECT as reference)"], cells: {A1: "1", A2: "2", B1: "=ROWS(OFFSET(A1,0,0,2,1))"}, expect: {B1: 2}}

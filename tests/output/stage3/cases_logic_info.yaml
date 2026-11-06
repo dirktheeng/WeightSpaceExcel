@@ -1,0 +1,162 @@
+# Stage 3 conformance cases: logical and information functions, AutoSum.
+# Written 2026-11-06 by tests-345-agent. Format and conventions: see cases_math.yaml header.
+# IS functions share https://support.microsoft.com/en-us/excel/is-functions
+cases:
+# AND https://support.microsoft.com/en-us/excel/functions/and-function
+- {id: and01, requires: [AND], cells: {A1: "=AND(TRUE,TRUE)"}, expect: {A1: true}}
+- {id: and02, requires: [AND], cells: {A1: "=AND(TRUE,FALSE)"}, expect: {A1: false}}
+- {id: and03, requires: [AND], cells: {A1: "=AND(2+2=4,2+3=5)"}, expect: {A1: true}}
+- {id: and04, requires: [AND], cells: {A1: "TRUE", A2: "x", B1: "=AND(A1:A2)"}, expect: {B1: true}, note: "text in range ignored"}
+- {id: and05, requires: [AND], cells: {B1: "=AND(A1:A3)"}, expect: {B1: {error: "#VALUE!"}}, note: "no logical values"}
+- {id: and06, requires: [AND], cells: {A1: '=AND("a")'}, expect: {A1: {error: "#VALUE!"}}}
+# FALSE https://support.microsoft.com/en-us/excel/functions/false-function
+- {id: false01, requires: ["FALSE"], cells: {A1: "=FALSE()"}, expect: {A1: false}}
+- {id: false02, requires: ["FALSE"], cells: {A1: "=FALSE()+0"}, expect: {A1: 0}, note: "edge: arithmetic coerces"}
+- {id: false03, requires: ["FALSE"], cells: {A1: "=FALSE(1)"}, expect: {A1: {blank: true}}, rejected: [A1], note: "too many arguments"}
+# IF https://support.microsoft.com/en-us/excel/functions/if-function
+- {id: if01, requires: [IF], cells: {A1: "23", B1: '=IF(A1>15,"OK","Not OK")'}, expect: {B1: "OK"}}
+- {id: if02, requires: [IF], cells: {A1: "5", B1: '=IF(A1>15,"OK","Not OK")'}, expect: {B1: "Not OK"}}
+- {id: if03, requires: [IF], cells: {A1: "=IF(FALSE,1)"}, expect: {A1: false}, note: "omitted value_if_false"}
+- {id: if04, requires: [IF], cells: {A1: "=IF(FALSE,1,)"}, expect: {A1: 0}, note: "empty value_if_false is 0"}
+- {id: if05, requires: [IF], cells: {A1: "=IF(1,\"y\",\"n\")"}, expect: {A1: "y"}, note: "nonzero is TRUE"}
+- {id: if06, requires: [IF, NA], cells: {A1: "=IF(NA(),1,2)"}, expect: {A1: {error: "#N/A"}}}
+- {id: if07, requires: [IF], cells: {A1: '=IF("a",1,2)'}, expect: {A1: {error: "#VALUE!"}}}
+# IFERROR https://support.microsoft.com/en-us/excel/functions/iferror-function
+- {id: iferr01, requires: [IFERROR], cells: {A1: "210", A2: "35", B1: '=IFERROR(A1/A2,"Error in calculation")'}, expect: {B1: 6}}
+- {id: iferr02, requires: [IFERROR], cells: {A1: "55", A2: "0", B1: '=IFERROR(A1/A2,"Error in calculation")'}, expect: {B1: "Error in calculation"}}
+- {id: iferr03, requires: [IFERROR], cells: {B1: '=IFERROR(A1,"x")'}, expect: {B1: 0}, note: "blank value treated as 0", confidence: medium}
+- {id: iferr04, requires: [IFERROR, NA], cells: {A1: "=IFERROR(1/0,NA())"}, expect: {A1: {error: "#N/A"}}}
+# IFNA https://support.microsoft.com/en-us/excel/functions/ifna-function
+- {id: ifna01, requires: [IFNA, NA], cells: {A1: '=IFNA(NA(),"Not found")'}, expect: {A1: "Not found"}}
+- {id: ifna02, requires: [IFNA], cells: {A1: '=IFNA(3,"x")'}, expect: {A1: 3}}
+- {id: ifna03, requires: [IFNA], cells: {A1: '=IFNA(1/0,"x")'}, expect: {A1: {error: "#DIV/0!"}}, note: "only #N/A caught"}
+# IFS https://support.microsoft.com/en-us/excel/functions/ifs-function
+- {id: ifs01, requires: [IFS], cells: {A1: "93", B1: '=IFS(A1>89,"A",A1>79,"B",A1>69,"C",TRUE,"F")'}, expect: {B1: "A"}}
+- {id: ifs02, requires: [IFS], cells: {A1: "50", B1: '=IFS(A1>89,"A",A1>79,"B",A1>69,"C",TRUE,"F")'}, expect: {B1: "F"}}
+- {id: ifs03, requires: [IFS], cells: {A1: "=IFS(FALSE,1)"}, expect: {A1: {error: "#N/A"}}, note: "no TRUE condition"}
+- {id: ifs04, requires: [IFS], cells: {A1: '=IFS("a",1)'}, expect: {A1: {error: "#VALUE!"}}}
+# NOT https://support.microsoft.com/en-us/excel/functions/not-function
+- {id: not01, requires: [NOT], cells: {A1: "=NOT(FALSE)"}, expect: {A1: true}}
+- {id: not02, requires: [NOT], cells: {A1: "=NOT(1+1=2)"}, expect: {A1: false}}
+- {id: not03, requires: [NOT], cells: {A1: "=NOT(0)"}, expect: {A1: true}}
+- {id: not04, requires: [NOT], cells: {A1: '=NOT("a")'}, expect: {A1: {error: "#VALUE!"}}}
+# OR https://support.microsoft.com/en-us/excel/functions/or-function
+- {id: or01, requires: [OR], cells: {A1: "=OR(TRUE)"}, expect: {A1: true}}
+- {id: or02, requires: [OR], cells: {A1: "=OR(1+1=1,2+2=5)"}, expect: {A1: false}}
+- {id: or03, requires: [OR], cells: {A1: "=OR(TRUE,FALSE,TRUE)"}, expect: {A1: true}}
+- {id: or04, requires: [OR], cells: {B1: "=OR(A1:A2)"}, expect: {B1: {error: "#VALUE!"}}}
+- {id: or05, requires: [OR], cells: {A1: '=OR("a")'}, expect: {A1: {error: "#VALUE!"}}}
+# SWITCH https://support.microsoft.com/en-us/excel/functions/switch-function
+- {id: switch01, requires: [SWITCH], cells: {A1: "2", B1: '=SWITCH(A1,1,"Sunday",2,"Monday",3,"Tuesday","No match")'}, expect: {B1: "Monday"}}
+- {id: switch02, requires: [SWITCH], cells: {A1: "99", B1: '=SWITCH(A1,1,"Sunday",2,"Monday",3,"Tuesday","No match")'}, expect: {B1: "No match"}}
+- {id: switch03, requires: [SWITCH], cells: {A1: "99", B1: '=SWITCH(A1,1,"Sunday",2,"Monday")'}, expect: {B1: {error: "#N/A"}}}
+# TRUE https://support.microsoft.com/en-us/excel/functions/true-function
+- {id: true01, requires: ["TRUE"], cells: {A1: "=TRUE()"}, expect: {A1: true}}
+- {id: true02, requires: ["TRUE"], cells: {A1: "=TRUE()+1"}, expect: {A1: 2}}
+- {id: true03, requires: ["TRUE"], cells: {A1: "=TRUE(1)"}, expect: {A1: {blank: true}}, rejected: [A1]}
+# XOR https://support.microsoft.com/en-us/excel/functions/xor-function
+- {id: xor01, requires: [XOR], cells: {A1: "=XOR(3>0,2<9)"}, expect: {A1: false}}
+- {id: xor02, requires: [XOR], cells: {A1: "=XOR(3>12,4>6)"}, expect: {A1: false}}
+- {id: xor03, requires: [XOR], cells: {A1: "=XOR(3>0,4>6)"}, expect: {A1: true}}
+- {id: xor04, requires: [XOR], cells: {A1: "=XOR(TRUE,TRUE,TRUE)"}, expect: {A1: true}, note: "odd count of TRUE"}
+- {id: xor05, requires: [XOR], cells: {A1: '=XOR("a")'}, expect: {A1: {error: "#VALUE!"}}}
+# CELL https://support.microsoft.com/en-us/excel/functions/cell-function
+- {id: cell01, requires: [CELL], cells: {A1: '=CELL("row",C5)'}, expect: {A1: 5}}
+- {id: cell02, requires: [CELL], cells: {A1: '=CELL("col",C5)'}, expect: {A1: 3}}
+- {id: cell03, requires: [CELL], cells: {A1: '=CELL("address",C5)'}, expect: {A1: "$C$5"}}
+- {id: cell04, requires: [CELL], cells: {B1: "abc", A1: '=CELL("type",B1)'}, expect: {A1: "l"}, note: "label"}
+- {id: cell05, requires: [CELL], cells: {A1: '=CELL("type",B1)'}, expect: {A1: "b"}, note: "blank"}
+- {id: cell06, requires: [CELL], cells: {B1: "5", A1: '=CELL("contents",B1)'}, expect: {A1: 5}}
+- {id: cell07, requires: [CELL], cells: {A1: '=CELL("nonsense",B1)'}, expect: {A1: {error: "#VALUE!"}}}
+# ERROR.TYPE https://support.microsoft.com/en-us/excel/functions/error-type-function
+- {id: errt01, requires: [ERROR.TYPE], cells: {A1: "=ERROR.TYPE(#NULL!)"}, expect: {A1: 1}}
+- {id: errt02, requires: [ERROR.TYPE], cells: {A1: "=ERROR.TYPE(1/0)"}, expect: {A1: 2}}
+- {id: errt03, requires: [ERROR.TYPE, NA], cells: {A1: "=ERROR.TYPE(NA())"}, expect: {A1: 7}}
+- {id: errt04, requires: [ERROR.TYPE], cells: {A1: "=ERROR.TYPE(#SPILL!)"}, expect: {A1: 9}, confidence: medium}
+- {id: errt05, requires: [ERROR.TYPE], cells: {A1: "=ERROR.TYPE(1)"}, expect: {A1: {error: "#N/A"}}, note: "not an error"}
+# INFO https://support.microsoft.com/en-us/excel/functions/info-function
+- {id: info01, requires: [INFO], cells: {A1: '=INFO("recalc")'}, expect: {A1: "Automatic"}}
+- {id: info02, requires: [INFO], cells: {A1: '=INFO("system")'}, expect: {A1: "pcdos"}, confidence: medium, note: "Windows"}
+- {id: info03, requires: [INFO], cells: {A1: '=INFO("numfile")'}, expect: {A1: 1}, confidence: low, note: "one-sheet workbook"}
+- {id: info04, requires: [INFO], cells: {A1: '=INFO("bogus")'}, expect: {A1: {error: "#VALUE!"}}}
+# ISBLANK
+- {id: isblank01, requires: [ISBLANK], cells: {B1: "=ISBLANK(A1)"}, expect: {B1: true}}
+- {id: isblank02, requires: [ISBLANK], cells: {A1: '=""', B1: "=ISBLANK(A1)"}, expect: {B1: false}, note: "formula returning empty text is not blank"}
+- {id: isblank03, requires: [ISBLANK, NA], cells: {A1: "=ISBLANK(NA())"}, expect: {A1: false}, note: "error input does not propagate"}
+# ISERR
+- {id: iserr01, requires: [ISERR], cells: {A1: "=ISERR(1/0)"}, expect: {A1: true}}
+- {id: iserr02, requires: [ISERR, NA], cells: {A1: "=ISERR(NA())"}, expect: {A1: false}, note: "#N/A excluded"}
+- {id: iserr03, requires: [ISERR], cells: {A1: "=ISERR(1)"}, expect: {A1: false}}
+# ISERROR
+- {id: iserror01, requires: [ISERROR, NA], cells: {A1: "=ISERROR(NA())"}, expect: {A1: true}}
+- {id: iserror02, requires: [ISERROR], cells: {A1: "=ISERROR(#REF!)"}, expect: {A1: true}}
+- {id: iserror03, requires: [ISERROR], cells: {A1: '=ISERROR("x")'}, expect: {A1: false}}
+# ISEVEN https://support.microsoft.com/en-us/excel/functions/iseven-function
+- {id: iseven01, requires: [ISEVEN], cells: {A1: "=ISEVEN(-1)"}, expect: {A1: false}}
+- {id: iseven02, requires: [ISEVEN], cells: {A1: "=ISEVEN(2.5)"}, expect: {A1: true}, note: "truncated to 2"}
+- {id: iseven03, requires: [ISEVEN], cells: {A1: "=ISEVEN(5)"}, expect: {A1: false}}
+- {id: iseven04, requires: [ISEVEN], cells: {B1: "=ISEVEN(A1)"}, expect: {B1: true}, note: "blank is 0", confidence: medium}
+- {id: iseven05, requires: [ISEVEN], cells: {A1: '=ISEVEN("a")'}, expect: {A1: {error: "#VALUE!"}}}
+# ISFORMULA https://support.microsoft.com/en-us/excel/functions/isformula-function
+- {id: isform01, requires: [ISFORMULA], cells: {A1: "=1+1", B1: "=ISFORMULA(A1)"}, expect: {B1: true}}
+- {id: isform02, requires: [ISFORMULA], cells: {A1: "2", B1: "=ISFORMULA(A1)"}, expect: {B1: false}}
+- {id: isform03, requires: [ISFORMULA], cells: {B1: "=ISFORMULA(A1)"}, expect: {B1: false}, note: "blank"}
+- {id: isform04, requires: [ISFORMULA], cells: {A1: '=ISFORMULA("A1")'}, expect: {A1: {error: "#VALUE!"}}, confidence: low, note: "not a reference"}
+# ISLOGICAL
+- {id: islog01, requires: [ISLOGICAL], cells: {A1: "=ISLOGICAL(TRUE)"}, expect: {A1: true}}
+- {id: islog02, requires: [ISLOGICAL], cells: {A1: '=ISLOGICAL("TRUE")'}, expect: {A1: false}}
+- {id: islog03, requires: [ISLOGICAL], cells: {A1: "=ISLOGICAL(1/0)"}, expect: {A1: false}}
+# ISNA
+- {id: isna01, requires: [ISNA, NA], cells: {A1: "=ISNA(NA())"}, expect: {A1: true}}
+- {id: isna02, requires: [ISNA], cells: {A1: "=ISNA(1/0)"}, expect: {A1: false}}
+- {id: isna03, requires: [ISNA], cells: {A1: '=ISNA("x")'}, expect: {A1: false}}
+# ISNONTEXT
+- {id: isnt01, requires: [ISNONTEXT], cells: {A1: '=ISNONTEXT("x")'}, expect: {A1: false}}
+- {id: isnt02, requires: [ISNONTEXT], cells: {B1: "=ISNONTEXT(A1)"}, expect: {B1: true}, note: "blank is nontext"}
+- {id: isnt03, requires: [ISNONTEXT, NA], cells: {A1: "=ISNONTEXT(NA())"}, expect: {A1: true}}
+# ISNUMBER
+- {id: isnum01, requires: [ISNUMBER], cells: {A1: "=ISNUMBER(4)"}, expect: {A1: true}}
+- {id: isnum02, requires: [ISNUMBER], cells: {A1: '=ISNUMBER("4")'}, expect: {A1: false}}
+- {id: isnum03, requires: [ISNUMBER], cells: {B1: "=ISNUMBER(A1)"}, expect: {B1: false}}
+- {id: isnum04, requires: [ISNUMBER, NA], cells: {A1: "=ISNUMBER(NA())"}, expect: {A1: false}}
+# ISODD https://support.microsoft.com/en-us/excel/is-functions
+- {id: isodd01, requires: [ISODD], cells: {A1: "=ISODD(-1)"}, expect: {A1: true}}
+- {id: isodd02, requires: [ISODD], cells: {A1: "=ISODD(2.5)"}, expect: {A1: false}}
+- {id: isodd03, requires: [ISODD], cells: {A1: "=ISODD(5)"}, expect: {A1: true}}
+- {id: isodd04, requires: [ISODD], cells: {A1: '=ISODD("a")'}, expect: {A1: {error: "#VALUE!"}}}
+# ISREF
+- {id: isref01, requires: [ISREF], cells: {B1: "=ISREF(A1)"}, expect: {B1: true}}
+- {id: isref02, requires: [ISREF], cells: {A1: '=ISREF("A1")'}, expect: {A1: false}}
+- {id: isref03, requires: [ISREF], cells: {A1: "=ISREF(#REF!)"}, expect: {A1: false}}
+# ISTEXT
+- {id: istext01, requires: [ISTEXT], cells: {A1: '=ISTEXT("x")'}, expect: {A1: true}}
+- {id: istext02, requires: [ISTEXT], cells: {A1: "'1", B1: "=ISTEXT(A1)"}, expect: {B1: true}}
+- {id: istext03, requires: [ISTEXT], cells: {A1: "=ISTEXT(1)"}, expect: {A1: false}}
+- {id: istext04, requires: [ISTEXT], cells: {A1: "=ISTEXT(1/0)"}, expect: {A1: false}}
+# N https://support.microsoft.com/en-us/excel/functions/n-function
+- {id: n01, requires: [N], cells: {A1: "7", B1: "=N(A1)"}, expect: {B1: 7}}
+- {id: n02, requires: [N], cells: {A1: "Even", B1: "=N(A1)"}, expect: {B1: 0}}
+- {id: n03, requires: [N], cells: {A1: "TRUE", B1: "=N(A1)"}, expect: {B1: 1}}
+- {id: n04, requires: [N], cells: {A1: "4/17/2011", B1: "=N(A1)"}, expect: {B1: 40650}, note: "date serial", confidence: medium}
+- {id: n05, requires: [N, NA], cells: {A1: "=N(NA())"}, expect: {A1: {error: "#N/A"}}}
+# NA https://support.microsoft.com/en-us/excel/functions/na-function
+- {id: na01, requires: [NA], cells: {A1: "=NA()"}, expect: {A1: {error: "#N/A"}}}
+- {id: na02, requires: [NA], cells: {A1: "=NA()+1"}, expect: {A1: {error: "#N/A"}}, note: "propagates"}
+- {id: na03, requires: [NA], cells: {A1: "=NA(1)"}, expect: {A1: {blank: true}}, rejected: [A1]}
+# SHEET https://support.microsoft.com/en-us/excel/functions/sheet-function
+- {id: sheet01, requires: [SHEET], cells: {A1: "=SHEET()"}, expect: {A1: 1}}
+- {id: sheet02, requires: [SHEET], cells: {A1: "=SHEET(B1)"}, expect: {A1: 1}}
+- {id: sheet03, requires: [SHEET], cells: {A1: '=SHEET("Sheet1")'}, expect: {A1: 1}, confidence: medium}
+- {id: sheet04, requires: [SHEET], cells: {A1: '=SHEET("NoSuchSheet")'}, expect: {A1: {error: "#N/A"}}, confidence: medium}
+# SHEETS https://support.microsoft.com/en-us/excel/functions/sheets-function
+- {id: sheets01, requires: [SHEETS], cells: {A1: "=SHEETS()"}, expect: {A1: 1}, note: "new workbook has one sheet"}
+- {id: sheets02, requires: [SHEETS], cells: {A1: "=SHEETS(B1:C3)"}, expect: {A1: 1}}
+- {id: sheets03, requires: [SHEETS], cells: {A1: "=SHEETS(#REF!)"}, expect: {A1: {error: "#REF!"}}, confidence: medium}
+# TYPE https://support.microsoft.com/en-us/excel/functions/type-function
+- {id: type01, requires: [TYPE], cells: {A1: "=TYPE(1)"}, expect: {A1: 1}}
+- {id: type02, requires: [TYPE], cells: {A1: '=TYPE("x")'}, expect: {A1: 2}}
+- {id: type03, requires: [TYPE], cells: {A1: "=TYPE(TRUE)"}, expect: {A1: 4}}
+- {id: type04, requires: [TYPE], cells: {A1: "=TYPE(1/0)"}, expect: {A1: 16}, note: "error input returns 16"}
+- {id: type05, requires: [TYPE], cells: {A1: "=TYPE({1,2})"}, expect: {A1: 64}}
+# AutoSum Alt+= (UI: Keyboard). Needs keystroke support for Alt+= in blackbox; skipped until then.
+- {id: autosum01, requires: ["AutoSum Alt+="], settings: [autosum_keystroke], cells: {A1: "1", A2: "2", A3: "3"}, expect: {A4: 6}, note: "Alt+= in A4 then Enter inserts =SUM(A1:A3)"}
