@@ -1,0 +1,264 @@
+# prim/idivmod: DIVMOD(x, d) for a variable integer divisor.
+# x = A.PAY (input 15), integer, |x| < 2^49.  d = B.PAY (input 17), integer, 1 <= d <= 2^49.
+# T0 = floor(x / d), T1 = x - d floor(x / d) in [0, d). Halts. Note: weights/prim/idivmod.md
+# Structure: NORM down stages k = 32..1 on d (also tracking S = 2^-e), RECIP by 4 Newton steps,
+# yd = y S ~ 1/d, q0 = round(x yd) in {f, f + 1}, exact remainder, one-sided-or-other correction.
+input 65
+# v1: x
+slice 0 15 16
+# v2: d
+slice 0 17 18
+# v3: state [d, 0, 1, 0]  = (d pair, S pair); each pair holds its value in exactly one word
+dense 2 4 1
+   1
+   0
+   0
+   0
+   0 0 1 0
+# ---- NORM down stage k = 32 (v4..v8)
+# D1 = [2^k - xd, xd, 2^-k xd, S, 2^-k S]
+dense 3 5 4
+   -1 -1 0 0
+    1  1 0 0
+   2.3283064365386962890625e-10 2.3283064365386962890625e-10 0 0
+    0  0 1 1
+   0 0 2.3283064365386962890625e-10 2.3283064365386962890625e-10
+   4294967296 0 0 0 0
+step 4
+concat 5 4
+# D2 = [u, 1 - u, u, 1 - u, xd, xs, S, Ss]  (u = xd < 2^k: keep)
+dense 6 8 10
+    1 0 0 0 0 0 0 0 0 0
+   -1 0 0 0 0 0 0 0 0 0
+    1 0 0 0 0 0 0 0 0 0
+   -1 0 0 0 0 0 0 0 0 0
+    0 0 0 0 0 0 1 0 0 0
+    0 0 0 0 0 0 0 1 0 0
+    0 0 0 0 0 0 0 0 1 0
+    0 0 0 0 0 0 0 0 0 1
+   0 1 0 1 0 0 0 0
+mul 7 0 4 4 8
+# ---- stage k = 16 (v9..v13)
+dense 8 5 4
+   -1 -1 0 0
+    1  1 0 0
+   0.0000152587890625 0.0000152587890625 0 0
+    0  0 1 1
+   0 0 0.0000152587890625 0.0000152587890625
+   65536 0 0 0 0
+step 9
+concat 10 9
+dense 11 8 10
+    1 0 0 0 0 0 0 0 0 0
+   -1 0 0 0 0 0 0 0 0 0
+    1 0 0 0 0 0 0 0 0 0
+   -1 0 0 0 0 0 0 0 0 0
+    0 0 0 0 0 0 1 0 0 0
+    0 0 0 0 0 0 0 1 0 0
+    0 0 0 0 0 0 0 0 1 0
+    0 0 0 0 0 0 0 0 0 1
+   0 1 0 1 0 0 0 0
+mul 12 0 4 4 8
+# ---- stage k = 8 (v14..v18)
+dense 13 5 4
+   -1 -1 0 0
+    1  1 0 0
+   0.00390625 0.00390625 0 0
+    0  0 1 1
+   0 0 0.00390625 0.00390625
+   256 0 0 0 0
+step 14
+concat 15 14
+dense 16 8 10
+    1 0 0 0 0 0 0 0 0 0
+   -1 0 0 0 0 0 0 0 0 0
+    1 0 0 0 0 0 0 0 0 0
+   -1 0 0 0 0 0 0 0 0 0
+    0 0 0 0 0 0 1 0 0 0
+    0 0 0 0 0 0 0 1 0 0
+    0 0 0 0 0 0 0 0 1 0
+    0 0 0 0 0 0 0 0 0 1
+   0 1 0 1 0 0 0 0
+mul 17 0 4 4 8
+# ---- stage k = 4 (v19..v23)
+dense 18 5 4
+   -1 -1 0 0
+    1  1 0 0
+   0.0625 0.0625 0 0
+    0  0 1 1
+   0 0 0.0625 0.0625
+   16 0 0 0 0
+step 19
+concat 20 19
+dense 21 8 10
+    1 0 0 0 0 0 0 0 0 0
+   -1 0 0 0 0 0 0 0 0 0
+    1 0 0 0 0 0 0 0 0 0
+   -1 0 0 0 0 0 0 0 0 0
+    0 0 0 0 0 0 1 0 0 0
+    0 0 0 0 0 0 0 1 0 0
+    0 0 0 0 0 0 0 0 1 0
+    0 0 0 0 0 0 0 0 0 1
+   0 1 0 1 0 0 0 0
+mul 22 0 4 4 8
+# ---- stage k = 2 (v24..v28)
+dense 23 5 4
+   -1 -1 0 0
+    1  1 0 0
+   0.25 0.25 0 0
+    0  0 1 1
+   0 0 0.25 0.25
+   4 0 0 0 0
+step 24
+concat 25 24
+dense 26 8 10
+    1 0 0 0 0 0 0 0 0 0
+   -1 0 0 0 0 0 0 0 0 0
+    1 0 0 0 0 0 0 0 0 0
+   -1 0 0 0 0 0 0 0 0 0
+    0 0 0 0 0 0 1 0 0 0
+    0 0 0 0 0 0 0 1 0 0
+    0 0 0 0 0 0 0 0 1 0
+    0 0 0 0 0 0 0 0 0 1
+   0 1 0 1 0 0 0 0
+mul 27 0 4 4 8
+# ---- stage k = 1 (v29..v33)
+dense 28 5 4
+   -1 -1 0 0
+    1  1 0 0
+   0.5 0.5 0 0
+    0  0 1 1
+   0 0 0.5 0.5
+   2 0 0 0 0
+step 29
+concat 30 29
+dense 31 8 10
+    1 0 0 0 0 0 0 0 0 0
+   -1 0 0 0 0 0 0 0 0 0
+    1 0 0 0 0 0 0 0 0 0
+   -1 0 0 0 0 0 0 0 0 0
+    0 0 0 0 0 0 1 0 0 0
+    0 0 0 0 0 0 0 1 0 0
+    0 0 0 0 0 0 0 0 1 0
+    0 0 0 0 0 0 0 0 0 1
+   0 1 0 1 0 0 0 0
+mul 32 0 4 4 8
+# ---- RECIP
+# v34: [y0 = 24/17 - (8/17) md, md, S]  (minimax line for 1/m on [1, 2], rel. error <= 1/17)
+dense 33 3 4
+   -0.47058823529411764 -0.47058823529411764 0 0
+   1 1 0 0
+   0 0 1 1
+   1.411764705882353 0 0
+# v35: md
+slice 34 1 2
+# v36: Y0 = [y0, md]
+slice 34 0 2
+# Newton 1 (v37..v41): t = md y, u = 2 - t, y = y u
+mul 36 0 1 1 2
+dense 37 1 1
+   -1
+   2
+concat 36 38
+mul 39 0 1 2 3
+concat 40 35
+# Newton 2 (v42..v46)
+mul 41 0 1 1 2
+dense 42 1 1
+   -1
+   2
+concat 41 43
+mul 44 0 1 2 3
+concat 45 35
+# Newton 3 (v47..v51)
+mul 46 0 1 1 2
+dense 47 1 1
+   -1
+   2
+concat 46 48
+mul 49 0 1 2 3
+concat 50 35
+# Newton 4 (v52..v56)
+mul 51 0 1 1 2
+dense 52 1 1
+   -1
+   2
+concat 51 53
+mul 54 0 1 2 3
+concat 55 35
+# v57: y
+slice 56 0 1
+# v58: S
+slice 34 2 3
+# v59: [y, S]
+concat 57 58
+# v60: yd = y S (exact power of two scaling)
+mul 59 0 1 1 2
+# v61: [x, yd]
+concat 1 60
+# v62: z = fl(x yd)
+mul 61 0 1 1 2
+# v63, v64: q0 = round(z)
+dense 62 1 1
+   1
+   6755399441055744
+dense 63 1 1
+   1
+   -6755399441055744
+# v65: [q0, d]
+concat 64 2
+# v66: dq = d q0 (exact integer product, |dq| < 2^50)
+mul 65 0 1 1 2
+# v67: [x, dq]
+concat 1 66
+# v68: [x, dq, d]
+concat 67 2
+# v69: [-r0, r0 - d + 0.5] with r0 = x - dq
+dense 68 2 3
+   -1  1  0
+    1 -1 -1
+   0 0.5
+# v70: [lo, hi]
+step 69
+# v71: [lo, hi, d]
+concat 70 2
+# v72: [lo, hi, d, d]
+dense 71 4 3
+   1 0 0
+   0 1 0
+   0 0 1
+   0 0 1
+   0 0 0 0
+# v73: [lo d, hi d]
+mul 72 0 2 2 4
+# v74..v77: [q0, x, dq, lo, hi, lod, hid]
+concat 64 1
+concat 74 66
+concat 75 70
+concat 76 73
+# v78: [q, r]
+dense 77 2 7
+   1 0  0 -1  1 0  0
+   0 1 -1  0  0 1 -1
+   0 0
+# ---- tail (2 results)
+# v79
+dense 1 7 1
+   0
+   0
+   0
+   0
+   0
+   0
+   0
+   0 0 0 0 0 0 1
+# v80
+slice 0 8 30
+# v81
+concat 79 80
+# v82
+concat 81 78
+# v83
+slice 0 32 65
+# v84
+concat 82 83

@@ -1,0 +1,51 @@
+# prim/mod2k: MOD2K(x, 16), x = A.PAY (input 15), integer, |x| < 2^51.
+# T0 = x mod 65536 (in [0, 65536)), T1 = floor(x / 65536). Halts. Note: weights/prim/mod2k.md
+input 65
+# v1: x
+slice 0 15 16
+# v2: [y + C, y], y = x 2^-16 (exact power-of-two scaling)
+dense 1 2 1
+   0.0000152587890625
+   0.0000152587890625
+   6755399441055744 0
+# v3: [r, y], r = round(y)
+dense 2 2 2
+   1 0
+   0 1
+   -6755399441055744 0
+# v4: r - y
+dense 3 1 2
+   1 -1
+   0
+# v5: g = r > y
+step 4
+# v6: [r, y, g]
+concat 3 5
+# v7: [r, y, g, x]
+concat 6 1
+# v8: [mod, q] with q = r - g, mod = x - 65536 q
+dense 7 2 4
+   -65536 0 65536 1
+        1 0    -1 0
+   0 0
+# ---- tail (2 results)
+# v9
+dense 1 7 1
+   0
+   0
+   0
+   0
+   0
+   0
+   0
+   0 0 0 0 0 0 1
+# v10
+slice 0 8 30
+# v11
+concat 9 10
+# v12
+concat 11 8
+# v13
+slice 0 32 65
+# v14
+concat 12 13

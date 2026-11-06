@@ -186,3 +186,55 @@
 - Alternatives: a dispatch word in the zero page read at commit time (one extra step per commit, and a zero page word to reserve).
 - Why: one hand edit when the parser lands, no runtime cost.
 - Affects: weights/parse must follow the contract in commit.md (A = text handle in, value and P1 out, STATUS 0 or reject, locals preserved, LR 13 return).
+
+## 2026-11-06, Stage 1: primitive library (weights/prim/)
+
+- Goal: implement the encodings/primitives.md blocks as hand-written, tested reference blocks. Detailed attempt log: log/prim-agent.md.
+- Built and tested (tests/output/prim/test_prim.py, 172 cases, all pass): is_k, onehot, compare, mux, floor_round, mod2k, divmod_k, digits, safe_add, safe_mul, hash, idivmod, div. Each has a note beside it; shared conventions in weights/prim/CONVENTIONS.md.
+
+### P-D1 (DECISION): primitive test network convention
+- Decided: each primitive is a one-step 64-word network (input 65): arguments from the register map (A, B, C, address register, T0, T1), results in T0 onward, words 0 to 6 = halt only, all other words passed through by slice and concat.
+- Alternatives: the 8-word poc layout (not the application width, so blocks would need re-plumbing); a separate library format with no runnable test (cannot be verified by forward passes).
+- Why: blocks are tested in the exact layout they will be retyped into.
+- Affects: every block note; host networks copy only the middle layers.
+
+### P-D2 (DECISION): primitive test networks take no manifest id
+- Decided: weights/prim networks are loaded by path in their own tests and get no entry in weights/MANIFEST.txt.
+- Alternatives: give them ids inside a subsystem range (encodings/control.md section 5 has no primitive range, and all of 0 to 511 is owned); ids from 512 (breaks the sequential generated-id rule of D12).
+- Why: primitives are retyped blocks, never routed to.
+- Affects: weights/MANIFEST.txt unchanged by this work. If a router ever needs them, control.md must assign a range first.
+
+### P-D3 (DECISION): SAFE_MUL scales by 2^-512 and tests |s| >= 1
+- Decided: s = fl((a 2^-512)(b 2^-512)); overflow iff |s| >= 1.
+- Alternatives: primitives.md's 2^-600 with threshold 2^-176 (equivalent, needs two more literals).
+- Why: one literal, already verified exact; the threshold argument is a simple midpoint argument (weights/prim/safe_mul.md).
+- Affects: operator networks that retype SAFE_MUL.
+
+### P-D4 (DECISION, correction): RECIP initial guess is 24/17 - (8/17) m
+- Decided: on m in [1, 2) the linear start is y0 = 24/17 - (8/17) m.
+- Alternatives: the line in encodings/primitives.md, 48/17 - (32/17) m, which is the minimax line for m in [0.5, 1]; on [1, 2) it gives 0 at m = 1.5 and Newton diverges (seen in idivmod run 1, log/prim-agent.md).
+- Why: same 1/17 relative error, correct interval.
+- Affects: encodings/primitives.md RECIP text should be corrected by its owner; idivmod and div use the corrected line.
+
+### P-D5 (DECISION): DIV by normalised mantissas, two residual refinements, exact midpoint check, and an exponent split with one final rounding (Q-P1)
+- Decided: NORM both operands in parallel; Q0 = ma y; Q1 = Q0 + R0 y with R0 from Dekker TwoProduct; exact R1 for the faithful Q1; neighbour selection by exact comparison of R1 with half-gap times mb; then scale by Fp Fn F2 built from bits of P <= 1023, N <= 1021 and E2 in [-56, 1].
+- Alternatives: D15 as written (one refinement, q = q0 + r y, not provably correctly rounded without FMA); a direct exponent cascade on the quotient (unselected branches can overflow, then 0 times inf is NaN); scaling by 2^-eb only (Dekker overflows for large a).
+- Why: correct rounding for every normal quotient with only IEEE single operations; every intermediate finite.
+- Affects: Q-P1 answered for normal results; new open question Q-P1b: subnormal quotients can double round (weights/prim/div.md). Cost 338 layers, 10470 parameters as written (mostly zeros; a slimmer rewrite is possible).
+
+### P-D6 (DECISION): DIVMOD_K and DIGITS take q0 = ROUND, not FLOOR
+- Decided: q0 = round(fl(x fl(1/d))), then the two-sided exact remainder correction.
+- Alternatives: FLOOR first as in primitives.md (one more compare layer and step unit per divisor).
+- Why: the product error is below 0.04, so q0 is f or f + 1 and the existing correction covers it.
+- Affects: digits.wt (14 chains), divmod_k.wt, idivmod.wt.
+
+### P-D7 (DECISION): ROUND half away from zero lives in the FLOOR block
+- Decided: floor_round.wt also outputs Excel's ROUND(x, 0) (half away from zero) by exact tie detection on e = round_even(x) - x.
+- Alternatives: floor(x + 0.5) (wrong for 0.49999999999999994 and for large odd values, because x + 0.5 rounds).
+- Why: exact for all |x| < 2^51, shares the layers of FLOOR and CEIL.
+- Affects: the ROUND, MROUND and formatting functions.
+
+### Open questions recorded by this entry
+- Q-P1b: subnormal quotients may double round in DIV (fixable by a grid-aware midpoint check).
+- Q-P3: control.md assigns no network id range to primitives (only matters if a primitive is ever routed to).
+- The broad correctness of DIV rests on the hand cases and the argument in div.md; an Excel-sourced set of hard quotients is still wanted (Q-P1).

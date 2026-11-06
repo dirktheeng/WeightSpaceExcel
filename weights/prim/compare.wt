@@ -1,0 +1,46 @@
+# prim/compare: a = A.PAY (input 15), b = B.PAY (input 17), any finite doubles.
+# T0 = [a < b], T1 = [a = b], T2 = [a > b], T3 = SIGN(a). Halts. Note: weights/prim/compare.md
+input 65
+# v1: a
+slice 0 15 16
+# v2: b
+slice 0 17 18
+# v3: [a, b]
+concat 1 2
+# v4: [a - b, b - a, a, -a]  (R2 rows and R1 rows; signs exact)
+dense 3 4 2
+    1 -1
+   -1  1
+    1  0
+   -1  0
+   0 0 0 0
+# v5: [a > b, b > a, a > 0, a < 0]
+step 4
+# v6: [LT, EQ, GT, SIGN]
+dense 5 4 4
+    0  1  0  0
+   -1 -1  0  0
+    1  0  0  0
+    0  0  1 -1
+   0 1 0 0
+# ---- tail (4 results)
+# v7
+dense 1 7 1
+   0
+   0
+   0
+   0
+   0
+   0
+   0
+   0 0 0 0 0 0 1
+# v8
+slice 0 8 30
+# v9
+concat 7 8
+# v10
+concat 9 6
+# v11: words 33..63
+slice 0 34 65
+# v12
+concat 10 11

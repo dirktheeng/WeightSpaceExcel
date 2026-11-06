@@ -79,13 +79,14 @@ gantt
 | Stage 1 conformance cases passing | 145 of 415 run (14 skipped until `SUM` exists) |
 | Hand-written networks in the manifest | 33 |
 | Kernel parameters | about 5,100 |
-| Compliance and kernel tests | all passing |
+| Compliance, kernel and primitive tests | 200 of 200 passing |
+| Primitive library parameters | about 12,100 (about 10,500 of them in division, mostly zeros) |
 
 ### Built so far
 
 - **Frozen harness** ([harness/](harness/)): about 175 lines, a fixed set of layer types (dense, ReLU, step, identity, gating multiply, slice, concat) and a plain-text weight format.
 - **Kernel** ([weights/kernel/](weights/kernel/), 30 networks): boot, call and return, fault trap, the main event loop, keystroke decoding with Ctrl+G Go To, text entry straight into the heap, Enter and Delete, and a hash-table cell store with collision handling. Typing `hello` into B3 takes 60 steps from start to finish.
-- **Building-block library** ([weights/prim/](weights/prim/), in progress): exact integer compare, select, floor and round, mod, integer division with correction (verified up to 2^49), and more on the way.
+- **Building-block library** ([weights/prim/](weights/prim/), 13 primitives, 172 tests): integer equality and one-hot, real compare, select (two forms), floor, ceiling, truncate and both rounding modes (including Excel's half away from zero), mod 2^k, divide by a constant, 15-digit extraction, overflow-guarded add and multiply, the cell-address hash, integer division by a variable divisor, and correctly rounded floating-point division.
 - **Parser** ([weights/parse/](weights/parse/), in progress): register save and restore around the parser are done; constant entry, lexer and formula parser are next.
 
 ### Checklist by category

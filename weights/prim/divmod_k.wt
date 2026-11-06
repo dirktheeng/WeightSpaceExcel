@@ -1,0 +1,56 @@
+# prim/divmod_k: DIVMOD_K(x, 10), x = A.PAY (input 15), integer, |x| < 2^51.
+# T0 = floor(x / 10), T1 = x - 10 floor(x / 10) in [0, 10). Halts. Note: weights/prim/divmod_k.md
+input 65
+# v1: x
+slice 0 15 16
+# v2: fl(fl(0.1 x) + C)
+dense 1 1 1
+   0.1
+   6755399441055744
+# v3: q0 = round(fl(0.1 x)), equal to floor(x/10) or one more
+dense 2 1 1
+   1
+   -6755399441055744
+# v4: [q0, x]
+concat 3 1
+# v5: [q0, r0 = x - 10 q0, -r0, r0 - 9.5]
+dense 4 4 2
+     1  0
+   -10  1
+    10 -1
+   -10  1
+   0 0 0 -9.5
+# v6: [-r0, r0 - 9.5]
+slice 5 2 4
+# v7: [lo = r0 < 0, hi = r0 >= 10]
+step 6
+# v8: [q0, r0]
+slice 5 0 2
+# v9: [q0, r0, lo, hi]
+concat 8 7
+# v10: [q, r]
+dense 9 2 4
+   1 0 -1   1
+   0 1 10 -10
+   0 0
+# ---- tail (2 results)
+# v11
+dense 1 7 1
+   0
+   0
+   0
+   0
+   0
+   0
+   0
+   0 0 0 0 0 0 1
+# v12
+slice 0 8 30
+# v13
+concat 11 12
+# v14
+concat 13 10
+# v15
+slice 0 32 65
+# v16
+concat 14 15

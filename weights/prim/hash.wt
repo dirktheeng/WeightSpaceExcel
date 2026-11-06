@@ -1,0 +1,65 @@
+# prim/hash: HASH per encodings/address.md section 4.
+# Inputs: SHEET = AS (word 19, input 20), ROW = AR1 (input 21), COL = AC1 (input 22),
+#         NS = T0 (word 29, input 30), FIELD = T1 (word 30, input 31).
+# T0 = slot = t mod 2^16, T1 = CELL_BASE + 8 slot + FIELD (CELL_BASE = 0x010000 = 65536). Halts.
+# Note: weights/prim/hash.md
+input 65
+# v1: [S, R, C]
+slice 0 20 23
+# v2: [NS, F]
+slice 0 30 32
+# v3: [S, R, C, NS, F]
+concat 1 2
+# v4: t = 1000003 S + 40503 R + 65599 C + 7919 NS  (R4, exact)
+dense 3 1 5
+   1000003 40503 65599 7919 0
+   0
+# v5: [y + C, y], y = t 2^-16
+dense 4 2 1
+   0.0000152587890625
+   0.0000152587890625
+   6755399441055744 0
+# v6: [r, y]
+dense 5 2 2
+   1 0
+   0 1
+   -6755399441055744 0
+# v7: r - y
+dense 6 1 2
+   1 -1
+   0
+# v8: g = r > y
+step 7
+# v9: [r, y, g]
+concat 6 8
+# v10: [r, y, g, t]
+concat 9 4
+# v11: [r, y, g, t, S, R, C, NS, F]
+concat 10 3
+# v12: [slot, addr]
+dense 11 2 9
+#        r  y       g  t  S  R  C NS  F
+    -65536  0   65536  1  0  0  0  0  0
+   -524288  0  524288  8  0  0  0  0  1
+   0 65536
+# ---- tail (2 results)
+# v13 (source v4 = t, one word)
+dense 4 7 1
+   0
+   0
+   0
+   0
+   0
+   0
+   0
+   0 0 0 0 0 0 1
+# v14
+slice 0 8 30
+# v15
+concat 13 14
+# v16
+concat 15 12
+# v17
+slice 0 32 65
+# v18
+concat 16 17

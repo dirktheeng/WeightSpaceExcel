@@ -1,0 +1,84 @@
+# prim/floor_round: x = A.PAY (input 15), |x| < 2^51.
+# T0 FLOOR, T1 CEIL, T2 ROUND (half to even), T3 TRUNC, T4 ROUND half away from zero. Halts.
+# Note: weights/prim/floor_round.md.  C = 1.5 * 2^52 = 6755399441055744
+input 65
+# v1: x
+slice 0 15 16
+# v2: [x + C, -x + C]  (R3 rows: the add rounds to an integer, ties to even)
+dense 1 2 1
+    1
+   -1
+   6755399441055744 6755399441055744
+# v3: [r1, r2] = [round(x), round(-x)]  (exact by Sterbenz)
+dense 2 2 2
+   1 0
+   0 1
+   -6755399441055744 -6755399441055744
+# v4: [r1, r2, x]
+concat 3 1
+# v5: [e = r1 - x, r2 + x, x, -x, e + 0.5, 0.5 - e]
+dense 4 6 3
+   1 0 -1
+   0 1  1
+   0 0  1
+   0 0 -1
+   1 0 -1
+  -1 0  1
+   0 0 0 0 0.5 0.5
+# v6: [g1, g2, s, sn, u1, u2]
+#   g1 = r1 > x, g2 = r2 > -x, s = x > 0, sn = x < 0, u1 = e > -0.5, u2 = e < 0.5
+step 5
+# v7: [r1, r2, x, g1, g2, s, sn, u1, u2]
+concat 4 6
+# v8: [s, 1 - s, floor, ceil, round, s - u1 - 0.5, sn - u2 - 0.5]
+dense 7 7 9
+#  r1 r2  x g1 g2  s sn u1 u2
+    0  0  0  0  0  1  0  0  0
+    0  0  0  0  0 -1  0  0  0
+    1  0  0 -1  0  0  0  0  0
+    0 -1  0  0  1  0  0  0  0
+    1  0  0  0  0  0  0  0  0
+    0  0  0  0  0  1  0 -1  0
+    0  0  0  0  0  0  1  0 -1
+   0 1 0 0 0 -0.5 -0.5
+# v9: [s floor, (1 - s) ceil]
+mul 8 0 2 2 4
+# v10: [up arg, down arg]
+slice 8 5 7
+# v11: [up, down]
+step 10
+# v12: [floor, ceil, round]
+slice 8 2 5
+# v13: [floor, ceil, round, m1, m2]
+concat 12 9
+# v14: [floor, ceil, round, m1, m2, up, down]
+concat 13 11
+# v15: [FLOOR, CEIL, ROUND, TRUNC, ROUND_HALF_AWAY]
+dense 14 5 7
+   1 0 0 0 0 0  0
+   0 1 0 0 0 0  0
+   0 0 1 0 0 0  0
+   0 0 0 1 1 0  0
+   0 0 1 0 0 1 -1
+   0 0 0 0 0
+# ---- tail (5 results)
+# v16
+dense 1 7 1
+   0
+   0
+   0
+   0
+   0
+   0
+   0
+   0 0 0 0 0 0 1
+# v17
+slice 0 8 30
+# v18
+concat 16 17
+# v19
+concat 18 15
+# v20: words 34..63
+slice 0 35 65
+# v21
+concat 19 20

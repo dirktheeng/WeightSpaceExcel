@@ -1,0 +1,63 @@
+# prim/mux: g = C.PAY (input 19, 0 or 1), a = A.PAY (input 15), b = B.PAY (input 17).
+# T0 = MUX(g; a, b) by mul gating (any finite doubles).
+# T1 = MUX_INT by relu big-M, M = 2^23 (integers |a|, |b| < 2^22). Halts. Note: weights/prim/mux.md
+input 65
+# v1: a
+slice 0 15 16
+# v2: b
+slice 0 17 18
+# v3: g
+slice 0 19 20
+# v4: [a, b]
+concat 1 2
+# v5: [a, b, g]
+concat 4 3
+# v6: [g, 1 - g, a, b]
+dense 5 4 3
+   0  0  1
+   0  0 -1
+   1  0  0
+   0  1  0
+   0 1 0 0
+# v7: [g a, (1 - g) b]
+mul 6 0 2 2 4
+# v8: MUX = g a + (1 - g) b  (one term is exactly 0)
+dense 7 1 2
+   1 1
+   0
+# v9: [a - M (1 - g), -a - M (1 - g), b - M g, -b - M g]
+dense 5 4 3
+    1  0  8388608
+   -1  0  8388608
+    0  1 -8388608
+    0 -1 -8388608
+   -8388608 -8388608 0 0
+# v10
+relu 9
+# v11: MUX_INT
+dense 10 1 4
+   1 -1 1 -1
+   0
+# v12: [MUX, MUX_INT]
+concat 8 11
+# ---- tail (2 results)
+# v13
+dense 1 7 1
+   0
+   0
+   0
+   0
+   0
+   0
+   0
+   0 0 0 0 0 0 1
+# v14
+slice 0 8 30
+# v15
+concat 13 14
+# v16
+concat 15 12
+# v17: words 31..63
+slice 0 32 65
+# v18
+concat 16 17

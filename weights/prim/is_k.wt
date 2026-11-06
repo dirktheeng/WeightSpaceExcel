@@ -1,0 +1,37 @@
+# prim/is_k: IS_K(x, 3), x = A.TAG (word 13, input 14). Result in T0 (word 29). Halts.
+# 64-word convention test network (encodings/control.md). Note: weights/prim/is_k.md
+input 65
+# v1: x
+slice 0 14 15
+# v2: [x - 3 + 0.5, x - 3 - 0.5]
+dense 1 2 1
+   1
+   1
+   -2.5 -3.5
+# v3: [x > 2.5, x > 3.5]
+step 2
+# v4: IS3 = first - second
+dense 3 1 2
+   1 -1
+   0
+# ---- standard tail: words 0..6 = halt only, words 7..28 pass, results, rest pass
+# v5: protocol fields [0 0 0 0 0 0 1]
+dense 1 7 1
+   0
+   0
+   0
+   0
+   0
+   0
+   0
+   0 0 0 0 0 0 1
+# v6: words 7..28
+slice 0 8 30
+# v7
+concat 5 6
+# v8: + T0
+concat 7 4
+# v9: words 30..63
+slice 0 31 65
+# v10: output (64 words)
+concat 8 9

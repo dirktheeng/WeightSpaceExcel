@@ -1,0 +1,63 @@
+# prim/safe_mul: SAFE_MUL(a, b), a = A.PAY (input 15), b = B.PAY (input 17), finite doubles.
+# T0 = fl(a b) if it does not overflow, else 0; T1 = overflow flag. Halts.
+# Note: weights/prim/safe_mul.md.  S = 2^-512 = 7.458340731200207e-155
+input 65
+# v1: a
+slice 0 15 16
+# v2: b
+slice 0 17 18
+# v3: [a, b]
+concat 1 2
+# v4: [a S, b S]  (exact unless they underflow, which only happens when the product is small)
+dense 3 2 2
+   7.458340731200207e-155 0
+   0 7.458340731200207e-155
+   0 0
+# v5: s = fl(a b 2^-1024), never overflows
+mul 4 0 1 1 2
+# v6: [1 - s, 1 + s]
+dense 5 2 1
+   -1
+    1
+   1 1
+# v7: [s < 1, s > -1]
+step 6
+# v8: [t1, t2, a, b]
+concat 7 3
+# v9: [g, g, a, b, ov], ov = 2 - t1 - t2, g = 1 - ov
+dense 8 5 4
+    1  1  0  0
+    1  1  0  0
+    0  0  1  0
+    0  0  0  1
+   -1 -1  0  0
+   -1 -1 0 0 2
+# v10: [g a, g b]
+mul 9 0 2 2 4
+# v11: product
+mul 10 0 1 1 2
+# v12: ov
+slice 9 4 5
+# v13: [product, ov]
+concat 11 12
+# ---- tail (2 results)
+# v14
+dense 1 7 1
+   0
+   0
+   0
+   0
+   0
+   0
+   0
+   0 0 0 0 0 0 1
+# v15
+slice 0 8 30
+# v16
+concat 14 15
+# v17
+concat 16 13
+# v18
+slice 0 32 65
+# v19
+concat 17 18

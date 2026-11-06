@@ -1,0 +1,62 @@
+# prim/safe_add: SAFE_ADD(a, b), a = A.PAY (input 15), b = B.PAY (input 17), finite doubles.
+# T0 = fl(a + b) if it does not overflow, else 0; T1 = overflow flag (1 = would be +-inf). Halts.
+# Note: weights/prim/safe_add.md.  T = 2^1023 = 8.98846567431158e307
+input 65
+# v1: a
+slice 0 15 16
+# v2: b
+slice 0 17 18
+# v3: [a, b]
+concat 1 2
+# v4: h = fl(a/2 + b/2), never overflows
+dense 3 1 2
+   0.5 0.5
+   0
+# v5: [T - h, T + h]  (may be inf; only the step layer reads it, V1)
+dense 4 2 1
+   -1
+    1
+   8.98846567431158e307 8.98846567431158e307
+# v6: [h < T, h > -T]
+step 5
+# v7: [s1, s2, a, b]
+concat 6 3
+# v8: [g, g, a, b, ov], ov = 2 - s1 - s2, g = 1 - ov
+dense 7 5 4
+    1  1  0  0
+    1  1  0  0
+    0  0  1  0
+    0  0  0  1
+   -1 -1  0  0
+   -1 -1 0 0 2
+# v9: [g a, g b]
+mul 8 0 2 2 4
+# v10: sum (R2 row: one IEEE add)
+dense 9 1 2
+   1 1
+   0
+# v11: ov
+slice 8 4 5
+# v12: [sum, ov]
+concat 10 11
+# ---- tail (2 results)
+# v13
+dense 1 7 1
+   0
+   0
+   0
+   0
+   0
+   0
+   0
+   0 0 0 0 0 0 1
+# v14
+slice 0 8 30
+# v15
+concat 13 14
+# v16
+concat 15 12
+# v17
+slice 0 32 65
+# v18
+concat 16 17
