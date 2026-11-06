@@ -80,7 +80,7 @@ gantt
 
 | Measure | Now |
 |---|---|
-| Parity checklist items passing | 0 of 1,220 |
+| Parity checklist items passing | 82 of 1,220 (all functions) |
 | Stage 1 conformance cases passing | 271 of 273 run (14 skipped until `SUM` exists) |
 | Hand-written networks in the manifest | 33 |
 | Kernel parameters | about 5,100 |
@@ -104,7 +104,7 @@ gantt
 
 | Category | Items | Passing |
 |---|---:|---:|
-| Functions | 532 | 0 |
+| Functions | 532 | 82 |
 | Formula language | 65 | 0 |
 | Values and errors | 29 | 0 |
 | Calculation | 25 | 0 |

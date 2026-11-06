@@ -1,10 +1,10 @@
 id,category,item,stage,status
-FN-0001,Function: Math and trigonometry,ABS,3,todo
+FN-0001,Function: Math and trigonometry,ABS,3,done
 FN-0002,Function: Financial,ACCRINT,5,todo
 FN-0003,Function: Financial,ACCRINTM,5,todo
-FN-0004,Function: Math and trigonometry,ACOS,3,todo
+FN-0004,Function: Math and trigonometry,ACOS,3,done
 FN-0005,Function: Math and trigonometry,ACOSH,3,todo
-FN-0006,Function: Math and trigonometry,ACOT,3,todo
+FN-0006,Function: Math and trigonometry,ACOT,3,done
 FN-0007,Function: Math and trigonometry,ACOTH,3,todo
 FN-0008,Function: Math and trigonometry,AGGREGATE,3,todo
 FN-0009,Function: Lookup and reference,ADDRESS,4,todo
@@ -15,10 +15,10 @@ FN-0013,Function: Math and trigonometry,ARABIC,3,todo
 FN-0014,Function: Lookup and reference,AREAS,4,todo
 FN-0015,Function: Text,ARRAYTOTEXT,3,todo
 FN-0016,Function: Text,ASC,3,todo
-FN-0017,Function: Math and trigonometry,ASIN,3,todo
+FN-0017,Function: Math and trigonometry,ASIN,3,done
 FN-0018,Function: Math and trigonometry,ASINH,3,todo
-FN-0019,Function: Math and trigonometry,ATAN,3,todo
-FN-0020,Function: Math and trigonometry,ATAN2,3,todo
+FN-0019,Function: Math and trigonometry,ATAN,3,done
+FN-0020,Function: Math and trigonometry,ATAN2,3,done
 FN-0021,Function: Math and trigonometry,ATANH,3,todo
 FN-0022,Function: Statistical,AVEDEV,5,todo
 FN-0023,Function: Statistical,AVERAGE,5,todo
@@ -50,9 +50,9 @@ FN-0048,Function: Engineering,BITXOR,5,todo
 FN-0049,Function: Logical,BYCOL,10,todo
 FN-0050,Function: Logical,BYROW,10,todo
 FN-0051,Function: Add-in and Automation,CALL,10,todo
-FN-0052,Function: Compatibility,CEILING,3,todo
-FN-0053,Function: Math and trigonometry,CEILING.MATH,3,todo
-FN-0054,Function: Math and trigonometry,CEILING.PRECISE,3,todo
+FN-0052,Function: Compatibility,CEILING,3,done
+FN-0053,Function: Math and trigonometry,CEILING.MATH,3,done
+FN-0054,Function: Math and trigonometry,CEILING.PRECISE,3,done
 FN-0055,Function: Information,CELL,3,todo
 FN-0056,Function: Text,CHAR,3,todo
 FN-0057,Function: Compatibility,CHIDIST,5,todo
@@ -70,8 +70,8 @@ FN-0068,Function: Text,CLEAN,3,todo
 FN-0069,Function: Text,CODE,3,todo
 FN-0070,Function: Lookup and reference,COLUMN,4,todo
 FN-0071,Function: Lookup and reference,COLUMNS,4,todo
-FN-0072,Function: Math and trigonometry,COMBIN,3,todo
-FN-0073,Function: Math and trigonometry,COMBINA,3,todo
+FN-0072,Function: Math and trigonometry,COMBIN,3,done
+FN-0073,Function: Math and trigonometry,COMBINA,3,done
 FN-0074,Function: Engineering,COMPLEX,5,todo
 FN-0075,Function: Text,CONCAT,3,todo
 FN-0076,Function: Text,CONCATENATE,3,todo
@@ -80,9 +80,9 @@ FN-0078,Function: Statistical,CONFIDENCE.NORM,5,todo
 FN-0079,Function: Statistical,CONFIDENCE.T,5,todo
 FN-0080,Function: Engineering,CONVERT,5,todo
 FN-0081,Function: Statistical,CORREL,5,todo
-FN-0082,Function: Math and trigonometry,COS,3,todo
+FN-0082,Function: Math and trigonometry,COS,3,done
 FN-0083,Function: Math and trigonometry,COSH,3,todo
-FN-0084,Function: Math and trigonometry,COT,3,todo
+FN-0084,Function: Math and trigonometry,COT,3,done
 FN-0085,Function: Math and trigonometry,COTH,3,todo
 FN-0086,Function: Statistical,COUNT,5,todo
 FN-0087,Function: Statistical,COUNTA,5,todo
@@ -99,7 +99,7 @@ FN-0097,Function: Compatibility,COVAR,5,todo
 FN-0098,Function: Statistical,COVARIANCE.P,5,todo
 FN-0099,Function: Statistical,COVARIANCE.S,5,todo
 FN-0100,Function: Compatibility,CRITBINOM,5,todo
-FN-0101,Function: Math and trigonometry,CSC,3,todo
+FN-0101,Function: Math and trigonometry,CSC,3,done
 FN-0102,Function: Math and trigonometry,CSCH,3,todo
 FN-0103,Function: Cube,CUBEKPIMEMBER,10,todo
 FN-0104,Function: Cube,CUBEMEMBER,10,todo
@@ -111,12 +111,12 @@ FN-0109,Function: Cube,CUBEVALUE,10,todo
 FN-0110,Function: Financial,CUMIPMT,5,todo
 FN-0111,Function: Financial,CUMPRINC,5,todo
 FN-0112,Function: Date and time,DATE,4,todo
-FN-0113,Function: Date and time,DATEDIF,4,todo
+FN-0113,Function: Date and time,DATEDIF,4,done
 FN-0114,Function: Date and time,DATEVALUE,4,todo
 FN-0115,Function: Database,DAVERAGE,10,todo
-FN-0116,Function: Date and time,DAY,4,todo
-FN-0117,Function: Date and time,DAYS,4,todo
-FN-0118,Function: Date and time,DAYS360,4,todo
+FN-0116,Function: Date and time,DAY,4,done
+FN-0117,Function: Date and time,DAYS,4,done
+FN-0118,Function: Date and time,DAYS360,4,done
 FN-0119,Function: Financial,DB,5,todo
 FN-0120,Function: Text,DBCS,3,todo
 FN-0121,Function: Database,DCOUNT,10,todo
@@ -126,7 +126,7 @@ FN-0124,Function: Engineering,DEC2BIN,5,todo
 FN-0125,Function: Engineering,DEC2HEX,5,todo
 FN-0126,Function: Engineering,DEC2OCT,5,todo
 FN-0127,Function: Math and trigonometry,DECIMAL,3,todo
-FN-0128,Function: Math and trigonometry,DEGREES,3,todo
+FN-0128,Function: Math and trigonometry,DEGREES,3,done
 FN-0129,Function: Engineering,DELTA,5,todo
 FN-0130,Function: Text,DETECTLANGUAGE,10,todo
 FN-0131,Function: Statistical,DEVSQ,5,todo
@@ -145,24 +145,24 @@ FN-0143,Function: Database,DSUM,10,todo
 FN-0144,Function: Financial,DURATION,5,todo
 FN-0145,Function: Database,DVAR,10,todo
 FN-0146,Function: Database,DVARP,10,todo
-FN-0147,Function: Date and time,EDATE,4,todo
+FN-0147,Function: Date and time,EDATE,4,done
 FN-0148,Function: Financial,EFFECT,5,todo
 FN-0149,Function: Web,ENCODEURL,10,todo
-FN-0150,Function: Date and time,EOMONTH,4,todo
+FN-0150,Function: Date and time,EOMONTH,4,done
 FN-0151,Function: Engineering,ERF,5,todo
 FN-0152,Function: Engineering,ERF.PRECISE,5,todo
 FN-0153,Function: Engineering,ERFC,5,todo
 FN-0154,Function: Engineering,ERFC.PRECISE,5,todo
-FN-0155,Function: Information,ERROR.TYPE,3,todo
+FN-0155,Function: Information,ERROR.TYPE,3,done
 FN-0156,Function: Add-in and Automation,EUROCONVERT,10,todo
-FN-0157,Function: Math and trigonometry,EVEN,3,todo
+FN-0157,Function: Math and trigonometry,EVEN,3,done
 FN-0158,Function: Text,EXACT,3,todo
 FN-0159,Function: Math and trigonometry,EXP,3,todo
 FN-0160,Function: Lookup and reference,EXPAND,10,todo
 FN-0161,Function: Statistical,EXPON.DIST,5,todo
 FN-0162,Function: Compatibility,EXPONDIST,5,todo
-FN-0163,Function: Math and trigonometry,FACT,3,todo
-FN-0164,Function: Math and trigonometry,FACTDOUBLE,3,todo
+FN-0163,Function: Math and trigonometry,FACT,3,done
+FN-0164,Function: Math and trigonometry,FACTDOUBLE,3,done
 FN-0165,Function: Logical,FALSE,3,todo
 FN-0166,Function: Statistical,F.DIST,5,todo
 FN-0167,Function: Compatibility,FDIST,5,todo
@@ -177,9 +177,9 @@ FN-0175,Function: Compatibility,FINV,5,todo
 FN-0176,Function: Statistical,FISHER,5,todo
 FN-0177,Function: Statistical,FISHERINV,5,todo
 FN-0178,Function: Text,FIXED,3,todo
-FN-0179,Function: Compatibility,FLOOR,3,todo
-FN-0180,Function: Math and trigonometry,FLOOR.MATH,3,todo
-FN-0181,Function: Math and trigonometry,FLOOR.PRECISE,3,todo
+FN-0179,Function: Compatibility,FLOOR,3,done
+FN-0180,Function: Math and trigonometry,FLOOR.MATH,3,done
+FN-0181,Function: Math and trigonometry,FLOOR.PRECISE,3,done
 FN-0182,Function: Statistical,FORECAST,5,todo
 FN-0183,Function: Statistical,FORECAST.ETS,5,todo
 FN-0184,Function: Statistical,FORECAST.ETS.CONFINT,5,todo
@@ -200,7 +200,7 @@ FN-0198,Function: Compatibility,GAMMAINV,5,todo
 FN-0199,Function: Statistical,GAMMALN,5,todo
 FN-0200,Function: Statistical,GAMMALN.PRECISE,5,todo
 FN-0201,Function: Statistical,GAUSS,5,todo
-FN-0202,Function: Math and trigonometry,GCD,3,todo
+FN-0202,Function: Math and trigonometry,GCD,3,done
 FN-0203,Function: Statistical,GEOMEAN,5,todo
 FN-0204,Function: Engineering,GESTEP,5,todo
 FN-0205,Function: Lookup and reference,GETPIVOTDATA,10,todo
@@ -211,15 +211,15 @@ FN-0209,Function: Engineering,HEX2BIN,5,todo
 FN-0210,Function: Engineering,HEX2DEC,5,todo
 FN-0211,Function: Engineering,HEX2OCT,5,todo
 FN-0212,Function: Lookup and reference,HLOOKUP,4,todo
-FN-0213,Function: Date and time,HOUR,4,todo
+FN-0213,Function: Date and time,HOUR,4,done
 FN-0214,Function: Lookup and reference,HSTACK,10,todo
 FN-0215,Function: Lookup and reference,HYPERLINK,4,todo
 FN-0216,Function: Statistical,HYPGEOM.DIST,5,todo
 FN-0217,Function: Compatibility,HYPGEOMDIST,5,todo
-FN-0218,Function: Logical,IF,3,todo
-FN-0219,Function: Logical,IFERROR,3,todo
-FN-0220,Function: Logical,IFNA,3,todo
-FN-0221,Function: Logical,IFS,3,todo
+FN-0218,Function: Logical,IF,3,done
+FN-0219,Function: Logical,IFERROR,3,done
+FN-0220,Function: Logical,IFNA,3,done
+FN-0221,Function: Logical,IFS,3,done
 FN-0222,Function: Engineering,IMABS,5,todo
 FN-0223,Function: Lookup and reference,IMAGE,10,todo
 FN-0224,Function: Engineering,IMAGINARY,5,todo
@@ -249,32 +249,32 @@ FN-0247,Function: Engineering,IMTAN,5,todo
 FN-0248,Function: Lookup and reference,INDEX,4,todo
 FN-0249,Function: Lookup and reference,INDIRECT,4,todo
 FN-0250,Function: Information,INFO,3,todo
-FN-0251,Function: Math and trigonometry,INT,3,todo
+FN-0251,Function: Math and trigonometry,INT,3,done
 FN-0252,Function: Statistical,INTERCEPT,5,todo
 FN-0253,Function: Financial,INTRATE,5,todo
 FN-0254,Function: Financial,IPMT,5,todo
 FN-0255,Function: Financial,IRR,5,todo
-FN-0256,Function: Information,ISBLANK,3,todo
-FN-0257,Function: Information,ISERR,3,todo
-FN-0258,Function: Information,ISERROR,3,todo
-FN-0259,Function: Information,ISEVEN,3,todo
-FN-0260,Function: Information,ISFORMULA,3,todo
-FN-0261,Function: Information,ISLOGICAL,3,todo
-FN-0262,Function: Information,ISNA,3,todo
-FN-0263,Function: Information,ISNONTEXT,3,todo
-FN-0264,Function: Information,ISNUMBER,3,todo
-FN-0265,Function: Information,ISODD,3,todo
+FN-0256,Function: Information,ISBLANK,3,done
+FN-0257,Function: Information,ISERR,3,done
+FN-0258,Function: Information,ISERROR,3,done
+FN-0259,Function: Information,ISEVEN,3,done
+FN-0260,Function: Information,ISFORMULA,3,done
+FN-0261,Function: Information,ISLOGICAL,3,done
+FN-0262,Function: Information,ISNA,3,done
+FN-0263,Function: Information,ISNONTEXT,3,done
+FN-0264,Function: Information,ISNUMBER,3,done
+FN-0265,Function: Information,ISODD,3,done
 FN-0266,Function: Information,ISOMITTED,10,todo
-FN-0267,Function: Information,ISREF,3,todo
-FN-0268,Function: Information,ISTEXT,3,todo
-FN-0269,Function: Math and trigonometry,ISO.CEILING,3,todo
-FN-0270,Function: Date and time,ISOWEEKNUM,4,todo
+FN-0267,Function: Information,ISREF,3,done
+FN-0268,Function: Information,ISTEXT,3,done
+FN-0269,Function: Math and trigonometry,ISO.CEILING,3,done
+FN-0270,Function: Date and time,ISOWEEKNUM,4,done
 FN-0271,Function: Financial,ISPMT,5,todo
 FN-0272,Function: Text,JIS,3,todo
 FN-0273,Function: Statistical,KURT,5,todo
 FN-0274,Function: Logical,LAMBDA,10,todo
 FN-0275,Function: Statistical,LARGE,5,todo
-FN-0276,Function: Math and trigonometry,LCM,3,todo
+FN-0276,Function: Math and trigonometry,LCM,3,done
 FN-0277,Function: Text,LEFT,3,todo
 FN-0278,Function: Text,LEFTB,3,todo
 FN-0279,Function: Text,LEN,3,todo
@@ -282,8 +282,8 @@ FN-0280,Function: Text,LENB,3,todo
 FN-0281,Function: Logical,LET,10,todo
 FN-0282,Function: Statistical,LINEST,5,todo
 FN-0283,Function: Math and trigonometry,LN,3,todo
-FN-0284,Function: Math and trigonometry,LOG,3,todo
-FN-0285,Function: Math and trigonometry,LOG10,3,todo
+FN-0284,Function: Math and trigonometry,LOG,3,done
+FN-0285,Function: Math and trigonometry,LOG10,3,done
 FN-0286,Function: Statistical,LOGEST,5,todo
 FN-0287,Function: Compatibility,LOGINV,5,todo
 FN-0288,Function: Statistical,LOGNORM.DIST,5,todo
@@ -305,16 +305,16 @@ FN-0303,Function: Text,MIDB,3,todo
 FN-0304,Function: Statistical,MIN,5,todo
 FN-0305,Function: Statistical,MINIFS,5,todo
 FN-0306,Function: Statistical,MINA,5,todo
-FN-0307,Function: Date and time,MINUTE,4,todo
+FN-0307,Function: Date and time,MINUTE,4,done
 FN-0308,Function: Math and trigonometry,MINVERSE,3,todo
 FN-0309,Function: Financial,MIRR,5,todo
 FN-0310,Function: Math and trigonometry,MMULT,3,todo
-FN-0311,Function: Math and trigonometry,MOD,3,todo
+FN-0311,Function: Math and trigonometry,MOD,3,done
 FN-0312,Function: Compatibility,MODE,5,todo
 FN-0313,Function: Statistical,MODE.MULT,5,todo
 FN-0314,Function: Statistical,MODE.SNGL,5,todo
-FN-0315,Function: Date and time,MONTH,4,todo
-FN-0316,Function: Math and trigonometry,MROUND,3,todo
+FN-0315,Function: Date and time,MONTH,4,done
+FN-0316,Function: Math and trigonometry,MROUND,3,done
 FN-0317,Function: Math and trigonometry,MULTINOMIAL,3,todo
 FN-0318,Function: Math and trigonometry,MUNIT,3,todo
 FN-0319,Function: Information,N,3,todo
@@ -332,7 +332,7 @@ FN-0330,Function: Statistical,NORM.S.DIST,5,todo
 FN-0331,Function: Compatibility,NORMSDIST,5,todo
 FN-0332,Function: Statistical,NORM.S.INV,5,todo
 FN-0333,Function: Compatibility,NORMSINV,5,todo
-FN-0334,Function: Logical,NOT,3,todo
+FN-0334,Function: Logical,NOT,3,done
 FN-0335,Function: Date and time,NOW,4,todo
 FN-0336,Function: Financial,NPER,5,todo
 FN-0337,Function: Financial,NPV,5,todo
@@ -340,13 +340,13 @@ FN-0338,Function: Text,NUMBERVALUE,3,todo
 FN-0339,Function: Engineering,OCT2BIN,5,todo
 FN-0340,Function: Engineering,OCT2DEC,5,todo
 FN-0341,Function: Engineering,OCT2HEX,5,todo
-FN-0342,Function: Math and trigonometry,ODD,3,todo
+FN-0342,Function: Math and trigonometry,ODD,3,done
 FN-0343,Function: Financial,ODDFPRICE,5,todo
 FN-0344,Function: Financial,ODDFYIELD,5,todo
 FN-0345,Function: Financial,ODDLPRICE,5,todo
 FN-0346,Function: Financial,ODDLYIELD,5,todo
 FN-0347,Function: Lookup and reference,OFFSET,4,todo
-FN-0348,Function: Logical,OR,3,todo
+FN-0348,Function: Logical,OR,3,done
 FN-0349,Function: Financial,PDURATION,5,todo
 FN-0350,Function: Statistical,PEARSON,5,todo
 FN-0351,Function: Statistical,PERCENTILE.EXC,5,todo
@@ -365,7 +365,7 @@ FN-0363,Function: Lookup and reference,PIVOTBY,10,todo
 FN-0364,Function: Financial,PMT,5,todo
 FN-0365,Function: Statistical,POISSON.DIST,5,todo
 FN-0366,Function: Compatibility,POISSON,5,todo
-FN-0367,Function: Math and trigonometry,POWER,3,todo
+FN-0367,Function: Math and trigonometry,POWER,3,done
 FN-0368,Function: Financial,PPMT,5,todo
 FN-0369,Function: Financial,PRICE,5,todo
 FN-0370,Function: Financial,PRICEDISC,5,todo
@@ -377,11 +377,11 @@ FN-0375,Function: Financial,PV,5,todo
 FN-0376,Function: Compatibility,QUARTILE,5,todo
 FN-0377,Function: Statistical,QUARTILE.EXC,5,todo
 FN-0378,Function: Statistical,QUARTILE.INC,5,todo
-FN-0379,Function: Math and trigonometry,QUOTIENT,3,todo
-FN-0380,Function: Math and trigonometry,RADIANS,3,todo
+FN-0379,Function: Math and trigonometry,QUOTIENT,3,done
+FN-0380,Function: Math and trigonometry,RADIANS,3,done
 FN-0381,Function: Math and trigonometry,RAND,3,todo
 FN-0382,Function: Math and trigonometry,RANDARRAY,10,todo
-FN-0383,Function: Math and trigonometry,RANDBETWEEN,3,todo
+FN-0383,Function: Math and trigonometry,RANDBETWEEN,3,done
 FN-0384,Function: Statistical,RANK.AVG,5,todo
 FN-0385,Function: Statistical,RANK.EQ,5,todo
 FN-0386,Function: Compatibility,RANK,5,todo
@@ -398,9 +398,9 @@ FN-0396,Function: Text,REPT,3,todo
 FN-0397,Function: Text,RIGHT,3,todo
 FN-0398,Function: Text,RIGHTB,3,todo
 FN-0399,Function: Math and trigonometry,ROMAN,3,todo
-FN-0400,Function: Math and trigonometry,ROUND,3,todo
-FN-0401,Function: Math and trigonometry,ROUNDDOWN,3,todo
-FN-0402,Function: Math and trigonometry,ROUNDUP,3,todo
+FN-0400,Function: Math and trigonometry,ROUND,3,done
+FN-0401,Function: Math and trigonometry,ROUNDDOWN,3,done
+FN-0402,Function: Math and trigonometry,ROUNDUP,3,done
 FN-0403,Function: Lookup and reference,ROW,4,todo
 FN-0404,Function: Lookup and reference,ROWS,4,todo
 FN-0405,Function: Financial,RRI,5,todo
@@ -409,15 +409,15 @@ FN-0407,Function: Lookup and reference,RTD,10,todo
 FN-0408,Function: Logical,SCAN,10,todo
 FN-0409,Function: Text,SEARCH,3,todo
 FN-0410,Function: Text,SEARCHB,3,todo
-FN-0411,Function: Math and trigonometry,SEC,3,todo
+FN-0411,Function: Math and trigonometry,SEC,3,done
 FN-0412,Function: Math and trigonometry,SECH,3,todo
-FN-0413,Function: Date and time,SECOND,4,todo
+FN-0413,Function: Date and time,SECOND,4,done
 FN-0414,Function: Math and trigonometry,SEQUENCE,10,todo
 FN-0415,Function: Math and trigonometry,SERIESSUM,3,todo
 FN-0416,Function: Information,SHEET,3,todo
-FN-0417,Function: Information,SHEETS,3,todo
-FN-0418,Function: Math and trigonometry,SIGN,3,todo
-FN-0419,Function: Math and trigonometry,SIN,3,todo
+FN-0417,Function: Information,SHEETS,3,done
+FN-0418,Function: Math and trigonometry,SIGN,3,done
+FN-0419,Function: Math and trigonometry,SIN,3,done
 FN-0420,Function: Math and trigonometry,SINH,3,todo
 FN-0421,Function: Statistical,SKEW,5,todo
 FN-0422,Function: Statistical,SKEW.P,5,todo
@@ -426,8 +426,8 @@ FN-0424,Function: Statistical,SLOPE,5,todo
 FN-0425,Function: Statistical,SMALL,5,todo
 FN-0426,Function: Lookup and reference,SORT,10,todo
 FN-0427,Function: Lookup and reference,SORTBY,10,todo
-FN-0428,Function: Math and trigonometry,SQRT,3,todo
-FN-0429,Function: Math and trigonometry,SQRTPI,3,todo
+FN-0428,Function: Math and trigonometry,SQRT,3,done
+FN-0429,Function: Math and trigonometry,SQRTPI,3,done
 FN-0430,Function: Statistical,STANDARDIZE,5,todo
 FN-0431,Function: Compatibility,STDEV,5,todo
 FN-0432,Function: Statistical,STDEV.P,5,todo
@@ -447,10 +447,10 @@ FN-0445,Function: Math and trigonometry,SUMSQ,3,todo
 FN-0446,Function: Math and trigonometry,SUMX2MY2,3,todo
 FN-0447,Function: Math and trigonometry,SUMX2PY2,3,todo
 FN-0448,Function: Math and trigonometry,SUMXMY2,3,todo
-FN-0449,Function: Logical,SWITCH,3,todo
+FN-0449,Function: Logical,SWITCH,3,done
 FN-0450,Function: Financial,SYD,5,todo
 FN-0451,Function: Text,T,3,todo
-FN-0452,Function: Math and trigonometry,TAN,3,todo
+FN-0452,Function: Math and trigonometry,TAN,3,done
 FN-0453,Function: Math and trigonometry,TANH,3,todo
 FN-0454,Function: Lookup and reference,TAKE,10,todo
 FN-0455,Function: Financial,TBILLEQ,5,todo
@@ -465,7 +465,7 @@ FN-0463,Function: Text,TEXTAFTER,3,todo
 FN-0464,Function: Text,TEXTBEFORE,3,todo
 FN-0465,Function: Text,TEXTJOIN,3,todo
 FN-0466,Function: Text,TEXTSPLIT,10,todo
-FN-0467,Function: Date and time,TIME,4,todo
+FN-0467,Function: Date and time,TIME,4,done
 FN-0468,Function: Date and time,TIMEVALUE,4,todo
 FN-0469,Function: Statistical,T.INV,5,todo
 FN-0470,Function: Statistical,T.INV.2T,5,todo
@@ -480,7 +480,7 @@ FN-0478,Function: Text,TRIM,3,todo
 FN-0479,Function: Statistical,TRIMMEAN,5,todo
 FN-0480,Function: Lookup and reference,TRIMRANGE,10,todo
 FN-0481,Function: Logical,TRUE,3,todo
-FN-0482,Function: Math and trigonometry,TRUNC,3,todo
+FN-0482,Function: Math and trigonometry,TRUNC,3,done
 FN-0483,Function: Statistical,T.TEST,5,todo
 FN-0484,Function: Compatibility,TTEST,5,todo
 FN-0485,Function: Information,TYPE,3,todo
@@ -500,8 +500,8 @@ FN-0498,Function: Financial,VDB,5,todo
 FN-0499,Function: Lookup and reference,VLOOKUP,4,todo
 FN-0500,Function: Lookup and reference,VSTACK,10,todo
 FN-0501,Function: Web,WEBSERVICE,10,todo
-FN-0502,Function: Date and time,WEEKDAY,4,todo
-FN-0503,Function: Date and time,WEEKNUM,4,todo
+FN-0502,Function: Date and time,WEEKDAY,4,done
+FN-0503,Function: Date and time,WEEKNUM,4,done
 FN-0504,Function: Compatibility,WEIBULL,5,todo
 FN-0505,Function: Statistical,WEIBULL.DIST,5,todo
 FN-0506,Function: Date and time,WORKDAY,4,todo
@@ -512,9 +512,9 @@ FN-0510,Function: Financial,XIRR,5,todo
 FN-0511,Function: Lookup and reference,XLOOKUP,4,todo
 FN-0512,Function: Lookup and reference,XMATCH,4,todo
 FN-0513,Function: Financial,XNPV,5,todo
-FN-0514,Function: Logical,XOR,3,todo
-FN-0515,Function: Date and time,YEAR,4,todo
-FN-0516,Function: Date and time,YEARFRAC,4,todo
+FN-0514,Function: Logical,XOR,3,done
+FN-0515,Function: Date and time,YEAR,4,done
+FN-0516,Function: Date and time,YEARFRAC,4,done
 FN-0517,Function: Financial,YIELD,5,todo
 FN-0518,Function: Financial,YIELDDISC,5,todo
 FN-0519,Function: Financial,YIELDMAT,5,todo
@@ -586,7 +586,7 @@ FL-052,Formula language,Comparison ordering across types (numbers < text < boole
 FL-053,Formula language,Case-insensitive text comparison,1,todo
 FL-054,Formula language,Range arguments ignoring text and booleans in aggregate functions,3,todo
 FL-055,Formula language,Wildcard matching * ? ~ in criteria functions,3,todo
-FL-056,Formula language,Criteria strings with operators (">5"),3,todo
+FL-056,Formula language,"Criteria strings with operators ("">5"")",3,todo
 FL-057,Formula language,Case-insensitive function and name parsing with uppercase display,1,todo
 FL-058,Formula language,_xlfn and _xlws prefixes for newer functions in files,8,todo
 FL-059,Formula language,Leading + or - starting a formula,1,todo
