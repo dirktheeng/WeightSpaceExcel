@@ -84,7 +84,8 @@ Network ids are positions in the harness network list. The launcher (an output t
 | 640 to 703 | data features (sort, filter, tables, validation, undo, clipboard) |
 | 704 to 895 | statistical, financial and engineering functions |
 | 896 to 959 | UI (continued): ribbon, dialogs, menus, mouse |
-| 960 to 1023 | reserve |
+| 960 to 991 | files (continued): .xlsx pipeline |
+| 992 to 1023 | text functions (continued) |
 | 1024 and up | generated networks |
 
 **Generated ids and the harness load rule.** On io 7 the harness replaces network io_arg if io_arg < number of loaded networks, and otherwise appends at the end, whatever io_arg says. So a new id must equal the current count exactly. The allocator network keeps NET_NEXT (zero page 0x05) equal to the count: it starts at 1024, a generator obtains an id by calling the allocator (which returns NET_NEXT in A.PAY and increments it), and only that generator's load step may use it. Regenerating an existing network loads into its id (io_arg < count, replace). Ids are never freed (open question Q-C2: reuse lists if run-time specialisation creates many).
