@@ -536,3 +536,6 @@
 - Q-LG2: TYPE of a multi-cell reference (16 here) and ISFORMULA of a non-reference (#VALUE! here).
 - Q-LG3: SWITCH text matching needs a case-insensitive string compare (handle equality only for now).
 - Result: 7 networks, 8260 dense parameters; tests/output/func_logic 217 pass.
+
+## 2026-11-06, decision C1: borrowing from SynapseWrite
+- Decided by the project owner: agents may use architecture ideas and weight values from the sibling project SynapseWrite. Values are carried over by hand only (read and typed, or entered with the Edit tool); no code may extract, convert or generate weights. Each borrowed block's note cites its source.
