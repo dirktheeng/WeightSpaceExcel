@@ -1,0 +1,27 @@
+# kernel/cs_lpay (id 19): found (get). x0 = PAY. A.PAY = x0, STATUS 0, return to (LR, LP).
+# Note: weights/kernel/cs_store_chain.md
+input 65
+slice 0 9 11                      # v1 = [LR, LP]
+dense 1 8 2                       # v2 = words 0..7
+   1 0                            # next = LR
+   0 0                            # mem_op none
+   0 0                            # addr 0
+   0 0                            # value
+   0 0                            # io
+   0 0                            # io_arg
+   0 0                            # halt
+   0 1                            # PC = LP
+# biases
+   0 0 0 0 0 0 0 0
+slice 0 9 13                      # v3 = words 8..11 pass
+dense 1 1 2                       # v4 = STATUS = 0
+   0 0
+   0
+slice 0 14 15                     # v5 = A.TAG pass
+slice 0 0 1                       # v6 = A.PAY = x0
+slice 0 16 65                     # v7 = words 15..63 pass
+concat 2 3                        # v8
+concat 8 4                        # v9
+concat 9 5                        # v10
+concat 10 6                       # v11
+concat 11 7                       # v12 = output

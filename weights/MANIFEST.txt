@@ -1,0 +1,33 @@
+# Network manifest (encodings/control.md section 5): lines 'ID PATH', any order, append only.
+# Unlisted ids below 512 are filled with TRAP (id 1) by the launcher.
+# kernel networks (weights/kernel/, log/kernel-agent.md)
+0 weights/kernel/boot.wt
+1 weights/kernel/trap.wt
+2 weights/kernel/ret.wt
+3 weights/kernel/halt_ok.wt
+4 weights/kernel/main_poll.wt
+5 weights/kernel/main_count.wt
+6 weights/kernel/main_first.wt
+7 weights/kernel/ev_decode.wt
+8 weights/kernel/ev_next.wt
+9 weights/kernel/c_len.wt
+10 weights/kernel/c_rc.wt
+11 weights/kernel/c_top.wt
+12 weights/kernel/c_parse.wt
+13 weights/kernel/c_set.wt
+14 weights/kernel/c_done_rd.wt
+15 weights/kernel/c_done.wt
+16 weights/kernel/cs_hash.wt
+17 weights/kernel/cs_probe.wt
+18 weights/kernel/cs_ltag.wt
+19 weights/kernel/cs_lpay.wt
+20 weights/kernel/cs_cntr.wt
+21 weights/kernel/cs_cntw.wt
+22 weights/kernel/cs_wtag.wt
+23 weights/kernel/cs_wpay.wt
+24 weights/kernel/cs_wform.wt
+25 weights/kernel/cs_genr.wt
+26 weights/kernel/cs_wcalc.wt
+27 weights/kernel/parse_stub.wt
+28 weights/kernel/rej_rd.wt
+29 weights/kernel/rej_wr.wt

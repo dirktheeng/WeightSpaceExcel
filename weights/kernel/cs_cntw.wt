@@ -1,0 +1,16 @@
+# kernel/cs_cntw (id 21): x0 = CELL_COUNT. Write x0 + 1 to 0x0C; next 22.
+# Note: weights/kernel/cs_store_chain.md
+input 65
+slice 0 0 1                       # v1 = [count]
+dense 1 7 1                       # v2 = words 0..6
+   0                              # next (bias 22)
+   0                              # mem_op (bias 2 write)
+   0                              # addr (bias 12)
+   1                              # value = count + 1
+   0
+   0
+   0
+# biases
+   22 2 12 1 0 0 0
+slice 0 8 65                      # v3 = words 7..63 pass
+concat 2 3                        # v4 = output

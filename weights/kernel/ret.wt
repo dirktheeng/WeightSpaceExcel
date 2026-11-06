@@ -1,0 +1,31 @@
+# kernel/ret (id 2): return trampoline. x0 = LINK = LR*2^16 + LP (popped by caller).
+# next = floor(x0 / 2^16), PC = x0 - 2^16 * next, everything else copied.
+# Note: weights/kernel/ret.md
+input 65
+slice 0 0 1                       # v1 = [L]
+dense 1 1 1                       # v2 = L*2^-16 + C  (R1 exact scale, then R3 round)
+  0.0000152587890625
+  6755399441055744
+dense 2 1 1                       # v3 = r = round(L*2^-16)
+  1
+  -6755399441055744
+concat 3 1                        # v4 = [r, L]
+dense 4 1 2                       # v5 = 65536 r - L  (integer, exact)
+  65536 -1
+  0
+step 5                            # v6 = g = 1 if r rounded up
+concat 4 6                        # v7 = [r, L, g]
+dense 7 8 3                       # v8 = words 0..7
+#  r       L   g
+   1       0  -1                  # next = r - g = floor(L/2^16)
+   0       0   0                  # mem_op none
+   0       0   0                  # addr 0
+   0       0   0                  # value
+   0       0   0                  # io
+   0       0   0                  # io_arg
+   0       0   0                  # halt
+  -65536   1   65536              # PC = L - 65536 (r - g)
+# biases
+  0 0 0 0 0 0 0 0
+slice 0 9 65                      # v9 = words 8..63
+concat 8 9                        # v10 = output

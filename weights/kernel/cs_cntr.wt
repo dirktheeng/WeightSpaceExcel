@@ -1,0 +1,16 @@
+# kernel/cs_cntr (id 20): new cell. Read CELL_COUNT (zero page 0x0C); next 21.
+# Note: weights/kernel/cs_store_chain.md
+input 65
+slice 0 0 1                       # v1 = [x0] (constant source)
+dense 1 7 1                       # v2 = words 0..6
+   0
+   0
+   0
+   0
+   0
+   0
+   0
+# biases: next 21, read, addr 12
+   21 1 12 0 0 0 0
+slice 0 8 65                      # v3 = words 7..63 pass
+concat 2 3                        # v4 = output

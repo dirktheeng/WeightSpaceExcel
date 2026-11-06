@@ -1,0 +1,35 @@
+# kernel/ev_next (id 8): advance to the next event. i = L0, n = L1.
+# i + 1 < n: read event i + 1 at 0x200001 + i + 1, next 7. Otherwise poll again (4). L0 = i + 1.
+# Note: weights/kernel/main_loop.md
+input 65
+slice 0 41 43                     # v1 = [i, n]
+dense 1 1 2                       # v2 = n - i - 1.5
+  -1 1
+  -1.5
+step 2                            # v3 = c = [i + 1 < n]
+concat 1 3                        # v4 = [i, n, c]
+dense 4 1 3                       # v5 = i + 0x200002 - M (1 - c), M = 2^24
+   1 0 16777216
+   -14680062
+relu 5                            # v6 = a = (0x200002 + i) c
+concat 4 6                        # v7 = [i, n, c, a]
+dense 7 8 4                       # v8 = words 0..7
+#  i  n  c  a
+   0  0  3  0                     # next = 4 + 3c
+   0  0  1  0                     # mem_op = c
+   0  0  0  1                     # addr = a
+   0  0  0  0
+   0  0  0  0
+   0  0  0  0
+   0  0  0  0
+   0  0  0  0                     # PC 0
+# biases
+   4 0 0 0 0 0 0 0
+slice 0 9 41                      # v9 = words 8..39 pass
+dense 7 1 4                       # v10 = L0 = i + 1
+   1 0 0 0
+   1
+slice 0 42 65                     # v11 = words 41..63 pass
+concat 8 9                        # v12
+concat 12 10                      # v13
+concat 13 11                      # v14 = output

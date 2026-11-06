@@ -1,0 +1,41 @@
+# kernel/c_done (id 15): commit step 7. x0 = HEAP_TOP. New empty buffer: L9 = top, L8 = top + 2,
+# L4 = L6 = L7 = 0. Enter moves the active cell down: L2 += 1. next 8 (ev_next).
+# Note: weights/kernel/commit.md
+input 65
+slice 0 0 1                       # v1 = [top]
+slice 0 43 44                     # v2 = [L2]
+concat 1 2                        # v3 = [top, L2]
+dense 3 7 2                       # v4 = words 0..6
+   0 0                            # next (bias 8)
+   0 0
+   0 0
+   0 0
+   0 0
+   0 0
+   0 0
+# biases
+   8 0 0 0 0 0 0
+slice 0 8 43                      # v5 = words 7..41 pass (PC .. L1)
+dense 3 1 2                       # v6 = L2 + 1
+   0 1
+   1
+slice 0 44 45                     # v7 = L3 pass
+dense 3 1 2                       # v8 = L4 = 0
+   0 0
+   0
+slice 0 46 47                     # v9 = L5 pass
+dense 3 4 2                       # v10 = L6..L9
+   0 0                            # L6 acc = 0
+   0 0                            # L7 pos = 0
+   1 0                            # L8 = top + 2
+   1 0                            # L9 = top
+# biases
+   0 0 2 0
+slice 0 51 65                     # v11 = words 50..63 pass
+concat 4 5                        # v12
+concat 12 6                       # v13
+concat 13 7                       # v14
+concat 14 8                       # v15
+concat 15 9                       # v16
+concat 16 10                      # v17
+concat 17 11                      # v18 = output

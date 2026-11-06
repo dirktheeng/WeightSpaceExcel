@@ -1,0 +1,92 @@
+# kernel/cs_probe (id 17): one linear-probe step of the cell store.
+# x0 = key word just read at slot P0; T0 = K + 1; T1 = mode (0 get, 1 set).
+# Outcomes (exclusive): f0 found & get -> read TAG, next 18; fm found & set -> write A.TAG at P0+1, next 23;
+# em empty & set -> write key T0 at P0, next 20; e0 empty & get -> return STATUS 1, A blank;
+# o other key -> P0 += 8 (wrap), read key, next 17.
+# Note: weights/kernel/cs_probe.md
+input 65
+slice 0 0 1                       # v1 = [k]
+slice 0 30 32                     # v2 = [T0, T1]
+concat 1 2                        # v3
+slice 0 26 27                     # v4 = [P0]
+concat 3 4                        # v5
+slice 0 9 11                      # v6 = [LR, LP]
+concat 5 6                        # v7 = [k, T0, T1, P0, LR, LP]
+dense 7 5 6                       # v8 = pre-steps
+#  k  T0  T1  P0  LR  LP
+   1  -1   0   0   0   0          # k - T0 + 0.5
+   1  -1   0   0   0   0          # k - T0 - 0.5
+   1   0   0   0   0   0          # k + 0.5
+   1   0   0   0   0   0          # k - 0.5
+   0   0   0   1   0   0          # P0 + 8 - 589823.5 (next slot past the table end)
+# biases
+   0.5 -0.5 0.5 -0.5 -589815.5
+step 8                            # v9 = s1..s5
+dense 9 3 5                       # v10 = [f, e, w]
+   1 -1  0  0  0                  # f = [k == T0]
+   0  0  1 -1  0                  # e = [k == 0]
+   0  0  0  0  1                  # w = wrap
+# biases
+   0 0 0
+concat 10 7                       # v11 = [f, e, w, k, T0, T1, P0, LR, LP]
+dense 11 3 9                      # v12 = AND pre-steps
+#  f   e   w   k  T0  T1  P0  LR  LP
+   1   0   0   0   0   1   0   0   0    # fm = f AND T1
+   0   1   0   0   0   1   0   0   0    # em = e AND T1
+  -1  -1   1   0   0   0   0   0   0    # ow = (1 - f - e) AND w
+# biases
+  -1.5 -1.5 -0.5
+step 12                           # v13 = [fm, em, ow]
+concat 11 13                      # v14 = u = [f e w k T0 T1 P0 LR LP fm em ow]
+dense 14 3 12                     # v15 = MUX_INT pre-relu, M = 2^23
+#  f   e         w  k  T0 T1 P0 LR LP fm  em        ow
+   0  -8388608   0  0  0  0  1  0  0  0   8388608   0     # rA = P0 unless e0
+   0   8388608   0  0  0  0  0  1  0  0  -8388608   0     # rN = LR if e0
+   0   8388608   0  0  0  0  0  0  1  0  -8388608   0     # rP = LP if e0
+# biases
+   0 -8388608 -8388608
+relu 15                           # v16 = [rA, rN, rP]
+slice 0 14 16                     # v17 = [A.TAG, A.PAY]
+concat 14 17                      # v18 = u2 = u + [TAG, PAY]
+dense 18 8 14                     # v19 = [fm, em, ne, ne, TAG, T0, TAG, PAY]  (ne = 1 - e0)
+#  f   e  w  k  T0 T1 P0 LR LP fm em ow TAG PAY
+   0   0  0  0  0  0  0  0  0  1  0  0  0   0     # fm
+   0   0  0  0  0  0  0  0  0  0  1  0  0   0     # em
+   0  -1  0  0  0  0  0  0  0  0  1  0  0   0     # ne = 1 - e + em
+   0  -1  0  0  0  0  0  0  0  0  1  0  0   0     # ne
+   0   0  0  0  0  0  0  0  0  0  0  0  1   0     # TAG
+   0   0  0  0  1  0  0  0  0  0  0  0  0   0     # T0
+   0   0  0  0  0  0  0  0  0  0  0  0  1   0     # TAG
+   0   0  0  0  0  0  0  0  0  0  0  0  0   1     # PAY
+# biases
+   0 0 1 1 0 0 0 0
+mul 19 0 4 4 8                    # v20 = [fm TAG, em T0, ne TAG, ne PAY]
+concat 20 16                      # v21 = [vT, vK, AT, AP, rA, rN, rP]
+concat 21 14                      # v22 = v21 + u (19 words)
+dense 22 12 19                    # v23 = words 0..7, STATUS, A.TAG, A.PAY, P0
+#  vT vK AT AP rA rN rP  f   e   w  k T0 T1 P0 LR LP fm em  ow
+   0  0  0  0  0  1  0   1 -17   0  0  0  0  0  0  0  5  20  0        # next = 17 + f + 5fm - 17e + 20em + rN
+   0  0  0  0  0  0  0   0  -1   0  0  0  0  0  0  0  1   2  0        # mem_op = 1 + fm + 2em - e
+   0  0  0  0  1  0  0  -7  -8   0  0  0  0  0  0  0  0   0 -524288   # addr = rA - 7f - 8e + 8 - 2^19 ow
+   1  1  0  0  0  0  0   0   0   0  0  0  0  0  0  0  0   0  0        # value = fm TAG + em T0
+   0  0  0  0  0  0  0   0   0   0  0  0  0  0  0  0  0   0  0        # io
+   0  0  0  0  0  0  0   0   0   0  0  0  0  0  0  0  0   0  0        # io_arg
+   0  0  0  0  0  0  0   0   0   0  0  0  0  0  0  0  0   0  0        # halt
+   0  0  0  0  0  0  1   0   0   0  0  0  0  0  0  0  0   0  0        # PC = rP
+   0  0  0  0  0  0  0   0   1   0  0  0  0  0  0  0  0  -1  0        # STATUS = e0 (1 = not found)
+   0  0  1  0  0  0  0   0   0   0  0  0  0  0  0  0  0   0  0        # A.TAG (blank on e0)
+   0  0  0  1  0  0  0   0   0   0  0  0  0  0  0  0  0   0  0        # A.PAY (blank on e0)
+   0  0  0  0  0  0  0  -8  -8   0  0  0  0  1  0  0  0   0 -524288   # P0 = P0 + 8 o - 2^19 ow
+# biases
+   17 1 8 0 0 0 0 0 0 0 0 8
+slice 23 0 8                      # v24 = words 0..7
+slice 0 9 13                      # v25 = words 8..11 pass (LR, LP, RSP, MODE)
+slice 23 8 11                     # v26 = words 12..14 (STATUS, A)
+slice 0 16 26                     # v27 = words 15..24 pass
+slice 23 11 12                    # v28 = word 25 (P0)
+slice 0 27 65                     # v29 = words 26..63 pass
+concat 24 25                      # v30
+concat 30 26                      # v31
+concat 31 27                      # v32
+concat 32 28                      # v33
+concat 33 29                      # v34 = output

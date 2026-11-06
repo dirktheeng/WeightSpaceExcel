@@ -148,3 +148,41 @@
 - Excel's cancellation snap threshold, and whether = compares exactly; needs Excel-sourced cases.
 - Range scan strategy crossover (hash per cell versus occupancy list) and the 16-cell range dependency threshold.
 - Q-G1 window size; Q-G2 full-frame speed at one pixel per step; Q-G3 unsupported characters; Q-G4 input event word format; Q-G5 scaled glyph quality.
+
+## 2026-11-06, Stage 1: input event format and black-box test protocol (Q-G4)
+
+### D19 (DECISION): one packed word per input event; tests type keystrokes and read the cell store
+- Decided: event word W = KIND 2^48 + MODS 2^40 + P (encodings/io.md). KIND 1 key down, 2 key up, 3 mouse move, 4 down, 5 up, 6 wheel, 7 double click. Key payload = UTF-16 unit + 2^16 VK (Windows virtual key code); the unit is the character the layout produced (0 for none), non-BMP and non-layout text goes as VK_PACKET (0xE7) units. Mouse payload = X + 2^16 Y + 2^32 button or wheel notches + 128.
+- Test protocol: output tests read weights/MANIFEST.txt (paths only, line = network id), pass the paths and the encoded event script to Harness(networks, events=...), and call run(0, zeros(65)). Cell entry = Ctrl+G, address, Enter, text, Enter; clearing = Ctrl+G, address, Enter, Delete. An empty event queue with MODE ready halts through HALT_OK. Results are read from raw memory: cell store by the address.md hash and probe, TAG and PAY by value.md, text from the heap, CIRC_FLAG (0x12), FAULT (0x00), and a new zero page word REJECT_COUNT (0x14) for refused entries. WEIGHT_STAGING is never read.
+- Alternatives: separate words for key, character and modifiers (3 reads per keystroke); key codes only with a layout network (keyboard layout knowledge in weights for no parity gain at this stage); a harness entry point that sets cells directly (would put application logic in the harness and is not frozen API); navigation by arrow keys (tests would depend on Enter's move direction setting).
+- Why: one read per event, exact integer fields unpacked by FLOOR with power-of-two scaling, and the test exercises the same path a user does (keyboard, edit mode, commit). Reading documented memory is observation, not weight inspection.
+- Affects: the main loop and event dispatch (ids 4 to 15) must halt on an empty queue in MODE 1; the cell entry network owns REJECT_COUNT; the manifest file is weights/MANIFEST.txt (encodings/control.md section 5 says MANIFEST.md; the coordinator chose .txt); encodings/glyph.md's Q-G4 note is now resolved by encodings/io.md. Compliance: output tests may open only static paths under tests/, weights/MANIFEST.txt and checklist/CHECKLIST.csv (AST checked).
+
+## 2026-11-06, Stage 1: control kernel and cell store (kernel agent; details in log/kernel-agent.md)
+
+- Built weights/kernel/: BOOT (0), TRAP (1), RET (2), HALT_OK (3), main loop (4 to 8), Enter commit chain (9 to 15), cell store (16 to 26), parse stub (27), rejection counter (28, 29). 30 networks, 5126 parameters in all (ev_decode 3585, cs_probe 482, boot 298, the rest 14 to 76 each). Every network has a note in weights/kernel/*.md.
+- Forward passes found one bug (cell hash used the quotient instead of the remainder; fixed in cs_hash.wt). tests/output/kernel/test_kernel.py: 20 passed. weights/MANIFEST.txt created with ids 0 to 29.
+
+### K1 (DECISION): kernel networks are single-step; routing replaces phases
+- Decided: each kernel network performs exactly one harness step; multi-step procedures are chains of networks linked by `next`, and PC stays 0 inside the kernel. Every network's output is a small dense head over a gathered slice of its input, concatenated with PASS slices.
+- Alternatives: multi-phase networks with ONEHOT(PC) and vector MUX (encodings/control.md section 3), which cost the sum of all phases' weights in every step and need a MUX over 64 words.
+- Why: routing is free and each step's network stays small (median 21 parameters); weights are easier to reason about one step at a time.
+- Affects: network id usage (one id per step: 30 ids for the kernel so far, inside the 0 to 63 range), notes have per-network step tables instead of PC tables.
+
+### K2 (DECISION): one cell store path for get and set, selected by T1
+- Decided: CELL_GET and CELL_SET both enter at id 16 with T1 = 0 or 1. The probe network writes the first word itself (TAG on a hit, KEY on an empty slot). Set writes KEY (new), TAG, PAY, FORMULA = P1, CALC = 4 CALC_GEN + 1, and bumps CELL_COUNT. NS is fixed at 0 for now. Tombstones are skipped but not reused; the occupancy list is not maintained yet.
+- Alternatives: separate get and set networks (duplicate hash weights); set as a caller of get (nested call, a return stack push and pop per write); the speculative TAG read of address.md section 4 (saves one step on hits but complicates the probe; can be added later inside cs_probe without changing the interface).
+- Why: no nesting, shared hash, set of a new cell in 9 steps, get hit in 4.
+- Affects: callers pass T1; recalculation can rely on CALC dirty marks written by every set; open items K-Q1 (NS argument), K-Q2 (full table fault 4), K-Q3 (NEXTOCC and sheet occupancy head), tombstone reuse.
+
+### K3 (DECISION): event decoding and the edit buffer
+- Decided: ev_decode handles a whole event in one step: three parallel FLOORs give VK, UNIT, KIND; Ctrl+G = KEY_DOWN, VK 0x47, UNIT 0 (UNIT is 0 whenever Ctrl is held, encodings/io.md), so MODS is not unpacked; Go To addresses accumulate in registers; typed units are packed directly into the next heap string record (one write per keystroke). Enter commits by writing the header and calling the entry parser, then CELL_SET, then moves the active cell down. Delete writes a blank value (TAG 0) rather than a tombstone.
+- Alternatives: a separate edit buffer in UI_STATE copied to the heap on Enter (one extra read and write per three units); decoding MODS bits (two more FLOORs).
+- Why: fewest steps per keystroke (2 per event including the next-event read), no copy on commit.
+- Affects: the parser receives the text as a finished heap string (TAG 2, handle); strings of rejected entries are not reclaimed (Q-M2); Backspace, Escape and arrows are not handled yet.
+
+### K4 (DECISION): manifest content and the parser hook
+- Decided: weights/MANIFEST.txt lists kernel ids 0 to 29 in `ID PATH` form; the parser id is a single bias in weights/kernel/c_parse.wt (currently 27, the stub that accepts text). The parser contract is in weights/kernel/commit.md.
+- Alternatives: a dispatch word in the zero page read at commit time (one extra step per commit, and a zero page word to reserve).
+- Why: one hand edit when the parser lands, no runtime cost.
+- Affects: weights/parse must follow the contract in commit.md (A = text handle in, value and P1 out, STATUS 0 or reject, locals preserved, LR 13 return).

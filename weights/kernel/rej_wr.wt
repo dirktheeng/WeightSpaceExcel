@@ -1,0 +1,16 @@
+# kernel/rej_wr (id 29): x0 = REJECT_COUNT. Write x0 + 1 to 0x14; next 14 (finish the commit, cell unchanged).
+# Note: weights/kernel/commit.md
+input 65
+slice 0 0 1                       # v1 = [count]
+dense 1 7 1                       # v2 = words 0..6
+   0
+   0
+   0
+   1                              # value = count + 1
+   0
+   0
+   0
+# biases
+   14 2 20 1 0 0 0
+slice 0 8 65                      # v3 = words 7..63 pass
+concat 2 3                        # v4 = output

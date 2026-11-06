@@ -1,0 +1,16 @@
+# kernel/trap (id 1): write fault code T0 (word 29) to FAULT (address 0) and halt.
+# Note: weights/kernel/trap.md
+input 65
+slice 0 30 31          # v1 = [T0]
+dense 1 7 1            # v2 = words 0..6
+  0                    # next
+  0                    # mem_op (bias 2 = write)
+  0                    # addr 0 = FAULT
+  1                    # value = T0
+  0                    # io
+  0                    # io_arg
+  0                    # halt (bias 1)
+# biases
+  1 2 0 0 0 0 1
+slice 0 8 65           # v3 = words 7..63
+concat 2 3             # v4 = output

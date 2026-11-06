@@ -1,0 +1,16 @@
+# kernel/main_poll (id 4): idle loop head. Request io 6 (harness copies queued events to 0x200000); next 5.
+# Note: weights/kernel/main_loop.md
+input 65
+slice 0 0 1                       # v1 = constant source
+dense 1 7 1                       # v2 = words 0..6
+   0
+   0
+   0
+   0
+   0
+   0
+   0
+# biases: next 5, no mem op, io 6 (input events)
+   5 0 0 0 6 0 0
+slice 0 8 65                      # v3 = words 7..63 pass
+concat 2 3                        # v4 = output

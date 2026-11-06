@@ -1,0 +1,18 @@
+# kernel/c_len (id 9): commit step 1. Write string length L4 at the string header HS = L9; next 10.
+# Note: weights/kernel/commit.md
+input 65
+slice 0 45 46                     # v1 = [len]
+slice 0 50 51                     # v2 = [HS]
+concat 1 2                        # v3 = [len, HS]
+dense 3 7 2                       # v4 = words 0..6
+   0 0                            # next (bias 10)
+   0 0                            # mem_op (bias 2)
+   0 1                            # addr = HS
+   1 0                            # value = len
+   0 0
+   0 0
+   0 0
+# biases
+   10 2 0 0 0 0 0
+slice 0 8 65                      # v5 = words 7..63 pass
+concat 4 5                        # v6 = output

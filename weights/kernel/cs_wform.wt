@@ -1,0 +1,16 @@
+# kernel/cs_wform (id 24): write P1 (formula record address, 0 for a constant) at P0 + 3; next 25.
+# Note: weights/kernel/cs_store_chain.md
+input 65
+slice 0 26 28                     # v1 = [P0, P1]
+dense 1 7 2                       # v2 = words 0..6
+   0 0                            # next (bias 25)
+   0 0                            # mem_op (bias 2)
+   1 0                            # addr = P0 + 3
+   0 1                            # value = P1
+   0 0
+   0 0
+   0 0
+# biases
+   25 2 3 0 0 0 0
+slice 0 8 65                      # v3 = words 7..63 pass
+concat 2 3                        # v4 = output

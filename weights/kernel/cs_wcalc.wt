@@ -1,0 +1,29 @@
+# kernel/cs_wcalc (id 26): x0 = CALC_GEN. Write CALC = 4 CALC_GEN + 1 (dirty) at P0 + 6,
+# STATUS 0, return to (LR, LP).
+# Note: weights/kernel/cs_store_chain.md
+input 65
+slice 0 0 1                       # v1 = [gen]
+slice 0 26 27                     # v2 = [P0]
+concat 1 2                        # v3
+slice 0 9 11                      # v4 = [LR, LP]
+concat 3 4                        # v5 = [gen, P0, LR, LP]
+dense 5 8 4                       # v6 = words 0..7
+#  gen P0 LR LP
+   0   0  1  0                    # next = LR
+   0   0  0  0                    # mem_op (bias 2)
+   0   1  0  0                    # addr = P0 + 6
+   4   0  0  0                    # value = 4 gen + 1
+   0   0  0  0
+   0   0  0  0
+   0   0  0  0
+   0   0  0  1                    # PC = LP
+# biases
+   0 2 6 1 0 0 0 0
+slice 0 9 13                      # v7 = words 8..11 pass
+dense 5 1 4                       # v8 = STATUS 0
+   0 0 0 0
+   0
+slice 0 14 65                     # v9 = words 13..63 pass
+concat 6 7                        # v10
+concat 10 8                       # v11
+concat 11 9                       # v12 = output

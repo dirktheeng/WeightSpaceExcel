@@ -1,0 +1,18 @@
+# kernel/cs_wpay (id 23): write A.PAY at P0 + 2; next 24.
+# Note: weights/kernel/cs_store_chain.md
+input 65
+slice 0 15 16                     # v1 = [A.PAY]
+slice 0 26 27                     # v2 = [P0]
+concat 1 2                        # v3 = [PAY, P0]
+dense 3 7 2                       # v4 = words 0..6
+   0 0                            # next (bias 24)
+   0 0                            # mem_op (bias 2)
+   0 1                            # addr = P0 + 2
+   1 0                            # value = PAY (R1, weight 1: exact for any double)
+   0 0
+   0 0
+   0 0
+# biases
+   24 2 2 0 0 0 0
+slice 0 8 65                      # v5 = words 7..63 pass
+concat 4 5                        # v6 = output

@@ -1,0 +1,18 @@
+# kernel/cs_wtag (id 22): write A.TAG at P0 + 1; next 23.
+# Note: weights/kernel/cs_store_chain.md
+input 65
+slice 0 14 15                     # v1 = [A.TAG]
+slice 0 26 27                     # v2 = [P0]
+concat 1 2                        # v3 = [TAG, P0]
+dense 3 7 2                       # v4 = words 0..6
+   0 0                            # next (bias 23)
+   0 0                            # mem_op (bias 2)
+   0 1                            # addr = P0 + 1
+   1 0                            # value = TAG
+   0 0
+   0 0
+   0 0
+# biases
+   23 2 1 0 0 0 0
+slice 0 8 65                      # v5 = words 7..63 pass
+concat 4 5                        # v6 = output

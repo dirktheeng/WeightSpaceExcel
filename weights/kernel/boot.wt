@@ -1,0 +1,60 @@
+# kernel/boot (id 0): first network, run(0, zeros(65)). Ten steps, PC = 0..9.
+# PC 0..8 write one zero page global each; PC 9 enters the main loop (id 4).
+# Note: weights/kernel/boot.md
+input 65
+slice 0 8 9                       # v1 = [PC]
+dense 1 10 1                      # v2 = PC - k + 0.5, k = 0..9 (thermometer pre-steps)
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+# biases
+  0.5 -0.5 -1.5 -2.5 -3.5 -4.5 -5.5 -6.5 -7.5 -8.5
+step 2                            # v3 = t_k = [PC >= k]
+dense 3 10 10                     # v4 = o_k = t_k - t_(k+1), o_9 = t_9 (one-hot of PC)
+# t0 t1 t2 t3 t4 t5 t6 t7 t8 t9
+   1 -1  0  0  0  0  0  0  0  0
+   0  1 -1  0  0  0  0  0  0  0
+   0  0  1 -1  0  0  0  0  0  0
+   0  0  0  1 -1  0  0  0  0  0
+   0  0  0  0  1 -1  0  0  0  0
+   0  0  0  0  0  1 -1  0  0  0
+   0  0  0  0  0  0  1 -1  0  0
+   0  0  0  0  0  0  0  1 -1  0
+   0  0  0  0  0  0  0  0  1 -1
+   0  0  0  0  0  0  0  0  0  1
+# biases
+   0  0  0  0  0  0  0  0  0  0
+concat 4 1                        # v5 = [o0..o9, PC]
+dense 5 12 11                     # v6 = words 0..11
+#  o0      o1     o2     o3   o4   o5    o6     o7  o8      o9  PC
+   0       0      0      0    0    0     0      0   0       4   0    # next: main loop (4) at PC 9, else boot (0)
+   2       2      2      2    2    2     2      2   2       0   0    # mem_op write for PC 0..8
+   1       2      4      5    10   11    13     15  17      0   0    # addr: zero page word
+   3153922 589824 786432 512  100  0.001 720896 1   3932160 0   0    # value
+   0       0      0      0    0    0     0      0   0       0   0    # io
+   0       0      0      0    0    0     0      0   0       0   0    # io_arg
+   0       0      0      0    0    0     0      0   0       0   0    # halt
+   0       0      0      0    0    0     0      0   0     -10   1    # PC: PC + 1 (bias), minus 10 at PC 9 gives 0
+   0       0      0      0    0    0     0      0   0       0   0    # LR
+   0       0      0      0    0    0     0      0   0       0   0    # LP
+   0       0      0      0    0    0     0      0   0       0   0    # RSP (bias 256)
+   0       0      0      0    0    0     0      0   0       1   0    # MODE: 1 ready at PC 9
+# biases
+   0 0 0 0 0 0 0 1 0 0 256 0
+slice 0 13 49                     # v7 = words 12..47 (zero at boot)
+dense 5 2 11                      # v8 = words 48, 49 (L8, L9): heap write pointer and string start
+   0 0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0 0
+# biases: L8 = 0x302004 (first packed word of the first string), L9 = 0x302002 (HEAP_TOP at boot)
+   3153924 3153922
+slice 0 51 65                     # v9 = words 50..63
+concat 6 7                        # v10
+concat 10 8                       # v11
+concat 11 9                       # v12 = output (12 + 36 + 2 + 14 = 64)

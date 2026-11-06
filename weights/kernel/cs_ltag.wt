@@ -1,0 +1,22 @@
+# kernel/cs_ltag (id 18): found (get). x0 = TAG read at P0+1. A.TAG = x0; read PAY at P0+2; next 19.
+# Note: weights/kernel/cs_store_chain.md
+input 65
+slice 0 0 1                       # v1 = [TAG]
+slice 0 26 27                     # v2 = [P0]
+concat 1 2                        # v3 = [TAG, P0]
+dense 3 8 2                       # v4 = words 0..7
+   0 0                            # next (bias 19)
+   0 0                            # mem_op (bias 1 read)
+   0 1                            # addr = P0 + 2
+   0 0                            # value
+   0 0                            # io
+   0 0                            # io_arg
+   0 0                            # halt
+   0 0                            # PC 0
+# biases
+   19 1 2 0 0 0 0 0
+slice 0 9 14                      # v5 = words 8..12 pass
+slice 0 15 65                     # v6 = words 14..63 pass
+concat 4 5                        # v7
+concat 7 1                        # v8 (word 13 = A.TAG = x0)
+concat 8 6                        # v9 = output

@@ -1,0 +1,16 @@
+# kernel/c_done_rd (id 14): commit step 6. Read HEAP_TOP (0x01), which the parser may have moved; next 15.
+# Note: weights/kernel/commit.md
+input 65
+slice 0 0 1                       # v1 = constant source
+dense 1 7 1                       # v2 = words 0..6
+   0
+   0
+   0
+   0
+   0
+   0
+   0
+# biases: next 15, read, addr 1
+   15 1 1 0 0 0 0
+slice 0 8 65                      # v3 = words 7..63 pass
+concat 2 3                        # v4 = output

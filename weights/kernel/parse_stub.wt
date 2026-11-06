@@ -1,0 +1,24 @@
+# kernel/parse_stub (id 27): stand-in entry parser. Accepts any text as a text constant:
+# returns to (LR, LP) with STATUS 0, A and P1 unchanged.
+# Note: weights/kernel/commit.md
+input 65
+slice 0 9 11                      # v1 = [LR, LP]
+dense 1 8 2                       # v2 = words 0..7
+   1 0                            # next = LR
+   0 0
+   0 0
+   0 0
+   0 0
+   0 0
+   0 0
+   0 1                            # PC = LP
+# biases
+   0 0 0 0 0 0 0 0
+slice 0 9 13                      # v3 = words 8..11 pass
+dense 1 1 2                       # v4 = STATUS 0
+   0 0
+   0
+slice 0 14 65                     # v5 = words 13..63 pass
+concat 2 3                        # v6
+concat 6 4                        # v7
+concat 7 5                        # v8 = output

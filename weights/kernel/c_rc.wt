@@ -1,0 +1,16 @@
+# kernel/c_rc (id 10): commit step 2. Write reference count 1 at HS + 1; next 11.
+# Note: weights/kernel/commit.md
+input 65
+slice 0 50 51                     # v1 = [HS]
+dense 1 7 1                       # v2 = words 0..6
+   0                              # next (bias 11)
+   0                              # mem_op (bias 2)
+   1                              # addr = HS + 1
+   0                              # value (bias 1)
+   0
+   0
+   0
+# biases
+   11 2 1 1 0 0 0
+slice 0 8 65                      # v3 = words 7..63 pass
+concat 2 3                        # v4 = output
