@@ -196,3 +196,10 @@
 373 weights/func/lookup/lk_wa.wt
 374 weights/func/lookup/lk_wb.wt
 207 weights/format/fx_expd.wt
+30 weights/func/core/fs_sum.wt
+31 weights/func/core/fs_item.wt
+32 weights/func/core/fs_cell.wt
+33 weights/func/core/fs_rng.wt
+34 weights/func/core/fs_blk.wt
+35 weights/func/core/fs_uni.wt
+302 weights/func/logic/lg_csel.wt

@@ -1,0 +1,45 @@
+# func/text/tx_t (id 318): T core, one step, no memory. A = any value. Text and errors are returned
+# unchanged; every other type gives "" (2, TEXT_EMPTY = 0x302000). Return (LR, LP).
+# Note: weights/func/text/tx_t.md
+input 65
+slice 0 9 11                      # v1 [LR LP]
+slice 0 14 16                     # v2 [TAG PAY]
+concat 1 2                        # v3 G: 0 LR 1 LP 2 TAG 3 PAY
+dense 3 4 4                       # v4
+  0 0 1 0
+  0 0 1 0
+  0 0 1 0
+  0 0 1 0
+  -1.5 -2.5 -3.5 -4.5
+step 4                            # v5
+dense 5 1 4                       # v6 k = IS2 + IS4
+  1 -1 1 -1
+  0
+concat 3 6                        # v7 [LR LP TAG PAY k]
+dense 7 1 5                       # v8 TAG - M (1 - k)
+  0 0 1 0 8388608
+  -8388608
+relu 8                            # v9 rt
+slice 7 3 5                       # v10 [PAY k]
+mul 10 1 2 0 1                    # v11 mp = k PAY
+concat 7 9
+concat 12 11                      # v13: 0 LR 1 LP 2 TAG 3 PAY 4 k 5 rt 6 mp
+dense 13 8 7                      # v14 words 0..7
+  1 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  0 0 0 0 0 0 0
+  0 1 0 0 0 0 0
+  0 0 0 0 0 0 0 0
+dense 13 2 7                      # v15 [A.TAG', A.PAY']
+  0 0 0 0 -2 1 0
+  0 0 0 0 -3153920 0 1
+  2 3153920
+slice 0 9 14                      # v16 words 8..12
+slice 0 16 65                     # v17 words 15..63
+concat 14 16
+concat 18 15
+concat 19 17                      # v20 output (64)

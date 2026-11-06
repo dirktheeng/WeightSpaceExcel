@@ -474,3 +474,31 @@
 - Alternatives: separate LN and EXP networks (two more ids, none left in 80..117); a table-driven reduction (larger, needs exact table products).
 - Why: one step per ^; all overflow decided exactly without forming an infinity (V1).
 - Affects: ev_pow0, ev_pow2; LN and EXP blocks can be retyped by stage 3 functions (LN, EXP, POWER, SQRT).
+
+## 2026-11-06, Stage 3: Text function cores (func-text agent; details in log/func-text-agent.md)
+
+- Built weights/func/text/: tx_len 312, tx_code 313, tx_case 314, tx_exact 315, tx_mid 316, tx_char 317, tx_t 318 (7 networks, 7045 parameters). Notes beside each file and README.md. MANIFEST.txt lines appended. tests/output/func_text/test_func_text.py: 121 passed.
+
+### T1 (DECISION): cores before the ABI
+- Decided: each Text function is a core subroutine with register arguments (A, B, C, mode in N0), called by (LR, LP) and returning in A, with arguments already coerced (text or error; number or error).
+- Alternatives: wait for encodings/functions.md; build coercion into every core.
+- Why: the ABI did not exist; coercion is shared by every function family and belongs in the wrapper (ev_totext 110, ev_t2n 109 exist).
+- Affects: ABI wrappers needed at 319 onward (or in the ABI owner's generic wrapper) before any formula can reach these cores.
+
+### T2 (DECISION): heap top in word 23 (HT), as the evaluator keeps it
+- Decided: string-building cores allocate at word 23 and return it advanced; they never read or write HEAP_TOP (zero page 0x01).
+- Why: no memory steps for allocation; matches ev_cat and rc_fin (which writes HT back after recalculation).
+- Affects: any caller outside recalculation must load HEAP_TOP into word 23 before the call and store it after.
+
+### T3 (DECISION): one MID core realigns packed words; LEFT and RIGHT are wrappers over it
+- Decided: substrings are built word by word from a pair (previous, current) of source words and the offset start mod 3, two steps per 3 output units, with the last word masked.
+- Alternatives: unit-at-a-time copy (6 steps per 3 units); separate LEFT (aligned) network.
+- Why: one network covers LEFT, RIGHT, MID and later REPLACE/SUBSTITUTE pieces.
+
+### T4 (DECISION): single-step block-write networks always use mem_op 3
+- Decided: tx_char always outputs mem_op 3 with K = 64 and N = 0 or 3, so its output length 67 never reaches the successor.
+- Why: with mem_op 0 the harness forwards all 67 words and the successor (65 inputs) refuses. This applies to any network with a block-write payload that sometimes writes nothing.
+
+### Requests for other owners
+- ABI owner: wrappers must not leave a read result above 2^23 in word 0 if any callee uses relu muxes on x0 (my cores are safe: covered by tests); worth stating in functions.md as a general rule.
+- Coordinator: checklist items with core-level tests passing (no formula-level test yet, so not "done" end to end): LEN, LENB (same core), CODE (ASCII and BMP; not the Windows-1252 reverse), UPPER, LOWER (Latin-1 only), EXACT, MID, LEFT, RIGHT (with wrappers), CHAR, UNICHAR, UNICODE (BMP), T.

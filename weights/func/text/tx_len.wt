@@ -1,0 +1,52 @@
+# func/text/tx_len (id 312): LEN core. A = text (2, handle) or error. Result A = (1, length) or the error.
+# PC 0: error -> return unchanged; text -> read [handle], next self PC 1. PC 1: A = (1, x0), return (LR, LP).
+# Note: weights/func/text/tx_len.md
+input 65
+slice 0 0 1                       # v1 x0
+slice 0 8 11                      # v2 [PC LR LP]
+slice 0 14 16                     # v3 [TAG PAY]
+concat 1 2                        # v4
+concat 4 3                        # v5 G: 0 x0 1 PC 2 LR 3 LP 4 TAG 5 PAY
+dense 5 3 6                       # v6 thresholds
+  0 1 0 0 0 0
+  0 0 0 0 1 0
+  0 0 0 0 1 0
+  -0.5 -3.5 -4.5
+step 6                            # v7 [p1, t35, t45]; error e = t35 - t45
+dense 7 1 3                       # v8 g = PC 0 and not error
+  -1 -1 1
+  0.5
+step 8                            # v9 g
+concat 5 7                        # v10
+concat 10 9                       # v11 H: 0..5 G, 6 p1 7 t35 8 t45 9 g
+dense 11 3 10                     # v12 MUX_INT relus, M = 2^23
+  0 0 1 0 0 0 0 0 0 -8388608
+  0 0 0 1 0 0 0 0 0 -8388608
+  0 0 0 0 0 1 -8388608 0 0 0
+  0 0 0
+relu 12                           # v13 [a = LR(1-g), b = LP(1-g), c = PAY(1-p1)]
+slice 11 6 7                      # v14 p1
+slice 11 0 1                      # v15 x0
+concat 14 15                      # v16
+mul 16 0 1 1 2                    # v17 d = p1 x0 (mul: x0 may be any finite read result in PC 0)
+concat 11 13                      # v18
+concat 18 17                      # v19 K: 0..9 H, 10 a 11 b 12 c 13 d
+dense 19 8 14                     # v20 words 0..7
+  0 0 0 0 0 0 0 0 0 312 1 0 0 0
+  0 0 0 0 0 0 0 0 0 1 0 0 0 0
+  0 0 0 0 0 1 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 1 0 1 0 0
+  0 0 0 0 0 0 0 0
+dense 19 2 14                     # v21 [A.TAG', A.PAY']
+  0 0 0 0 1 0 -1 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 1 1
+  0 0
+slice 0 9 14                      # v22 words 8..12
+slice 0 16 65                     # v23 words 15..63
+concat 20 22
+concat 24 21
+concat 25 23                      # v26 output (64)

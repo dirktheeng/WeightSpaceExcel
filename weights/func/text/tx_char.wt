@@ -1,0 +1,187 @@
+# func/text/tx_char (id 317): CHAR / UNICHAR core, one step. A = number or error; N0 = 0 CHAR, 1 UNICHAR.
+# n = TRUNC(A.PAY) (clamped to +-2^23 first). CHAR: 1 <= n <= 255, Windows-1252 (128..159 mapped to
+# their Unicode code points), else #VALUE!. UNICHAR: 1 <= n <= 1114111, else #VALUE!; surrogate code
+# points 55296..57343 give #N/A; n >= 65536 gives a surrogate pair (2 units).
+# Always mem_op 3 (K = 64); N = 3 when valid: block write [length, 1, packed word] at HT, A = (2, HT), HT += 3. Return (LR, LP).
+# Note: weights/func/text/tx_char.md
+input 65
+slice 0 9 11                      # v1 [LR LP]
+slice 0 14 16                     # v2 [AT AP]
+slice 0 24 25                     # v3 HT
+slice 0 28 29                     # v4 op = N0
+concat 1 2
+concat 5 3
+concat 6 4                        # v7 G: 0 LR 1 LP 2 AT 3 AP 4 HT 5 op
+# ---- f = FLOOR(clamp(AP, -K, K)), K = 2^23 (same block as tx_mid)
+dense 7 1 6                       # v8 K - AP
+  0 0 0 -1 0 0
+  8388608
+relu 8                            # v9
+dense 9 1 1                       # v10 2K - m1
+  -1
+  16777216
+relu 10                           # v11 m2 = clamp + K
+dense 11 1 1                      # v12 clamp + C
+  1
+  6755399432667136
+dense 12 1 1                      # v13 r
+  1
+  -6755399441055744
+concat 13 11                      # v14 [r m2]
+dense 14 1 2                      # v15 r - clamp
+  1 -1
+  8388608
+step 15                           # v16 s
+concat 13 16                      # v17
+dense 17 1 2                      # v18 f
+  1 -1
+  0
+# ---- thresholds on f: g1 g256 s55 s57 two big, then thermometer t128 .. t160 (t_k = [f >= k])
+dense 18 39 1                     # v19
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  1
+  -0.5 -255.5 -55295.5 -57343.5 -65535.5 -1114111.5
+  -127.5 -128.5 -129.5 -130.5 -131.5 -132.5 -133.5 -134.5 -135.5 -136.5 -137.5
+  -138.5 -139.5 -140.5 -141.5 -142.5 -143.5 -144.5 -145.5 -146.5 -147.5 -148.5
+  -149.5 -150.5 -151.5 -152.5 -153.5 -154.5 -155.5 -156.5 -157.5 -158.5 -159.5
+step 19                           # v20 TB
+# ---- surrogate pair for UNICHAR n >= 65536: q = FLOOR((f - 65536) / 1024)
+dense 18 1 1                      # v21 y = f / 1024 - 64 (exact)
+  0.0009765625
+  -64
+dense 21 1 1                      # v22
+  1
+  6755399441055744
+dense 22 1 1                      # v23 rq
+  1
+  -6755399441055744
+concat 23 21                      # v24
+dense 24 1 2                      # v25 rq - y
+  1 -1
+  0
+step 25                           # v26
+concat 23 26                      # v27
+dense 27 1 2                      # v28 q
+  1 -1
+  0
+concat 18 28                      # v29 [f q]
+dense 29 1 2                      # v30 word2 = (55296 + q) + 65536 (56320 + f - 65536 - 1024 q)
+  65536 -67108863
+  -603924480
+# ---- Windows-1252 delta for 128..159: sum_k t_k (d_k - d_(k-1)), d_k = codepoint(k) - k
+dense 20 1 39                     # v31
+  0 0 0 0 0 0
+  8236 -8236 8088 -7817 7819 7 -7 0 -7516 7529 -7889
+  7896 -7912 -198 239 -239 0 8071 0 2 0 4
+  -16 0 -7481 7749 -8130 7896 -7912 -183 224 -7 -217
+  0
+dense 7 1 6                       # v32 1 - op
+  0 0 0 0 0 -1
+  1
+concat 32 31                      # v33
+mul 33 0 1 1 2                    # v34 md = (1 - op) delta
+concat 18 34                      # v35
+dense 35 1 2                      # v36 unit1 = f + md
+  1 1
+  0
+# ---- validity
+concat 7 20                       # v37 (45): G 0..5, TB 6..44 (6 g1 7 g256 8 s55 9 s57 10 two 11 big)
+dense 37 5 45                     # v38 [eA eV1 eV2 eN t2]
+  0 0 1 0 0 0  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 -1  -1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 1  -1 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 1  0 0 1 -1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 1  0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  -3.5 0.5 -0.5 -1.5 -1.5
+step 38                           # v39
+dense 39 3 5                      # v40 [xV xN ok]
+  -1 1 1 0 0
+  -1 0 0 1 0
+  -1 -1 -1 -1 0
+  -0.5 -0.5 0.5
+step 40                           # v41
+slice 39 0 1                      # v42 eA
+slice 7 3 4                       # v43 AP
+concat 42 43
+mul 44 0 1 1 2                    # v45 mA = eA AP
+concat 7 39
+concat 46 41
+concat 47 45
+concat 48 36
+concat 49 30                      # v50 (17): 0 LR 1 LP 2 AT 3 AP 4 HT 5 op 6 eA 7 eV1 8 eV2 9 eN 10 t2
+#                                   11 xV 12 xN 13 ok 14 mA 15 unit1 16 word2
+dense 50 3 17                     # v51 [hp wa wb], M = 2^23, MB = 2^49
+  0 0 0 0 1 0 0 0 0 0 0 0 0 8388608 0 0 0
+  0 0 0 0 0 0 0 0 0 0 -562949953421312 0 0 0 0 1 0
+  0 0 0 0 0 0 0 0 0 0 562949953421312 0 0 0 0 0 1
+  -8388608 0 -562949953421312
+relu 51                           # v52
+concat 50 52                      # v53 (20): 17 hp 18 wa 19 wb
+dense 53 8 20                     # v54 words 0..7
+  1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 3 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 3 0 67108864 0 0 0 0
+dense 53 2 20                     # v55 [A.TAG', A.PAY']
+  0 0 1 0 0 0 0 0 0 0 0 3 3 1 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 3 7 0 1 0 0 1 0 0
+  0 0
+dense 53 1 20                     # v56 HT' = HT + 3 ok
+  0 0 0 0 1 0 0 0 0 0 0 0 0 3 0 0 0 0 0 0
+  0
+dense 53 3 20                     # v57 payload [length, refcount, word]
+  0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1
+  1 1 0
+slice 0 9 14                      # v58 words 8..12
+slice 0 16 24                     # v59 words 15..22
+slice 0 25 65                     # v60 words 24..63
+concat 54 58
+concat 61 55
+concat 62 59
+concat 63 56
+concat 64 60
+concat 65 57                      # v66 output (67): state 0..63, payload 64..66

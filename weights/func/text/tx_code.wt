@@ -1,0 +1,72 @@
+# func/text/tx_code (id 313): CODE / UNICODE core. A = text or error. Result A = (1, first UTF-16 unit),
+# #VALUE! (4, 3) for "", or the error unchanged.
+# PC 0: error -> return; else read [h] (length), PC 1. PC 1: length 0 -> A = #VALUE!, return; else read
+# [h + 2] (first packed word), PC 2. PC 2: A = (1, word mod 2^16), return (LR, LP).
+# Note: weights/func/text/tx_code.md
+input 65
+slice 0 0 1                       # v1 x0
+slice 0 8 11                      # v2 [PC LR LP]
+slice 0 14 16                     # v3 [TAG PAY]
+concat 1 2                        # v4
+concat 4 3                        # v5 G: 0 x0 1 PC 2 LR 3 LP 4 TAG 5 PAY
+dense 5 5 6                       # v6 thresholds
+  0 1 0 0 0 0
+  0 1 0 0 0 0
+  0 0 0 0 1 0
+  0 0 0 0 1 0
+  -1 0 0 0 0 0
+  -0.5 -1.5 -3.5 -4.5 0.5
+step 6                            # v7 [q1 q2 t35 t45 z]
+dense 7 3 5                       # v8 [g0 g1 ez]
+  -1 0 -1 1 0
+  1 -1 0 0 -1
+  1 -1 0 0 1
+  0.5 -0.5 -1.5
+step 8                            # v9
+dense 1 1 1                       # v10 x0 2^-16 + C (ROUND, D5)
+  0.0000152587890625
+  6755399441055744
+dense 10 1 1                      # v11 r = ROUND(x0 2^-16)
+  1
+  -6755399441055744
+concat 1 11                       # v12 [x0 r]
+dense 12 1 2                      # v13 r - y
+  -0.0000152587890625 1
+  0
+step 13                           # v14 s = [r > y]
+concat 12 14                      # v15 [x0 r s]
+dense 15 1 3                      # v16 c0 = x0 - 65536 FLOOR(y)
+  1 -65536 65536
+  0
+concat 7 9                        # v17 I: 0 q1 1 q2 2 t35 3 t45 4 z 5 g0 6 g1 7 ez
+slice 17 1 2                      # v18 q2
+concat 18 16                      # v19 [q2 c0]
+mul 19 0 1 1 2                    # v20 m = q2 c0
+concat 5 17                       # v21
+concat 21 20                      # v22 (15): 0..5 G, 6..13 I, 14 m
+dense 22 3 15                     # v23 MUX_INT relus, M = 2^23
+  0 0 1 0 0 0 0 0 0 0 0 -8388608 -8388608 0 0
+  0 0 0 1 0 0 0 0 0 0 0 -8388608 -8388608 0 0
+  0 0 0 0 0 1 0 -8388608 0 0 0 0 0 -8388608 0
+  0 0 0
+relu 23                           # v24 [a b c]
+concat 22 24                      # v25 (18): 15 a 16 b 17 c
+dense 25 8 18                     # v26 words 0..7
+  0 0 0 0 0 0 0 0 0 0 0 313 313 0 0 1 0 0
+  0 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 0 0
+  0 0 0 0 0 1 0 0 0 0 0 0 2 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 1 2 0 0 0 1 0
+  0 0 0 0 0 0 0 0
+dense 25 2 18                     # v27 [A.TAG', A.PAY']
+  0 0 0 0 1 0 0 -1 0 0 0 0 0 2 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 3 1 0 0 1
+  0 0
+slice 0 9 14                      # v28 words 8..12
+slice 0 16 65                     # v29 words 15..63
+concat 26 28
+concat 30 27
+concat 31 29                      # v32 output (64)
