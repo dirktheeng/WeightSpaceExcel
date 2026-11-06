@@ -40,3 +40,5 @@ Active sheet is always 0 (CUR_SHEET not read yet). The active cell is kept in re
 **Limits.** No wait loop for interactive use (io.md: future MODE and decision record). **Multi-role weights.** None in these four.
 
 **Tests.** tests/output/kernel/test_kernel.py main loop group, including test_long_queue_crosses_event_chunks (more than 4095 event words, so at least two batches).
+
+**Change 2026-11-06 (UI hook, authorized by the coordinator; UI agent).** ev_next's batch-done route now goes to the UI incremental redraw (153), which ends at main_poll (4): next = 153 - 146 c (bias 4 -> 153, c weight 3 -> -146). Each processed batch therefore costs one incremental frame (about 300 steps when no visible cell changed, about 600 plus repaints when one did). Log: log/WORKLOG.md U9.

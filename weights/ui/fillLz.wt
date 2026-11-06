@@ -1,0 +1,59 @@
+# ui/fillLz (id 173): pattern fill, last row and it is a grid line row. Input 1345 (P ignored).
+# Output = 64 state words + 1280 words of line colour; block write at FB + 1280 y + x0 with
+# K = 64, N = clipped width; returns to (LR, LP). Note: weights/ui/fill.md.  M = 2^20
+input 1345
+slice 0 29 39                     # v1 = [y x0 x1 y1 bg ln fx fy cR cB]
+dense 1 3 10                      # v2 = pre [wy, x1 - cR, -]
+   -1 0 0 0 0 0 0 0 0 1
+   0  0 1 0 0 0 0 0 -1 0
+   0  0 0 0 0 0 0 0 0 0
+   0.5 0 0
+step 2                            # v3 = [wy . .]
+relu 2                            # v4 = [. exr .]
+slice 3 0 1                       # v5 = [wy]
+slice 4 1 2                       # v6 = [exr]
+concat 1 5                        # v7 = 11: 10 wy
+concat 7 6                        # v8 = 12: 11 exr
+dense 8 1 12                      # v9 = w = min(x1, cR) - x0 + 1
+   0 -1 1 0 0 0 0 0 0 0 0 -1
+   1
+relu 9                            # v10 = w
+concat 8 10                       # v11 = 13: 12 w
+dense 11 2 13                     # v12 = [N pre, cy = y - 799]
+   0 0 0 0 0 0 0 0 0 0 4096 0 1
+   1 0 0 0 0 0 0 0 0 0 0    0 0
+   -4096 -799
+relu 12                           # v13 = [N cy]
+concat 11 13                      # v14 = 15: 13 N 14 cy
+slice 0 9 11                      # v15 = [LR LP]
+concat 14 15                      # v16 = 17: 15 LR 16 LP
+dense 16 8 17                     # v17 = words 0..7
+#  y    x0 x1 y1 bg ln fx fy cR cB wy exr w N cy    LR LP
+   0    0  0  0  0  0  0  0  0  0  0  0   0 0 0     1  0      # next = LR
+   0    0  0  0  0  0  0  0  0  0  0  0   0 0 0     0  0      # mem_op 3
+   1280 1  0  0  0  0  0  0  0  0  0  0   0 0 -1280 0  0      # addr (y clamped to 799)
+   0    0  0  0  0  0  0  0  0  0  0  0   0 1 0     0  0      # value = 64 2^20 + N
+   0    0  0  0  0  0  0  0  0  0  0  0   0 0 0     0  0
+   0    0  0  0  0  0  0  0  0  0  0  0   0 0 0     0  0
+   0    0  0  0  0  0  0  0  0  0  0  0   0 0 0     0  0
+   0    0  0  0  0  0  0  0  0  0  0  0   0 0 0     0  1      # PC = LP
+   0 3 1048576 67108864 0 0 0 0
+slice 0 9 65                      # v18 = words 8..63 pass
+slice 1 5 6                       # v19 = [ln]
+dense 19 64 1                     # v20 (64) = ln broadcast (materialised)
+   1 1 1 1 1 1 1 1  1 1 1 1 1 1 1 1  1 1 1 1 1 1 1 1  1 1 1 1 1 1 1 1
+   1 1 1 1 1 1 1 1  1 1 1 1 1 1 1 1  1 1 1 1 1 1 1 1  1 1 1 1 1 1 1 1
+   0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0
+concat 20 20                      # v21 (128)
+concat 21 21                      # v22 (256)
+concat 22 22                      # v23 (512)
+concat 23 23                      # v24 (1024)
+concat 24 22                      # v25 (1280)
+slice 25 0 1                      # v26 unused
+slice 25 0 1                      # v27 unused
+slice 25 0 1                      # v28 unused
+slice 25 0 1                      # v29 unused
+identity 25                       # v30 (1280)
+concat 17 18                      # v31 = 64 state words
+concat 31 30                      # v32 = output

@@ -1,0 +1,62 @@
+# ui/sg1 (id 177): cell scan change gate, step 2. key = (HEAP_TOP - 0x302002) + 2^20 CELL_COUNT.
+# Equal to UI_SCANKEY (0x43): nothing can have changed (every commit moves HEAP_TOP; deletes
+# change CELL_COUNT; the edit echo stores -1) -> return to (L22, L23). Otherwise write the key
+# to 0x43 and start the scan at row 0 (sr, 178) with L12 = L13 = 0, L19 = 0, L20 = 0.
+# Note: weights/ui/scan.md.  M = 2^20
+input 132
+slice 0 65 66                     # v1 = [heap]
+slice 0 76 77                     # v2 = [count]
+slice 0 131 132                   # v3 = [stored]
+slice 0 63 65                     # v4 = [L22 L23]
+concat 1 2
+concat 5 3
+concat 6 4                        # v7 = [heap count stored L22 L23]
+dense 7 1 5                       # v8 = key
+   1 1048576 0 0 0
+   -3153922
+concat 7 8                        # v9 = [heap count stored L22 L23 key]
+dense 9 2 6                       # v10 = [key > stored, key < stored]
+   0 0 -1 0 0 1
+   0 0 1  0 0 -1
+   0 0
+step 10                           # v11
+dense 11 1 2                      # v12 = ne
+   1 1
+   0
+concat 9 12                       # v13 = [heap count stored L22 L23 key ne]
+dense 13 3 7                      # v14 = MUX_INT, M = 2^20
+   0 0 0 1 0 0 -1048576           # L22 (1 - ne)
+   0 0 0 0 1 0 -1048576           # L23 (1 - ne)
+   0 0 0 0 0 0 1048576            # 178 ne
+   0 0 -1048398
+relu 14                           # v15 = [nR pR nS]
+concat 13 15                      # v16 = 10: 7 nR 8 pR 9 nS
+dense 16 8 10                     # v17 = words 0..7
+   0 0 0 0 0 0 0 1 0 1            # next
+   0 0 0 0 0 0 2 0 0 0            # mem_op = 2 ne
+   0 0 0 0 0 0 67 0 0 0           # addr = 0x43 ne
+   0 0 0 0 0 1 0 0 0 0            # value = key
+   0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 1 0            # PC
+   0 0 0 0 0 0 0 0
+slice 0 9 53                      # v18 = words 8..51 pass
+dense 16 2 10                     # v19 = L12 = L13 = 0
+   0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0
+   0 0
+slice 0 55 59                     # v20 = words 54..57 pass
+dense 16 3 10                     # v21 = L18 pass is below; here L19 = 0, L20 = 0, L21 = 0
+   0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0
+   0 0 0
+slice 0 58 59                     # v22 = word 58 (L18) pass
+slice 0 63 65                     # v23 = words 62..63
+concat 17 18
+concat 24 19
+concat 25 20                      # v26 = words 0..57
+concat 26 22                      # v27 ..58
+concat 27 21                      # v28 ..61
+concat 28 23                      # v29 = output (64)

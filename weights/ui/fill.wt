@@ -1,86 +1,102 @@
-# ui/fill (id 128): rectangle fill, one pixel per step, solid or grid pattern, with clip box.
-# Args: N0 x, N1 y (current pixel), T0 x0, T1 x1, T2 y1 (inclusive), T3 bg, T4 line colour,
-# T5 fx, T6 fy (pattern flags), T7 clipR, T8 clipB. Returns to (LR, LP) after the last pixel.
+# ui/fill (id 128, v2 block ops): rectangle fill entry and solid-row loop.
+# Args: N1 y (current row, = y0 on entry), T0 x0, T1 x1, T2 y1 (inclusive), T3 bg, T4 line colour,
+# T5 fx, T6 fy (pattern flags), T7 clipR, T8 clipB. Returns to (LR, LP) after the last row.
+# fx = 0: one block write per scanline (colour = line on grid rows if fy, else bg), this network loops.
+# fx = 1: one block write of the 2560-word pattern ROM at 0x0F8000 (absolute x phase), then 170.
 # Note: weights/ui/fill.md.  C = 6755399441055744, M = 2^25 = 33554432
 input 65
-slice 0 28 39                     # v1 = [x y x0 x1 y1 bg line fx fy cR cB]
+slice 0 29 39                     # v1 = [y x0 x1 y1 bg ln fx fy cR cB]
 slice 0 9 11                      # v2 = [LR LP]
-dense 1 2 11                      # v3 = pre-floor rows
-#  x        y    x0 x1 y1 bg ln fx fy cR cB
-   0.015625 0    0  0  0  0  0  0  0  0  0     # (x - 31)/64 - 63/128
-   0        0.05 0  0  0  0  0  0  0  0  0     # (y - 196)/20 - 0.475
-   -0.9765625 -10.275
-dense 3 2 2                       # v4 = + C
-   1 0
-   0 1
-   6755399441055744 6755399441055744
-dense 4 2 2                       # v5 = - C -> [qx qy]
-   1 0
-   0 1
-   -6755399441055744 -6755399441055744
-concat 1 5                        # v6 = 13: ... 11 qx, 12 qy
-dense 6 6 13                      # v7 = pre-step
-#  x  y  x0 x1 y1 bg ln fx fy cR cB qx  qy
-   1  0  0 -1  0  0  0  0  0  0  0  0   0     # ex: x >= x1
-   0  1  0  0 -1  0  0  0  0  0  0  0   0     # ey: y >= y1
-  -1  0  0  0  0  0  0  0  0  1  0  0   0     # wx: x <= cR
-   0 -1  0  0  0  0  0  0  0  0  1  0   0     # wy: y <= cB
-   1  0  0  0  0  0  0  0  0  0  0 -64  0     # gx: (x-31) mod 64 = 63
-   0  1  0  0  0  0  0  0  0  0  0  0 -20     # gy: (y-196) mod 20 = 19
-   0.5 0.5 0.5 0.5 -93.5 -214.5
-step 7                            # v8 = [ex ey wx wy gx gy]
-concat 6 8                        # v9 = 19: 13 ex 14 ey 15 wx 16 wy 17 gx 18 gy
-dense 9 4 19                      # v10
-#  0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18
-   0 0 0 0 0 0 0 1 0 0 0  0  0  0  0  0  0  1  0    # a = fx AND gx
-   0 0 0 0 0 0 0 0 1 0 0  0  0  0  0  0  0  0  1    # b = fy AND gy
-   0 0 0 0 0 0 0 0 0 0 0  0  0  1  1  0  0  0  0    # done = ex AND ey
-   0 0 0 0 0 0 0 0 0 0 0  0  0  0  0  1  1  0  0    # w = wx AND wy
-   -1.5 -1.5 -1.5 -1.5
-step 10                           # v11 = [a b done w]
-dense 11 1 4                      # v12 = a OR b
-   1 1 0 0
-   -0.5
-step 12                           # v13 = [L]
-concat 9 11                       # v14 = 23: 19 a 20 b 21 done 22 w
-concat 14 13                      # v15 = 24: 23 L
-concat 15 2                       # v16 = 26: 24 LR 25 LP
-dense 16 7 26                     # v17 = MUX_INT pre-relu rows
-#  0 1 2 3 4 5 6 7 8 9 10 11 12 13        14 15 16 17 18 19 20 21        22 23        24 25
-   0 0 0 0 0 0 1 0 0 0 0  0  0  0         0  0  0  0  0  0  0  0         0  33554432  0  0   # m0 line L
-   0 0 0 0 0 1 0 0 0 0 0  0  0  0         0  0  0  0  0  0  0  0         0  -33554432 0  0   # m1 bg (1-L)
-   0 0 0 0 0 0 0 0 0 0 0  0  0  0         0  0  0  0  0  0  0  33554432  0  0         1  0   # m2 LR done
-   0 0 0 0 0 0 0 0 0 0 0  0  0  0         0  0  0  0  0  0  0  -33554432 0  0         0  0   # m3 128 (1-done)
-   0 0 0 0 0 0 0 0 0 0 0  0  0  0         0  0  0  0  0  0  0  33554432  0  0         0  1   # m4 LP done
-   0 0 1 0 0 0 0 0 0 0 0  0  0  33554432  0  0  0  0  0  0  0  0         0  0         0  0   # m5 x0 ex
-   1 0 0 0 0 0 0 0 0 0 0  0  0  -33554432 0  0  0  0  0  0  0  0         0  0         0  0   # m6 (x+1)(1-ex)
-   -33554432 0 -33554432 128 -33554432 -33554432 1
-relu 17                           # v18 = [m0..m6]
-concat 16 18                      # v19 = 33: 26..32 m0..m6
-slice 19 0 2                      # v20 = [x y]
-slice 19 13 14                    # v21 = [ex]
-slice 19 22 23                    # v22 = [w]
-slice 19 26 33                    # v23 = [m0..m6]
-concat 20 21                      # v24
-concat 24 22                      # v25
-concat 25 23                      # v26 = G: 0 x 1 y 2 ex 3 w 4 m0 5 m1 6 m2 7 m3 8 m4 9 m5 10 m6
-dense 26 8 11                     # v27 = words 0..7
-#  x y    ex w m0 m1 m2 m3 m4 m5 m6
-   0 0    0  0 0  0  1  1  0  0  0     # next = m2 + m3
-   0 0    0  2 0  0  0  0  0  0  0     # mem_op = 2 w
-   1 1280 0  0 0  0  0  0  0  0  0     # addr = 0x100000 + 1280 y + x
-   0 0    0  0 1  1  0  0  0  0  0     # value = colour
-   0 0    0  0 0  0  0  0  0  0  0     # io
-   0 0    0  0 0  0  0  0  0  0  0     # io_arg
-   0 0    0  0 0  0  0  0  0  0  0     # halt
-   0 0    0  0 0  0  0  0  1  0  0     # PC = LP on done
-   0 0 1048576 0 0 0 0 0
-slice 0 9 28                      # v28 = words 8..26 pass
-dense 26 2 11                     # v29 = [N0' N1']
-   0 0 0 0 0 0 0 0 0 1 1               # x' = ex ? x0 : x + 1
-   0 1 1 0 0 0 0 0 0 0 0               # y' = y + ex
+concat 1 2                        # v3 = G: 0 y 1 x0 2 x1 3 y1 4 bg 5 ln 6 fx 7 fy 8 cR 9 cB 10 LR 11 LP
+dense 3 1 12                      # v4 = (y - 196)/20 - 0.475
+   0.05 0 0 0 0 0 0 0 0 0 0 0
+   -10.275
+dense 4 1 1                       # v5 = + C
+   1
+   6755399441055744
+dense 5 1 1                       # v6 = qy = floor((y - 196)/20)
+   1
+   -6755399441055744
+concat 3 6                        # v7 = 13: 12 qy
+dense 7 3 13                      # v8 = pre [gy done wy]
+#  y  x0 x1 y1 bg ln fx fy cR cB LR LP qy
+   1  0  0  0  0  0  0  0  0  0  0  0  -20    # gy: (y - 196) mod 20 = 19
+   1  0  0  -1 0  0  0  0  0  0  0  0  0      # done: y >= y1
+   -1 0  0  0  0  0  0  0  0  1  0  0  0      # wy: y <= cB
+   -214.5 0.5 0.5
+step 8                            # v9 = [gy done wy]
+dense 3 1 12                      # v10 = x1 - cR
+   0 0 1 0 0 0 0 0 -1 0 0 0
+   0
+relu 10                           # v11 = exr
+concat 7 9                        # v12 = 16: 13 gy 14 done 15 wy
+concat 12 11                      # v13 = 17: 16 exr
+dense 13 1 17                     # v14 = Lr pre: fy AND gy AND NOT fx
+   0 0 0 0 0 0 -1 1 0 0 0 0 0 1 0 0 0
+   -1.5
+step 14                           # v15 = [Lr]
+dense 13 1 17                     # v16 = min(x1, cR) - x0 + 1
+   0 -1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 -1
+   1
+relu 16                           # v17 = w
+concat 13 15                      # v18 = 18: 17 Lr
+concat 18 17                      # v19 = 19: 18 w
+dense 19 12 19                    # v20 = MUX_INT rows
+#  y    x0 x1 y1 bg ln fx        fy cR cB    LR LP qy gy done     wy   exr Lr       w
+   0    0  0  0  0  1  0         0  0  0     0  0  0  0  0        0    0   33554432 0    # a_line  ln Lr
+   0    0  0  0  1  0  0         0  0  0     0  0  0  0  0        0    0   -33554432 0   # a_bg    bg (1 - Lr)
+   0    0  0  0  0  1  33554432  0  0  0     0  0  0  0  0        0    0   33554432  0   # c_line  ln (fx OR Lr)
+   0    0  0  0  1  0  -33554432 0  0  0     0  0  0  0  0        0    0   -33554432 0   # c_bg    bg (1 - fx - Lr)
+   0    0  0  0  0  0  -4096     0  0  0     0  0  0  0  0        4096 0   0        1    # Nr      w wy (1 - fx)
+   0    0  0  0  0  0  4096      0  0  0     0  0  0  0  0        0    0   0        0    # Nrom    2560 fx
+   1280 1  0  0  0  0  -8388608  0  0  0     0  0  0  0  0        8388608 0 0       0    # Arow    (1 - fx) wy (0 when the row is clipped)
+   0    0  0  0  0  0  8388608   0  0  0     0  0  0  0  0        0    0   0        0    # Arom    fx
+   0    0  0  0  0  0  1048576   0  0  0     0  0  0  0  0        0    0   0        0    # nf      170 fx
+   0    0  0  0  0  0  -1048576  0  0  0     1  0  0  0  1048576  0    0   0        0    # nd      LR done (1 - fx)
+   0    0  0  0  0  0  -1048576  0  0  0     0  0  0  0  -1048576 0    0   0        0    # n128    (1 - done)(1 - fx)
+   0    0  0  0  0  0  -1048576  0  0  0     0  1  0  0  1048576  0    0   0        0    # pc      LP done (1 - fx)
+   -33554432 0 -33554432 0 -4096 -1536 -7340032 -7372800 -1048406 -1048576 128 -1048576
+relu 20                           # v21 = [a_line a_bg c_line c_bg Nr Nrom Arow Arom nf nd n128 pc]
+dense 21 2 12                     # v22 = [a c30]
+   1 1 0 0 0 0 0 0 0 0 0 0
+   0 0 1 1 0 0 0 0 0 0 0 0
    0 0
-slice 0 30 65                     # v30 = words 29..63 pass
-concat 27 28
-concat 31 29
-concat 32 30                      # v33 = output
+slice 22 0 1                      # v23 = [a]
+slice 22 1 2                      # v24 = [c30]
+concat 23 23                      # v25 (2)
+concat 25 25                      # v26 (4)
+concat 26 26                      # v27 (8)
+concat 27 27                      # v28 (16)
+concat 28 27                      # v29 (24)
+concat 29 26                      # v30 (28)
+concat 30 25                      # v31 (30) = a x 30
+concat 28 28                      # v32 (32)
+concat 32 23                      # v33 (33) = a x 33
+concat 31 24                      # v34 (31)
+concat 34 33                      # v35 (64) = one period: x mod 64 = 30 holds c30
+identity 35                       # v36 (64) materialised: later concats copy 64-word pieces, not scalars
+concat 36 36                      # v37 (128)
+concat 37 37                      # v38 (256)
+concat 38 38                      # v39 (512)
+concat 39 39                      # v40 (1024)
+concat 40 40                      # v41 (2048)
+concat 41 39                      # v42 (2560)
+dense 21 8 12                     # v43 = words 0..7
+   0 0 0 0 0 0 0 0 1 1 1 0        # next = nf + nd + n128
+   0 0 0 0 0 0 0 0 0 0 0 0        # mem_op 3
+   0 0 0 0 0 0 1 1 0 0 0 0        # addr
+   0 0 0 0 1 1 0 0 0 0 0 0        # value = 64 2^20 + N
+   0 0 0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0 0 1        # PC
+   0 3 0 67108864 0 0 0 0
+slice 0 9 29                      # v44 = words 8..27 pass
+dense 19 1 19                     # v45 = N1' = y + 1 - fx
+   1 0 0 0 0 0 -1 0 0 0 0 0 0 0 0 0 0 0 0
+   1
+slice 0 30 65                     # v46 = words 29..63 pass
+concat 43 44
+concat 47 45
+concat 48 46                      # v49 = 64 state words
+concat 49 42                      # v50 = output (64 + 2560)

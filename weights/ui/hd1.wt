@@ -33,12 +33,13 @@ dense 7 4 6                       # v10 = B.TAG X, B.PAY Wb, C.TAG align, C.PAY 
    0 0   0 0 0 0
    0 0   0 0 1 0
    0 63 2 180
-slice 0 20 23                     # v11 = words 19..21
-dense 7 3 6                       # v12 = AR2 colour, AC2 clip, AS2 buffer
+slice 0 20 22                     # v11 = words 19..20
+dense 7 4 6                       # v12 = AC1 background #EFEFEF, AR2 colour, AC2 clip, AS2 buffer
+   0 0  0 0 0 0
    0 0  0 0 0 0
    0 29 0 0 0 1
    0 0  0 0 0 0
-   4473924 0 983296
+   15724527 4473924 0 983296
 slice 0 26 28                     # v13 = words 25..26
 dense 7 2 6                       # v14 = N0 = 142, N1 = 0
    0 0 0 0 0 0

@@ -15,7 +15,7 @@ relu 5                            # v6 = a = (0x200002 + i) c
 concat 4 6                        # v7 = [i, n, c, a]
 dense 7 8 4                       # v8 = words 0..7
 #  i  n  c  a
-   0  0  3  0                     # next = 4 + 3c
+   0  0  -146  0                  # next = 153 - 146c: 7 (decode) or 153 (UI redraw, then main_poll 4)
    0  0  1  0                     # mem_op = c
    0  0  0  1                     # addr = a
    0  0  0  0
@@ -24,7 +24,7 @@ dense 7 8 4                       # v8 = words 0..7
    0  0  0  0
    0  0  0  0                     # PC 0
 # biases
-   4 0 0 0 0 0 0 0
+   153 0 0 0 0 0 0 0
 slice 0 9 41                      # v9 = words 8..39 pass
 dense 7 1 4                       # v10 = L0 = i + 1
    1 0 0 0

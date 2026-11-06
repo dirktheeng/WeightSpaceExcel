@@ -1,0 +1,111 @@
+# ui/edD (id 187): edit-mode echo. Editing E = (L4 >= 1 typed units) AND (L5 = 0, not Go To).
+# PC 0: not editing, or the active row is below the visible rows (r >= 28: e2 = [1000 L5 + r >= 28]) -> fbA (159). Editing: write UI_EDLEN (0x44) = L4.
+# PC 1: write -1 to the display-cache TAG of the active cell (forces its row to repaint after
+#       the entry ends; the commit moves HEAP_TOP, so the gate scans). PC 2 is unused.
+# PC 3: read 0x44 and enter the heap copy at hc1 (134) with T0 = HS (L9), P0 = BUF: the typed
+#       units (packed at HS + 2.., kernel commit.md) are unpacked into BUF; returns to PC 4.
+# PC 4: fill the active cell interior white. PC 5: aligned text (138), left, black on white,
+#       X 32 + 64c, top 201 + 20r, clip min(92 + 64c, 1278), then on to fbA (159).
+# PC 7 (from fbE while editing): as PC 3, returning to PC 8. PC 8: aligned text in the formula
+#       box (X 163, top 156, clip 1272), returning to (L22, L23).
+# Note: weights/ui/fbar.md.  M = 2^22
+input 65
+slice 0 8 9                       # v1 = [PC]
+slice 0 43 47                     # v2 = [L2 L3 L4 L5]
+slice 0 50 51                     # v3 = [L9]
+slice 0 63 65                     # v4 = [L22 L23]
+concat 1 2
+concat 5 3
+concat 6 4                        # v7 = G: 0 PC 1 r 2 c 3 L4 4 L5 5 L9 6 L22 7 L23
+dense 7 10 8                      # v8 = pre [u1..u8 e1 e2]
+   1 0 0 0 0 0 0 0
+   1 0 0 0 0 0 0 0
+   1 0 0 0 0 0 0 0
+   1 0 0 0 0 0 0 0
+   1 0 0 0 0 0 0 0
+   1 0 0 0 0 0 0 0
+   1 0 0 0 0 0 0 0
+   1 0 0 0 0 0 0 0
+   0 0 0 1 0 0 0 0
+   0 1 0 0 1000 0 0 0
+   -0.5 -1.5 -2.5 -3.5 -4.5 -5.5 -6.5 -7.5 -0.5 -27.5
+step 8                            # v9
+concat 7 9                        # v10 = G: 8..15 u1..u8 16 e1 17 e2
+dense 10 1 18                     # v11 = Ep0 pre: editing AND PC 0
+   0 0 0 0 0 0 0 0  -1 0 0 0 0 0 0 0  1 -1
+   -0.5
+step 11                           # v12
+concat 10 12                      # v13 = G: 18 Ep0
+dense 13 11 19                    # v14 = MUX_INT rows, M = 2^22
+#  PC r  c  L4 L5 L9 L22 L23 u1      u2       u3       u4       u5       u6       u7      u8       e1 e2 Ep0
+   0  40 2  0  0  0  0   0   4194304 -4194304 0        0        0        0        0       0        0  0  0         # ca = cache TAG address, phase 1
+   0  0  0  1  0  0  0   0   0       0        0        0        0        0        0       0        0  0  4194304   # vL = L4, edit start
+   0  0  0  0  0  1  0   0   0       0        4194304  -4194304 0        0        4194304 -4194304 0  0  0         # tH = HS, phases 3 and 7
+   0  0  64 0  0  0  0   0   0       0        0        4194304  -4194304 0        0       0        0  0  0         # tX = 31 + 64c, phase 4
+   0  20 0  0  0  0  0   0   0       0        0        4194304  -4194304 0        0       0        0  0  0         # n1 = 196 + 20r, phase 4
+   0  0  0  0  0  0  1   0   0       0        0        0        0        0        0       4194304  0  0  0         # n0b = L22, phase 8
+   0  0  0  0  0  0  0   1   0       0        0        0        0        0        0       4194304  0  0  0         # n1b = L23, phase 8
+   0  0  64 0  0  0  0   0   0       0        0        0        0        0        0       0        0  0  0         # ov = relu(64c - 1186)
+   0  0  64 0  0  0  0   0   0       0        0        0        4194304  -4194304 0       0        0  0  0         # xA = 32 + 64c, phase 5
+   0  20 0  0  0  0  0   0   0       0        0        0        4194304  -4194304 0       0        0  0  0         # tA = 201 + 20r, phase 5
+   0  0  0  0  0  0  0   0   0       0        0        0        0        0        0       0        0  0  0         # spare
+   -3207168 -4194304 -4194304 -4194273 -4194108 -4194304 -4194304 -1186 -4194272 -4194103 0
+relu 14                           # v15
+concat 13 15                      # v16 = G: 19 ca 20 vL 21 tH 22 tX 23 n1 24 n0b 25 n1b 26 ov 27 xA 28 tA 29 spare
+dense 16 1 30                     # v17 = clA pre = (92 + 64c - ov) phase 5
+   0 0 64 0 0 0 0 0  0 0 0 0 4194304 -4194304 0 0  0 0 0  0 0 0 0 0 0 0 -1 0 0 0
+   -4194212
+relu 17                           # v18
+concat 16 18                      # v19 = G: 30 clA
+dense 19 10 31                    # v20 = words 0..9
+#  PC r c L4 L5 L9 L22 L23 u1 u2 u3  u4 u5  u6   u7  u8 e1 e2 Ep0 ca vL tH tX n1 n0b n1b ov xA tA sp clA
+   0  0 0 0  0  0  0   0   28 0  -53 -6 10  -138 134 4  0  0  28  0  0  0  0  0  0   0   0  0  0  0  0     # next
+   0  0 0 0  0  0  0   0   2  0  -1  -1 0   0    1   -1 0  0  2   0  0  0  0  0  0   0   0  0  0  0  0     # mem_op
+   0  0 0 0  0  0  0   0   0  67 1   -68 0  0    68  -68 0 0  68  1  0  0  0  0  0   0   0  0  0  0  0     # addr
+   0  0 0 0  0  0  0   0   -1 0  1   0  0   0    0   0  0  0  0   0  1  0  0  0  0   0   0  0  0  0  0     # value
+   0  0 0 0  0  0  0   0   0  0  0   0  0   0    0   0  0  0  0   0  0  0  0  0  0   0   0  0  0  0  0
+   0  0 0 0  0  0  0   0   0  0  0   0  0   0    0   0  0  0  0   0  0  0  0  0  0   0   0  0  0  0  0
+   0  0 0 0  0  0  0   0   0  0  0   0  0   0    0   0  0  0  0   0  0  0  0  0  0   0   0  0  0  0  0
+   0  0 0 0  0  0  0   0   3  -3 0   0  0   0    0   0  0  0  1   0  0  0  0  0  0   0   0  0  0  0  0     # PC (phase 2 is skipped: 1 -> 3)
+   0  0 0 0  0  0  0   0   0  0  0   0  0   0    0   0  0  0  0   0  0  0  0  0  0   0   0  0  0  0  0     # LR 187
+   0  0 0 0  0  0  0   0   0  0  4   1  -5  0    8   -8 0  0  0   0  0  0  0  0  0   0   0  0  0  0  0     # LP
+   159 0 0 0 0 0 0 0 187 0
+slice 0 11 16                     # v21 = words 10..14
+dense 19 4 31                     # v22 = B.TAG X, B.PAY 61, C.TAG 0, C.PAY top
+#  PC r c L4 L5 L9 L22 L23 u1 u2 u3 u4 u5 u6 u7 u8  e1 e2 Ep0 ca vL tH tX n1 n0b n1b ov xA tA sp clA
+   0  0 0 0  0  0  0   0   0  0  0  0  0  0  0  163 0  0  0   0  0  0  0  0  0   0   0  1  0  0  0
+   0  0 0 0  0  0  0   0   0  0  0  0  0  0  0  0   0  0  0   0  0  0  0  0  0   0   0  0  0  0  0
+   0  0 0 0  0  0  0   0   0  0  0  0  0  0  0  0   0  0  0   0  0  0  0  0  0   0   0  0  0  0  0
+   0  0 0 0  0  0  0   0   0  0  0  0  0  0  0  156 0  0  0   0  0  0  0  0  0   0   0  0  1  0  0
+   0 61 0 0
+slice 0 20 22                     # v23 = words 19..20
+dense 19 5 31                     # v24 = AC1 white, AR2 black, AC2 clip, AS2 BUF, P0 BUF
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0    0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0    0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1272 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0    0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0    0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   16777215 0 0 983296 983296
+slice 0 27 28                     # v25 = word 26
+dense 19 11 31                    # v26 = N0 N1 T0..T8
+#  PC r  c  L4 L5 L9 L22 L23 u1 u2 u3 u4 u5  u6   u7 u8 e1 e2 Ep0 ca vL tH tX n1 n0b n1b ov xA tA sp clA
+   0  0  0  0  0  0  0   0   0  0  0  0  159 -159 0  0  0  0  0   0  0  0  1  0  1   0   0  0  0  0  0     # N0
+   0  0  0  0  0  0  0   0   0  0  0  0  0   0    0  0  0  0  0   0  0  0  0  1  0   1   0  0  0  0  0     # N1
+   0  0  0  0  0  0  0   0   0  0  0  0  0   0    0  0  0  0  0   0  0  1  1  0  0   0   0  0  0  0  0     # T0
+   0  0  64 0  0  0  0   0   0  0  0  0  0   0    0  0  0  0  0   0  0  0  0  0  0   0   0  0  0  0  0     # T1 = 92 + 64c
+   0  20 0  0  0  0  0   0   0  0  0  0  0   0    0  0  0  0  0   0  0  0  0  0  0   0   0  0  0  0  0     # T2 = 214 + 20r
+   0  0  0  0  0  0  0   0   0  0  0  0  0   0    0  0  0  0  0   0  0  0  0  0  0   0   0  0  0  0  0     # T3 white
+   0  0  0  0  0  0  0   0   0  0  0  0  0   0    0  0  0  0  0   0  0  0  0  0  0   0   0  0  0  0  0
+   0  0  0  0  0  0  0   0   0  0  0  0  0   0    0  0  0  0  0   0  0  0  0  0  0   0   0  0  0  0  0
+   0  0  0  0  0  0  0   0   0  0  0  0  0   0    0  0  0  0  0   0  0  0  0  0  0   0   0  0  0  0  0
+   0  0  0  0  0  0  0   0   0  0  0  0  0   0    0  0  0  0  0   0  0  0  0  0  0   0   0  0  0  0  0     # T7
+   0  0  0  0  0  0  0   0   0  0  0  0  0   0    0  0  0  0  0   0  0  0  0  0  0   0   0  0  0  0  0     # T8
+   0 0 0 92 214 16777215 0 0 0 1279 799
+slice 0 39 65                     # v27 = words 38..63
+concat 20 21
+concat 28 22
+concat 29 23
+concat 30 24
+concat 31 25
+concat 32 26
+concat 33 27                      # v34 = output

@@ -1,0 +1,90 @@
+# ui/fillL (id 172): pattern fill, one grid line row that is not the last row. Input 1345 =
+# [0] + 64 state words + row pattern P. Output = state + P (forwarded, K = 1344) + 1280 words of
+# the line colour (written at FB + 1280 y + x0, N = clipped width). Routing of row y + 1 as in
+# fillP (171). Note: weights/ui/fill.md.  C = 6755399441055744, M = 2^20
+input 1345
+slice 0 29 39                     # v1 = [y x0 x1 y1 bg ln fx fy cR cB]
+slice 0 9 11                      # v2 = [LR LP]
+concat 1 2                        # v3 = 12
+dense 3 1 12                      # v4 = (y + 1 - 196)/20 - 0.475
+   0.05 0 0 0 0 0 0 0 0 0 0 0
+   -10.225
+dense 4 1 1                       # v5
+   1
+   6755399441055744
+dense 5 1 1                       # v6 = qt
+   1
+   -6755399441055744
+concat 3 6                        # v7 = 13: 12 qt
+dense 7 3 13                      # v8 = pre [gyt wy tz]
+#  y  x0 x1 y1 bg ln fx fy cR cB LR LP qt
+   1  0  0  0  0  0  0  0  0  0  0  0  -20    # gyt
+   -1 0  0  0  0  0  0  0  0  1  0  0  0      # wy: y <= cB
+   1  0  0  -1 0  0  0  0  0  0  0  0  0      # tz: y + 1 >= y1
+   -213.5 0.5 1.5
+step 8                            # v9
+dense 3 1 12                      # v10 = x1 - cR
+   0 0 1 0 0 0 0 0 -1 0 0 0
+   0
+relu 10                           # v11 = exr
+concat 7 9                        # v12 = 16: 13 gyt 14 wy 15 tz
+concat 12 11                      # v13 = 17: 16 exr
+dense 13 1 17                     # v14 = isL = fy AND gyt
+   0 0 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0
+   -1.5
+step 14                           # v15
+dense 13 1 17                     # v16 = min(x1, cR) - x0 + 1
+   0 -1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 -1
+   1
+relu 16                           # v17 = w
+concat 13 15                      # v18 = 18: 17 isL
+concat 18 17                      # v19 = 19: 18 w
+dense 19 1 19                     # v20 = isLz = isL AND tz
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 0
+   -1.5
+step 20                           # v21
+concat 19 21                      # v22 = 20: 19 isLz
+dense 22 2 20                     # v23 = [N pre = w + 4096 wy - 4096, cy = y - 799]
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0 4096 0 0 0 1 0
+   1 0 0 0 0 0 0 0 0 0 0 0 0 0 0    0 0 0 0 0
+   -4096 -799
+relu 23                           # v24 = [N cy]
+concat 22 24                      # v25 = 22: 20 N 21 cy
+dense 25 8 22                     # v26 = words 0..7
+#  y    x0 x1 y1 bg ln fx fy cR cB LR LP qt gyt wy tz exr isL w isLz N cy
+   0    0  0  0  0  0  0  0  0  0  0  0  0  0   0  0  0   1   0 1    0 0       # next = 171 + isL + isLz
+   0    0  0  0  0  0  0  0  0  0  0  0  0  0   0  0  0   0   0 0    0 0       # mem_op 3
+   1280 1  0  0  0  0  0  0  0  0  0  0  0  0   0  0  0   0   0 0    0 -1280   # addr (y clamped to 799)
+   0    0  0  0  0  0  0  0  0  0  0  0  0  0   0  0  0   0   0 0    1 0       # value = 1344 2^20 + N
+   0    0  0  0  0  0  0  0  0  0  0  0  0  0   0  0  0   0   0 0    0 0
+   0    0  0  0  0  0  0  0  0  0  0  0  0  0   0  0  0   0   0 0    0 0
+   0    0  0  0  0  0  0  0  0  0  0  0  0  0   0  0  0   0   0 0    0 0
+   0    0  0  0  0  0  0  0  0  0  0  0  0  0   0  0  0   0   0 0    0 0
+   171 3 1048576 1409286144 0 0 0 0
+slice 0 9 29                      # v27 = words 8..27 pass
+dense 25 1 22                     # v28 = N1' = y + 1
+   1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   1
+slice 0 30 65                     # v29 = words 29..63 pass
+slice 0 65 1345                   # v30 = P (forwarded)
+slice 1 5 6                       # v31 = [ln]
+dense 31 64 1                     # v32 (64) = ln broadcast (a dense is materialised, so the concats below copy 64-word pieces)
+   1 1 1 1 1 1 1 1  1 1 1 1 1 1 1 1  1 1 1 1 1 1 1 1  1 1 1 1 1 1 1 1
+   1 1 1 1 1 1 1 1  1 1 1 1 1 1 1 1  1 1 1 1 1 1 1 1  1 1 1 1 1 1 1 1
+   0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0
+concat 32 32                      # v33 (128)
+concat 33 33                      # v34 (256)
+concat 34 34                      # v35 (512)
+concat 35 35                      # v36 (1024)
+concat 36 34                      # v37 (1280)
+slice 37 0 1                      # v38 unused
+slice 37 0 1                      # v39 unused
+slice 37 0 1                      # v40 unused
+slice 37 0 1                      # v41 unused
+identity 37                       # v42 (1280) = line row
+concat 26 27
+concat 43 28
+concat 44 29                      # v45 = 64 state words
+concat 45 30                      # v46 = + P
+concat 46 42                      # v47 = output: + line row (written)

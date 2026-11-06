@@ -1,0 +1,45 @@
+# ui/fill_rd (id 170): pattern fill, step 2. Block-reads 1280 words of the pattern ROM from
+# 0x0F8000 + x0 (K = 64, N = 1280), so the next network's input words 65..1344 are the row
+# pattern P[i] = pattern(x0 + i). Routes on the row y = N1: grid line row (fy AND gy) -> 172,
+# or 173 if it is also the last row; otherwise 171. Note: weights/ui/fill.md.  C = 6755399441055744
+input 65
+slice 0 29 39                     # v1 = [y x0 x1 y1 bg ln fx fy cR cB]
+dense 1 1 10                      # v2
+   0.05 0 0 0 0 0 0 0 0 0
+   -10.275
+dense 2 1 1                       # v3
+   1
+   6755399441055744
+dense 3 1 1                       # v4 = qy
+   1
+   -6755399441055744
+concat 1 4                        # v5 = 11: 10 qy
+dense 5 2 11                      # v6 = pre [gy last]
+   1 0 0 0  0 0 0 0 0 0 -20
+   1 0 0 -1 0 0 0 0 0 0 0
+   -214.5 0.5
+step 6                            # v7 = [gy last]
+concat 5 7                        # v8 = 13: 11 gy 12 last
+dense 8 1 13                      # v9 = isL = fy AND gy
+   0 0 0 0 0 0 0 1 0 0 0 1 0
+   -1.5
+step 9                            # v10 = [isL]
+concat 8 10                       # v11 = 14: 13 isL
+dense 11 1 14                     # v12 = isL AND last
+   0 0 0 0 0 0 0 0 0 0 0 0 1 1
+   -1.5
+step 12                           # v13
+concat 11 13                      # v14 = 15: 14 isLz
+dense 14 8 15                     # v15 = words 0..7
+#  y x0 x1 y1 bg ln fx fy cR cB qy gy last isL isLz
+   0 0  0  0  0  0  0  0  0  0  0  0  0    1   1      # next = 171 + isL + isLz
+   0 0  0  0  0  0  0  0  0  0  0  0  0    0   0      # mem_op 4
+   0 1  0  0  0  0  0  0  0  0  0  0  0    0   0      # addr = ROM + x0
+   0 0  0  0  0  0  0  0  0  0  0  0  0    0   0      # value = 64 2^20 + 1280
+   0 0  0  0  0  0  0  0  0  0  0  0  0    0   0
+   0 0  0  0  0  0  0  0  0  0  0  0  0    0   0
+   0 0  0  0  0  0  0  0  0  0  0  0  0    0   0
+   0 0  0  0  0  0  0  0  0  0  0  0  0    0   0
+   171 4 1015808 67110144 0 0 0 0
+slice 0 9 65                      # v16 = words 8..63 pass
+concat 15 16                      # v17 = output (64)

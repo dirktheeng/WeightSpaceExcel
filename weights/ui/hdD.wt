@@ -1,0 +1,95 @@
+# ui/hdD (id 186): active header highlight dispatcher, run once per frame after the outline
+# (outline latched the previous active cell in L15, L16 and stored the new one).
+# Phases are PC 32..38 (the scene enters with PC = its entry + 1 = 32): 32 read UI_HLDONE (0x42); 33 write 0x42 = 1; L19 = jn + 2 jh where jn = previous headers
+# need un-highlighting (flag set and active cell moved), jh = new headers need highlighting
+# (moved, or first frame). PC 2..5 call hx (185) for: column L16, row L15 (normal; hx finds them
+# not active), column L3, row L2 (highlighted), each only if needed (else skip one step).
+# PC 6 continue to the edit echo (edD, 187). Note: weights/ui/headers.md.  M = 2^20
+input 65
+slice 0 0 1                       # v1 = [x0]
+slice 0 8 9                       # v2 = [PC]
+slice 0 43 45                     # v3 = [L2 L3]
+slice 0 56 58                     # v4 = [L15 L16]
+slice 0 60 61                     # v5 = [L19]
+concat 1 2
+concat 6 3
+concat 7 4
+concat 8 5                        # v9 = G: 0 x0 1 PC 2 L2 3 L3 4 L15 5 L16 6 L19
+dense 9 13 7                      # v10 = pre [u1..u6 n1..n4 a1 a2 a3]
+#  x0 PC L2 L3 L15 L16 L19
+   0  1  0  0  0   0   0
+   0  1  0  0  0   0   0
+   0  1  0  0  0   0   0
+   0  1  0  0  0   0   0
+   0  1  0  0  0   0   0
+   0  1  0  0  0   0   0
+   0  0  -1 0  1   0   0
+   0  0  1  0  -1  0   0
+   0  0  0  -1 0   1   0
+   0  0  0  1  0   -1  0
+   0  0  0  0  0   0   1
+   0  0  0  0  0   0   1
+   0  0  0  0  0   0   1
+   -32.5 -33.5 -34.5 -35.5 -36.5 -37.5 -0.5 -0.5 -0.5 -0.5 -0.5 -1.5 -2.5
+step 10                           # v11
+concat 9 11                       # v12 = G: 7..12 u1..u6 13..16 n 17 a1 18 a2 19 a3
+dense 12 3 20                     # v13 = pre [ne jnL jhL]
+   0 0 0 0 0 0 0  0 0 0 0 0 0  1 1 1 1  0 0  0
+   0 0 0 0 0 0 0  0 0 0 0 0 0  0 0 0 0  1 -1 1
+   0 0 0 0 0 0 0  0 0 0 0 0 0  0 0 0 0  0 1  0
+   -0.5 -0.5 -0.5
+step 13                           # v14
+concat 12 14                      # v15 = G: 20 ne 21 jnL 22 jhL
+dense 15 6 23                     # v16 = pre [jn1 jh1 g2 g3 g4 g5]
+#  x0 PC L2 L3 L15 L16 L19 u1 u2 u3 u4 u5 u6 n n n n a a a ne jnL jhL
+   1  0  0  0  0   0   0   0  0  0  0  0  0  0 0 0 0 0 0 0 1  0   0
+   -1 0  0  0  0   0   0   0  0  0  0  0  0  0 0 0 0 0 0 0 1  0   0
+   0  0  0  0  0   0   0   0  1  -1 0  0  0  0 0 0 0 0 0 0 0  1   0
+   0  0  0  0  0   0   0   0  0  1  -1 0  0  0 0 0 0 0 0 0 0  1   0
+   0  0  0  0  0   0   0   0  0  0  1  -1 0  0 0 0 0 0 0 0 0  0   1
+   0  0  0  0  0   0   0   0  0  0  0  1  -1 0 0 0 0 0 0 0 0  0   1
+   -1.5 0.5 -1.5 -1.5 -1.5 -1.5
+step 16                           # v17
+concat 15 17                      # v18 = G: 23 jn1 24 jh1 25 g2 26 g3 27 g4 28 g5
+dense 18 6 29                     # v19 = MUX_INT rows
+#  x0 PC L2 L3 L15 L16 L19 u1       u2       u3       u4       u5       u6       n n n n a a a ne jnL jhL jn1 jh1 g g g g
+   0  0  0  0  0   1   0   0        1048576  -1048576 0        0        0        0 0 0 0 0 0 0 0  0   0   0   0   0 0 0 0   # L16 p2
+   0  0  0  0  1   0   0   0        0        1048576  -1048576 0        0        0 0 0 0 0 0 0 0  0   0   0   0   0 0 0 0   # L15 + 1024 p3
+   0  0  0  1  0   0   0   0        0        0        1048576  -1048576 0        0 0 0 0 0 0 0 0  0   0   0   0   0 0 0 0   # L3 p4
+   0  0  1  0  0   0   0   0        0        0        0        1048576  -1048576 0 0 0 0 0 0 0 0  0   0   0   0   0 0 0 0   # L2 + 1024 p5
+   0  0  0  0  0   0   1   -1048576 1048576  0        0        0        0        0 0 0 0 0 0 0 0  0   0   0   0   0 0 0 0   # L19 (1 - p1)
+   0  0  0  0  0   0   0   1048576  -1048576 0        0        0        0        0 0 0 0 0 0 0 0  0   0   1   2   0 0 0 0   # (jn1 + 2 jh1) p1
+   -1048576 -1047552 -1048576 -1047552 0 -1048576
+relu 19                           # v20
+concat 18 20                      # v21 = G: 29..32 L14 parts 33 L19a 34 L19b
+dense 21 8 35                     # v22 = words 0..7
+#  x0 PC L2 L3 L15 L16 L19 u1 u2  u3   u4   u5   u6    n n n n a a a ne jnL jhL jn1 jh1 g2 g3 g4 g5 | 29..34
+   0  0  0  0  0   0   0   0  0   0    0    0    1     0 0 0 0 0 0 0 0  0   0   0   0   -1 -1 -1 -1   0 0 0 0 0 0   # next
+   0  0  0  0  0   0   0   1  -2  0    0    0    0     0 0 0 0 0 0 0 0  0   0   0   0   0  0  0  0    0 0 0 0 0 0   # mem_op
+   0  0  0  0  0   0   0   0  -66 0    0    0    0     0 0 0 0 0 0 0 0  0   0   0   0   0  0  0  0    0 0 0 0 0 0   # addr
+   0  0  0  0  0   0   0   1  -1  0    0    0    0     0 0 0 0 0 0 0 0  0   0   0   0   0  0  0  0    0 0 0 0 0 0   # value
+   0  0  0  0  0   0   0   0  0   0    0    0    0     0 0 0 0 0 0 0 0  0   0   0   0   0  0  0  0    0 0 0 0 0 0
+   0  0  0  0  0   0   0   0  0   0    0    0    0     0 0 0 0 0 0 0 0  0   0   0   0   0  0  0  0    0 0 0 0 0 0
+   0  0  0  0  0   0   0   0  0   0    0    0    0     0 0 0 0 0 0 0 0  0   0   0   0   0  0  0  0    0 0 0 0 0 0
+   0  0  0  0  0   0   0   1  1   1    1    1    -38   0 0 0 0 0 0 0 0  0   0   0   0   -35 -36 -37 -38   0 0 0 0 0 0   # PC
+   186 1 66 0 0 0 0 33
+slice 0 9 55                      # v23 = words 8..53
+dense 21 1 35                     # v24 = L14
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 0 0
+   0
+slice 0 56 60                     # v25 = words 55..58
+dense 21 1 35                     # v26 = L19
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1
+   0
+slice 0 61 62                     # v27 = word 60
+dense 21 1 35                     # v28 = L21 = hx return link (186, next phase)
+   0 0 0 0 0 0 0 0 36026 1024 1024 1024 -39098 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   0
+slice 0 63 65                     # v29 = words 62..63
+concat 22 23
+concat 30 24
+concat 31 25
+concat 32 26
+concat 33 27
+concat 34 28
+concat 35 29                      # v36 = output

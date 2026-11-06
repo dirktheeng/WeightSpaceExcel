@@ -1,0 +1,201 @@
+# ui/scan (id 179): visible cell scan, one cell per step. Input 113 = [0] + 64 state words +
+# 40-word cache row of row r (cached TAG, PAY of cells c = 0..19, UI_STATE 0x0F1000 + 40 r)
+# + the 8-word cell store slot read by the previous step (block read, K = 104, N = 8).
+# State: L12 r, L13 c, T10 fresh (1 = slot words are not a lookup yet), P0 slot address,
+# L19 dirty (some cell of this row changed), L2 active row. Probe as encodings/address.md 4.
+# Outcomes: issue the slot read of cell cn (K 104, N 8) -> 179; collision -> read slot + 8 -> 179;
+# changed -> su (180) with A = new value; row end: dirty -> gband (174) for row r with LR = hx
+# (185), job L14 = r + 1024 (row header), L20 = 1 (repaint mode); clean -> sr (178) for r + 1;
+# clean after row 27 -> return to (L22, L23).
+# Note: weights/ui/scan.md.  C = 6755399441055744
+input 113
+slice 0 53 55                     # v1 = [r c]
+slice 0 40 41                     # v2 = [fresh]
+slice 0 26 27                     # v3 = [P0]
+slice 0 105 108                   # v4 = [key stag spay]
+slice 0 60 61                     # v5 = [dirty]
+slice 0 43 44                     # v6 = [ar]
+concat 1 2
+concat 7 3
+concat 8 4
+concat 9 5
+concat 10 6                       # v11 = G: 0 r 1 c 2 fresh 3 P0 4 key 5 stag 6 spay 7 dirty 8 ar
+dense 1 80 2                      # v12 = u_k = [c >= floor(k/2)], w_k = [c < floor(k/2) + 1], k 0..39
+   0 1  0 1  0 1  0 1  0 1  0 1  0 1  0 1  0 1  0 1
+   0 1  0 1  0 1  0 1  0 1  0 1  0 1  0 1  0 1  0 1
+   0 1  0 1  0 1  0 1  0 1  0 1  0 1  0 1  0 1  0 1
+   0 1  0 1  0 1  0 1  0 1  0 1  0 1  0 1  0 1  0 1
+   0 -1  0 -1  0 -1  0 -1  0 -1  0 -1  0 -1  0 -1  0 -1  0 -1
+   0 -1  0 -1  0 -1  0 -1  0 -1  0 -1  0 -1  0 -1  0 -1  0 -1
+   0 -1  0 -1  0 -1  0 -1  0 -1  0 -1  0 -1  0 -1  0 -1  0 -1
+   0 -1  0 -1  0 -1  0 -1  0 -1  0 -1  0 -1  0 -1  0 -1  0 -1
+# biases u
+   0.5 0.5 -0.5 -0.5 -1.5 -1.5 -2.5 -2.5 -3.5 -3.5
+   -4.5 -4.5 -5.5 -5.5 -6.5 -6.5 -7.5 -7.5 -8.5 -8.5
+   -9.5 -9.5 -10.5 -10.5 -11.5 -11.5 -12.5 -12.5 -13.5 -13.5
+   -14.5 -14.5 -15.5 -15.5 -16.5 -16.5 -17.5 -17.5 -18.5 -18.5
+# biases w
+   0.5 0.5 1.5 1.5 2.5 2.5 3.5 3.5 4.5 4.5
+   5.5 5.5 6.5 6.5 7.5 7.5 8.5 8.5 9.5 9.5
+   10.5 10.5 11.5 11.5 12.5 12.5 13.5 13.5 14.5 14.5
+   15.5 15.5 16.5 16.5 17.5 17.5 18.5 18.5 19.5 19.5
+step 12                           # v13
+mul 13 0 40 40 80                 # v14 = e2_k = [floor(k/2) == c]
+slice 0 65 105                    # v15 = cache row (40)
+concat 14 15                      # v16
+mul 16 0 40 40 80                 # v17 = e2 cache
+dense 17 2 40                     # v18 = [ct cp] cached TAG, PAY of cell c
+   1 0 1 0 1 0 1 0 1 0  1 0 1 0 1 0 1 0 1 0  1 0 1 0 1 0 1 0 1 0  1 0 1 0 1 0 1 0 1 0
+   0 1 0 1 0 1 0 1 0 1  0 1 0 1 0 1 0 1 0 1  0 1 0 1 0 1 0 1 0 1  0 1 0 1 0 1 0 1 0 1
+   0 0
+dense 11 5 9                      # v19 = pre [fp fm ep em rl]
+#  r       c  fresh P0 key stag spay dirty ar
+   -16384  -1 0     0  1   0    0    0     0      # fp: key >= K + 1 (K = 2^14 r + c, sheet 0)
+   16384   1  0     0  -1  0    0    0     0      # fm: key <= K + 1
+   0       0  0     0  1   0    0    0     0      # ep: key >= 0
+   0       0  0     0  -1  0    0    0     0      # em: key <= 0
+   1       0  0     0  0   0    0    0     0      # rl: r >= 27 (last visible row)
+   -0.5 1.5 0.5 0.5 -26.5
+step 19                           # v20
+concat 11 20                      # v21 = H: 9 fp 10 fm 11 ep 12 em 13 rl
+dense 21 2 14                     # v22 = pre [found empty], both off on a fresh step
+   0 0 -2 0 0 0 0 0 0 1 1 0 0 0
+   0 0 -2 0 0 0 0 0 0 0 0 1 1 0
+   -1.5 -1.5
+step 22                           # v23 = [found empty]
+concat 21 23                      # v24 = H: 14 found 15 empty
+slice 23 0 1                      # v25 = [found]
+concat 25 25                      # v26
+slice 11 5 7                      # v27 = [stag spay]
+concat 26 27                      # v28
+mul 28 0 2 2 4                    # v29 = [vt vp] = found (stag, spay)
+concat 29 18                      # v30 = [vt vp ct cp]
+dense 30 4 4                      # v31 = signed differences
+   1  0 -1  0
+  -1  0  1  0
+   0  1  0 -1
+   0 -1  0  1
+   0 0 0 0
+step 31                           # v32 = [vt > ct, vt < ct, vp > cp, vp < cp]
+concat 24 32                      # v33 = H: 16..19 ne
+dense 33 1 20                     # v34 = chg pre: decided AND any difference
+   0 0 0 0 0 0 0 0 0 0  0 0 0 0 4 4 1 1 1 1
+   -4.5
+step 34                           # v35
+concat 33 35                      # v36 = H: 20 chg
+dense 36 2 21                     # v37 = pre [unch other]
+   0 0 0  0 0 0 0 0 0 0  0 0 0 0 1  1  0 0 0 0 -1     # unch = decided AND NOT chg
+   0 0 -1 0 0 0 0 0 0 0  0 0 0 0 -1 -1 0 0 0 0 0      # other = NOT fresh, NOT found, NOT empty
+   -0.5 0.5
+step 37                           # v38
+concat 36 38                      # v39 = H: 21 unch 22 other
+dense 39 1 23                     # v40 = cn = c + unch
+   0 1 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 1 0
+   0
+concat 39 40                      # v41 = H: 23 cn
+dense 41 1 24                     # v42 = rowend pre: (fresh OR unch) AND cn = 20
+   0 0 1 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 1 0 1
+   -20.5
+step 42                           # v43
+concat 41 43                      # v44 = H: 24 rowend
+dense 44 4 25                     # v45 = pre [issue rowD rowN rowR]
+#  r c fr P0 key st sp dirty ar fp | fm ep em rl found empty ne ne ne ne | chg unch other cn rowend
+   0 0 1  0  0   0  0  0     0  0    0  0  0  0  0     0     0  0  0  0    0   1    0     0  -1
+   0 0 0  0  0   0  0  1     0  0    0  0  0  0  0     0     0  0  0  0    0   0    0     0  1
+   0 0 0  0  0   0  0  -1    0  0    0  0  0  -1 0     0     0  0  0  0    0   0    0     0  1
+   0 0 0  0  0   0  0  -1    0  0    0  0  0  1  0     0     0  0  0  0    0   0    0     0  1
+   -0.5 -1.5 -0.5 -1.5
+step 45                           # v46
+concat 44 46                      # v47 = H: 25 issue 26 rowD 27 rowN 28 rowR
+dense 47 1 29                     # v48 = t 2^-16 - (1/2 - 2^-17), t = 40503 r + 65599 cn
+   0.6180267333984375 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 1.0009613037109375 0 0 0 0 0
+   -0.4999923706054688
+dense 48 1 1                      # v49
+   1
+   6755399441055744
+dense 49 1 1                      # v50 = fl = floor(t / 65536)
+   1
+   -6755399441055744
+concat 47 50                      # v51 = H: 29 fl
+dense 51 1 30                     # v52 = P0 - 589815.5 (probe wraps at the table end)
+   0 0 0 1 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0
+   -589815.5
+step 52                           # v53 = [wrap]
+concat 51 53                      # v54 = H: 30 wrap
+dense 54 2 31                     # v55 = MUX_INT addresses, M = 2^23
+#  r      c fr P0 key st sp di ar fp | fm ep em rl fo em ne ne ne ne | chg unch other   cn     rowend issue   rowD rowN rowR fl      | wrap
+   324024 0 0  0  0   0  0  0  0  0    0  0  0  0  0  0  0  0  0  0    0   0    0       524792 0      8388608 0    0    0    -524288   0
+   0      0 0  1  0   0  0  0  0  0    0  0  0  0  0  0  0  0  0  0    0   0    8388608 0      0      0       0    0    0    0         -524288
+   -8323072 -8388600
+relu 55                           # v56 = [hA pA]
+concat 54 56                      # v57 = H: 31 hA 32 pA
+slice 0 63 65                     # v58 = [L22 L23]
+concat 57 58                      # v59 = H: 33 L22 34 L23
+dense 59 3 35                     # v60 = MUX_INT return link, M = 2^20; ov = dirty + chg - 1
+#  0..9                 | 10..19              | 20 .. 28                        | 29 30 31 32 33 34
+   0 0 0 0 0 0 0 0 0 0    0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 1048576          0  0  0  0  1  0
+   0 0 0 0 0 0 0 0 0 0    0 0 0 0 0 0 0 0 0 0   0 0 0 0 0 0 0 0 1048576          0  0  0  0  0  1
+   0 0 0 0 0 0 0 1 0 0    0 0 0 0 0 0 0 0 0 0   1 0 0 0 0 0 0 0 0                0  0  0  0  0  0
+   -1048576 -1048576 -1
+relu 60                           # v61 = [nR pcR ov]
+concat 59 61                      # v62 = H: 35 nR 36 pcR 37 ov
+dense 62 8 38                     # v63 = words 0..7
+#  0..9                 | 10..19              | 20      21 22       23 24 25       26  27  28 29 | 30 31 32 33 34 35 36 37
+   0 0 0 0 0 0 0 0 0 0    0 0 0 0 0 0 0 0 0 0   180     0  179      0  0  179      174 178 0  0    0  0  0  0  0  1  0  0     # next
+   0 0 0 0 0 0 0 0 0 0    0 0 0 0 0 0 0 0 0 0   0       0  0        0  0  0        0   0   0  0    0  0  0  0  0  0  0  0     # mem_op 4
+   0 0 0 0 0 0 0 0 0 0    0 0 0 0 0 0 0 0 0 0   0       0  0        0  0  0        0   0   0  0    0  1  1  0  0  0  0  0     # addr
+   0 0 0 0 0 0 0 0 0 0    0 0 0 0 0 0 0 0 0 0   0       0  41943048 0  0  41943048 0   0   0  0    0  0  0  0  0  0  0  0     # value: read 104 2^20 + 8, else 64 2^20
+   0 0 0 0 0 0 0 0 0 0    0 0 0 0 0 0 0 0 0 0   0       0  0        0  0  0        0   0   0  0    0  0  0  0  0  0  0  0
+   0 0 0 0 0 0 0 0 0 0    0 0 0 0 0 0 0 0 0 0   0       0  0        0  0  0        0   0   0  0    0  0  0  0  0  0  0  0
+   0 0 0 0 0 0 0 0 0 0    0 0 0 0 0 0 0 0 0 0   0       0  0        0  0  0        0   0   0  0    0  0  0  0  0  0  0  0
+   0 0 0 0 0 0 0 0 0 0    0 0 0 0 0 0 0 0 0 0   0       0  0        0  0  0        0   0   0  0    0  0  0  0  0  0  1  0     # PC
+   0 4 0 67108864 0 0 0 0
+dense 62 2 38                     # v64 = LR = 185 (hx, used after gband), LP = 0
+   0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0
+   185 0
+slice 0 11 14                     # v65 = words 10..12
+slice 0 16 26                     # v66 = words 15..24
+dense 62 1 38                     # v67 = P0 = address issued
+   0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 1 1 0 0 0 0 0
+   0
+slice 0 27 29                     # v68 = words 26..27
+dense 62 1 38                     # v69 = r (N1 and T2 for gband)
+   1 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0
+   0
+slice 0 30 32                     # v70 = words 29..30
+slice 0 33 40                     # v71 = words 32..38
+dense 62 1 38                     # v72 = T10 = 0
+   0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0
+   0
+slice 0 41 53                     # v73 = words 40..51
+dense 62 3 38                     # v74 = L12, L13, L14
+   1 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 1   0 0  0 0 0 0 0 0 0 0    # r + rowN
+   0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 1 0 0 -1 -20 0 0  0 0 0 0 0 0 0 0    # cn - 20 rowN - rowD (repaint starts at c 19)
+   1 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0   0 0  0 0 0 0 0 0 0 0    # hx job: row header r
+   0 0 1024
+slice 0 56 60                     # v75 = words 55..58
+dense 62 3 38                     # v76 = L19, L20, L21
+   0 0 0 0 0 0 0 1 0 0  0 0 0 0 0 0 0 0 0 0  1 0 0 0 0 0 -1 0 0 0  0 0 0 0 0 0 0 -1    # dirty OR chg; 0 (run count) entering repaint
+   0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 1 0 0 0  0 0 0 0 0 0 0 0      # mode = rowD
+   0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0      # hx return id 178
+   0 0 178
+slice 0 63 65                     # v77 = words 62..63
+slice 0 65 105                    # v78 = cache row (forwarded)
+concat 63 64                      # v79 words 0..9
+concat 79 65                      # v80 ..12
+concat 80 29                      # v81 ..14 (A = vt, vp)
+concat 81 66                      # v82 ..24
+concat 82 67                      # v83 ..25
+concat 83 68                      # v84 ..27
+concat 84 69                      # v85 ..28 (N1 = r)
+concat 85 70                      # v86 ..30
+concat 86 69                      # v87 ..31 (T2 = r)
+concat 87 71                      # v88 ..38
+concat 88 72                      # v89 ..39
+concat 89 73                      # v90 ..51
+concat 90 74                      # v91 ..54
+concat 91 75                      # v92 ..58
+concat 92 76                      # v93 ..61
+concat 93 77                      # v94 ..63
+concat 94 78                      # v95 = output (104)

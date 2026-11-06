@@ -1,15 +1,34 @@
-# ui/fbE (id 163): repaint the formula box interior (x 161..1275, y 152..171) white, LR 164.
-# Note: weights/ui/fbar.md
+# ui/fbE (id 163): repaint the formula box interior (x 161..1275, y 152..171) white.
+# Returns to fbF (164), or, while a cell is being edited (L4 >= 1 typed units and L5 = 0, not
+# a Go To), to edD (187) phase 7, which shows the edit text instead. Note: weights/ui/fbar.md
 input 65
-slice 0 0 1                       # v1
-dense 1 10 1                      # v2 = words 0..9
-   0 0 0 0 0 0 0 0 0 0
+slice 0 45 47                     # v1 = [L4 L5]
+dense 1 2 2                       # v2 = pre [L4 >= 1, L5 >= 1]
+   1 0
+   0 1
+   -0.5 -0.5
+step 2                            # v3
+dense 3 1 2                       # v4 = E pre
+   1 -1
+   -0.5
+step 4                            # v5 = [E]
+dense 5 10 1                      # v6 = words 0..9
+   0
+   0
+   0
+   0
+   0
+   0
+   0
+   0
+   23                             # LR = 164 + 23 E
+   7                              # LP = 7 E
    128 0 0 0 0 0 0 0 164 0
-slice 0 11 28                     # v3 = words 10..26
-dense 1 11 1                      # v4 = N0 N1 T0..T8
+slice 0 11 28                     # v7 = words 10..26
+dense 5 11 1                      # v8 = N0 N1 T0..T8
    0 0 0 0 0 0 0 0 0 0 0
    161 152 161 1275 171 16777215 0 0 0 1279 799
-slice 0 39 65                     # v5 = words 38..63
-concat 2 3
-concat 6 4
-concat 7 5
+slice 0 39 65                     # v9 = words 38..63
+concat 6 7
+concat 10 8
+concat 11 9

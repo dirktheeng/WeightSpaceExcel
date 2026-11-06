@@ -37,7 +37,8 @@ def run(h, net, x, max_steps=100):
 
 def test_boot_initialises_zero_page_and_halts_on_empty_queue():
     h = harness()
-    out = run(h, 0, np.zeros(65))
+    # Boot now also runs FT_INIT (function table) and draws the first frame.
+    out = run(h, 0, np.zeros(65), max_steps=200_000)
     m = h.mem
     assert m[0x00] == 0                      # FAULT
     assert m[0x01] == 0x302002               # HEAP_TOP
@@ -51,7 +52,7 @@ def test_boot_initialises_zero_page_and_halts_on_empty_queue():
     assert m[0x11] == 0x3C0000               # STAGING_TOP
     assert m[0x0C] == 0 and m[0x14] == 0     # CELL_COUNT, REJECT_COUNT
     assert out[k.RSP] == 0x100 and out[k.MODE] == 1
-    assert nsteps(h) == 14                   # 10 boot + poll + count + first + halt
+    assert nsteps(h) < 20_000                # boot, FT_INIT, first frame, poll, halt
 
 
 def test_trap_writes_fault_and_halts():

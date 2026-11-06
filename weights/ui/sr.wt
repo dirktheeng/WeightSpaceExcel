@@ -1,0 +1,27 @@
+# ui/sr (id 178): scan row start. Block-reads 48 words from the display cache row
+# 0x0F1000 + 40 r (r = L12; 40 cache words + 8 unused, so the next input has the slot-sized tail
+# that scan expects), K = 64. Sets T10 = 1 (fresh). Next: L20 = 0 scan (179), 1 repaint (181).
+# Note: weights/ui/scan.md
+input 65
+slice 0 53 54                     # v1 = [r]
+slice 0 61 62                     # v2 = [mode]
+concat 1 2                        # v3 = [r mode]
+dense 3 8 2                       # v4 = words 0..7
+   0  2                           # next = 179 + 2 mode
+   0  0                           # mem_op 4
+   40 0                           # addr = 987136 + 40 r
+   0  0                           # value = 64 2^20 + 48
+   0  0
+   0  0
+   0  0
+   0  0
+   179 4 987136 67108912 0 0 0 0
+slice 0 9 39                      # v5 = words 8..37 pass
+dense 3 2 2                       # v6 = T9 pass is not needed: T9 = 0, T10 = 1
+   0 0
+   0 0
+   0 1
+slice 0 41 65                     # v7 = words 40..63 pass
+concat 4 5
+concat 8 6
+concat 9 7                        # v10 = output

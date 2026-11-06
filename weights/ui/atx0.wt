@@ -1,6 +1,6 @@
 # ui/atx0 (id 138): aligned text, step 1: call glyph (129) in measure mode on the buffer.
 # Args (kept for atx1): B.TAG X, B.PAY Wb, C.TAG align (0 left, 1 right, 2 centre), C.PAY top,
-# AR2 colour, AC2 clip right, AS2 buffer, N0 return id, N1 return phase.
+# AR2 colour, AC2 clip right, AS2 buffer, AC1 background colour, N0 return id, N1 return phase.
 # Sets P0 = buffer, T0 = 0, T3 = 2^20 (no clip), T5 = -1, T6 = 0, T8 = 1; LR = 139.
 # Note: weights/ui/atext.md
 input 65

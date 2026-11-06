@@ -19,3 +19,5 @@ Hand-written. Log: log/ui-agent.md; decisions U1 (layout, colours), U2.
 Texts: title centred white at top 10; "File" X 14; "Home" centred in 46..99 in green; other tabs from X 112; "fx" X 136 top 156 (#444444); "Sheet1" centred in 60..129 top 761 green; "Ready" X 8 top 783.
 **redraw (153).** One step: MODE 4, enter scene at PC 29.
 **Parameters.** scene about 1,500 (578 of them the ROM); redraw 14. **Steps.** Full frame 1.10 to 1.11 million (chrome about 1.02M); incremental frame about 30,000. **Tests.** test_chrome_colours and every frame test.
+
+**Changes 2026-11-06 (block ops).** Entry 8 is gband (174) for the whole grid (28 steps); entry 9 is a 1-pixel no-op fill. Entry 29 is the scan gate (176), entry 31 the header highlight dispatcher (186, then edit echo 187, then the name box and formula bar). A new output row sets AC1 (text background for glyph v2) from the entry one-hot. Steps: boot frame about 2,750 on an empty sheet (was 1.1 million), 0.33 s wall untraced.

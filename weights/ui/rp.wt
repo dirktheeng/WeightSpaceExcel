@@ -1,0 +1,110 @@
+# ui/rp (id 181): row repaint, one cell per step, right to left (c = L13 from 19 down to 0) over
+# the cache row (input as for scan: [0] + 64 state + 40 cache + 8 unused). After gband repainted
+# row r and hx redrew its header, every non-blank cell is drawn again; L19 counts the blank cells
+# already passed to the right, which is how far left-aligned text may overflow (L21 = run).
+# Blank: L19 += 1, loop (K = 112). Non-blank: A = cached value, L14 = c, L17 = 182 (cd7),
+# L18 = 178, -> prod (149); blank cells also clear their DISPLAY_TABLE entry (word 0 = 0). Done (c < 0): scan mode, row r + 1 via sr (178), or return to
+# (L22, L23) after row 27. Note: weights/ui/scan.md.  M = 2^20
+input 113
+slice 0 53 55                     # v1 = [r c]
+slice 0 60 61                     # v2 = [run]
+slice 0 63 65                     # v3 = [L22 L23]
+dense 1 80 2                      # v4 = u_k, w_k as in scan
+   0 1  0 1  0 1  0 1  0 1  0 1  0 1  0 1  0 1  0 1
+   0 1  0 1  0 1  0 1  0 1  0 1  0 1  0 1  0 1  0 1
+   0 1  0 1  0 1  0 1  0 1  0 1  0 1  0 1  0 1  0 1
+   0 1  0 1  0 1  0 1  0 1  0 1  0 1  0 1  0 1  0 1
+   0 -1  0 -1  0 -1  0 -1  0 -1  0 -1  0 -1  0 -1  0 -1  0 -1
+   0 -1  0 -1  0 -1  0 -1  0 -1  0 -1  0 -1  0 -1  0 -1  0 -1
+   0 -1  0 -1  0 -1  0 -1  0 -1  0 -1  0 -1  0 -1  0 -1  0 -1
+   0 -1  0 -1  0 -1  0 -1  0 -1  0 -1  0 -1  0 -1  0 -1  0 -1
+   0.5 0.5 -0.5 -0.5 -1.5 -1.5 -2.5 -2.5 -3.5 -3.5
+   -4.5 -4.5 -5.5 -5.5 -6.5 -6.5 -7.5 -7.5 -8.5 -8.5
+   -9.5 -9.5 -10.5 -10.5 -11.5 -11.5 -12.5 -12.5 -13.5 -13.5
+   -14.5 -14.5 -15.5 -15.5 -16.5 -16.5 -17.5 -17.5 -18.5 -18.5
+   0.5 0.5 1.5 1.5 2.5 2.5 3.5 3.5 4.5 4.5
+   5.5 5.5 6.5 6.5 7.5 7.5 8.5 8.5 9.5 9.5
+   10.5 10.5 11.5 11.5 12.5 12.5 13.5 13.5 14.5 14.5
+   15.5 15.5 16.5 16.5 17.5 17.5 18.5 18.5 19.5 19.5
+step 4                            # v5
+mul 5 0 40 40 80                  # v6 = e2
+slice 0 65 105                    # v7 = cache row
+concat 6 7                        # v8
+mul 8 0 40 40 80                  # v9
+dense 9 2 40                      # v10 = [ct cp]
+   1 0 1 0 1 0 1 0 1 0  1 0 1 0 1 0 1 0 1 0  1 0 1 0 1 0 1 0 1 0  1 0 1 0 1 0 1 0 1 0
+   0 1 0 1 0 1 0 1 0 1  0 1 0 1 0 1 0 1 0 1  0 1 0 1 0 1 0 1 0 1  0 1 0 1 0 1 0 1 0 1
+   0 0
+concat 1 2
+concat 11 3
+concat 12 10                      # v13 = G: 0 r 1 c 2 run 3 L22 4 L23 5 ct 6 cp
+dense 13 4 7                      # v14 = pre [cneg tp tn rl]
+   0 -1 0 0 0 0  0
+   0 0  0 0 0 1  0
+   0 0  0 0 0 -1 0
+   1 0  0 0 0 0  0
+   -0.5 0 0 -26.5
+step 14                           # v15
+concat 13 15                      # v16 = G: 7 cneg 8 tp 9 tn 10 rl
+dense 16 4 11                     # v17 = pre [dN dR blank draw]
+   0 0 0 0 0 0 0 1  0  0  -1
+   0 0 0 0 0 0 0 1  0  0  1
+   0 0 0 0 0 0 0 -1 -1 -1 0
+   0 0 0 0 0 0 0 0  1  1  0
+   -0.5 -1.5 0.5 -0.5
+step 17                           # v18
+concat 16 18                      # v19 = G: 11 dN 12 dR 13 blank 14 draw
+dense 19 4 15                     # v20 = MUX_INT, M = 2^21
+#  r   c  run L22 L23 ct cp cneg tp tn rl dN dR      blank   draw
+   0   0  0   1   0   0  0  0    0  0  0  0  2097152 0       0       # L22 dR
+   0   0  0   0   1   0  0  0    0  0  0  0  2097152 0       0       # L23 dR
+   0   0  1   0   0   0  0  0    0  0  0  0  0       2097152 0       # (run + 1) blank
+   640 32 0   0   0   0  0  0    0  0  0  0  0       2097152 0       # ta = DISPLAY_TABLE entry of a blank cell
+   -2097152 -2097152 -2097151 -1105920
+relu 20                           # v21
+concat 19 21                      # v22 = G: 15 nR 16 pc 17 run' 18 ta
+dense 22 8 19                     # v23 = words 0..7
+#  r c run L22 L23 ct cp cneg tp tn rl dN  dR blank    draw nR pc run' ta
+   0 0 0   0   0   0  0  0    0  0  0  178 0  181      149  1  0  0    0       # next
+   0 0 0   0   0   0  0  0    0  0  0  0   0  -1       0    0  0  0    0       # mem_op 4, or 3 on blank
+   0 0 0   0   0   0  0  0    0  0  0  0   0  0        0    0  0  0    1       # addr = ta on blank
+   0 0 0   0   0   0  0  0    0  0  0  0   0  50331649 0    0  0  0    0       # value: blank K 112 N 1 (writes 0), else K 64 N 0
+   0 0 0   0   0   0  0  0    0  0  0  0   0  0        0    0  0  0    0
+   0 0 0   0   0   0  0  0    0  0  0  0   0  0        0    0  0  0    0
+   0 0 0   0   0   0  0  0    0  0  0  0   0  0        0    0  0  0    0
+   0 0 0   0   0   0  0  0    0  0  0  0   0  0        0    0  1  0    0       # PC
+   0 4 0 67108864 0 0 0 0
+slice 0 9 14                      # v24 = words 8..12
+dense 22 2 19                     # v25 = A = (ct, cp)
+   0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0
+   0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0
+   0 0
+slice 0 16 53                     # v26 = words 15..51
+dense 22 10 19                    # v27 = L12 .. L21
+#  r c run L22 L23 ct cp cneg tp tn rl dN dR blank draw nR pc run' ta
+   1 0 0   0   0   0  0  0    0  0  0  1  0  0     0    0  0  0    0       # L12 = r + dN
+   0 1 0   0   0   0  0  0    0  0  0  2  0  0     0    0  0  0    0       # L13 = c - 1 + 2 dN
+   0 1 0   0   0   0  0  0    0  0  0  0  0  0     0    0  0  0    0       # L14 = c
+   0 0 0   0   0   0  0  0    0  0  0  0  0  0     0    0  0  0    0       # L15 (old active row) pass below
+   0 0 0   0   0   0  0  0    0  0  0  0  0  0     0    0  0  0    0       # L16 pass below
+   0 0 0   0   0   0  0  0    0  0  0  0  0  0     0    0  0  0    0       # L17 = 188 (dt0, then cd7)
+   0 0 0   0   0   0  0  0    0  0  0  0  0  0     0    0  0  0    0       # L18 = 178
+   0 0 0   0   0   0  0  0    0  0  0  0  0  0     0    0  0  1    0       # L19 = run'
+   0 0 0   0   0   0  0  0    0  0  0  -1 -1 0     0    0  0  0    0       # L20 = repaint mode unless done
+   0 0 1   0   0   0  0  0    0  0  0  0  0  0     0    0  0  0    0       # L21 = run (overflow cells)
+   0 -1 0 0 0 188 178 0 1 0
+slice 27 0 3                      # v28 = L12..L14
+slice 0 56 58                     # v29 = L15, L16 pass
+slice 27 5 10                     # v30 = L17..L21
+slice 0 63 113                    # v31 = words 62..111 (L22, L23, cache row, unused tail)
+dense 22 1 19                     # v32 = 0 (the word a blank step writes)
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   0
+concat 23 24
+concat 33 25
+concat 34 26
+concat 35 28
+concat 36 29
+concat 37 30
+concat 38 31                      # v39 = 112 words
+concat 39 32                      # v40 = output (113)

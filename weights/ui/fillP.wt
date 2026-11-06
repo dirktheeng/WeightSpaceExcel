@@ -1,0 +1,80 @@
+# ui/fillP (id 171): pattern fill, one non-grid-line row per step. Input 1345 = [0] + 64 state
+# words + the 1280-word row pattern P. Output = state + P (forwarded) + P (written): block write
+# at FB + 1280 y + x0, N = clipped width, K = 1344, or K = 64 on the last row (returns to LR).
+# Next row y + 1 routes to 171 (pattern row), 172 (grid line row) or 173 (grid line, last row).
+# Note: weights/ui/fill.md.  C = 6755399441055744, M = 2^20
+input 1345
+slice 0 29 39                     # v1 = [y x0 x1 y1 bg ln fx fy cR cB]
+slice 0 9 11                      # v2 = [LR LP]
+concat 1 2                        # v3 = 12
+dense 3 1 12                      # v4 = (y + 1 - 196)/20 - 0.475
+   0.05 0 0 0 0 0 0 0 0 0 0 0
+   -10.225
+dense 4 1 1                       # v5
+   1
+   6755399441055744
+dense 5 1 1                       # v6 = qt = floor((y + 1 - 196)/20)
+   1
+   -6755399441055744
+concat 3 6                        # v7 = 13: 12 qt
+dense 7 4 13                      # v8 = pre [gyt last wy tz]
+#  y  x0 x1 y1 bg ln fx fy cR cB LR LP qt
+   1  0  0  0  0  0  0  0  0  0  0  0  -20    # gyt: row y + 1 is a grid line row
+   1  0  0  -1 0  0  0  0  0  0  0  0  0      # last: y >= y1
+   -1 0  0  0  0  0  0  0  0  1  0  0  0      # wy: y <= cB
+   1  0  0  -1 0  0  0  0  0  0  0  0  0      # tz: y + 1 >= y1
+   -213.5 0.5 0.5 1.5
+step 8                            # v9
+dense 3 1 12                      # v10 = x1 - cR
+   0 0 1 0 0 0 0 0 -1 0 0 0
+   0
+relu 10                           # v11 = exr
+concat 7 9                        # v12 = 17: 13 gyt 14 last 15 wy 16 tz
+concat 12 11                      # v13 = 18: 17 exr
+dense 13 1 18                     # v14 = isL = fy AND gyt
+   0 0 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0
+   -1.5
+step 14                           # v15
+dense 13 1 18                     # v16 = min(x1, cR) - x0 + 1
+   0 -1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1
+   1
+relu 16                           # v17 = w
+concat 13 15                      # v18 = 19: 18 isL
+concat 18 17                      # v19 = 20: 19 w
+dense 19 1 20                     # v20 = isLz = isL AND tz
+   0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 0
+   -1.5
+step 20                           # v21
+concat 19 21                      # v22 = 21: 20 isLz
+dense 22 5 21                     # v23 = MUX_INT rows
+#  y x0 x1 y1 bg ln fx fy cR cB LR LP qt gyt last     wy   tz exr isL w isLz
+   0 0  0  0  0  0  0  0  0  0  0  0  0  0   0        4096 0  0   0   1 0       # N = w wy
+   0 0  0  0  0  0  0  0  0  0  1  0  0  0   1048576  0    0  0   0   0 0       # LR last
+   0 0  0  0  0  0  0  0  0  0  0  0  0  0   -1048576 0    0  0   1   0 1       # (171 + isL + isLz)(1 - last)
+   0 0  0  0  0  0  0  0  0  0  0  1  0  0   1048576  0    0  0   0   0 0       # LP last
+   1 0  0  0  0  0  0  0  0  0  0  0  0  0   0        0    0  0   0   0 0       # cy = relu(y - 799): rows below the screen
+   -4096 -1048576 171 -1048576 -799
+relu 23                           # v24
+concat 22 24                      # v25 = 26: 21 N 22 nLR 23 nloop 24 pc 25 cy
+dense 25 8 26                     # v26 = words 0..7
+#  y    x0 x1 y1 bg ln fx fy cR cB LR LP qt gyt last        wy tz exr isL w isLz N nLR nloop pc cy
+   0    0  0  0  0  0  0  0  0  0  0  0  0  0   0           0  0  0   0   0 0    0 1   1     0  0
+   0    0  0  0  0  0  0  0  0  0  0  0  0  0   0           0  0  0   0   0 0    0 0   0     0  0
+   1280 1  0  0  0  0  0  0  0  0  0  0  0  0   0           0  0  0   0   0 0    0 0   0     0  -1280   # addr (y clamped to 799)
+   0    0  0  0  0  0  0  0  0  0  0  0  0  0   -1342177280 0  0  0   0   0 0    1 0   0     0  0
+   0    0  0  0  0  0  0  0  0  0  0  0  0  0   0           0  0  0   0   0 0    0 0   0     0  0
+   0    0  0  0  0  0  0  0  0  0  0  0  0  0   0           0  0  0   0   0 0    0 0   0     0  0
+   0    0  0  0  0  0  0  0  0  0  0  0  0  0   0           0  0  0   0   0 0    0 0   0     0  0
+   0    0  0  0  0  0  0  0  0  0  0  0  0  0   0           0  0  0   0   0 0    0 0   0     1  0
+   0 3 1048576 1409286144 0 0 0 0
+slice 0 9 29                      # v27 = words 8..27 pass
+dense 25 1 26                     # v28 = N1' = y + 1
+   1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+   1
+slice 0 30 65                     # v29 = words 29..63 pass
+slice 0 65 1345                   # v30 = P (1280)
+concat 26 27
+concat 31 28
+concat 32 29                      # v33 = 64 state words
+concat 33 30                      # v34 = + P (forwarded)
+concat 34 30                      # v35 = output: + P (written)

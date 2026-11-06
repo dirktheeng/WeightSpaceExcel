@@ -1,0 +1,110 @@
+# ui/cd8 (id 183): cell text draw, step 2. T0 = measured width w, L14 = c, L12 = r, L21 = ext
+# (blank cells to the right), A.TAG = tag. Text (tag 2) wider than its cell overflows into
+# kk = min(ext, floor((w + 2)/64)) blank cells: clip = min(92 + 64 (c + kk), 1278), and the
+# covered gridlines and interiors x 93 + 64c .. 92 + 64 (c + kk), y 196 + 20r .. 214 + 20r are
+# filled white first (fill 128, LR 184) when kk > 0; otherwise straight to cd9 (184).
+# Sets the aligned-text args for atx1 (X 32 + 64c, Wb 61, align from tag, top 201 + 20r, black,
+# background white, buffer BUF) and L21 = w. Note: weights/ui/scan.md.  C = 6755399441055744
+input 65
+slice 0 30 31                     # v1 = [w]
+slice 0 55 56                     # v2 = [c]
+slice 0 53 54                     # v3 = [r]
+slice 0 62 63                     # v4 = [ext]
+slice 0 14 15                     # v5 = [tag]
+concat 1 2
+concat 6 3
+concat 7 4
+concat 8 5                        # v9 = G: 0 w 1 c 2 r 3 ext 4 tag
+dense 9 3 5                       # v10 = [tag >= 1, >= 2, >= 3]
+   0 0 0 0 1
+   0 0 0 0 1
+   0 0 0 0 1
+   -0.5 -1.5 -2.5
+step 10                           # v11 = [g1 g2 g3]
+dense 9 1 5                       # v12 = (w + 2)/64 - 63/128
+   0.015625 0 0 0 0
+   -0.4609375
+dense 12 1 1                      # v13
+   1
+   6755399441055744
+dense 13 1 1                      # v14 = k = floor((w + 2)/64)
+   1
+   -6755399441055744
+relu 14                           # v15 = kp
+concat 9 11                       # v16 = G: 5 g1 6 g2 7 g3
+concat 16 15                      # v17 = G: 8 kp
+dense 17 1 9                      # v18 = ext - kp
+   0 0 0 1 0 0 0 0 -1
+   0
+relu 18                           # v19
+concat 17 19                      # v20 = G: 9 e
+dense 20 1 10                     # v21 = MUX: min(ext, kp) text, M = 64
+   0 0 0 1 0 0 64 -64 0 -1
+   -64
+relu 21                           # v22 = kk
+concat 20 22                      # v23 = G: 10 kk
+dense 23 1 11                     # v24 = 92 + 64 c + 64 kk - 1278
+   0 64 0 0 0 0 0 0 0 0 64
+   -1186
+relu 24                           # v25 = over
+dense 23 1 11                     # v26 = f pre: kk >= 1
+   0 0 0 0 0 0 0 0 0 0 1
+   -0.5
+step 26                           # v27 = [f]
+concat 23 25                      # v28 = G: 11 over
+concat 28 27                      # v29 = G: 12 f
+dense 29 10 13                    # v30 = words 0..9
+#  w c r ext tag g1 g2 g3 kp e kk over f
+   0 0 0 0   0   0  0  0  0  0 0  0    -56     # next = 184 - 56 f (fill or cd9)
+   0 0 0 0   0   0  0  0  0  0 0  0    0
+   0 0 0 0   0   0  0  0  0  0 0  0    0
+   0 0 0 0   0   0  0  0  0  0 0  0    0
+   0 0 0 0   0   0  0  0  0  0 0  0    0
+   0 0 0 0   0   0  0  0  0  0 0  0    0
+   0 0 0 0   0   0  0  0  0  0 0  0    0
+   0 0 0 0   0   0  0  0  0  0 0  0    0
+   0 0 0 0   0   0  0  0  0  0 0  0    0       # LR = 184
+   0 0 0 0   0   0  0  0  0  0 0  0    0
+   184 0 0 0 0 0 0 0 184 0
+slice 0 11 16                     # v31 = words 10..14
+dense 29 4 13                     # v32 = B.TAG X, B.PAY Wb, C.TAG align, C.PAY top
+   0 64 0  0 0 0  0  0 0 0 0 0 0
+   0 0  0  0 0 0  0  0 0 0 0 0 0
+   0 0  0  0 0 1  -1 2 0 0 0 0 0
+   0 0  20 0 0 0  0  0 0 0 0 0 0
+   32 61 0 201
+slice 0 20 22                     # v33 = words 19..20
+dense 29 4 13                     # v34 = AC1 white, AR2 black, AC2 clip, AS2 BUF
+   0 0  0 0 0 0 0 0 0 0 0  0 0
+   0 0  0 0 0 0 0 0 0 0 0  0 0
+   0 64 0 0 0 0 0 0 0 0 64 -1 0
+   0 0  0 0 0 0 0 0 0 0 0  0 0
+   16777215 0 92 983296
+slice 0 26 28                     # v35 = words 25..26
+dense 29 11 13                    # v36 = fill args N0 N1 T0..T8
+   0 64 0  0 0 0 0 0 0 0 0  0 0       # N0 = x0
+   0 0  20 0 0 0 0 0 0 0 0  0 0       # N1 = y0
+   0 64 0  0 0 0 0 0 0 0 0  0 0       # T0 = x0
+   0 64 0  0 0 0 0 0 0 0 64 0 0       # T1 = x1
+   0 0  20 0 0 0 0 0 0 0 0  0 0       # T2 = y1
+   0 0  0  0 0 0 0 0 0 0 0  0 0       # T3 white
+   0 0  0  0 0 0 0 0 0 0 0  0 0
+   0 0  0  0 0 0 0 0 0 0 0  0 0
+   0 0  0  0 0 0 0 0 0 0 0  0 0
+   0 0  0  0 0 0 0 0 0 0 0  0 0       # T7 = 1279
+   0 0  0  0 0 0 0 0 0 0 0  0 0       # T8 = 799
+   93 196 93 92 214 16777215 0 0 0 1279 799
+slice 0 39 62                     # v37 = words 38..60
+dense 29 1 13                     # v38 = L21 = w
+   1 0 0 0 0 0 0 0 0 0 0 0 0
+   0
+slice 0 63 65                     # v39 = words 62..63
+concat 30 31
+concat 40 32
+concat 41 33
+concat 42 34
+concat 43 35
+concat 44 36
+concat 45 37
+concat 46 38
+concat 47 39                      # v48 = output

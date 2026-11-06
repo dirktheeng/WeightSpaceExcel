@@ -26,3 +26,5 @@ Every step also sets RSP = 0x100 (empty return stack), L8 = 0x302004 and L9 = 0x
 **Limits.** PC above 9 is not trapped (it is reachable only by a wrong route into id 0). **Multi-role weights.** None.
 
 **Tests.** test_boot_initialises_zero_page_and_halts_on_empty_queue.
+
+**Change 2026-11-06 (joint UI and ABI hook, authorized by the coordinator; UI agent).** PC 9 now routes to FT_INIT (259, function table initializer, weights/func/core) with LR = 152 and LP = 0 instead of to main_poll (4). FT_INIT returns to the scene network (152), which draws the first full frame and ends at main_poll (4) with MODE 1. Two weights changed in v6 (next row, o9 column: 4 -> 259; LR row, o9 column: 0 -> 152). Boot therefore takes 10 steps + FT_INIT + one frame (about 2,750 steps on an empty sheet) before the first poll. test_boot_initialises_zero_page_and_halts_on_empty_queue needs its step count and max_steps updated (kernel test owner). Log: log/ui-agent.md, log/WORKLOG.md U9.

@@ -1,0 +1,16 @@
+# ui/sg0 (id 176): cell scan change gate, step 1. Block-reads zero page 0x01..0x43 (67 words,
+# K = 64): HEAP_TOP at block word 0, CELL_COUNT at 11, UI_SCANKEY (0x43) at 66. Next sg1 (177).
+# Note: weights/ui/scan.md
+input 65
+slice 0 0 1                       # v1
+dense 1 7 1                       # v2 = words 0..6
+   0
+   0
+   0
+   0
+   0
+   0
+   0
+   177 4 1 67108931 0 0 0
+slice 0 8 65                      # v3 = words 7..63 pass
+concat 2 3                        # v4 = output

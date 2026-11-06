@@ -1,0 +1,25 @@
+# ui/su (id 180): scan cache update. Block-writes A = (TAG, PAY) to the display cache word pair
+# of cell (r, c) = (L12, L13) at 0x0F1000 + 40 r + 2 c (K = 64, N = 2), then resumes the scan
+# row at c + 1 through sr (178), which re-reads the updated cache row. Note: weights/ui/scan.md
+input 65
+slice 0 53 55                     # v1 = [r c]
+dense 1 8 2                       # v2 = words 0..7
+   0  0                           # next 178
+   0  0                           # mem_op 3
+   40 2                           # addr
+   0  0                           # value = 64 2^20 + 2
+   0  0
+   0  0
+   0  0
+   0  0
+   178 3 987136 67108866 0 0 0 0
+slice 0 9 54                      # v3 = words 8..52 pass
+dense 1 1 2                       # v4 = L13 = c + 1
+   0 1
+   1
+slice 0 55 65                     # v5 = words 54..63 pass
+slice 0 14 16                     # v6 = [A.TAG A.PAY] (block payload)
+concat 2 3
+concat 7 4
+concat 8 5                        # v9 = 64 words
+concat 9 6                        # v10 = output (66)

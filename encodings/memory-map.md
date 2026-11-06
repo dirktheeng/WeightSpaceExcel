@@ -31,7 +31,7 @@ Free memory is 0x000000 to 0x0FFFFF (1,048,576 words) and 0x302000 to 0x3FFFFF (
 | WORK_STACK | 0x003000 to 0x003FFF | 4096 | recalculation depth-first stack (slot indices), also reused by sort and search passes |
 | SHEET_TABLE | 0x004000 to 0x004FFF | 4096 | 256 sheet records of 16 words (section 5) |
 | NAME_TABLE | 0x005000 to 0x006FFF | 8192 | defined names: 1024 records of 8 words [name handle, scope sheet + 1 or 0, formula record pointer, flags, hidden, comment handle, 2 spare] |
-| FUNC_TABLE | 0x007000 to 0x007FFF | 4096 | function dispatch: word fid = network id implementing function fid; word 0x800 + fid = flags (volatile, takes references, min and max args packed) |
+| FUNC_TABLE | 0x007000 to 0x007FFF | 4096 | function dispatch: 0x7000 + fid = network id implementing fid; 0x7400 + j, 0x7800 + j, 0x7C00 + j = name directory entry j (K1, K2, fid + 1024 flags); layout in encodings/functions.md section 3 (decision F3) |
 | FORMAT_STORE | 0x008000 to 0x00FFFF | 32768 | 2048 style records of 16 words (section 7) |
 | CELL_STORE | 0x010000 to 0x08FFFF | 524288 | hash table, 2^16 slots of 8 words (section 4) |
 | FORMULA_STORE | 0x090000 to 0x0AFFFF | 131072 | formula records and RPN token streams (section 6) |
@@ -77,7 +77,9 @@ Charts, pivot caches and conditional formatting rules get space in later stages 
 | 0x12 | CIRC_FLAG | set when the last recalculation met a cycle; holds packed key + 1 of the first cycle cell |
 | 0x13 | DATE_1904 | 0 for the 1900 date system, 1 for 1904 |
 | 0x14 | REJECT_COUNT | entries refused by the cell entry network since boot (encodings/io.md section 3, D19) |
-| 0x15 to 0x3F | reserved for stage 1 to 2 globals | |
+| 0x15 | FL_COUNT | formula list length (evaluator, weights/eval/README.md) |
+| 0x16 | TZ_OFFSET | local time zone offset in seconds east of UTC, added by NOW and TODAY to the clock (0 = UTC until something sets it; reserved for the date agent, 2026-11-06) |
+| 0x17 to 0x3F | reserved for stage 1 to 2 globals | |
 | 0x40 to 0x7F | UI globals (stage 2) | |
 | 0x80 to 0xFF | spill area for the active subsystem's local registers (encodings/control.md section 3) | |
 
@@ -192,3 +194,14 @@ The compiled token stream follows section 6 exactly, with these stated choices a
 - Not yet produced: OPC 9, 10, 31 (':' between general references), 34, 35.
 - PARSE_STACK is split: 0x2000 to 0x27EF operator stack (1 word = kind + 4096 argc), 0x27F0 to 0x27FF the sheet key buffer (a folded sheet name packed 3 units per word, at most 31 units), 0x2800 to 0x2FFF the unpacked character buffer (one UTF-16 unit per word, at most 2047 per entry).
 - Parser network ids: 64 to 79 and 120 to 123 (lrow, shpack, shlook, numbig); 124 to 127 are reserved for the parser. The evaluator uses 80 upward.
+
+## 14. UI_STATE layout as built (weights/ui, 2026-11-06, decisions U6 to U10 in log/WORKLOG.md)
+
+| Address | Size | Contents |
+|---|---|---|
+| 0x0F0100 | 64+ | BUF: text being drawn, one UTF-16 unit per word, 0-terminated |
+| 0x0F1000 | 1120 | display cache: (TAG, PAY) last drawn per visible cell, cell (r, c) at 0x0F1000 + 40 r + 2 c (r 0..27, c 0..19) |
+| 0x0F2000 | 17920 | DISPLAY_TABLE: text drawn per visible cell, 32 words per cell at 0x0F2000 + 640 r + 32 c: units (one per word, at most 31), then 0. Blank cells hold 0 in word 0. Written on every cell redraw; until the format engine exists it is the General text the UI produced. |
+| 0x0F8000 | 2560 | fill pattern ROM row (rewritten by every pattern fill) |
+
+UI zero page globals: 0x40 UI_AROW, 0x41 UI_ACOL (active cell last outlined), 0x42 UI_HLDONE (headers highlighted at least once), 0x43 UI_SCANKEY ((HEAP_TOP - 0x302002) + 2^20 CELL_COUNT at the last cell scan), 0x44 UI_EDLEN (edit length scratch for the echo).

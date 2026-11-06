@@ -1,0 +1,115 @@
+# ui/gband (id 174): grid band, one cell row (20 full scanlines, 25,600 words) per block write.
+# Args: N1 = cell row r (0-based), T2 = last cell row r1. Row header part x 0..29 #EFEFEF with
+# separator x 30 #D4D4D4; grid x 31..1279 white with gridlines #E1E1E1 at (x - 31) mod 64 = 63;
+# scanline 19 of each cell row is the line row (#D4D4D4 over 0..30, #E1E1E1 over 31..1279).
+# Address FB + 1280 (196 + 20 r). Returns to (LR, LP) after row r1. Note: weights/ui/fill.md.
+# M = 2^20
+input 65
+slice 0 29 30                     # v1 = [r]
+slice 0 32 33                     # v2 = [r1]
+slice 0 9 11                      # v3 = [LR LP]
+concat 1 2
+concat 4 3                        # v5 = [r r1 LR LP]
+dense 5 1 4                       # v6 = done pre: r >= r1
+   1 -1 0 0
+   0.5
+step 6                            # v7 = [done]
+concat 5 7                        # v8 = [r r1 LR LP done]
+dense 8 3 5                       # v9 = MUX_INT rows
+   0 0 1 0 1048576                # LR done
+   0 0 0 0 -1048576               # 174 (1 - done)
+   0 0 0 1 1048576                # LP done
+   -1048576 174 -1048576
+relu 9                            # v10
+concat 8 10                       # v11 = [r r1 LR LP done nA nB pc]
+dense 11 8 8                      # v12 = words 0..7
+   0     0 0 0 0 1 1 0            # next
+   0     0 0 0 0 0 0 0            # mem_op 3
+   25600 0 0 0 0 0 0 0            # addr = 1299456 + 25600 r
+   0     0 0 0 0 0 0 0            # value = 64 2^20 + 25600
+   0     0 0 0 0 0 0 0
+   0     0 0 0 0 0 0 0
+   0     0 0 0 0 0 0 0
+   0     0 0 0 0 0 0 1            # PC
+   0 3 1299456 67134464 0 0 0 0
+slice 0 9 28                      # v13 = words 8..26 pass
+slice 0 28 29                     # v14 = word 27 (N0)
+dense 11 1 8                      # v15 = N1' = r + 1
+   1 0 0 0 0 0 0 0
+   1
+slice 0 30 65                     # v16 = words 29..63 pass
+dense 1 4 1                       # v17 = colour constants [hbg hsep W G]
+   0
+   0
+   0
+   0
+   15724527 13948116 16777215 14803425
+slice 17 0 1                      # v18 = [hbg]
+slice 17 1 2                      # v19 = [hsep]
+slice 17 2 3                      # v20 = [W]
+slice 17 3 4                      # v21 = [G]
+concat 20 20                      # v22 W2
+concat 22 22                      # v23 W4
+concat 23 23                      # v24 W8
+concat 24 24                      # v25 W16
+concat 25 25                      # v26 W32
+concat 26 25                      # v27 W48
+concat 27 24                      # v28 W56
+concat 28 23                      # v29 W60
+concat 29 22                      # v30 W62
+concat 30 20                      # v31 W63
+concat 31 21                      # v32 period (W63 G) 64
+concat 32 32                      # v33 128
+concat 33 33                      # v34 256
+concat 34 34                      # v35 512
+concat 35 35                      # v36 1024
+concat 36 33                      # v37 1152
+concat 37 32                      # v38 1216 = 19 periods
+concat 26 20                      # v39 W33
+concat 18 18                      # v40 h2
+concat 40 40                      # v41 h4
+concat 41 41                      # v42 h8
+concat 42 42                      # v43 h16
+concat 43 42                      # v44 h24
+concat 44 41                      # v45 h28
+concat 45 40                      # v46 h30
+concat 46 19                      # v47 31
+concat 47 38                      # v48 1247
+concat 48 39                      # v49 P (1280)
+concat 19 19                      # v50 s2
+concat 50 50                      # v51 s4
+concat 51 51                      # v52 s8
+concat 52 52                      # v53 s16
+concat 53 52                      # v54 s24
+concat 54 51                      # v55 s28
+concat 55 50                      # v56 s30
+concat 56 19                      # v57 s31
+concat 21 21                      # v58 G2
+concat 58 58                      # v59 G4
+concat 59 59                      # v60 G8
+concat 60 60                      # v61 G16
+concat 61 61                      # v62 G32
+concat 62 62                      # v63 G64
+concat 63 63                      # v64 G128
+concat 64 64                      # v65 G256
+concat 65 65                      # v66 G512
+concat 66 66                      # v67 G1024
+concat 67 64                      # v68 G1152
+concat 68 63                      # v69 G1216
+concat 69 62                      # v70 G1248
+concat 70 21                      # v71 G1249
+concat 57 71                      # v72 L (1280)
+identity 49                       # v73 P materialised (later concats copy 1280-word pieces)
+identity 72                       # v74 L materialised
+concat 73 73                      # v75 P2
+concat 75 75                      # v76 P4
+concat 76 76                      # v77 P8
+concat 77 77                      # v78 P16
+concat 78 75                      # v79 P18
+concat 79 73                      # v80 P19
+concat 80 74                      # v81 block (25600)
+concat 12 13
+concat 82 14
+concat 83 15
+concat 84 16                      # v85 = 64 state words
+concat 85 81                      # v86 = output

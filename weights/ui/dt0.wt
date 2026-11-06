@@ -1,0 +1,16 @@
+# ui/dt0 (id 188): display-string record, step 1 (producer link L17 in a row repaint). Block-reads
+# 32 words of BUF (the text about to be drawn, one unit per word) with K = 64; next dt1 (189).
+# Note: weights/ui/cells.md (DISPLAY_TABLE)
+input 65
+slice 0 0 1                       # v1
+dense 1 7 1                       # v2 = words 0..6
+   0
+   0
+   0
+   0
+   0
+   0
+   0
+   189 4 983296 67108896 0 0 0
+slice 0 8 65                      # v3 = words 7..63
+concat 2 3                        # v4 = output

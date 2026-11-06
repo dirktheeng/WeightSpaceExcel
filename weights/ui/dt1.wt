@@ -1,0 +1,25 @@
+# ui/dt1 (id 189): display-string record, step 2. Block-writes units 0..30 of BUF plus a 0 to the
+# DISPLAY_TABLE entry of cell (r, c) = (L12, L14): 0x0F2000 + 640 r + 32 c (K = 64, N = 32);
+# then cd7 (182) draws. Note: weights/ui/cells.md (DISPLAY_TABLE)
+input 97
+slice 0 53 54                     # v1 = [r]
+slice 0 55 56                     # v2 = [c]
+concat 1 2                        # v3 = [r c]
+dense 3 8 2                       # v4 = words 0..7
+   0   0
+   0   0
+   640 32                         # addr
+   0   0
+   0   0
+   0   0
+   0   0
+   0   0
+   182 3 991232 67108896 0 0 0 0
+slice 0 9 65                      # v5 = words 8..63
+slice 0 65 96                     # v6 = 31 units
+dense 3 1 2                       # v7 = 0 terminator
+   0 0
+   0
+concat 4 5
+concat 8 6
+concat 9 7                        # v10 = output (96)

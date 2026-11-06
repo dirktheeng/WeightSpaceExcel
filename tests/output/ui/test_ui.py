@@ -2,8 +2,9 @@
 
 Drives networks only through the frozen harness and checks framebuffer and buffer words
 against hand-stated expectations from the layout decision record (log/WORKLOG.md, U1).
-Never opens weight files. Until the kernel hooks exist (boot -> 152, ev_next -> 153) the
-test plays their role by calling run(152) after boot and run(153) after an event batch.
+Never opens weight files. The kernel hooks are in place (boot -> FT_INIT -> 152 full frame,
+ev_next batch done -> 153 incremental frame), so booting with an event queue draws everything.
+Cells stored directly through CELL_SET (no events) are shown by running 153 once, as a batch would.
 """
 import numpy as np
 import pytest
@@ -40,27 +41,56 @@ def cell_set(h, row, col, tag, pay):
     h.run(16, x, max_steps=100)
 
 
+def steps_of(h, net, x):
+    """Run, returning (output, steps, wall seconds untraced is not measured here)."""
+    return u.run_counted(h, net, x, max_steps=5_000_000)
+
+
 @pytest.fixture(scope="module")
 def frames():
-    ev = bb.script({"A1": "Item", "B1": "Qty", "A2": "Apples", "D5": "hello world", "C3": "=1+2"}) + bb.goto("A2")
+    ev = bb.script({"A1": "Item", "B1": "Qty", "A2": "Apples", "D5": "hello wide world", "C3": "=1+2"}) + bb.goto("A2")
     h = u.harness(ev)
-    out, n_engine = u.run_counted(h, 0, np.zeros(65))
+    out, n_boot = u.run_counted(h, 0, np.zeros(65))          # boot: first frame + batch redraw
     cell_set(h, 2, 1, 1, 12.5)          # B3 = 12.5 (number)
     cell_set(h, 3, 1, 1, -1 / 3)        # B4 = -1/3
     cell_set(h, 4, 2, 3, 1)             # C5 = TRUE
     cell_set(h, 5, 2, 4, 7)             # C6 = #N/A
-    x = np.concatenate([[0], out]); x[u.REG["PC"] + 1] = 0
-    out, n_full = u.run_counted(h, 152, x)
+    out, n_full = u.run_counted(h, 153, np.concatenate([[0], out]))
     full = h.mem[u.FB:u.FB + u.W * u.H].astype(np.int64).copy()
     u.dump_png(h, "test_full.png")
     full_fault = h.mem[0]
+    disp = {k: read_disp(h, *k) for k in [(1, 0), (2, 1), (3, 1), (4, 2), (4, 3), (0, 5)]}
     h.events = bb.script({"C9": "new", "A1": ""}) + bb.goto("C3")
-    out, _ = u.run_counted(h, 4, np.concatenate([[0], out]))
-    out, n_inc = u.run_counted(h, 153, np.concatenate([[0], out]))
+    out, n_inc = u.run_counted(h, 4, np.concatenate([[0], out]))
     inc = h.mem[u.FB:u.FB + u.W * u.H].astype(np.int64).copy()
     u.dump_png(h, "test_incremental.png")
-    return dict(full=full, inc=inc, n_full=n_full, n_inc=n_inc, fault=(full_fault, h.mem[0]),
-                aw=(h.mem[0x40], h.mem[0x41]))
+    disp_a1 = read_disp(h, 0, 0)
+    aw = (h.mem[0x40], h.mem[0x41])
+    h.events = bb.goto("E7") + bb.type_text("Typing")             # no Enter: edit mode
+    out, n_edit = u.run_counted(h, 4, np.concatenate([[0], out]))
+    edit = h.mem[u.FB:u.FB + u.W * u.H].astype(np.int64).copy()
+    u.dump_png(h, "test_edit_echo.png")
+    h.events = bb.press(bb.VK_ENTER)
+    out, n_commit = u.run_counted(h, 4, np.concatenate([[0], out]))
+    commit = h.mem[u.FB:u.FB + u.W * u.H].astype(np.int64).copy()
+    h.events = bb.goto("H10")
+    out, n_move = u.run_counted(h, 4, np.concatenate([[0], out]))
+    return dict(full=full, inc=inc, edit=edit, commit=commit, n_boot=n_boot, n_full=n_full,
+                n_inc=n_inc, n_edit=n_edit, n_commit=n_commit, n_move=n_move, disp=disp,
+                disp_a1=disp_a1, fault=(full_fault, h.mem[0]), aw=aw)
+
+
+DISP = 0x0F2000        # DISPLAY_TABLE (weights/ui/cells.md): 32 words per visible cell
+
+
+def read_disp(h, r, c):
+    a, s = DISP + 640 * r + 32 * c, ""
+    for i in range(32):
+        v = int(h.mem[a + i])
+        if not v:
+            break
+        s += chr(v)
+    return s
 
 
 def px(fb, x, y):
@@ -69,8 +99,11 @@ def px(fb, x, y):
 
 def test_no_fault_and_step_counts(frames):
     assert frames["fault"] == (0, 0)
-    assert frames["n_full"] < 1_200_000
-    assert frames["n_inc"] < 60_000
+    assert frames["n_boot"] < 12_000        # FT_INIT, first frame, 5 entries, batch redraw
+    assert frames["n_full"] < 3_000         # 4 new cells in 4 rows
+    assert frames["n_inc"] < 3_000          # 2 entries and a move
+    assert frames["n_edit"] < 1_500         # move plus 6 typed units, echoed
+    assert frames["n_move"] < 800           # navigation only: the cell scan is skipped
 
 
 def test_chrome_colours(frames):
@@ -97,17 +130,17 @@ def test_grid_geometry(frames):
 
 def test_headers(frames):
     fb = frames["full"]
-    assert px(fb, 33, 178) == HDR and px(fb, 2, 300) == HDR           # header fills
+    assert px(fb, cx(1) + 2, 178) == HDR and px(fb, 2, 300) == HDR    # header fills (A and 2 are active)
     assert px(fb, 94, 185) == BRD and px(fb, 30, 300) == BRD          # separators
     assert px(fb, 300, 195) == BRD and px(fb, 10, 215) == BRD
     for c in range(20):                       # a letter in every column header, centred
-        pts = ink(fb, cx(c), min(cx(c) + 62, 1279), 176, 194, HT)
+        pts = ink(fb, cx(c), min(cx(c) + 62, 1279), 176, 194, GREEN if c == 0 else HT)
         assert pts, f"no header letter in column {c}"
         if c < 19:
             mid = (min(p[0] for p in pts) + max(p[0] for p in pts)) / 2
             assert abs(mid - (cx(c) + 31)) <= 2
     for r in range(28):                       # a number in every row header
-        assert ink(fb, 0, 29, ry(r), ry(r) + 18, HT), f"no row number {r + 1}"
+        assert ink(fb, 0, 29, ry(r), ry(r) + 18, GREEN if r == 1 else HT), f"no row number {r + 1}"
     # row 10 has two digits, row 9 one: wider ink span
     w9 = ink(fb, 0, 29, ry(8), ry(8) + 18, HT)
     w10 = ink(fb, 0, 29, ry(9), ry(9) + 18, HT)
@@ -129,9 +162,10 @@ def test_cell_text_alignment(frames):
     assert abs((min(p[0] for p in e) + max(p[0] for p in e)) / 2 - (cx(2) + 31)) <= 2
     # text stays inside the cell interior: baseline band
     assert all(ry(1) + 5 <= p[1] <= ry(1) + 16 for p in t)
-    # D5 "hello world" is clipped at its cell's right edge
+    # D5 "hello wide world" overflows into the empty E5, whose left gridline is hidden
     hw = ink(fb, cx(3), cx(4) + 62, ry(4), ry(4) + 18, BLACK)
-    assert hw and max(p[0] for p in hw) <= cx(3) + 61
+    assert hw and cx(3) + 61 < max(p[0] for p in hw) <= cx(4) + 61
+    assert px(fb, cx(3) + 63, ry(4) + 2) == WH and px(fb, cx(4) + 63, ry(4) + 2) == GRID
 
 
 def test_active_cell_outline(frames):
@@ -141,7 +175,7 @@ def test_active_cell_outline(frames):
               (x + 30, y - 1), (x + 30, y), (x + 30, y + 18), (x + 30, y + 19),
               (x + 65, y + 21), (x + 61, y + 17)]:
         assert px(fb, *p) == GREEN, p
-    assert px(fb, x + 1, y + 9) == WH and px(fb, 30, y + 9) == BRD  # column A: left ring clamped to x 31
+    assert px(fb, x + 1, y + 9) == WH and px(fb, 30, y + 9) == GREEN  # column A: left ring clamped to x 31; x 30 is the active row header line
 
 
 def test_formula_bar_and_name_box(frames):
@@ -223,7 +257,7 @@ def test_glyph_measure_and_draw():
         h.mem[BUF + i] = ord(ch)
     out = h.run(129, u.regs(P0=BUF, T0=10, T5=-1, T8=1, T3=1 << 20, LR=u.HALT_OK), max_steps=50)
     assert out[29] == 10 + 8 + 7 + 7               # advances A 8, b 7, 1 7
-    h.run(129, u.regs(P0=BUF, T0=10, T1=20, T2=1, T3=1279, T5=-1, LR=u.HALT_OK), max_steps=2000)
+    h.run(129, u.regs(P0=BUF, T0=10, T1=20, T2=1, T3=1279, T9=0, LR=u.HALT_OK), max_steps=2000)
     fb = h.mem[u.FB:u.FB + u.W * u.H].astype(np.int64)
     assert px(fb, 14, 20) == 1                     # apex of A (col 4 of row 0)
     assert px(fb, 11, 28) == 1 and px(fb, 17, 28) == 1   # A legs on the baseline row
@@ -239,3 +273,58 @@ def test_fill_pattern_and_clip():
     assert px(fb, 1270, 196) == WH and px(fb, 1270, 195) == GRID
     assert px(fb, 1270, 198) == 0                  # clipped below y 197
     assert px(fb, 0, 191) == 0                     # no wrap past x 1279 into the next row
+
+
+def test_header_highlight(frames):
+    fb, fi = frames["full"], frames["inc"]
+    HL = 0xD2D2D2
+    assert px(fb, cx(0) + 3, 180) == HL and px(fb, cx(0) + 3, 195) == GREEN   # column A (active A2)
+    assert px(fb, 3, ry(1) + 3) == HL and px(fb, 30, ry(1) + 3) == GREEN      # row 2
+    assert px(fb, cx(1) + 3, 180) == HDR and px(fb, 3, ry(2) + 3) == HDR      # others normal
+    assert ink(fb, cx(0), cx(0) + 62, 176, 194, GREEN)                        # label "A" in green
+    # after moving to C3: A and 2 back to normal, C and 3 highlighted
+    assert px(fi, cx(0) + 3, 180) == HDR and px(fi, cx(0) + 3, 195) == BRD
+    assert px(fi, 3, ry(1) + 3) == HDR and px(fi, 30, ry(1) + 3) == BRD
+    assert px(fi, cx(2) + 3, 180) == HL and px(fi, 3, ry(2) + 3) == HL
+    assert ink(fi, cx(0), cx(0) + 62, 176, 194, HT)                           # "A" grey again
+
+
+def test_edit_echo(frames):
+    fe, fc = frames["edit"], frames["commit"]
+    x, y = cx(4), ry(6)                                                       # E7
+    t = ink(fe, x, x + 62, y, y + 18, BLACK)
+    assert t and min(p[0] for p in t) <= x + 3                                # left aligned in the cell
+    assert len(ink(fe, 161, 1275, 152, 171, BLACK)) > 30                     # and in the formula bar
+    assert px(fe, x - 1, y + 9) == GREEN                                      # outline kept
+    t2 = ink(fc, x, x + 62, y, y + 18, BLACK)                                 # committed: same text
+    assert t2 and min(p[0] for p in t2) <= x + 3
+    assert px(fc, x - 1, y + 9) != GREEN                                      # active moved to E8
+
+
+def test_display_table(frames):
+    d = frames["disp"]
+    assert d[(1, 0)] == "Apples" and d[(2, 1)] == "12.5" and d[(3, 1)] == "-0.33333333"
+    assert d[(4, 2)] == "TRUE" and d[(4, 3)] == "hello wide world" and d[(0, 5)] == ""
+    assert frames["disp_a1"] == ""                                            # A1 cleared
+
+
+def test_gband_equals_pattern_fills():
+    h = u.harness()
+    h.run(174, u.regs(N1=0, T2=27, LR=u.HALT_OK), max_steps=100)
+    a = h.mem[u.FB:u.FB + u.W * u.H].copy()
+    h.mem[u.FB:u.FB + u.W * u.H] = 0
+    h.run(128, u.regs(N0=0, N1=196, T0=0, T1=30, T2=755, T3=HDR, T4=BRD, T5=1, T6=1, T7=1279, T8=799,
+                      LR=u.HALT_OK), max_steps=2000)
+    h.run(128, u.regs(N0=31, N1=196, T0=31, T1=1279, T2=755, T3=WH, T4=GRID, T5=1, T6=1, T7=1279, T8=799,
+                      LR=u.HALT_OK), max_steps=2000)
+    assert (h.mem[u.FB:u.FB + u.W * u.H] == a).all()
+
+
+def test_fill_solid_grid_line_row():
+    """fx = 0, fy = 1: grid line rows are the line colour across the whole run."""
+    h = u.harness()
+    h.run(128, u.regs(N0=31, N1=176, T0=31, T1=93, T2=195, T3=HDR, T4=GREEN, T5=0, T6=1, T7=1279, T8=799,
+                      LR=u.HALT_OK), max_steps=100)
+    fb = h.mem[u.FB:u.FB + u.W * u.H].astype(np.int64)
+    assert all(px(fb, x, 195) == GREEN for x in range(31, 94))
+    assert px(fb, 61, 194) == HDR and px(fb, 94, 195) == 0

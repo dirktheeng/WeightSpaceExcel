@@ -34,7 +34,7 @@ dense 3 10 10                     # v4 = o_k = t_k - t_(k+1), o_9 = t_9 (one-hot
 concat 4 1                        # v5 = [o0..o9, PC]
 dense 5 12 11                     # v6 = words 0..11
 #  o0      o1     o2     o3   o4   o5    o6     o7  o8      o9  PC
-   0       0      0      0    0    0     0      0   0       4   0    # next: main loop (4) at PC 9, else boot (0)
+   0       0      0      0    0    0     0      0   0       259 0    # next: FT_INIT (259) at PC 9, which returns to the first frame (152), else boot (0)
    2       2      2      2    2    2     2      2   2       0   0    # mem_op write for PC 0..8
    1       2      4      5    10   11    13     15  17      0   0    # addr: zero page word
    3153922 589824 786432 512  100  0.001 720896 1   3932160 0   0    # value
@@ -42,7 +42,7 @@ dense 5 12 11                     # v6 = words 0..11
    0       0      0      0    0    0     0      0   0       0   0    # io_arg
    0       0      0      0    0    0     0      0   0       0   0    # halt
    0       0      0      0    0    0     0      0   0     -10   1    # PC: PC + 1 (bias), minus 10 at PC 9 gives 0
-   0       0      0      0    0    0     0      0   0       0   0    # LR
+   0       0      0      0    0    0     0      0   0       152 0    # LR = 152 (scene, full frame) at PC 9, LP = 0
    0       0      0      0    0    0     0      0   0       0   0    # LP
    0       0      0      0    0    0     0      0   0       0   0    # RSP (bias 256)
    0       0      0      0    0    0     0      0   0       1   0    # MODE: 1 ready at PC 9

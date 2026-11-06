@@ -1,0 +1,142 @@
+# ui/hx (id 185): paint one header cell with its label, normal or highlighted (active row or
+# column, as in Excel). Job L14 = j + 1024 mode (mode 0 column header j, 1 row header j);
+# return link L21 = id + 1024 phase. hl = (mode 0: j = L3; mode 1: j = L2).
+# PC 0: fill (128) the cell: column x 31 + 64j .. min(93 + 64j, 1279), y 176..195, fy = 1 (bottom
+#       line y 195); row x 0..30, y 196 + 20j .. 214 + 20j, fx = 1 (right line x 30).
+#       Colours: bg #D2D2D2 / #EFEFEF, line #217346 / #D4D4D4 (highlighted / normal).
+# PC 1: label into BUF: fcol (132) with T1 = j, or fnum (131) with A = (1, j + 1).
+# PC 2: aligned text (138), centred, colour #217346 / #444444, background as the fill,
+#       returning to the link in L21.
+# Note: weights/ui/headers.md.  C = 6755399441055744, M = 2^22, M2 = 2^25
+input 65
+slice 0 8 9                       # v1 = [PC]
+slice 0 55 56                     # v2 = [L14]
+slice 0 62 63                     # v3 = [L21]
+slice 0 43 45                     # v4 = [L2 L3]
+concat 1 2
+concat 5 3
+concat 6 4                        # v7 = G: 0 PC 1 L14 2 L21 3 L2 4 L3
+dense 7 2 5                       # v8 = L14/1024, L21/1024 - (1/2 - 1/2048)
+   0 0.0009765625 0 0 0
+   0 0 0.0009765625 0 0
+   -0.49951171875 -0.49951171875
+dense 8 2 2                       # v9
+   1 0
+   0 1
+   6755399441055744 6755399441055744
+dense 9 2 2                       # v10 = [mode lpc]
+   1 0
+   0 1
+   -6755399441055744 -6755399441055744
+concat 7 10                       # v11 = G: 5 mode 6 lpc
+dense 11 2 7                      # v12 = [j lid]
+   0 1 0 0 0 -1024 0
+   0 0 1 0 0 0 -1024
+   0 0
+concat 11 12                      # v13 = G: 7 j 8 lid
+dense 13 6 9                      # v14 = pre [s1 s2 aR1 aR2 aC1 aC2]
+#  PC L14 L21 L2 L3 mode lpc j  lid
+   1  0   0   0  0  0    0   0  0
+   1  0   0   0  0  0    0   0  0
+   0  0   0   -1 0  0    0   1  0
+   0  0   0   1  0  0    0   -1 0
+   0  0   0   0  -1 0    0   1  0
+   0  0   0   0  1  0    0   -1 0
+   -0.5 -1.5 0.5 0.5 0.5 0.5
+step 14                           # v15
+concat 13 15                      # v16 = G: 9 s1 10 s2 11 aR1 12 aR2 13 aC1 14 aC2
+dense 16 2 15                     # v17 = pre [hlR hlC]
+   0 0 0 0 0 1  0 0 0 0 0 1 1 0 0
+   0 0 0 0 0 -1 0 0 0 0 0 0 0 1 1
+   -2.5 -1.5
+step 17                           # v18
+concat 16 18                      # v19 = G: 15 hlR 16 hlC
+dense 19 1 17                     # v20 = mp1 pre: mode AND phase 1
+   0 0 0 0 0 1 0 0 0 1 -1 0 0 0 0 0 0
+   -1.5
+step 20                           # v21
+concat 19 21                      # v22 = G: 17 mp1
+dense 22 11 18                    # v23 = MUX layer A
+#  PC L14 L21 L2 L3 mode     lpc j  lid s1 s2 aR1 aR2 aC1 aC2 hlR       hlC       mp1
+   0  0   0   0  0  -4194304 0   64 0   0  0  0   0   0   0   0         0         0     # xc = (31 + 64j)(1 - mode)
+   0  0   0   0  0  -4194304 0   64 0   0  0  0   0   0   0   0         0         0     # ov = relu(64j - 1186), columns only
+   0  0   0   0  0  4194304  0   20 0   0  0  0   0   0   0   0         0         0     # yr = (196 + 20j) mode
+   0  0   0   0  0  4194304  0   20 0   0  0  0   0   0   0   0         0         0     # y1r = (214 + 20j) mode
+   0  0   0   0  0  4194304  0   20 0   0  0  0   0   0   0   0         0         0     # topr = (201 + 20j) mode
+   0  0   0   0  0  0        0   0  0   0  0  0   0   0   0   33554432  33554432  0     # bgH
+   0  0   0   0  0  0        0   0  0   0  0  0   0   0   0   -33554432 -33554432 0     # bgN
+   0  0   0   0  0  0        0   0  0   0  0  0   0   0   0   33554432  33554432  0     # lnH
+   0  0   0   0  0  0        0   0  0   0  0  0   0   0   0   -33554432 -33554432 0     # lnN
+   0  0   0   0  0  0        0   0  0   0  0  0   0   0   0   33554432  33554432  0     # txH
+   0  0   0   0  0  0        0   0  0   0  0  0   0   0   0   -33554432 -33554432 0     # txN
+   31 -1186 -4194108 -4194090 -4194103 -19737902 15724527 -31362234 13948116 -31362234 4473924
+relu 23                           # v24
+concat 22 24                      # v25 = G: 18 xc 19 ov 20 yr 21 y1r 22 topr 23 bgH 24 bgN 25 lnH 26 lnN 27 txH 28 txN
+dense 25 6 29                     # v26 = MUX layer B (phase gating), M = 2^22
+#  PC L14 L21 L2 L3 mode lpc j lid s1       s2       a a a a hR hC mp1 xc ov yr y1r top bgH bgN lnH lnN txH txN
+   0  0   0   0  0  0    0   0 0   -4194304 0        0 0 0 0 0  0  0   1  0  0  0   0   0   0   0   0   0   0      # N0a = x0 in phase 0
+   0  0   0   0  0  0    0   0 1   0        4194304  0 0 0 0 0  0  0   0  0  0  0   0   0   0   0   0   0   0      # N0b = lid in phase 2
+   0  0   0   0  0  -176 0   0 0   -4194304 0        0 0 0 0 0  0  0   0  0  1  0   0   0   0   0   0   0   0      # N1a = y0 in phase 0
+   0  0   0   0  0  0    1   0 0   0        4194304  0 0 0 0 0  0  0   0  0  0  0   0   0   0   0   0   0   0      # N1b = lpc in phase 2
+   0  0   0   0  0  -32  0   0 0   -4194304 0        0 0 0 0 0  0  0   1  -1 0  0   0   0   0   0   0   0   0      # T1a = x1 in phase 0
+   0  0   0   0  0  0    0   1 0   4194304  -4194304 0 0 0 0 0  0  0   0  0  0  0   0   0   0   0   0   0   0      # T1b = j in phase 1
+   0 -4194304 176 -4194304 62 -4194304
+relu 26                           # v27
+concat 25 27                      # v28 = G: 29 N0a 30 N0b 31 N1a 32 N1b 33 T1a 34 T1b
+dense 28 10 35                    # v29 = words 0..9
+#  PC L14 L21 L2 L3 mode lpc j lid s1 s2 a a a a hR hC mp1 | 18..28 (11)          | 29..34
+   0  0   0   0  0  0    0   0 0   4  6  0 0 0 0 0  0  -1    0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0   # next = 128 / 132 - mode / 138
+   0  0   0   0  0  0    0   0 0   0  0  0 0 0 0 0  0  0     0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0
+   0  0   0   0  0  0    0   0 0   0  0  0 0 0 0 0  0  0     0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0
+   0  0   0   0  0  0    0   0 0   0  0  0 0 0 0 0  0  0     0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0
+   0  0   0   0  0  0    0   0 0   0  0  0 0 0 0 0  0  0     0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0
+   0  0   0   0  0  0    0   0 0   0  0  0 0 0 0 0  0  0     0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0
+   0  0   0   0  0  0    0   0 0   0  0  0 0 0 0 0  0  0     0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0
+   0  0   0   0  0  0    0   0 0   0  0  0 0 0 0 0  0  0     0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0   # PC = 0 for the callee
+   0  0   0   0  0  0    0   0 0   0  0  0 0 0 0 0  0  0     0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0   # LR = 185
+   1  0   0   0  0  0    0   0 0   0  0  0 0 0 0 0  0  0     0 0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0   # LP = PC + 1
+   128 0 0 0 0 0 0 0 185 1
+slice 0 11 14                     # v30 = words 10..12
+dense 28 6 35                     # v31 = A.TAG, A.PAY, B.TAG, B.PAY, C.TAG, C.PAY
+#  PC L14 L21 L2 L3 mode lpc j lid s1 s2 a a a a hR hC mp1 xc ov yr y1r top bgH bgN lnH lnN txH txN | 29..34
+   0  0   0   0  0  0    0   0 0   0  0  0 0 0 0 0  0  0   0  0  0  0   0   0   0   0   0   0   0     0 0 0 0 0 0
+   0  0   0   0  0  0    0   1 0   0  0  0 0 0 0 0  0  0   0  0  0  0   0   0   0   0   0   0   0     0 0 0 0 0 0
+   0  0   0   0  0  0    0   0 0   0  0  0 0 0 0 0  0  0   1  0  0  0   0   0   0   0   0   0   0     0 0 0 0 0 0
+   0  0   0   0  0  -33  0   0 0   0  0  0 0 0 0 0  0  0   0  0  0  0   0   0   0   0   0   0   0     0 0 0 0 0 0
+   0  0   0   0  0  0    0   0 0   0  0  0 0 0 0 0  0  0   0  0  0  0   0   0   0   0   0   0   0     0 0 0 0 0 0
+   0  0   0   0  0  -180 0   0 0   0  0  0 0 0 0 0  0  0   0  0  0  0   1   0   0   0   0   0   0     0 0 0 0 0 0
+   1 1 0 63 2 180
+slice 0 20 22                     # v32 = words 19..20
+dense 28 6 35                     # v33 = AC1, AR2, AC2, AS2, P0, (P1 pass below)
+#  PC L14 L21 L2 L3 mode lpc j lid s1 s2 a a a a hR hC mp1 xc ov yr y1r top bgH bgN lnH lnN txH txN | 29..34
+   0  0   0   0  0  0    0   0 0   0  0  0 0 0 0 0  0  0   0  0  0  0   0   1   1   0   0   0   0     0 0 0 0 0 0   # AC1 = bg
+   0  0   0   0  0  0    0   0 0   0  0  0 0 0 0 0  0  0   0  0  0  0   0   0   0   0   0   1   1     0 0 0 0 0 0   # AR2 = text colour
+   0  0   0   0  0  -33  0   0 0   0  0  0 0 0 0 0  0  0   1  -1 0  0   0   0   0   0   0   0   0     0 0 0 0 0 0   # AC2 = clip
+   0  0   0   0  0  0    0   0 0   0  0  0 0 0 0 0  0  0   0  0  0  0   0   0   0   0   0   0   0     0 0 0 0 0 0   # AS2 = BUF
+   0  0   0   0  0  0    0   0 0   0  0  0 0 0 0 0  0  0   0  0  0  0   0   0   0   0   0   0   0     0 0 0 0 0 0   # P0 = BUF
+   0  0   0   0  0  0    0   0 0   0  0  0 0 0 0 0  0  0   0  0  0  0   0   0   0   0   0   0   0     0 0 0 0 0 0   # unused
+   0 0 62 983296 983296 0
+slice 33 0 5                      # v34 = words 21..25
+slice 0 27 28                     # v35 = word 26
+dense 28 11 35                    # v36 = N0, N1, T0..T8
+#  PC L14 L21 L2 L3 mode lpc j lid s1 s2 a a a a hR hC mp1 xc ov yr y1r top bgH bgN lnH lnN txH txN | N0a N0b N1a N1b T1a T1b
+   0  0   0   0  0  0    0   0 0   0  0  0 0 0 0 0  0  0   0  0  0  0   0   0   0   0   0   0   0     1   1   0   0   0   0     # N0
+   0  0   0   0  0  0    0   0 0   0  0  0 0 0 0 0  0  0   0  0  0  0   0   0   0   0   0   0   0     0   0   1   1   0   0     # N1
+   0  0   0   0  0  0    0   0 0   0  0  0 0 0 0 0  0  0   0  0  0  0   0   0   0   0   0   0   0     1   0   0   0   0   0     # T0 = x0 (0 in phase 1)
+   0  0   0   0  0  0    0   0 0   0  0  0 0 0 0 0  0  0   0  0  0  0   0   0   0   0   0   0   0     0   0   0   0   1   1     # T1
+   0  0   0   0  0  -195 0   0 0   0  0  0 0 0 0 0  0  0   0  0  0  1   0   0   0   0   0   0   0     0   0   0   0   0   0     # T2 = y1
+   0  0   0   0  0  0    0   0 0   0  0  0 0 0 0 0  0  0   0  0  0  0   0   1   1   0   0   0   0     0   0   0   0   0   0     # T3 = bg
+   0  0   0   0  0  0    0   0 0   0  0  0 0 0 0 0  0  0   0  0  0  0   0   0   0   1   1   0   0     0   0   0   0   0   0     # T4 = line
+   0  0   0   0  0  1    0   0 0   0  0  0 0 0 0 0  0  0   0  0  0  0   0   0   0   0   0   0   0     0   0   0   0   0   0     # T5 fx = mode
+   0  0   0   0  0  -1   0   0 0   0  0  0 0 0 0 0  0  0   0  0  0  0   0   0   0   0   0   0   0     0   0   0   0   0   0     # T6 fy = 1 - mode
+   0  0   0   0  0  0    0   0 0   0  0  0 0 0 0 0  0  0   0  0  0  0   0   0   0   0   0   0   0     0   0   0   0   0   0     # T7
+   0  0   0   0  0  0    0   0 0   0  0  0 0 0 0 0  0  0   0  0  0  0   0   0   0   0   0   0   0     0   0   0   0   0   0     # T8
+   0 0 0 0 195 0 0 0 1 1279 799
+slice 0 39 65                     # v37 = words 38..63
+concat 29 30
+concat 38 31
+concat 39 32
+concat 40 34
+concat 41 35
+concat 42 36
+concat 43 37                      # v44 = output
