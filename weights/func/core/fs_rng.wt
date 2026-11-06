@@ -1,0 +1,28 @@
+# func/math/fs_rng (id 267): range record [S, R1, C1, R2, C2, S2] block-read by fs_item (input 71).
+# lo = S 2^34 + R1 2^14 + 1 (word 17), hi = S 2^34 + R2 2^14 + 16384 (word 18), C1 (19), C2 (20),
+# BA = 0x010000 (21); block-read the first 8 cell slots (64 words) -> fs_blk (268).
+# Note: weights/func/math/sum.md. Hand-written.
+input 71
+slice 0 65 71                     # v1 [S, R1, C1, R2, C2, S2]
+dense 1 8 6                       # v2 words 0..7
+  0 0 0 0 0 0
+  0 0 0 0 0 0
+  0 0 0 0 0 0
+  0 0 0 0 0 0
+  0 0 0 0 0 0
+  0 0 0 0 0 0
+  0 0 0 0 0 0
+  0 0 0 0 0 0
+  268 4 65536 67108928 0 0 0 0
+dense 1 5 6                       # v3 [lo, hi, C1, C2, BA]
+  17179869184 16384 0 0 0 0
+  17179869184 0 0 16384 0 0
+  0 0 1 0 0 0
+  0 0 0 0 1 0
+  0 0 0 0 0 0
+  1 16384 0 0 65536
+slice 0 9 18                      # v4 words 8..16
+slice 0 23 65                     # v5 words 22..63
+concat 2 4
+concat 6 3
+concat 7 5

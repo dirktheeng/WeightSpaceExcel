@@ -1,0 +1,81 @@
+# func/math/fs_sum (id 264, SUM driver). Registers: CUR T3 (32), E T4 (33), W T5 (34), ACC T7 (36)
+# (running sum scaled by 2^-8). PC 0 (entry, encodings/functions.md section 2): block-write B (the
+# last argument) at SP when n >= 1, CUR = SP - 2 (n - 1), E = W = SP + 2 [n >= 1], ACC = 0 -> PC 1.
+# PC 1: worklist item (W > E): block-read [W - 2, 2], W -= 2; else stack item (CUR < E): block-read
+# [CUR, 2], CUR += 2; both -> fs_item (265). Else A = (1, 256 ACC) -> FN_RET (257); block read of 0
+# words so the 66-word output forwards only 64. Note: weights/func/math/sum.md. Hand-written.
+input 65
+slice 0 8 9                       # v1 [PC]
+slice 0 28 29                     # v2 [n]
+slice 0 54 55                     # v3 [SP]
+slice 0 33 36                     # v4 [CUR, E, W]
+slice 0 37 38                     # v5 [ACC]
+slice 0 16 18                     # v6 [BT, BP]
+concat 1 2                        # v7
+concat 7 3                        # v8
+concat 8 4                        # v9 (PC 0, n 1, SP 2, CUR 3, E 4, W 5)
+dense 9 5 6                       # v10 [PC - 0.5, n - 0.5, W - E - 1, E - CUR - 1, n - 1]
+  1 0 0 0 0 0
+  0 1 0 0 0 0
+  0 0 0 0 -1 1
+  0 0 0 -1 1 0
+  0 1 0 0 0 0
+  -0.5 -0.5 -1 -1 -1
+step 10                           # v11 [p1, nz, wl, more, unused]
+relu 10                           # v12 [.., r = relu(n - 1)]
+slice 12 4 5                      # v13 [r]
+concat 11 13                      # v14 (p1 0, nz 1, wl 2, more 3, x 4, r 5)
+dense 14 3 6                      # v15 [gw, gc, nz0] pre-activations
+  1 0 1 0 0 0
+  1 0 -1 1 0 0
+  -1 1 0 0 0 0
+  -1.5 -1.5 -0.5
+step 15                           # v16 [gw, gc, nz0]
+concat 14 16                      # v17 (gw 6, gc 7, nz0 8)
+concat 17 9                       # v18 (PC 9, n 10, SP 11, CUR 12, E 13, W 14)
+dense 18 8 15                     # v19 MUX_INT pre-activations, M = 2^23
+  -8388608 0 0 0 0 0 0 0 0 0 0 1 0 0 0
+  0 0 0 0 0 0 8388608 0 0 0 0 0 0 0 1
+  0 0 0 0 0 0 0 8388608 0 0 0 0 1 0 0
+  -8388608 0 0 0 0 -2 0 0 0 0 0 1 0 0 0
+  8388608 0 0 0 0 0 0 0 0 0 0 0 1 0 0
+  -8388608 2 0 0 0 0 0 0 0 0 0 1 0 0 0
+  8388608 0 0 0 0 0 0 0 0 0 0 0 0 1 0
+  8388608 0 0 0 0 0 0 0 0 0 0 0 0 0 1
+  0 -8388610 -8388608 0 -8388608 0 -8388608 -8388608
+relu 19                           # v20 [aSP0, aW, aC, c0, c1, e0, e1, w1]
+concat 18 20                      # v21 (aSP0 15, aW 16, aC 17, c0 18, c1 19, e0 20, e1 21, w1 22)
+dense 21 8 23                     # v22 words 0..7
+  -7 0 0 0 0 0 8 8 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 0 0 0 0 0
+  0 0 0 0 0 0 2 2 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  -1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+  264 3 0 67108864 0 0 0 1
+dense 21 3 23                     # v23 [CUR', E', W']
+  0 0 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0
+  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 0
+  0 0 0 0 0 0 -2 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1
+  0 0 0
+slice 11 0 1                      # v24 [p1]
+concat 24 5                       # v25 [p1, ACC]
+mul 25 0 1 1 2                    # v26 [ACC' = p1 ACC]
+dense 26 2 1                      # v27 [A.TAG, A.PAY] = (1, 256 ACC')
+  0
+  256
+  1 0
+slice 0 9 14                      # v28 words 8..12
+slice 0 16 33                     # v29 words 15..31
+slice 0 36 37                     # v30 word 35
+slice 0 38 65                     # v31 words 37..63
+concat 22 28
+concat 32 27
+concat 33 29
+concat 34 23
+concat 35 30
+concat 36 26
+concat 37 31
+concat 38 6                       # + payload [BT, BP]

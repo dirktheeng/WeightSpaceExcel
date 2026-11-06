@@ -1,0 +1,63 @@
+# func/math/fs_cell (id 266): CELL_GET returned A = (TAG, PAY) of a referenced cell. Number:
+# ACC += 2^-8 PAY -> fs_sum PC 1 (#NUM! on overflow -> FN_RET); error: A = the error -> FN_RET;
+# text, boolean, blank: ignored -> fs_sum PC 1. Note: weights/func/math/sum.md. Hand-written.
+input 65
+slice 0 14 15                     # v1 [t]
+slice 0 15 16                     # v2 [PAY]
+dense 1 4 1                       # v3 [t - 0.5, t - 1.5, t - 3.5, t - 4.5]
+  1
+  1
+  1
+  1
+  -0.5 -1.5 -3.5 -4.5
+step 3                            # v4 [s1, s2, s4, s5]
+concat 4 2                        # v5 [s1 s2 s4 s5 PAY]
+dense 5 4 5                       # v6 [e1, e4, PAY, PAY]
+  1 -1 0 0 0
+  0 0 1 -1 0
+  0 0 0 0 1
+  0 0 0 0 1
+  0 0 0 0
+mul 6 0 2 2 4                     # v7 [v, vErr]
+slice 0 37 38                     # v8 [ACC]
+slice 7 0 1                       # v9 [v]
+concat 8 9
+dense 10 1 2                      # v11 [ACCn]
+  1 0.00390625
+  0
+dense 11 2 1                      # v12 overflow test (step only)
+  -128
+  128
+  8.98846567431158e307 8.98846567431158e307
+step 12                           # v13 [sa, sb]
+slice 6 0 2                       # v14 [e1, e4]
+concat 14 13                      # v15 [e1, e4, sa, sb]
+dense 15 1 4                      # v16 ovf pre = e1 AND NOT (sa AND sb): 2 e1 - sa - sb - 0.5
+  2 0 -1 -1
+  -0.5
+step 16                           # v17 [ovf]
+concat 15 17                      # v18 (e1 0, e4 1, sa 2, sb 3, ovf 4)
+slice 7 1 2                       # v19 [vErr]
+concat 18 19                      # v20 (vErr 5)
+dense 20 8 6                      # v21 words 0..7
+  0 -7 0 0 -7 0
+  0 0 0 0 0 0
+  0 0 0 0 0 0
+  0 0 0 0 0 0
+  0 0 0 0 0 0
+  0 0 0 0 0 0
+  0 0 0 0 0 0
+  0 -1 0 0 -1 0
+  264 0 0 0 0 0 0 1
+dense 20 2 6                      # v22 [A.TAG, A.PAY]
+  0 0 0 0 0 0
+  0 0 0 0 6 1
+  4 0
+slice 0 9 14                      # v23 words 8..12
+slice 0 16 37                     # v24 words 15..35
+slice 0 38 65                     # v25 words 37..63
+concat 21 23
+concat 26 22
+concat 27 24
+concat 28 11
+concat 29 25

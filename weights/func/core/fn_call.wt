@@ -1,0 +1,16 @@
+# func/core/fn_call (id 256, FN_CALL): x0 = network id read from FUNC_TABLE + fid by ev_func.
+# next = x0, PC = 0, every other word copied. Note: weights/func/core/README.md. Hand-written.
+input 65
+slice 0 0 1                       # v1 [x0]
+dense 1 8 1                       # v2 words 0..7: next = x0, the rest 0, PC 0
+  1
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  0 0 0 0 0 0 0 0
+slice 0 9 65                      # v3 words 8..63
+concat 2 3

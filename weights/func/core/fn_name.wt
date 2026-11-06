@@ -1,0 +1,23 @@
+# func/core/fn_name (id 258, FN_NAME): unknown or not yet implemented function. A = #NAME? (4, 5),
+# next = FN_RET (257) PC 0. Note: weights/func/core/README.md. Hand-written.
+input 65
+slice 0 0 1                       # v1 [x0] (finite, V1; weights 0)
+dense 1 8 1                       # v2 words 0..7
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  0
+  257 0 0 0 0 0 0 0
+dense 1 2 1                       # v3 [A.TAG, A.PAY] = (4, 5)
+  0
+  0
+  4 5
+slice 0 9 14                      # v4 words 8..12
+slice 0 16 65                     # v5 words 15..63
+concat 2 4
+concat 6 3
+concat 7 5

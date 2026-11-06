@@ -188,9 +188,11 @@
 301 weights/func/logic/lg_cfold.wt
 200 weights/format/fx_end.wt
 175 weights/ui/glrow.wt
-264 weights/func/math/fs_sum.wt
-265 weights/func/math/fs_item.wt
-266 weights/func/math/fs_cell.wt
-267 weights/func/math/fs_rng.wt
-268 weights/func/math/fs_blk.wt
-269 weights/func/math/fs_uni.wt
+206 weights/format/fx_exp.wt
+369 weights/func/lookup/lk_pt1.wt
+370 weights/func/lookup/lk_pt2.wt
+371 weights/func/lookup/lk_un1.wt
+372 weights/func/lookup/lk_un2.wt
+373 weights/func/lookup/lk_wa.wt
+374 weights/func/lookup/lk_wb.wt
+207 weights/format/fx_expd.wt

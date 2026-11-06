@@ -1,0 +1,23 @@
+# PROPOSED replacement for weights/eval/ev_func.wt (id 116; owner: eval agent). Not in the manifest.
+# eval/ev_func (id 116): function call dispatch (encodings/functions.md section 2). x0 = argument
+# count n (OPND), T2 = 64 + fid. Read FUNC_TABLE word 0x7000 + fid = T2 + 28608, N0 = n,
+# -> FN_CALL (256) PC 0, which routes to the network read. Everything else copied.
+input 65
+slice 0 0 1                       # v1 [n]
+slice 0 32 33                     # v2 [T2]
+concat 1 2                        # v3 [n, T2]
+dense 3 8 2                       # v4 words 0..7: next 256, read, addr T2 + 28608, PC 0
+  0 0
+  0 0
+  0 1
+  0 0
+  0 0
+  0 0
+  0 0
+  0 0
+  256 1 28608 0 0 0 0 0
+slice 0 9 28                      # v5 words 8..26
+slice 0 29 65                     # v6 words 28..63
+concat 4 5                        # v7 words 0..26
+concat 7 1                        # v8 word 27 = n
+concat 8 6
